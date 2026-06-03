@@ -1,0 +1,32 @@
+# 資料目錄（體積大，不上傳）
+data/
+logs/
+backtest_results/
+scan_results/
+
+# 個人設定
+config.json
+.env
+*.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# 系統
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Streamlit cache
+.streamlit/cache/
