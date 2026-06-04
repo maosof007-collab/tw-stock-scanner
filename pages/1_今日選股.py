@@ -1,15 +1,16 @@
 """
 pages/1_今日選股.py  — 今日選股 + 族群熱點
 """
-import sys, glob, warnings
+import sys, glob, warnings, subprocess
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+from streamlit_autorefresh import st_autorefresh
 
 warnings.filterwarnings("ignore")
 ROOT = Path(__file__).parent.parent
@@ -188,6 +189,52 @@ def calc_chips(inst_df: pd.DataFrame, kdf: pd.DataFrame) -> dict:
         ) if len(kdf) >= 21 else 0
 
     return result
+
+@st.cache_data(ttl=600)
+def compute_stock_returns(info_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    計算全市場個股今日漲跌幅
+    回傳 DataFrame: ticker, name, sector, chg, close, volume
+    """
+    rows = []
+    csvs = (
+        sorted(glob.glob(str(DATA_DIR / "*.TW.csv"))) +
+        sorted(glob.glob(str(DATA_DIR / "*.TWO.csv")))
+    )
+    sec_map  = dict(zip(info_df["ticker"], info_df["sector"]))
+    name_map = dict(zip(info_df["ticker"], info_df["name"]))
+
+    for fpath in csvs:
+        ticker = Path(fpath).stem
+        sector = sec_map.get(ticker, "")
+        if not sector or sector == "nan":
+            continue
+        try:
+            df = pd.read_csv(fpath, index_col=0, parse_dates=True,
+                             usecols=[0, 4, 5])   # Date, Close, Volume
+            df.columns = ["Close", "Volume"]
+            df["Close"]  = pd.to_numeric(df["Close"],  errors="coerce")
+            df["Volume"] = pd.to_numeric(df["Volume"], errors="coerce")
+            df = df.dropna(subset=["Close"])
+            if len(df) < 2:
+                continue
+            chg  = (df["Close"].iloc[-1] / df["Close"].iloc[-2] - 1) * 100
+            vol  = df["Volume"].iloc[-1]
+            rows.append({
+                "ticker": ticker,
+                "name":   name_map.get(ticker, ""),
+                "sector": sector,
+                "chg":    round(chg, 2),
+                "close":  round(df["Close"].iloc[-1], 1),
+                "volume": int(vol / 1000) if vol else 0,  # 張
+            })
+        except:
+            pass
+
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows)
+
 
 @st.cache_data(ttl=600)
 def compute_sector_heatmap(info_df: pd.DataFrame) -> pd.DataFrame:
@@ -433,27 +480,86 @@ def color_risk(val):
 
 def render_kline_buttons(source_df, info, key_prefix):
     """每5個一排，點擊彈出 K線 dialog"""
-    tickers = source_df["代碼"].tolist()
-    for row_start in range(0, len(tickers), 5):
-        chunk = tickers[row_start: row_start + 5]
-        cols  = st.columns(len(chunk))
-        for col, tk in zip(cols, chunk):
-            name = info.get(tk, {}).get("name", "")
-            label = f"{tk}\n{name}" if name else tk
-            if col.button(label, key=f"{key_prefix}_{tk}", use_container_width=True):
-                row = source_df[source_df["代碼"] == tk].iloc[0]
-                kline_dialog(
-                    ticker=tk,
-                    name=name,
-                    entry=float(row.get("收盤", 0) or 0),
-                    stop =float(row.get("停損", 0) or 0),
-                )
+    # 去重：同一 ticker 只顯示一個按鈕（保留第一筆）
+    dedup_df = source_df.drop_duplicates(subset=["代碼"]).reset_index(drop=True)
+    tickers  = dedup_df["代碼"].tolist()
+
+    for idx, tk in enumerate(tickers):
+        row_start = (idx // 5) * 5
+        col_pos   = idx % 5
+        if col_pos == 0:
+            # 開新一排
+            chunk_size = min(5, len(tickers) - row_start)
+            _cols = st.columns(chunk_size)
+            _current_cols = _cols
+        col  = _current_cols[col_pos]
+        name = info.get(tk, {}).get("name", "")
+        label = f"{tk}\n{name}" if name else tk
+        # key 用全局唯一 index，完全不會重複
+        if col.button(label, key=f"{key_prefix}_{idx}", use_container_width=True):
+            row = dedup_df[dedup_df["代碼"] == tk].iloc[0]
+            kline_dialog(
+                ticker=tk,
+                name=name,
+                entry=float(row.get("收盤", 0) or 0),
+                stop =float(row.get("停損", 0) or 0),
+            )
 
 
 # ═════════════════════════════════════════
 # 主畫面
 # ═════════════════════════════════════════
 st.title("📡 今日選股訊號")
+
+# ── 自動刷新邏輯 ──────────────────────────
+def _is_trading_day() -> bool:
+    return datetime.today().weekday() < 5
+
+def _after_close() -> bool:
+    now = datetime.now()
+    return now.hour > 14 or (now.hour == 14 and now.minute >= 30)
+
+def _data_is_today() -> bool:
+    """今日資料是否已是最新"""
+    csvs = sorted((ROOT / "scan_results").glob("signals_*.csv"), reverse=True)
+    if not csvs: return False
+    date_str = csvs[0].stem.replace("signals_","")
+    return date_str == date.today().strftime("%Y%m%d")
+
+def _auto_update_triggered() -> bool:
+    """是否需要自動更新"""
+    return (_is_trading_day() and _after_close() and not _data_is_today())
+
+# 狀態列
+now = datetime.now()
+status_col, refresh_col = st.columns([5, 1])
+with status_col:
+    if _auto_update_triggered():
+        st.warning("⏰ 收盤後資料未更新，正在背景更新中...")
+        # 背景觸發更新（不阻塞 UI）
+        if "auto_update_running" not in st.session_state:
+            st.session_state.auto_update_running = True
+            subprocess.Popen(
+                [sys.executable, str(ROOT / "scan_signals.py")],
+                cwd=str(ROOT), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+    elif _data_is_today():
+        st.success(f"✅ 今日資料已是最新　{now.strftime('%H:%M')} 自動刷新中")
+    elif not _is_trading_day():
+        st.info(f"📅 今日非交易日　顯示最近一次掃描結果")
+    else:
+        mins_to_close = max(0, (14*60+30) - (now.hour*60+now.minute))
+        st.info(f"⏳ 距收盤自動更新約 {mins_to_close} 分鐘")
+
+with refresh_col:
+    # 交易時間內每 5 分鐘自動刷新；盤後每 30 分鐘
+    if _is_trading_day() and 9 <= now.hour <= 14:
+        interval_ms = 5 * 60 * 1000    # 5 分鐘
+    else:
+        interval_ms = 30 * 60 * 1000   # 30 分鐘
+    count = st_autorefresh(interval=interval_ms, key="page_autorefresh")
+    if count > 0 and "auto_update_running" in st.session_state:
+        del st.session_state["auto_update_running"]
 
 info_df   = load_stock_info()
 info_map  = {r["ticker"]: r.to_dict() for _, r in info_df.iterrows()}
@@ -699,88 +805,137 @@ with st.spinner("計算族群熱點中..."):
 if sector_df.empty:
     st.warning("無法計算族群資料")
 else:
-    ht1, ht2 = st.tabs(["📊 熱點地圖", "📋 族群明細"])
+    # ── 族群個股 Dialog ──────────────────
+    @st.dialog("📊 族群個股排行", width="large")
+    def sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
+        grp = stock_ret_df[stock_ret_df["sector"] == sector_name].copy()
+        grp = grp.sort_values("chg", ascending=False).reset_index(drop=True)
 
-    with ht1:
-        # Treemap（面積=股票數量，顏色=漲跌幅）
-        fig_tm = go.Figure(go.Treemap(
-            labels=sector_df["sector"],
-            parents=["全市場"] * len(sector_df),
-            values=sector_df["total"],
-            customdata=np.stack([
-                sector_df["avg_chg"],
-                sector_df["up"],
-                sector_df["down"],
-                sector_df["top_gainers"],
-            ], axis=-1),
-            texttemplate=(
-                "<b>%{label}</b><br>"
-                "%{customdata[0]:+.2f}%<br>"
-                "<span style='font-size:11px'>▲%{customdata[1]} ▼%{customdata[2]}</span>"
-            ),
-            hovertemplate=(
-                "<b>%{label}</b><br>"
-                "平均漲跌：%{customdata[0]:+.2f}%<br>"
-                "上漲：%{customdata[1]} 檔　下跌：%{customdata[2]} 檔<br>"
-                "強勢股：%{customdata[3]}<extra></extra>"
-            ),
-            marker=dict(
-                colors=sector_df["avg_chg"],
-                colorscale=[
-                    [0.0,  "#8B0000"],
-                    [0.3,  RED],
-                    [0.48, "#4a1515"],
-                    [0.5,  CARD],
-                    [0.52, "#0d3320"],
-                    [0.7,  GREEN],
-                    [1.0,  "#005030"],
-                ],
-                cmid=0,
-                showscale=True,
-                colorbar=dict(
-                    title=dict(text="漲跌%", font=dict(color=TEXT, size=13)),
-                    tickfont=dict(color=TEXT, size=12),
-                    bgcolor=CARD, bordercolor=BORDER,
-                    x=1.01,
-                ),
-            ),
-            textfont=dict(family="Microsoft JhengHei, Arial", size=14, color="white"),
-        ))
-        fig_tm.update_layout(
-            paper_bgcolor=DARK,
-            font=dict(family="Microsoft JhengHei, Arial", size=14, color=TEXT),
-            margin=dict(t=20, l=10, r=10, b=10),
-            height=560,
-        )
-        st.plotly_chart(fig_tm, use_container_width=True)
+        if grp.empty:
+            st.info(f"「{sector_name}」無個股資料")
+            return
 
-        # 補充：橫條圖（更清楚看漲跌幅）
-        sdf_sorted = sector_df.sort_values("avg_chg", ascending=True)
-        bar_colors = [RED if v >= 0 else GREEN for v in sdf_sorted["avg_chg"]]
-        fig_bar = go.Figure(go.Bar(
-            x=sdf_sorted["avg_chg"],
-            y=sdf_sorted["sector"],
+        # KPI
+        avg_c = grp["chg"].mean()
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric("族群均漲跌", f"{avg_c:+.2f}%")
+        k2.metric("上漲", f"{(grp['chg']>0).sum()} 檔",
+                  delta_color="normal" if (grp["chg"]>0).sum() > (grp["chg"]<0).sum() else "inverse")
+        k3.metric("下跌", f"{(grp['chg']<0).sum()} 檔")
+        k4.metric("合計", f"{len(grp)} 檔")
+
+        # 橫條圖
+        plot_grp = grp.head(30)
+        bar_c = [RED if v >= 0 else GREEN for v in plot_grp["chg"]]
+        fig_drill = go.Figure(go.Bar(
+            x=plot_grp["chg"],
+            y=plot_grp["ticker"] + "  " + plot_grp["name"],
             orientation="h",
-            marker=dict(color=bar_colors, opacity=0.85, line=dict(width=0)),
-            text=[f"  {v:+.2f}%" for v in sdf_sorted["avg_chg"]],
+            marker=dict(color=bar_c, opacity=0.9, line=dict(width=0)),
+            text=[f"  {v:+.2f}%" for v in plot_grp["chg"]],
             textposition="outside",
             textfont=dict(size=12, color=TEXT),
             hovertemplate=(
-                "<b>%{y}</b><br>平均漲跌：%{x:+.2f}%<br>"
-                "上漲/下跌：%{customdata[0]}/%{customdata[1]}<extra></extra>"
+                "<b>%{y}</b><br>漲跌：%{x:+.2f}%<br>"
+                "收盤：%{customdata[0]}<br>量(張)：%{customdata[1]:,}<extra></extra>"
             ),
-            customdata=sdf_sorted[["up","down"]].values,
+            customdata=plot_grp[["close","volume"]].values,
         ))
-        fig_bar.add_vline(x=0, line_color="white", line_width=1, opacity=0.5)
-        fig_bar.update_layout(
+        fig_drill.add_vline(x=0, line_color="white", line_width=1, opacity=0.5)
+        fig_drill.update_layout(
             paper_bgcolor=DARK, plot_bgcolor=CARD,
             font=dict(family="Microsoft JhengHei, Arial", size=13, color=TEXT),
-            xaxis=dict(gridcolor=BORDER, title="平均漲跌幅 (%)"),
-            yaxis=dict(gridcolor=BORDER, tickfont=dict(size=13)),
-            height=max(500, len(sdf_sorted)*28+60),
-            margin=dict(l=10, r=80, t=20, b=40), showlegend=False,
+            title=dict(text=f"{sector_name}　前30名個股漲跌",
+                       font=dict(size=15, color=TEXT), x=0.01),
+            xaxis=dict(gridcolor=BORDER, title="漲跌幅 (%)"),
+            yaxis=dict(gridcolor=BORDER, tickfont=dict(size=12)),
+            height=max(400, len(plot_grp) * 28 + 80),
+            margin=dict(l=10, r=90, t=50, b=30),
+            showlegend=False,
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_drill, use_container_width=True)
+
+        # Dialog 不能嵌套 → 改用明細表格（不放 K線按鈕）
+        st.markdown("**個股明細（關閉此視窗後，可在選股明細點 K線）**")
+        tbl = grp[["ticker","name","chg","close","volume"]].copy()
+        tbl.columns = ["代碼","名稱","漲跌%","收盤","量(張)"]
+
+        def _c(v):
+            if isinstance(v, float):
+                return f"color:{'#F85149' if v>0 else '#1D9E75'};font-weight:{'700' if abs(v)>3 else '400'}"
+            return ""
+
+        st.dataframe(
+            tbl.style.applymap(_c, subset=["漲跌%"])
+               .format({"漲跌%":"{:+.2f}%","收盤":"{:.1f}","量(張)":"{:,}"}),
+            use_container_width=True,
+            height=min(500, len(tbl)*36+60),
+        )
+
+    ht1, ht2 = st.tabs(["📊 熱點地圖", "📋 族群明細"])
+
+    with ht1:
+        st.caption("💡 **點擊色塊** 即可查看該族群個股排行")
+
+        # 計算個股漲跌（供 dialog 使用）
+        with st.spinner(""):
+            stock_ret_df = compute_stock_returns(info_df)
+
+        st.caption("💡 點擊任一族群色塊，即可查看該族群個股排行")
+
+        # ── 色塊網格（st.button 100% 可靠，點就跳 dialog）──
+        # 顏色依漲跌幅深淺
+        def chg_to_color(chg: float) -> str:
+            if   chg >= 3:  return "#7B0000"
+            elif chg >= 2:  return "#B22222"
+            elif chg >= 1:  return "#CC4444"
+            elif chg >= 0:  return "#994444"
+            elif chg >= -1: return "#336633"
+            elif chg >= -2: return "#228822"
+            else:           return "#006600"
+
+        sdf_grid = sector_df.sort_values("avg_chg", ascending=False).reset_index(drop=True)
+        N_COLS = 5
+        rows = [sdf_grid.iloc[i:i+N_COLS] for i in range(0, len(sdf_grid), N_COLS)]
+
+        # CSS：把 st.button 變成色塊樣式
+        st.markdown("""
+        <style>
+        div[data-testid="stButton"].sector-tile > button {
+            height: 80px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            border: none !important;
+            white-space: pre-line !important;
+            line-height: 1.4 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        for row_df in rows:
+            cols = st.columns(N_COLS)
+            for i, (_, sec) in enumerate(row_df.iterrows()):
+                chg  = sec["avg_chg"]
+                bg   = chg_to_color(chg)
+                label = f"{sec['sector']}\n{chg:+.2f}%\n▲{int(sec['up'])} ▼{int(sec['down'])}"
+
+                with cols[i]:
+                    st.markdown(
+                        f"<div style='background:{bg};border-radius:6px;padding:10px 6px;"
+                        f"text-align:center;margin:3px 0;cursor:pointer;min-height:80px;"
+                        f"display:flex;flex-direction:column;justify-content:center'>",
+                        unsafe_allow_html=True,
+                    )
+                    if st.button(
+                        label,
+                        key=f"sec_{sec['sector']}",
+                        use_container_width=True,
+                    ):
+                        if not stock_ret_df.empty:
+                            sector_drill_dialog(sec["sector"], stock_ret_df)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
 
     with ht2:
         disp_sec = sector_df[["sector","avg_chg","up","down","total","top_gainers"]].copy()
@@ -802,6 +957,7 @@ else:
             use_container_width=True,
             height=min(700, len(disp_sec)*38+60),
         )
+
 
 # ─────────────────────────────────────────
 # ④ 分布圓餅（選填）
