@@ -206,7 +206,7 @@ def get_ticker_sentiment(
         return {"avg_score": 0.0, "count": 0, "recent": []}
 
     # 從 tickers 欄位找相關新聞
-    code = ticker.replace(".TW", "").replace(".TWO", "").strip()
+    code = ticker.replace(".TWO", "").replace(".TW", "").strip()
     mask = sentiment_df["tickers"].str.contains(code, na=False)
     # 也找標題中有股號的新聞
     mask |= sentiment_df["title"].str.contains(code, na=False)

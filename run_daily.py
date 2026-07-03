@@ -4,6 +4,7 @@ run_daily.py  ── 每日一鍵執行腳本（最終整合版）
 執行順序：
   Step 1  股價 CSV 增量更新            (updater.py)
   Step 2  三大法人買賣超               (fetch_institutional.py)
+  Step 2.5 融資融券餘額                (fetch_margin.py)       ← 新增
   Step 3  外資持股比例                 (fetch_fi_holding.py)   ← 新增
   Step 4  集保股權分散表（週四才跑）    (fetch_tdcc.py)         ← 新增
   Step 5  掃描所有策略買入訊號
@@ -21,6 +22,12 @@ from pathlib import Path
 from datetime import datetime
 from itertools import groupby
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 import pandas as pd
@@ -29,6 +36,7 @@ import numpy as np
 # ── 資料更新模組 ────────────────────────
 from updater             import update_all,              DATA_DIR
 from fetch_institutional import update_institutional,    INST_DIR
+from fetch_margin         import update_margin,           DATA_DIR as MARGIN_DIR
 from fetch_fi_holding    import update_all_fi_holding,   DATA_DIR as FI_DIR
 from fetch_tdcc          import update_all_tdcc,         DATA_DIR as TDCC_DIR
 from notifier            import notify_signals, notify_update_done, load_config
@@ -195,6 +203,14 @@ def main():
     log.info("\n[Step 2/6] 三大法人買賣超...")
     try:
         update_institutional(INST_DIR)
+        log.info("  ✅ 完成")
+    except Exception as e:
+        log.warning(f"  ⚠️  失敗（不影響其他功能）: {e}")
+
+    # ── Step 2.5：融資融券餘額 ────────────
+    log.info("\n[Step 2.5/6] 融資融券餘額...")
+    try:
+        update_margin(MARGIN_DIR)
         log.info("  ✅ 完成")
     except Exception as e:
         log.warning(f"  ⚠️  失敗（不影響其他功能）: {e}")

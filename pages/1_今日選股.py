@@ -16,55 +16,27 @@ warnings.filterwarnings("ignore")
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-# ── 色彩主題 ─────────────────────────────
-DARK   = "#0d1117"
-CARD   = "#161b22"
-BORDER = "#30363d"
-TEXT   = "#e6edf3"
-MUTED  = "#8b949e"
-GREEN  = "#1D9E75"
-RED    = "#F85149"
-GOLD   = "#D29922"
-BLUE   = "#58A6FF"
-PURPLE = "#BC8CFF"
+# ── 統一設計系統（科幻 HUD）───────────────
+from ui_theme import (DARK, CARD, BORDER, TEXT, MUTED, GREEN, RED, GOLD,
+                      BLUE, PURPLE, CYAN, inject_css, page_header)
+from sector_view import load_stock_info, render_sector_section
 
 SCAN_DIR = ROOT / "scan_results"
 DATA_DIR = ROOT / "data"
 
 # ─────────────────────────────────────────
 st.set_page_config(page_title="今日選股", page_icon="📡", layout="wide")
+inject_css()
+from gate import require_login, logout_button
+_USER = require_login(); logout_button()
 
-st.markdown(f"""
+# K線清單按鈕需要多行小字（覆寫全站按鈕的字級）
+st.markdown("""
 <style>
-  body, .stApp {{ background-color:{DARK}; color:{TEXT}; }}
-  .metric-card {{
-    background:{CARD}; border:1px solid {BORDER};
-    border-radius:10px; padding:16px 20px; text-align:center;
-  }}
-  .metric-label {{ color:{MUTED}; font-size:13px; margin-bottom:4px; }}
-  .metric-value {{ font-size:28px; font-weight:700; }}
-  .green {{ color:{GREEN}; }} .red {{ color:{RED}; }}
-  .gold  {{ color:{GOLD};  }} .blue {{ color:{BLUE}; }}
-
-  /* K線按鈕樣式 */
-  div[data-testid="stButton"] > button {{
-    background-color:{CARD} !important; color:{BLUE} !important;
-    border:1px solid {BORDER} !important; border-radius:8px !important;
-    font-size:12px !important; font-weight:500 !important;
-    padding:6px 4px !important; white-space:pre-line !important;
-    line-height:1.4 !important; transition:all 0.15s ease !important;
-  }}
-  div[data-testid="stButton"] > button:hover {{
-    background-color:#1f2937 !important; border-color:{BLUE} !important;
-    color:#ffffff !important;
-  }}
-  div[data-testid="stButton"] > button[kind="primary"] {{
-    background-color:{GREEN} !important; color:#ffffff !important;
-    border-color:{GREEN} !important; font-size:14px !important; font-weight:600 !important;
-  }}
-  div[data-testid="stButton"] > button[kind="primary"]:hover {{
-    background-color:#159060 !important;
-  }}
+  div[data-testid="stButton"] > button {
+    white-space: pre-line !important; line-height: 1.4 !important;
+    font-size: 12.5px !important; padding: 6px 4px !important;
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -72,14 +44,6 @@ st.markdown(f"""
 # ─────────────────────────────────────────
 # 資料載入
 # ─────────────────────────────────────────
-@st.cache_data(ttl=3600)
-def load_stock_info() -> pd.DataFrame:
-    """載入股票清單（含中文名 + 產業別）"""
-    p = DATA_DIR / "stock_list.csv"
-    if not p.exists():
-        return pd.DataFrame(columns=["ticker","code","name","market","sector"])
-    return pd.read_csv(p, encoding="utf-8-sig", dtype=str)
-
 @st.cache_data(ttl=60)
 def load_latest_signals():
     csvs = sorted(SCAN_DIR.glob("signals_*.csv"), reverse=True)
@@ -105,7 +69,7 @@ def load_kline(ticker: str) -> pd.DataFrame:
 @st.cache_data(ttl=300)
 def load_institutional(ticker: str) -> pd.DataFrame:
     """載入三大法人資料"""
-    code = ticker.replace(".TW", "").replace(".TWO", "").strip()
+    code = ticker.replace(".TWO", "").replace(".TW", "").strip()
     p = DATA_DIR / "institutional" / f"{code}_inst.csv"
     if not p.exists():
         return pd.DataFrame()
@@ -190,114 +154,6 @@ def calc_chips(inst_df: pd.DataFrame, kdf: pd.DataFrame) -> dict:
 
     return result
 
-@st.cache_data(ttl=600)
-def compute_stock_returns(info_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    計算全市場個股今日漲跌幅
-    回傳 DataFrame: ticker, name, sector, chg, close, volume
-    """
-    rows = []
-    csvs = (
-        sorted(glob.glob(str(DATA_DIR / "*.TW.csv"))) +
-        sorted(glob.glob(str(DATA_DIR / "*.TWO.csv")))
-    )
-    sec_map  = dict(zip(info_df["ticker"], info_df["sector"]))
-    name_map = dict(zip(info_df["ticker"], info_df["name"]))
-
-    for fpath in csvs:
-        ticker = Path(fpath).stem
-        sector = sec_map.get(ticker, "")
-        if not sector or sector == "nan":
-            continue
-        try:
-            df = pd.read_csv(fpath, index_col=0, parse_dates=True,
-                             usecols=[0, 4, 5])   # Date, Close, Volume
-            df.columns = ["Close", "Volume"]
-            df["Close"]  = pd.to_numeric(df["Close"],  errors="coerce")
-            df["Volume"] = pd.to_numeric(df["Volume"], errors="coerce")
-            df = df.dropna(subset=["Close"])
-            if len(df) < 2:
-                continue
-            chg  = (df["Close"].iloc[-1] / df["Close"].iloc[-2] - 1) * 100
-            vol  = df["Volume"].iloc[-1]
-            rows.append({
-                "ticker": ticker,
-                "name":   name_map.get(ticker, ""),
-                "sector": sector,
-                "chg":    round(chg, 2),
-                "close":  round(df["Close"].iloc[-1], 1),
-                "volume": int(vol / 1000) if vol else 0,  # 張
-            })
-        except:
-            pass
-
-    if not rows:
-        return pd.DataFrame()
-    return pd.DataFrame(rows)
-
-
-@st.cache_data(ttl=600)
-def compute_sector_heatmap(info_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    計算每個產業今日漲跌平均
-    回傳 DataFrame: sector, avg_chg, up, down, total, top_gainers
-    """
-    rows = []
-    csvs = (
-        sorted(glob.glob(str(DATA_DIR / "*.TW.csv"))) +
-        sorted(glob.glob(str(DATA_DIR / "*.TWO.csv")))
-    )
-    # 建立 ticker→sector map
-    sec_map = dict(zip(info_df["ticker"], info_df["sector"]))
-    name_map = dict(zip(info_df["ticker"], info_df["name"]))
-
-    for fpath in csvs:
-        ticker = Path(fpath).stem
-        sector = sec_map.get(ticker, "")
-        if not sector or sector == "nan":
-            continue
-        try:
-            df = pd.read_csv(fpath, index_col=0, parse_dates=True,
-                             usecols=[0, 4], nrows=None)  # Date, Close
-            df.columns = ["Close"]
-            df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
-            df = df.dropna()
-            if len(df) < 2:
-                continue
-            chg = (df["Close"].iloc[-1] / df["Close"].iloc[-2] - 1) * 100
-            rows.append({
-                "ticker": ticker,
-                "name":   name_map.get(ticker, ""),
-                "sector": sector,
-                "chg":    round(chg, 2),
-                "close":  round(df["Close"].iloc[-1], 1),
-            })
-        except:
-            pass
-
-    if not rows:
-        return pd.DataFrame()
-
-    stock_df = pd.DataFrame(rows)
-    agg = stock_df.groupby("sector").agg(
-        avg_chg=("chg", "mean"),
-        up     =("chg", lambda x: (x > 0).sum()),
-        down   =("chg", lambda x: (x < 0).sum()),
-        flat   =("chg", lambda x: (x == 0).sum()),
-        total  =("chg", "count"),
-    ).reset_index()
-    agg["avg_chg"] = agg["avg_chg"].round(2)
-
-    # 每個產業前3名漲幅股
-    def top_g(grp):
-        top = grp.nlargest(3, "chg")
-        return ", ".join(f"{r['name']}({r['chg']:+.1f}%)" for _, r in top.iterrows())
-    top_map = stock_df.groupby("sector").apply(top_g)
-    agg["top_gainers"] = agg["sector"].map(top_map)
-
-    return agg.sort_values("avg_chg", ascending=False)
-
-
 # ─────────────────────────────────────────
 # K 線彈出視窗（@st.dialog）
 # ─────────────────────────────────────────
@@ -320,7 +176,7 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
     with col_chg:
         color = "🔴" if chg < 0 else "🟢"
         st.markdown(f"<h3 style='text-align:right'>{last['Close']:.1f}　"
-                    f"<span style='font-size:16px;color:{'#F85149' if chg<0 else '#1D9E75'}'>"
+                    f"<span style='font-size:16px;color:{'#FF4D6D' if chg<0 else '#2BE4A8'}'>"
                     f"{chg:+.2f}%</span></h3>", unsafe_allow_html=True)
 
     # ── 基本指標列 ───────────────────────
@@ -346,17 +202,17 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
 
     def chip_badge(label, val):
         if val == 0:
-            return f"<div style='background:#1e2d3d;border-radius:8px;padding:10px;text-align:center'>" \
-                   f"<div style='color:#8b949e;font-size:12px'>{label}</div>" \
-                   f"<div style='font-size:22px;font-weight:700;color:#8b949e'>—</div></div>"
+            return f"<div style='background:#13203A;border-radius:8px;padding:10px;text-align:center'>" \
+                   f"<div style='color:#647B9C;font-size:12px'>{label}</div>" \
+                   f"<div style='font-size:22px;font-weight:700;color:#647B9C'>—</div></div>"
         arrow = "▲" if val > 0 else "▼"
-        color = "#F85149" if val > 0 else "#1D9E75"
+        color = "#FF4D6D" if val > 0 else "#2BE4A8"
         days  = abs(val)
         word  = "連買" if val > 0 else "連賣"
-        return (f"<div style='background:#161b22;border:1px solid "
-                f"{'#F85149' if val>0 else '#1D9E75'};border-radius:8px;"
+        return (f"<div style='background:#0B1322;border:1px solid "
+                f"{'#FF4D6D' if val>0 else '#2BE4A8'};border-radius:8px;"
                 f"padding:10px;text-align:center'>"
-                f"<div style='color:#8b949e;font-size:12px'>{label}</div>"
+                f"<div style='color:#647B9C;font-size:12px'>{label}</div>"
                 f"<div style='font-size:26px;font-weight:700;color:{color}'>"
                 f"{arrow}{days}</div>"
                 f"<div style='font-size:11px;color:{color}'>{word}{days}天</div></div>")
@@ -369,10 +225,10 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
     # ── 站上均線天數 ─────────────────────
     for col, ma in zip(chip_cols[3:], ["MA5","MA20","MA60","MA240"]):
         days = chips.get(ma, 0)
-        color = "#1D9E75" if days > 0 else "#8b949e"
+        color = "#2BE4A8" if days > 0 else "#647B9C"
         col.markdown(
-            f"<div style='background:#161b22;border-radius:8px;padding:10px;text-align:center'>"
-            f"<div style='color:#8b949e;font-size:12px'>站上{ma}</div>"
+            f"<div style='background:#0B1322;border-radius:8px;padding:10px;text-align:center'>"
+            f"<div style='color:#647B9C;font-size:12px'>站上{ma}</div>"
             f"<div style='font-size:22px;font-weight:700;color:{color}'>{days}天</div></div>",
             unsafe_allow_html=True,
         )
@@ -381,10 +237,10 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
     st.markdown("---")
     p1, p2, p3, p4, p5 = st.columns(5)
     def pct_metric(col, label, val):
-        color = "#F85149" if val > 0 else "#1D9E75"
+        color = "#FF4D6D" if val > 0 else "#2BE4A8"
         col.markdown(
-            f"<div style='background:#161b22;border-radius:8px;padding:10px;text-align:center'>"
-            f"<div style='color:#8b949e;font-size:12px'>{label}</div>"
+            f"<div style='background:#0B1322;border-radius:8px;padding:10px;text-align:center'>"
+            f"<div style='color:#647B9C;font-size:12px'>{label}</div>"
             f"<div style='font-size:20px;font-weight:700;color:{color}'>{val:+.1f}%</div></div>",
             unsafe_allow_html=True,
         )
@@ -396,9 +252,9 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
         pct_metric(p4, "進場以來損益", roi)
     sl_pct = abs((last["Close"] - stop) / stop * 100) if stop and stop > 0 else 0
     p5.markdown(
-        f"<div style='background:#161b22;border-radius:8px;padding:10px;text-align:center'>"
-        f"<div style='color:#8b949e;font-size:12px'>距停損</div>"
-        f"<div style='font-size:20px;font-weight:700;color:#F85149'>{sl_pct:.1f}%</div></div>",
+        f"<div style='background:#0B1322;border-radius:8px;padding:10px;text-align:center'>"
+        f"<div style='color:#647B9C;font-size:12px'>距停損</div>"
+        f"<div style='font-size:20px;font-weight:700;color:#FF4D6D'>{sl_pct:.1f}%</div></div>",
         unsafe_allow_html=True,
     )
 
@@ -420,8 +276,8 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
         decreasing=dict(line=dict(color=RED,   width=1), fillcolor=RED),
         name="K線", showlegend=False,
     ))
-    for ma, col, lbl in [(5,"#58A6FF","MA5"),(20,"#D29922","MA20"),
-                          (60,"#BC8CFF","MA60"),(240,"#F0997B","MA240")]:
+    for ma, col, lbl in [(5,"#4FA8FF","MA5"),(20,"#FFC857","MA20"),
+                          (60,"#B49BFF","MA60"),(240,"#F0997B","MA240")]:
         if len(kdf) >= ma:
             fig.add_trace(go.Scatter(
                 x=kdf.index, y=kdf["Close"].rolling(ma).mean(),
@@ -450,7 +306,21 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
         height=500, hovermode="x unified",
         margin=dict(l=20, r=60, t=70, b=40),
     )
-    st.plotly_chart(fig, use_container_width=True)
+
+    # 分頁：原 K線 + 新增 5 軌籌碼圖
+    tab_k, tab_chip = st.tabs(["📈 K 線 + 均線", "📊 籌碼 5 軌"])
+    with tab_k:
+        st.plotly_chart(fig, use_container_width=True)
+    with tab_chip:
+        try:
+            from chip_chart import build_chip_figure
+            cfig = build_chip_figure(ticker, height=720)
+            if cfig is not None:
+                st.plotly_chart(cfig, use_container_width=True)
+            else:
+                st.caption("無籌碼資料")
+        except Exception as e:
+            st.caption(f"籌碼圖載入失敗：{e}")
 
 
 # ─────────────────────────────────────────
@@ -509,7 +379,7 @@ def render_kline_buttons(source_df, info, key_prefix):
 # ═════════════════════════════════════════
 # 主畫面
 # ═════════════════════════════════════════
-st.title("📡 今日選股訊號")
+page_header("今日選股訊號", "TODAY SIGNALS", "📡")
 
 # ── 自動刷新邏輯 ──────────────────────────
 def _is_trading_day() -> bool:
@@ -569,29 +439,39 @@ sector_map= {r["ticker"]: r.get("sector","") for _, r in info_df.iterrows()}
 df_all, scan_date = load_latest_signals()
 
 # ── 工具列 ────────────────────────────────
-col_info, col_btn, col_filter = st.columns([3, 1.8, 3])
+# 主推策略（回測期望值最高）：今日選股預設只看它，避免 7 策略合併破 50 檔
+MAIN_STRATEGY = "量縮整理→出量突破（融資沒走）"
+
+col_info, col_btn, col_grade, col_strat = st.columns([2.4, 1.6, 1.5, 2.5])
 with col_info:
     if scan_date:
         fmt = f"{scan_date[:4]}-{scan_date[4:6]}-{scan_date[6:]}"
-        st.markdown(f"**掃描日期：** `{fmt}`　　共 **{len(df_all)}** 筆訊號")
+        st.markdown(f"**掃描日期：** `{fmt}`")
     else:
         st.warning("尚無掃描結果")
 
 with col_btn:
-    if st.button("🔄 重新掃描全市場", type="primary", use_container_width=True):
-        with st.spinner("掃描中，約需 5 分鐘..."):
-            proc = run_scan()
-            bar  = st.progress(0, text="掃描中...")
-            for line in proc.stdout:
-                try:
-                    part = line.split("]")[0].split("[")[-1]
-                    cur, tot = map(int, part.split("/"))
-                    bar.progress(cur / tot, text=f"[{cur}/{tot}] 掃描中...")
-                except: pass
-            proc.wait(); bar.empty()
-        load_latest_signals.clear(); st.rerun()
+    if st.button("🔄 更新＋選股", type="primary", use_container_width=True,
+                 help="股價未更新→自動抓新股價再選股；股價已最新→只快速重選。進度看『⏱️ 更新進度』頁。"):
+        try:
+            from auto_refresh import _data_behind, trigger_full_update
+            stale = _data_behind()
+        except Exception:
+            stale = True
+        if stale:
+            trigger_full_update()   # 抓新股價 + 掃描（同「更新進度」那條管線）
+            st.toast("股價未更新 → 已啟動『更新股價＋掃描』")
+            st.info("🔄 背景更新中：抓新股價→選股。到 **⏱️ 更新進度** 頁看進度，完成後掃描日期會自動變新。")
+        else:
+            # 股價已最新 → 只重選股（背景 DEVNULL，進度寫 _progress.json 給更新進度頁看）
+            subprocess.Popen([sys.executable, str(ROOT / "scan_signals.py")],
+                             cwd=str(ROOT),
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            st.toast("股價已最新 → 重新選股中")
+            st.info("📡 股價已是最新，重新選股中（約 5 分）。到 **⏱️ 更新進度** 頁看進度。")
+        load_latest_signals.clear()
 
-with col_filter:
+with col_grade:
     grade_filter = st.multiselect(
         "訊號等級", ["BUY","SETUP","PRE","PRE-DEF"],
         default=["BUY"], label_visibility="collapsed",
@@ -600,13 +480,50 @@ with col_filter:
 if df_all.empty:
     st.info("尚無資料，點擊「重新掃描全市場」"); st.stop()
 
+with col_strat:
+    all_strats = sorted(df_all["策略"].dropna().unique().tolist()) if "策略" in df_all.columns else []
+    has_main = MAIN_STRATEGY in all_strats
+    default_strat = [MAIN_STRATEGY] if has_main else ["（全部策略）"]
+    strat_sel = st.multiselect(
+        "策略", ["（全部策略）"] + all_strats,
+        default=default_strat, label_visibility="collapsed",
+        help="預設只看主推策略（回測期望值最高）；選「全部策略」看所有訊號",
+    )
+
+# 套用策略篩選（主推預設）
+if strat_sel and "（全部策略）" not in strat_sel and "策略" in df_all.columns:
+    df_all = df_all[df_all["策略"].isin(strat_sel)]
+elif not has_main:
+    st.caption(f"💡 主推策略「{MAIN_STRATEGY}」尚未在本次掃描中 → 點「重新掃描」即可只看主推、每天約 10 檔")
+
 df_all["名稱"]    = df_all["代碼"].map(name_map).fillna("")
 df_all["產業"]    = df_all["代碼"].map(sector_map).fillna("")
 df_all["股號名稱"] = df_all["代碼"] + "  " + df_all["名稱"]
 
-df      = df_all[df_all["訊號等級"].isin(grade_filter)] if grade_filter else df_all
-buy_df  = df[df["訊號等級"] == "BUY"]
-other_df= df[df["訊號等級"] != "BUY"]
+# 訊號等級基底分類：BUY★ / BUY★★ 都歸入「BUY」桶
+# （否則帶星號的進場訊號會被 isin/== 精確比對濾掉，整批看不到）
+def _base_grade(g):
+    g = str(g)
+    return "BUY" if g.startswith("BUY") else g
+df_all["訊號基底"] = df_all["訊號等級"].map(_base_grade)
+
+df      = df_all[df_all["訊號基底"].isin(grade_filter)] if grade_filter else df_all
+buy_df  = df[df["訊號基底"] == "BUY"]
+other_df= df[df["訊號基底"] != "BUY"]
+
+# 同一檔多個策略都中 → 去重，只留訊號最強的那列（★★>★>無，再比 RS）
+def _grade_rank(g):
+    g = str(g)
+    return 0 if "★★" in g else (1 if "★" in g else 2)
+if not buy_df.empty:
+    buy_df = buy_df.copy()
+    buy_df["_gr"] = buy_df["訊號等級"].map(_grade_rank)
+    buy_df = (buy_df.sort_values(["_gr", "RS相對強度"], ascending=[True, False])
+              .drop_duplicates(subset=["代碼"], keep="first")
+              .drop(columns="_gr").reset_index(drop=True))
+if not other_df.empty:
+    other_df = (other_df.sort_values("RS相對強度", ascending=False)
+                .drop_duplicates(subset=["代碼"], keep="first").reset_index(drop=True))
 
 # ── KPI 卡 ────────────────────────────────
 st.markdown("---")
@@ -758,9 +675,11 @@ with tab_buy:
 
         show_cols = ["進場時機","代碼","名稱","產業","收盤","停損","風險%","RS相對強度","量比(vs均)","狀態"]
         avail = [c for c in show_cols if c in buy_show.columns]
-        disp = buy_show[avail].reset_index(drop=True)
+        buy_rows = buy_show.reset_index(drop=True)   # 與表格列號對齊，供勾選回查
+        disp = buy_rows[avail]
 
-        st.dataframe(
+        st.caption("☑️ 勾選左側核取方塊，可一鍵加入績效追蹤")
+        event = st.dataframe(
             disp.style
                 .applymap(timing_color, subset=["進場時機"])
                 .applymap(color_rs,     subset=["RS相對強度"])
@@ -769,7 +688,49 @@ with tab_buy:
                          "風險%":"{:.1f}%","RS相對強度":"{:.2f}","量比(vs均)":"{:.1f}x"}),
             use_container_width=True,
             height=min(600, len(disp)*38+60),
+            on_select="rerun",
+            selection_mode="multi-row",
+            key="buy_table_select",
         )
+
+        # ── 勾選 → 加入績效追蹤 ──────────────
+        sel_rows = (event.selection.rows
+                    if event is not None and hasattr(event, "selection") else [])
+        ac1, ac2 = st.columns([1.6, 4])
+        with ac1:
+            add_clicked = st.button(
+                f"➕ 加入績效追蹤（已選 {len(sel_rows)} 檔）",
+                type="primary", use_container_width=True,
+                disabled=(len(sel_rows) == 0),
+            )
+        with ac2:
+            st.caption("進場價=收盤、停損=訊號停損、張數預設 1（可到績效頁修改）")
+
+        if add_clicked and sel_rows:
+            from portfolio import add_position
+            fmt_date = (f"{scan_date[:4]}-{scan_date[4:6]}-{scan_date[6:]}"
+                        if scan_date else "")
+            added, dup = [], []
+            for ridx in sel_rows:
+                r = buy_rows.iloc[ridx]
+                tk = str(r["代碼"])
+                res = add_position(
+                    _USER,
+                    ticker      = tk,
+                    name        = str(r.get("名稱", "")),
+                    entry_price = float(r.get("收盤", 0) or 0),
+                    stop_loss   = float(r.get("停損", 0) or 0),
+                    strategy    = str(r.get("策略", "")),
+                    note        = f"今日選股加入（{r.get('進場時機','')}）",
+                    entry_date  = fmt_date,
+                )
+                (added if res == "added" else dup).append(tk)
+            if added:
+                st.success(f"✅ 已加入績效追蹤：{'、'.join(dict.fromkeys(added))}　"
+                           f"→ 到「📈 績效追蹤」頁查看")
+            if dup:
+                st.info(f"⏭️ 已在持倉中，跳過：{'、'.join(dict.fromkeys(dup))}")
+
         st.markdown("**點擊看 K 線圖：**")
         render_kline_buttons(buy_show, info_map, "buy")
         csv = buy_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
@@ -793,170 +754,11 @@ with tab_watch:
         render_kline_buttons(other_df, info_map, "watch")
 
 # ─────────────────────────────────────────
-# ③ 每日族群熱點分布
+# ③ 每日族群熱點分布（共用元件 sector_view）
 # ─────────────────────────────────────────
 st.markdown("---")
 st.markdown("### 🌡️ 今日族群熱點分布")
-st.caption("依產業別計算全市場平均漲跌幅，紅=強勢族群，綠=弱勢族群")
-
-with st.spinner("計算族群熱點中..."):
-    sector_df = compute_sector_heatmap(info_df)
-
-if sector_df.empty:
-    st.warning("無法計算族群資料")
-else:
-    # ── 族群個股 Dialog ──────────────────
-    @st.dialog("📊 族群個股排行", width="large")
-    def sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
-        grp = stock_ret_df[stock_ret_df["sector"] == sector_name].copy()
-        grp = grp.sort_values("chg", ascending=False).reset_index(drop=True)
-
-        if grp.empty:
-            st.info(f"「{sector_name}」無個股資料")
-            return
-
-        # KPI
-        avg_c = grp["chg"].mean()
-        k1, k2, k3, k4 = st.columns(4)
-        k1.metric("族群均漲跌", f"{avg_c:+.2f}%")
-        k2.metric("上漲", f"{(grp['chg']>0).sum()} 檔",
-                  delta_color="normal" if (grp["chg"]>0).sum() > (grp["chg"]<0).sum() else "inverse")
-        k3.metric("下跌", f"{(grp['chg']<0).sum()} 檔")
-        k4.metric("合計", f"{len(grp)} 檔")
-
-        # 橫條圖
-        plot_grp = grp.head(30)
-        bar_c = [RED if v >= 0 else GREEN for v in plot_grp["chg"]]
-        fig_drill = go.Figure(go.Bar(
-            x=plot_grp["chg"],
-            y=plot_grp["ticker"] + "  " + plot_grp["name"],
-            orientation="h",
-            marker=dict(color=bar_c, opacity=0.9, line=dict(width=0)),
-            text=[f"  {v:+.2f}%" for v in plot_grp["chg"]],
-            textposition="outside",
-            textfont=dict(size=12, color=TEXT),
-            hovertemplate=(
-                "<b>%{y}</b><br>漲跌：%{x:+.2f}%<br>"
-                "收盤：%{customdata[0]}<br>量(張)：%{customdata[1]:,}<extra></extra>"
-            ),
-            customdata=plot_grp[["close","volume"]].values,
-        ))
-        fig_drill.add_vline(x=0, line_color="white", line_width=1, opacity=0.5)
-        fig_drill.update_layout(
-            paper_bgcolor=DARK, plot_bgcolor=CARD,
-            font=dict(family="Microsoft JhengHei, Arial", size=13, color=TEXT),
-            title=dict(text=f"{sector_name}　前30名個股漲跌",
-                       font=dict(size=15, color=TEXT), x=0.01),
-            xaxis=dict(gridcolor=BORDER, title="漲跌幅 (%)"),
-            yaxis=dict(gridcolor=BORDER, tickfont=dict(size=12)),
-            height=max(400, len(plot_grp) * 28 + 80),
-            margin=dict(l=10, r=90, t=50, b=30),
-            showlegend=False,
-        )
-        st.plotly_chart(fig_drill, use_container_width=True)
-
-        # Dialog 不能嵌套 → 改用明細表格（不放 K線按鈕）
-        st.markdown("**個股明細（關閉此視窗後，可在選股明細點 K線）**")
-        tbl = grp[["ticker","name","chg","close","volume"]].copy()
-        tbl.columns = ["代碼","名稱","漲跌%","收盤","量(張)"]
-
-        def _c(v):
-            if isinstance(v, float):
-                return f"color:{'#F85149' if v>0 else '#1D9E75'};font-weight:{'700' if abs(v)>3 else '400'}"
-            return ""
-
-        st.dataframe(
-            tbl.style.applymap(_c, subset=["漲跌%"])
-               .format({"漲跌%":"{:+.2f}%","收盤":"{:.1f}","量(張)":"{:,}"}),
-            use_container_width=True,
-            height=min(500, len(tbl)*36+60),
-        )
-
-    ht1, ht2 = st.tabs(["📊 熱點地圖", "📋 族群明細"])
-
-    with ht1:
-        st.caption("💡 **點擊色塊** 即可查看該族群個股排行")
-
-        # 計算個股漲跌（供 dialog 使用）
-        with st.spinner(""):
-            stock_ret_df = compute_stock_returns(info_df)
-
-        st.caption("💡 點擊任一族群色塊，即可查看該族群個股排行")
-
-        # ── 色塊網格（st.button 100% 可靠，點就跳 dialog）──
-        # 顏色依漲跌幅深淺
-        def chg_to_color(chg: float) -> str:
-            if   chg >= 3:  return "#7B0000"
-            elif chg >= 2:  return "#B22222"
-            elif chg >= 1:  return "#CC4444"
-            elif chg >= 0:  return "#994444"
-            elif chg >= -1: return "#336633"
-            elif chg >= -2: return "#228822"
-            else:           return "#006600"
-
-        sdf_grid = sector_df.sort_values("avg_chg", ascending=False).reset_index(drop=True)
-        N_COLS = 5
-        rows = [sdf_grid.iloc[i:i+N_COLS] for i in range(0, len(sdf_grid), N_COLS)]
-
-        # CSS：把 st.button 變成色塊樣式
-        st.markdown("""
-        <style>
-        div[data-testid="stButton"].sector-tile > button {
-            height: 80px !important;
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            border-radius: 6px !important;
-            border: none !important;
-            white-space: pre-line !important;
-            line-height: 1.4 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-        for row_df in rows:
-            cols = st.columns(N_COLS)
-            for i, (_, sec) in enumerate(row_df.iterrows()):
-                chg  = sec["avg_chg"]
-                bg   = chg_to_color(chg)
-                label = f"{sec['sector']}\n{chg:+.2f}%\n▲{int(sec['up'])} ▼{int(sec['down'])}"
-
-                with cols[i]:
-                    st.markdown(
-                        f"<div style='background:{bg};border-radius:6px;padding:10px 6px;"
-                        f"text-align:center;margin:3px 0;cursor:pointer;min-height:80px;"
-                        f"display:flex;flex-direction:column;justify-content:center'>",
-                        unsafe_allow_html=True,
-                    )
-                    if st.button(
-                        label,
-                        key=f"sec_{sec['sector']}",
-                        use_container_width=True,
-                    ):
-                        if not stock_ret_df.empty:
-                            sector_drill_dialog(sec["sector"], stock_ret_df)
-                    st.markdown("</div>", unsafe_allow_html=True)
-
-
-    with ht2:
-        disp_sec = sector_df[["sector","avg_chg","up","down","total","top_gainers"]].copy()
-        disp_sec.columns = ["產業","平均漲跌%","上漲","下跌","合計","強勢股Top3"]
-        disp_sec = disp_sec.reset_index(drop=True)
-
-        def color_chg(val):
-            if isinstance(val, float):
-                if val > 1:  return f"color:{RED};font-weight:600"
-                if val > 0:  return f"color:{RED}"
-                if val < -1: return f"color:{GREEN};font-weight:600"
-                if val < 0:  return f"color:{GREEN}"
-            return ""
-
-        st.dataframe(
-            disp_sec.style
-                .applymap(color_chg, subset=["平均漲跌%"])
-                .format({"平均漲跌%":"{:+.2f}%","上漲":"{:.0f}","下跌":"{:.0f}","合計":"{:.0f}"}),
-            use_container_width=True,
-            height=min(700, len(disp_sec)*38+60),
-        )
+render_sector_section(key_prefix="scan_sec")
 
 
 # ─────────────────────────────────────────

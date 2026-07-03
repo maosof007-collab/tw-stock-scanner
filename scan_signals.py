@@ -30,8 +30,15 @@ import matplotlib.pyplot as plt
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).parent))
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 from strategies import load_all_strategies
 from market_backtest import calc_indicators
+from progress import set_progress
 
 DATA_DIR = Path("data")
 OUT_DIR  = Path("scan_results")
@@ -126,6 +133,8 @@ def scan_all(strategy_filter: str = "") -> list[dict]:
         ticker = Path(csv_path).stem
         sys.stdout.write(f"\r  [{i:4d}/{total}] {ticker}      ")
         sys.stdout.flush()
+        if i % 10 == 0 or i == total:
+            set_progress("掃描訊號", i, total, f"{ticker}（已找到 {len(signals)} 訊號）")
 
         # 排除處置股
         if ticker in disposal_set:
@@ -179,6 +188,7 @@ def scan_all(strategy_filter: str = "") -> list[dict]:
         except Exception:
             continue
 
+    set_progress("掃描訊號", total, total, f"完成，共 {len(signals)} 訊號", done=True)
     print(f"\n\n掃描完成！")
     return signals
 

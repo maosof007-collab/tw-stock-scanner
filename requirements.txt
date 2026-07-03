@@ -1,8 +1,14 @@
-streamlit>=1.32.0
-yfinance>=1.3.0
+# 台股策略系統 — 套件需求
+streamlit>=1.40.0
+streamlit-autorefresh>=1.0.1
 pandas>=2.2.0
 numpy>=1.26.0
+plotly>=5.18.0
 matplotlib>=3.8.0
 requests>=2.31.0
-plotly>=5.18.0
-anthropic>=0.100.0
+yfinance>=0.2.40
+lxml>=5.0.0            # pandas.read_html（fetch_tdcc 用）
+beautifulsoup4>=4.12.0
+anthropic>=0.40.0     # 新聞分析頁（選用）
+pillow>=10.0          # 產生 App 圖示
+# pywebview 只給隨身版桌面 App；雲端 Linux 裝不起來，改由 build_portable.ps1 另外裝

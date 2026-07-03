@@ -120,25 +120,76 @@ def fetch_institutional_daily(date_str: str) -> pd.DataFrame:
 
 
 # ════════════════════════════════════════
-# 2. 抓取區間資料（批次）
+# 1b. 單日上櫃三大法人（櫃買中心 TPEX）
+# ════════════════════════════════════════
+TPEX_INST_URL = ("https://www.tpex.org.tw/web/stock/3insti/daily_trade/"
+                 "3itrade_hedge_result.php")
+# TPEX 24 欄分組：外資不含自營(2-4) 外資自營(5-7) 外資合計(8-10) 投信(11-13)
+#   自營自行(14-16) 自營避險(17-19) 自營合計(20-22) 三大法人合計(23)
+# 存成與上市同款（外資用中文欄名，讓 data_provider 認得）
+
+
+def fetch_institutional_daily_otc(date_str: str) -> pd.DataFrame:
+    """上櫃三大法人（TPEX），date_str:'YYYYMMDD'。"""
+    roc = f"{int(date_str[:4]) - 1911}/{date_str[4:6]}/{date_str[6:]}"
+    for attempt in range(1, MAX_RETRY + 1):
+        try:
+            resp = requests.get(TPEX_INST_URL,
+                                params={"l": "zh-tw", "d": roc, "o": "json",
+                                        "t": "D", "se": "EW"},
+                                headers=HEADERS, timeout=20)
+            resp.raise_for_status()
+            j = resp.json()
+            if j.get("stat", "").lower() != "ok" or not j.get("tables"):
+                return pd.DataFrame()
+            table = next((t for t in j["tables"]
+                          if isinstance(t.get("fields"), list) and len(t["fields"]) == 24),
+                         None)
+            if table is None or not table.get("data"):
+                return pd.DataFrame()
+
+            raw = pd.DataFrame(table["data"])
+            out = pd.DataFrame()
+            out["ticker"] = raw[0].astype(str).str.strip()
+            out["name"]   = raw[1].astype(str).str.strip()
+            idx = {"外陸資買賣超股數(不含外資自營商)": 4, "it_net": 13,
+                   "dealer_self_net": 16, "dealer_hedge_net": 19, "total_net": 23}
+            for col, i in idx.items():
+                out[col] = (raw[i].astype(str)
+                            .str.replace(",", "", regex=False)
+                            .str.replace("---", "0", regex=False).str.strip())
+                out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0)
+            out["date"] = pd.to_datetime(date_str, format="%Y%m%d")
+            out = out[out["ticker"].str.fullmatch(r"\d{4}")]
+            return out
+        except Exception as e:
+            log.warning(f"{date_str} OTC法人第{attempt}次失敗: {e}")
+            time.sleep(2 * attempt)
+    return pd.DataFrame()
+
+
+# ════════════════════════════════════════
+# 2. 抓取區間資料（上市 TWSE + 上櫃 TPEX）
 # ════════════════════════════════════════
 def fetch_range(start_date: str, end_date: str) -> pd.DataFrame:
-    """
-    抓取日期區間的三大法人資料
-    start_date, end_date: "YYYY-MM-DD" 格式
-    """
+    """抓取日期區間的三大法人資料（上市+上櫃）。格式 'YYYY-MM-DD'"""
     dates  = pd.bdate_range(start=start_date, end=end_date)
     all_df = []
     total  = len(dates)
 
-    log.info(f"抓取 {start_date} ~ {end_date}，共 {total} 個交易日")
+    log.info(f"抓取 {start_date} ~ {end_date}，共 {total} 個交易日（上市+上櫃）")
 
     for i, d in enumerate(dates, 1):
         date_str = d.strftime("%Y%m%d")
-        log.info(f"  [{i:3d}/{total}] {date_str}")
-        df = fetch_institutional_daily(date_str)
-        if not df.empty:
-            all_df.append(df)
+        tw  = fetch_institutional_daily(date_str)
+        time.sleep(DELAY)
+        otc = fetch_institutional_daily_otc(date_str)
+        parts = [x for x in (tw, otc) if not x.empty]
+        if parts:
+            all_df.append(pd.concat(parts, ignore_index=True))
+            log.info(f"  [{i:3d}/{total}] {date_str}  上市{len(tw)}+上櫃{len(otc)}")
+        else:
+            log.info(f"  [{i:3d}/{total}] {date_str}  （無）")
         time.sleep(DELAY)
 
     if not all_df:

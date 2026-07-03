@@ -231,11 +231,11 @@ def fetch_all_news(
     """
     all_items = []
 
-    # 1. 市場整體新聞
+    # 1. 市場整體新聞（Google News RSS，最穩定）
     log.info("抓取市場整體新聞...")
-    all_items += fetch_yahoo_finance_rss("台股")
-    all_items += fetch_yahoo_finance_rss("半導體 AI")
-    all_items += fetch_cnyes_rss()
+    all_items += fetch_google_news_rss("台股 今日")
+    all_items += fetch_google_news_rss("半導體 AI 台灣")
+    all_items += fetch_google_news_rss("台股 法人 外資")
     time.sleep(0.5)
 
     # 2. 個股新聞（如有指定）

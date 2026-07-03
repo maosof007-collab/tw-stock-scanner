@@ -16,10 +16,21 @@ import os, sys, time, glob, logging
 from pathlib import Path
 from datetime import datetime, timedelta
 
+# 主控台改用 UTF-8，避免 ✅ 等 emoji 在 cp950 終端機觸發 UnicodeEncodeError 洗版
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+from progress import set_progress
+
 # ════════════════════════════════════════
 # 設定
 # ════════════════════════════════════════
-DATA_DIR    = Path("data")
+# 用本檔位置定位 data/，不依賴工作目錄(CWD)；隨身版從上層啟動時 CWD 會跑掉
+DATA_DIR    = Path(__file__).resolve().parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)   # 保險：缺資料夾時自建，避免 import 即崩
 LOG_FILE    = DATA_DIR / "update_log.csv"
 BENCHMARK   = "^TWII"
 LOOKBACK    = 7          # 每次抓最近幾天（重疊幾天確保不漏）
@@ -72,8 +83,11 @@ def update_one(ticker: str, csv_path: Path) -> dict:
 
     # ── 計算抓取起始日 ─────────────────────
     today = datetime.today().date()
-    if last_date and (today - last_date).days <= LOOKBACK:
-        # 資料是新的，不需要更新
+    # 只有「資料已涵蓋最近一個交易日」才跳過
+    # （平日=今天；週六/週日=上週五。舊版用 7 天寬限導致股價最多落後一週）
+    wd = today.weekday()
+    expected = today - timedelta(days=wd - 4) if wd >= 5 else today
+    if last_date and last_date >= expected:
         result["status"]   = "SKIP"
         result["note"]     = f"資料已是最新（最後日期: {last_date}）"
         result["new_rows"] = result["old_rows"]
@@ -161,27 +175,33 @@ def update_all(data_dir: Path = DATA_DIR) -> pd.DataFrame:
     bm_res = update_benchmark()
     time.sleep(DELAY)
 
-    # 個股
-    csv_files = sorted(data_dir.glob("*.TW.csv"))
+    # 個股（上市 .TW + 上櫃 .TWO）
+    csv_files = sorted(data_dir.glob("*.TW.csv")) + sorted(data_dir.glob("*.TWO.csv"))
     if not csv_files:
-        log.warning("找不到任何 *.TW.csv，請先執行 download_tw_stocks.py")
+        log.warning("找不到任何 CSV，請先執行 download_all_tw_stocks.py")
         return pd.DataFrame()
 
-    log.info(f"找到 {len(csv_files)} 檔個股 CSV，開始更新...")
+    log.info(f"找到 {len(csv_files)} 檔個股 CSV（上市+上櫃），開始更新...")
     results = [bm_res]
 
+    total_n = len(csv_files)
     for i, csv_path in enumerate(csv_files, 1):
         ticker = csv_path.stem  # e.g. "2330.TW"
-        sys.stdout.write(f"\r  [{i:2d}/{len(csv_files)}] {ticker}...    ")
+        sys.stdout.write(f"\r  [{i}/{total_n}] {ticker}...    ")
         sys.stdout.flush()
+        set_progress("股價更新", i, total_n, ticker)
 
         res  = update_one(ticker, csv_path)
-        icon = "✅" if res["status"] == "OK" else ("⏭️" if res["status"] == "SKIP" else "❌")
+        icon = "[OK]" if res["status"] == "OK" else ("[skip]" if res["status"] == "SKIP" else "[err]")
         note = (f"+{res['added_rows']} 筆，共{res['new_rows']}筆"
                 if res["status"] == "OK" else res.get("note",""))
-        log.info(f"\r  {icon} [{i:2d}/{len(csv_files)}] {ticker:12s}  {note}")
+        log.info(f"  {icon} [{i}/{total_n}] {ticker:12s}  {note}")
         results.append(res)
-        time.sleep(DELAY)
+        # 只有真的有下載（OK/ERROR）才需要限流等待；SKIP 沒碰網路，不必 sleep → 大幅加速
+        if res["status"] != "SKIP":
+            time.sleep(DELAY)
+
+    set_progress("股價更新", total_n, total_n, "完成", done=True)
 
     # 儲存本次更新紀錄
     log_df = pd.DataFrame(results)

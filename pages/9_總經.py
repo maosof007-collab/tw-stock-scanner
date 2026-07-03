@@ -1,0 +1,97 @@
+"""
+頁面9：總體環境觀測（總經）
+================================
+核心指標：大盤融資維持率（推估）— 市場槓桿風險溫度計。
+越低＝槓桿壓力越大、越接近追繳(130%)/斷頭(120%)；越高＝籌碼安定。
+疊大盤指數看背離。資料：全市場融資餘額 + 收盤（維持率為推估）。
+"""
+import sys
+from pathlib import Path
+import streamlit as st
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from ui_common import THEME
+from ui_theme import inject_css, page_header
+
+st.set_page_config(page_title="總經", layout="wide")
+inject_css()
+from gate import require_login, logout_button
+require_login(); logout_button()
+page_header("總體環境觀測", "MACRO MONITOR", "🌐")
+
+from macro import build_market_margin_series, margin_status
+
+
+@st.cache_data(ttl=1800, show_spinner="彙整全市場融資維持率中（首次約 20 秒）…")
+def _series():
+    return build_market_margin_series(window_days=500)
+
+c1, c2, c3 = st.columns([1.2, 1, 3])
+warn = c1.selectbox("警戒線 %", [150, 180, 170, 160, 140], index=0)
+rebuild = c2.button("🔄 重新彙整")
+if rebuild:
+    _series.clear()
+
+s = _series()
+if s.empty:
+    st.warning("尚無融資資料，無法計算大盤融資維持率。請先更新融資（fetch_margin）。")
+    st.stop()
+
+last = float(s["ratio"].iloc[-1])
+last_date = str(s["date"].iloc[-1].date())
+txt, colkey = margin_status(last, warn)
+col = THEME.get(colkey, THEME["text"])
+
+# ── KPI ──
+k1, k2, k3, k4 = st.columns(4)
+k1.markdown(f"<div class='metric-card'><div class='l'>大盤融資維持率(推估)</div>"
+            f"<div class='v' style='color:{col}'>{last:.1f}%</div></div>", unsafe_allow_html=True)
+k2.markdown(f"<div class='metric-card'><div class='l'>狀態</div>"
+            f"<div class='v' style='color:{col};font-size:1.1rem'>{txt}</div></div>", unsafe_allow_html=True)
+k3.markdown(f"<div class='metric-card'><div class='l'>融資餘額(總張)</div>"
+            f"<div class='v'>{s['margin_lots'].iloc[-1]:,.0f}</div></div>", unsafe_allow_html=True)
+k4.markdown(f"<div class='metric-card'><div class='l'>資料日</div>"
+            f"<div class='v' style='font-size:1.1rem'>{last_date}</div></div>", unsafe_allow_html=True)
+
+# ── 圖：維持率 + 大盤指數 ──
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+# 危險區底色（<警戒線）
+fig.add_hrect(y0=100, y1=warn, fillcolor=THEME["down"], opacity=0.06, line_width=0)
+# 維持率線
+fig.add_trace(go.Scatter(x=s["date"], y=s["ratio"], mode="lines",
+                         line=dict(color=THEME["accent"], width=2), name="融資維持率(推估)"),
+              secondary_y=False)
+# 大盤指數（淡）
+if s["twii"].notna().any():
+    fig.add_trace(go.Scatter(x=s["date"], y=s["twii"], mode="lines",
+                             line=dict(color=THEME["muted"], width=1.2, dash="dot"), name="加權指數"),
+                  secondary_y=True)
+# 參考線
+for y, cc, lab in [(warn, THEME["ma30"], f"警戒 {warn}"),
+                   (130, THEME["down"], "追繳 130"),
+                   (120, "#B03050", "斷頭 120"),
+                   (166.7, THEME["muted"], "基準 166.7")]:
+    fig.add_hline(y=y, line_dash="dash", line_color=cc, line_width=1,
+                  annotation_text=lab, annotation_position="right",
+                  annotation_font=dict(color=cc, size=10), secondary_y=False)
+
+fig.update_layout(
+    height=520, template="plotly_dark",
+    paper_bgcolor=THEME["bg"], plot_bgcolor=THEME["panel"],
+    font=dict(color=THEME["text"], size=12),
+    margin=dict(l=10, r=10, t=30, b=10),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
+    hovermode="x unified")
+fig.update_xaxes(showgrid=True, gridcolor=THEME["grid"])
+fig.update_yaxes(title_text="融資維持率 %", gridcolor=THEME["grid"], secondary_y=False)
+fig.update_yaxes(title_text="加權指數", showgrid=False, secondary_y=True)
+st.plotly_chart(fig, use_container_width=True)
+
+st.caption(
+    "💡 **怎麼看**：維持率**跌破警戒線並持續走低**＝市場槓桿壓力大、追繳賣壓升高（常見於下跌段）；"
+    "**高檔（>175%）**＝籌碼安定但也可能過熱。與加權指數**背離**（指數創高但維持率下滑）要留意。")
+st.caption(
+    f"⚠️ 維持率為**推估**（成本以 MA60 近似、融資成數 0.6）。融資資料截至 **{last_date}**，"
+    "若與今日差多天，代表 fetch_margin 未跟上每日更新。")

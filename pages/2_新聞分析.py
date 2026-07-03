@@ -13,37 +13,18 @@ import plotly.express as px
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-# ── 顏色 ─────────────────────────────
-DARK   = "#0d1117"; CARD = "#161b22"; BORDER = "#30363d"
-TEXT   = "#e6edf3"; MUTED = "#8b949e"
-GREEN  = "#1D9E75"; RED = "#F85149"; GOLD = "#D29922"
-BLUE   = "#58A6FF"; PURPLE = "#BC8CFF"
+# ── 統一設計系統（科幻 HUD）───────────────
+from ui_theme import (DARK, CARD, BORDER, TEXT, MUTED, GREEN, RED, GOLD,
+                      BLUE, PURPLE, CYAN, inject_css, page_header)
 
 NEWS_DIR    = ROOT / "data" / "news"
 REPORTS_DIR = ROOT / "data" / "reports"
 SCAN_DIR    = ROOT / "scan_results"
 
 st.set_page_config(page_title="新聞分析", page_icon="📰", layout="wide")
-
-st.markdown(f"""
-<style>
-  body, .stApp {{ background-color:{DARK}; color:{TEXT}; }}
-  .score-card {{
-    background:{CARD}; border:1px solid {BORDER};
-    border-radius:10px; padding:14px 18px; text-align:center;
-  }}
-  .score-label {{ color:{MUTED}; font-size:12px; margin-bottom:4px; }}
-  .score-value {{ font-size:26px; font-weight:700; }}
-  .green {{ color:{GREEN}; }} .red {{ color:{RED}; }}
-  .gold  {{ color:{GOLD};  }} .blue {{ color:{BLUE}; }}
-
-  /* 上傳按鈕 */
-  div[data-testid="stFileUploader"] {{
-    background:{CARD}; border:1px solid {BORDER};
-    border-radius:10px; padding:12px;
-  }}
-</style>
-""", unsafe_allow_html=True)
+inject_css()
+from gate import require_login, logout_button
+require_login(); logout_button()
 
 
 # ─────────────────────────────────────────
@@ -89,7 +70,7 @@ def check_api_key() -> bool:
 # ─────────────────────────────────────────
 # 主畫面
 # ─────────────────────────────────────────
-st.title("📰 新聞情緒 × 法人報告 × 信心分數")
+page_header("新聞情緒 × 法人報告 × 信心分數", "NEWS INTEL · CONFIDENCE", "📰")
 
 # API Key 狀態
 has_key = check_api_key()

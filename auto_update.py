@@ -95,17 +95,20 @@ def do_daily_update():
     log.info("  開始每日自動更新")
     log.info("=" * 55)
 
-    # Step 1：更新股價
-    ok1 = run_step("download_all_tw_stocks.py")
+    # Step 1：增量更新股價（只抓最近7天，快很多）
+    ok1 = run_step("updater.py")
 
     # Step 2：更新外資籌碼（增量）
     ok2 = run_step("fetch_institutional.py", "--mode", "update")
 
-    # Step 3：掃描今日訊號
-    ok3 = run_step("scan_signals.py")
+    # Step 3：更新融資融券餘額（增量）
+    ok3 = run_step("fetch_margin.py", "--mode", "update")
+
+    # Step 4：掃描今日訊號
+    ok4 = run_step("scan_signals.py")
 
     mark_updated()
-    log.info(f"完成！股價:{ok1}  籌碼:{ok2}  掃描:{ok3}")
+    log.info(f"完成！股價:{ok1}  籌碼:{ok2}  融資:{ok3}  掃描:{ok4}")
 
 
 def main():

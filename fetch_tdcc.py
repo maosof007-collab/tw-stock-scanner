@@ -268,9 +268,9 @@ def update_all_tdcc(tickers: list[str] = None):
 
     log.info(f"  全市場共 {df['stock_id'].nunique()} 檔，{len(df)} 筆")
 
-    # 若有指定 tickers，只保留那幾檔
+    # 若有指定 tickers，只保留那幾檔（先去 .TWO 再去 .TW，避免 6217.TWO→6217O）
     if tickers:
-        tc_clean = [t.replace(".TW", "").strip() for t in tickers]
+        tc_clean = [t.replace(".TWO", "").replace(".TW", "").strip() for t in tickers]
         df       = df[df["stock_id"].isin(tc_clean)]
         log.info(f"  過濾後 {df['stock_id'].nunique()} 檔")
 
@@ -394,7 +394,7 @@ if __name__ == "__main__":
         df = load_tdcc(args.ticker)
         print(df.tail(20).to_string() if not df.empty else "無資料")
 
-    else:   # update
-        csvs    = sorted(glob.glob("data/*.TW.csv"))
-        tickers = [Path(f).stem for f in csvs]  # 保留 .TW 讓 update_all_tdcc 處理
+    else:   # update（上市 .TW + 上櫃 .TWO 都納入）
+        csvs    = sorted(glob.glob("data/*.TW.csv")) + sorted(glob.glob("data/*.TWO.csv"))
+        tickers = [Path(f).stem for f in csvs]
         update_all_tdcc(tickers if tickers else None)

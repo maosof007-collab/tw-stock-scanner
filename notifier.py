@@ -26,7 +26,12 @@ CONFIG_PATH = Path("config.json")
 DEFAULT_CONFIG = {
     "line": {
         "enabled": False,
-        "token":   ""          # 填入 Line Notify Token
+        "token":   ""          # 舊版 Line Notify（已停用，保留相容）
+    },
+    "line_messaging": {        # ★ 現行可用：LINE Messaging API（官方帳號）
+        "enabled": False,
+        "channel_access_token": "",  # LINE Developers → Messaging API → Channel access token
+        "to_id":   ""                # 你的 userId 或 群組 groupId（推播目標）
     },
     "email": {
         "enabled":  False,
@@ -73,6 +78,78 @@ def send_line(token: str, message: str) -> bool:
     except Exception as e:
         log.error(f"Line Notify 例外: {e}")
         return False
+
+
+# ════════════════════════════════════════
+# LINE Messaging API（現行可用：推播 push）
+# ════════════════════════════════════════
+def send_line_push(channel_access_token: str, to_id: str, message: str) -> bool:
+    try:
+        resp = requests.post(
+            "https://api.line.me/v2/bot/message/push",
+            headers={"Authorization": f"Bearer {channel_access_token}",
+                     "Content-Type": "application/json"},
+            json={"to": to_id, "messages": [{"type": "text", "text": message}]},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            log.info("LINE Messaging push 發送成功")
+            return True
+        log.warning(f"LINE push 失敗: {resp.status_code} {resp.text}")
+        return False
+    except Exception as e:
+        log.error(f"LINE push 例外: {e}")
+        return False
+
+
+def _push_line(cfg: dict, message: str) -> bool:
+    """依設定推播：優先用 Messaging API，相容舊 Notify。"""
+    lm = cfg.get("line_messaging", {})
+    if lm.get("enabled") and lm.get("channel_access_token") and lm.get("to_id"):
+        return send_line_push(lm["channel_access_token"], lm["to_id"], message)
+    ln = cfg.get("line", {})
+    if ln.get("enabled") and ln.get("token"):
+        return send_line(ln["token"], message)
+    return False
+
+
+# ════════════════════════════════════════
+# 自動停損出場通知
+# ════════════════════════════════════════
+def notify_stop_exit(rows: list[dict], cfg: dict = None) -> bool:
+    """
+    rows: [{ticker, name, exit_price, stop_loss, pnl_pct}, ...]
+    cfg : 通知設定（多使用者版傳入該使用者的設定）；None 則用全域 config.json。
+    觸發自動停損出場時推播 LINE / Email。
+    """
+    if not rows:
+        return False
+    if cfg is None:
+        cfg = load_config()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    lines = [f"🛑 自動停損出場 {now}", "─" * 18]
+    for r in rows:
+        pnl = r.get("pnl_pct")
+        pnl_s = f"  損益 {pnl:+.1f}%" if pnl is not None else ""
+        lines.append(
+            f"▶ {r.get('ticker','')} {r.get('name','')}"
+            f"\n  出場 {r.get('exit_price',0):.1f}（跌破停損 {r.get('stop_loss',0):.1f}）{pnl_s}"
+        )
+    lines.append("─" * 18)
+    lines.append("已記錄到出場紀錄")
+    msg = "\n".join(lines)
+
+    sent = False
+    # LINE（若有設定）
+    if _push_line(cfg, msg):
+        sent = True
+    # Email（若有設定）
+    em = cfg.get("email", {})
+    if em.get("enabled") and em.get("user") and em.get("to"):
+        subject = f"🛑 自動停損出場（{len(rows)} 檔）{now}"
+        if send_email(em, subject, msg):
+            sent = True
+    return sent
 
 
 # ════════════════════════════════════════

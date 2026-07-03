@@ -263,7 +263,7 @@ class ThemeFundamentalStrategy(BaseStrategy):
         ticker = (df.attrs.get("ticker", "") or
                   (str(df["ticker"].iloc[0]) if "ticker" in df.columns else ""))
         if ticker:
-            tc   = ticker.replace(".TW", "").replace(".TWO", "").strip()
+            tc   = ticker.replace(".TWO", "").replace(".TW", "").strip()
             path = INST_DIR / f"{tc}_inst.csv"
             if path.exists():
                 try:

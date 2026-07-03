@@ -30,19 +30,13 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-st.markdown("""
-<style>
-[data-testid="stMetricValue"]{font-size:1.5rem;font-weight:500}
-.stTabs [data-baseweb="tab"]{font-size:14px;padding:6px 18px}
-</style>
-""", unsafe_allow_html=True)
+from ui_theme import (DARK, CARD, BORDER, GRID, TEXT, MUTED, GREEN, RED,
+                      GOLD, BLUE, PURPLE, CYAN, PAL, inject_css, page_header)
+inject_css()
 
 CAPITAL  = 1_000_000
 POS_RISK = 0.02
 ATR_PER, VOL_PER, RS_PER = 14, 20, 60
-DARK="#0d1117"; GRID="#1e2d3d"; TEXT="#c9d1d9"
-GREEN="#1D9E75"; RED="#E24B4A"; GOLD="#BA7517"; BLUE="#378ADD"
-PAL=[GREEN,BLUE,GOLD,RED,"#9F77DD","#5DCAA5","#F0997B"]
 
 # ════════════════════════════════════════
 # 資料工具
@@ -563,50 +557,70 @@ def render_signals_tab(all_df_sig, strategy_name):
 # 主程式
 # ════════════════════════════════════════
 def main():
+    from gate import require_login, logout_button
+    require_login(); logout_button()
     strategies_map=load_all_strategies()
     stocks_map=list_stocks(str(DATA_DIR))
     cfg=render_sidebar(strategies_map,stocks_map)
     strategy=cfg["strategy"]; strategy_name=cfg["strategy_name"]
     params=cfg["params"]; selected=cfg.get("selected",[]); fee=cfg["fee"]; slip=cfg["slip"]
 
-    st.title("台股多策略回測 & 稽核系統")
+    page_header("台股多策略回測 & 稽核系統", "BACKTEST & AUDIT ENGINE", "📈")
     st.caption(f"當前策略：**{strategy_name}**  v{strategy.version}  |  "
                f"手續費 {fee*100:.2f}%  滑點 {slip*100:.2f}%")
 
     if not cfg["run"]:
-        st.info("👈 左側選擇策略與股票後，點「執行回測 + 稽核」")
-        st.markdown("---")
-        st.markdown("### 新增策略只需 3 步驟")
-        st.code("""# 1. 在 strategies/ 新建 my_strategy.py
-from strategies.base import BaseStrategy
+        # ════════════════════════════════
+        # 首頁：今日族群趨勢熱力圖（主） + 策略資訊（側）
+        # ════════════════════════════════
+        from sector_view import render_sector_section
+        from streamlit_autorefresh import st_autorefresh
+        # 首頁熱力圖每 10 分鐘自動刷新（盤中跟著 auto_refresh 更新的資料滾動）
+        st_autorefresh(interval=10 * 60 * 1000, key="home_autorefresh")
+
+        col_main, col_side = st.columns([3.2, 1], gap="large")
+
+        with col_main:
+            st.markdown("### 🌡️ 今日族群趨勢")
+            render_sector_section(key_prefix="home_sec")
+
+        with col_side:
+            st.markdown("### ⚙️ 系統")
+            st.info("👈 左側選擇策略與股票後，點「執行回測 + 稽核」")
+
+            st.markdown("**已載入策略**")
+            for name, s in strategies_map.items():
+                with st.expander(f"{name}  v{s.version}"):
+                    st.caption(s.description)
+
+            with st.expander("➕ 新增策略步驟"):
+                st.markdown(
+                    "1. 在 `strategies/` 新建 `my_strategy.py`，"
+                    "繼承 `BaseStrategy` 實作 `get_params` / "
+                    "`generate_signals` / `get_audit_config`\n"
+                    "2. 存檔\n"
+                    "3. 重啟 `streamlit run app.py` → 側欄自動出現新策略"
+                )
+                st.code("""from strategies.base import BaseStrategy
 
 class MyStrategy(BaseStrategy):
-    name        = "我的策略"       # 側欄自動顯示
+    name        = "我的策略"
     description = "策略說明"
 
-    def get_params(self):          # 定義參數 → 自動生成滑桿
-        return {
-            "period": {"type":"int","default":20,
-                       "min":5,"max":60,"step":1,"label":"週期"},
-        }
+    def get_params(self):
+        return {"period": {"type":"int","default":20,
+                "min":5,"max":60,"step":1,"label":"週期"}}
 
     def generate_signals(self, df, params):
-        df["signal"]    = "hold"   # buy / sell / hold
+        df["signal"]    = "hold"   # buy/sell/hold
         df["stop_loss"] = float("nan")
         df["state"]     = "unknown"
-        # ... 你的邏輯 ...
         return df
 
     def get_audit_config(self):
         return {"tests":["A","B","C","D","E","F"],
-                "benchmark":"buy_hold","monkey_n":300,"wf_split":0.5}
-
-# 2. 存檔
-# 3. 重啟 streamlit run app.py → 側欄自動出現新策略 ✅""", language="python")
-
-        st.markdown("### 已載入策略")
-        for name,s in strategies_map.items():
-            st.markdown(f"- **{name}** v{s.version} — {s.description}")
+                "benchmark":"buy_hold",
+                "monkey_n":300,"wf_split":0.5}""", language="python")
         return
 
     if not selected:

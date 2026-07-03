@@ -1,32 +1,32 @@
-# 資料目錄（體積大，不上傳）
-data/
-logs/
-backtest_results/
-scan_results/
-
-# 個人設定
+.streamlit/secrets.toml
 config.json
-.env
-*.local.json
-
-# Python
+data/notify_*.json
+data/portfolio_*.csv
+data/_auto_stop.flag
+data/_auto_update.flag
+data/_last_full_update.txt
+data/_progress.json
 __pycache__/
-*.py[cod]
-*.pyo
-.Python
-*.egg-info/
-dist/
-build/
-.venv/
-venv/
-env/
+*.pyc
+reports.db
 
-# 系統
-.DS_Store
-Thumbs.db
-*.swp
-.idea/
-.vscode/
-
-# Streamlit cache
-.streamlit/cache/
+# ── 大量資料不進 git（雲端從 GitHub Release 資料包下載）──
+data/*.TW.csv
+data/*.TWO.csv
+data/margin/
+data/institutional/
+data/tdcc/
+data/news/
+data/reports/
+data/fi_holding/
+data/_rank_*.csv
+data/_market_margin.csv
+data/_auto_update*.log
+scan_results/
+backtest_results/
+logs/
+.claude/
+data/*.log
+data/download_log.csv
+data/update_log.csv
+# 保留小檔（App 需要）：data/stock_list.csv、data/groups.json、data/benchmark_TWII.csv

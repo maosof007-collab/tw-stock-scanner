@@ -237,7 +237,7 @@ def get_ticker_report(ticker: str, reports: list[dict] = None) -> dict | None:
     if not reports:
         return None
 
-    code = ticker.replace(".TW", "").replace(".TWO", "").strip()
+    code = ticker.replace(".TWO", "").replace(".TW", "").strip()
     matches = [r for r in reports if code in (r.get("tickers") or [])]
     if not matches:
         return None
