@@ -398,6 +398,12 @@ def _data_is_today() -> bool:
 
 def _auto_update_triggered() -> bool:
     """是否需要自動更新"""
+    try:
+        from auto_refresh import _pack_mode
+        if _pack_mode():      # 雲端資料包模式：不自動跑 14 分鐘掃描（用包好的選股結果）
+            return False
+    except Exception:
+        pass
     return (_is_trading_day() and _after_close() and not _data_is_today())
 
 # 狀態列
