@@ -98,6 +98,68 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
     return s.tail(window_days).reset_index(drop=True)
 
 
+def seasonal_window() -> dict | None:
+    """七/八月神秘窗口（FinLab 提出）：七月前10交易日 + 八月後7交易日。
+    用 TWII 實測歷年報酬/勝率，並判斷「今天是否在強勢窗口內」。"""
+    p = DATA / "benchmark_TWII.csv"
+    if not p.exists():
+        return None
+    df = pd.read_csv(p)
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
+    df = df.dropna(subset=["Date", "Close"]).sort_values("Date").reset_index(drop=True)
+    df["y"] = df["Date"].dt.year
+    df["m"] = df["Date"].dt.month
+
+    def _wret(sub, n, side):
+        s = sub.sort_values("Date").reset_index(drop=True)
+        if len(s) < n:
+            return None
+        if side == "first":
+            return (s["Close"].iloc[n - 1] / s["Close"].iloc[0] - 1) * 100
+        return (s["Close"].iloc[-1] / s["Close"].iloc[-n] - 1) * 100
+
+    rows = []
+    for y in sorted(df["y"].unique()):
+        rj = _wret(df[(df.y == y) & (df.m == 7)], 10, "first")
+        ra = _wret(df[(df.y == y) & (df.m == 8)], 7, "last")
+        if rj is None or ra is None:
+            continue
+        combo = (1 + rj / 100) * (1 + ra / 100) * 100 - 100
+        rows.append({"年": int(y), "七月前10日%": round(rj, 2),
+                     "八月後7日%": round(ra, 2), "合併%": round(combo, 2)})
+    tbl = pd.DataFrame(rows)
+    if tbl.empty:
+        return None
+
+    def _agg(c):
+        v = tbl[c]
+        return {"avg": float(v.mean()), "win": float((v > 0).mean() * 100), "worst": float(v.min())}
+    stats = {"jul": _agg("七月前10日%"), "aug": _agg("八月後7日%"), "combo": _agg("合併%")}
+
+    # 目前位置（以最新資料日為準）
+    today = df["Date"].iloc[-1]
+    m = int(today.month)
+    if m == 7:
+        tdidx = int((df[(df.y == today.year) & (df.m == 7) & (df.Date <= today)]).shape[0])
+        if tdidx <= 10:
+            cur = ("🟢 七月強勢窗口", "up", f"第 {tdidx}/10 交易日，續抱到約第 10 日")
+        else:
+            cur = ("⚪ 七月後半（原地踏步）", "muted", "強勢段已過，等八月底")
+    elif m == 8:
+        tdidx = int((df[(df.y == today.year) & (df.m == 8) & (df.Date <= today)]).shape[0])
+        if tdidx <= 3:
+            cur = ("🔴 八月月初偏弱", "down", "月初平均下跌、勝率低，觀望")
+        elif tdidx >= 16:
+            cur = ("🟢 八月強勢窗口（最後7日）", "up", "接近月底強勢段")
+        else:
+            cur = ("⚪ 八月月中（陰跌）", "muted", "等最後 7 個交易日")
+    else:
+        cur = ("⚪ 窗口外", "muted", "非七月前段／八月末段")
+
+    return {"table": tbl, "stats": stats, "current": cur, "as_of": str(today.date())}
+
+
 def margin_status(ratio: float, warn: float = 150.0) -> tuple[str, str]:
     """回傳 (狀態文字, 顏色鍵)。130 追繳、120 斷頭。"""
     if ratio is None or np.isnan(ratio):

@@ -500,6 +500,34 @@ df_all["名稱"]    = df_all["代碼"].map(name_map).fillna("")
 df_all["產業"]    = df_all["代碼"].map(sector_map).fillna("")
 df_all["股號名稱"] = df_all["代碼"] + "  " + df_all["名稱"]
 
+# ── 產業輪動 RRG 動態篩選（每次即時算，隨盤面輪動而變）──
+@st.cache_data(ttl=1800, show_spinner=False)
+def _rrg_quadrants():
+    try:
+        from sector_rrg import build_rrg
+        pts, _ = build_rrg(weeks=52, max_members=25)
+        return dict(zip(pts["產業"], pts["象限"])) if not pts.empty else {}
+    except Exception:
+        return {}
+
+with st.expander("🎯 產業輪動篩選（RRG · 動態，只選資金流入的產業）", expanded=False):
+    use_rrg = st.checkbox("啟用：只留所選象限的產業（首次即時算 RRG 約 15 秒，之後 30 分內秒開）",
+                          value=False, key="rrg_filter_on")
+    quads_pick = st.multiselect(
+        "保留象限", ["領先", "改善", "弱化", "落後"], default=["領先", "改善"],
+        help="領先=強且動能續升；改善=弱但動能翻上(potential)。落後/弱化=資金流出",
+        key="rrg_quads") if use_rrg else ["領先", "改善"]
+
+if use_rrg and quads_pick:
+    _qmap = _rrg_quadrants()
+    if _qmap:
+        df_all["象限"] = df_all["產業"].map(_qmap).fillna("—")
+        _b = len(df_all)
+        df_all = df_all[df_all["象限"].isin(quads_pick)]
+        st.success(f"🎯 產業輪動：{_b} → {len(df_all)} 檔（只留 {'、'.join(quads_pick)} 象限的產業）")
+    else:
+        st.caption("RRG 暫無結果（資料不足），未套用輪動篩選")
+
 # 訊號等級基底分類：BUY★ / BUY★★ 都歸入「BUY」桶
 # （否則帶星號的進場訊號會被 isin/== 精確比對濾掉，整批看不到）
 def _base_grade(g):
