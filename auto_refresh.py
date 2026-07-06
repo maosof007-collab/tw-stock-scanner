@@ -70,6 +70,19 @@ def _mark_full_done():
         pass
 
 
+def _pack_mode() -> bool:
+    """雲端資料包模式：有設 DATA_PACK_URL → 資料來自資料包，
+    背景不跑 yfinance 全市場更新（免得洗版、搶資源、被限流）。"""
+    try:
+        import streamlit as st
+        if st.secrets.get("DATA_PACK_URL"):
+            return True
+    except Exception:
+        pass
+    import os
+    return bool(os.environ.get("DATA_PACK_URL"))
+
+
 def _last_trading_close_date() -> date:
     """最近一個『已收盤』的交易日（忽略國定假日，頂多多跑一次無害）"""
     d = datetime.now()
@@ -130,8 +143,10 @@ def _loop():
             if is_weekday and 9 * 60 <= hm <= 13 * 60 + 45:
                 update_held_now()               # 盤中：持倉跟盤（輕量，只跟持倉）
                 _auto_stop()                     # 更新後檢查停損自動出場
-            elif auto_update_enabled() and _data_behind() and not _full_done_today():
-                # 只在「自動更新開啟 且 資料真的落後」才補；今天已有資料 → 不動
+            elif (auto_update_enabled() and not _pack_mode()
+                    and _data_behind() and not _full_done_today()):
+                # 只在「自動更新開啟 且 非雲端資料包模式 且 資料真的落後」才補
+                # （雲端有 DATA_PACK_URL → 資料來自資料包，不在背景跑 yfinance 全市場更新）
                 trigger_full_update()
                 _mark_full_done()
                 _auto_stop()
