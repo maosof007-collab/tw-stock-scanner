@@ -33,8 +33,11 @@ weeks = c[0].selectbox("觀察期(週)", [52, 78, 104], index=0)
 ratio_win = c[1].selectbox("平滑窗(週)", [12, 8, 16], index=0)
 tail_weeks = c[2].selectbox("尾巴(週)", [8, 5, 12], index=0)
 maxm = c[3].selectbox("每產業取樣", [25, 40, 15], index=0)
-if c[4].button("🔄 重新計算"):
-    _rrg.clear()
+with c[4]:
+    show_tails = st.checkbox("顯示尾巴(軌跡)", value=False,
+                             help="產業近幾週移動軌跡；預設關閉，畫面較乾淨")
+    if st.button("🔄 重新計算"):
+        _rrg.clear()
 
 pts, tails = _rrg(weeks, ratio_win, tail_weeks, maxm)
 if pts.empty:
@@ -74,14 +77,15 @@ for (ax, ay, q) in [(x1, y1, "領先 LEADING"), (x0, y1, "改善 IMPROVING"),
                        yanchor="top" if ay == y1 else "bottom",
                        font=dict(size=12, color=THEME["muted"]))
 
-# 尾巴（近幾週軌跡）
-for _, r in pts.iterrows():
-    t = tails.get(r["產業"])
-    col = QUADRANTS[r["象限"]]["color"]
-    if t is not None and len(t) > 1:
-        fig.add_trace(go.Scatter(x=t["ratio"], y=t["mom"], mode="lines",
-                                 line=dict(color=col, width=1), opacity=0.4,
-                                 hoverinfo="skip", showlegend=False))
+# 尾巴（近幾週軌跡）— 預設關閉，太多條會很亂
+if show_tails:
+    for _, r in pts.iterrows():
+        t = tails.get(r["產業"])
+        col = QUADRANTS[r["象限"]]["color"]
+        if t is not None and len(t) > 1:
+            fig.add_trace(go.Scatter(x=t["ratio"], y=t["mom"], mode="lines",
+                                     line=dict(color=col, width=1), opacity=0.35,
+                                     hoverinfo="skip", showlegend=False))
 # 現在點 + 標籤
 fig.add_trace(go.Scatter(
     x=pts["RS-Ratio"], y=pts["RS-Momentum"], mode="markers+text",
