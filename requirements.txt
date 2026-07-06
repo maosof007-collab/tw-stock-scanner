@@ -11,4 +11,6 @@ lxml>=5.0.0            # pandas.read_html（fetch_tdcc 用）
 beautifulsoup4>=4.12.0
 anthropic>=0.40.0     # 新聞分析頁（選用）
 pillow>=10.0          # 產生 App 圖示
+gspread>=6.0          # 雲端持倉存 Google 試算表（持久化）
+google-auth>=2.30     # Google 服務帳號驗證
 # pywebview 只給隨身版桌面 App；雲端 Linux 裝不起來，改由 build_portable.ps1 另外裝

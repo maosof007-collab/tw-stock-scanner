@@ -33,15 +33,32 @@ def notify_file(user: str) -> Path:
 # ════════════════════════════════════════
 # 持倉
 # ════════════════════════════════════════
+def _sheets():
+    """雲端有設定 Google 試算表就回傳模組，否則 None（本機用 CSV）。"""
+    try:
+        import sheets_store
+        return sheets_store if sheets_store.enabled() else None
+    except Exception:
+        return None
+
+
 def load_portfolio(user: str) -> pd.DataFrame:
-    p = track_file(user)
+    ss = _sheets()
+    if ss is not None:
+        df = ss.load_portfolio(user, COLUMNS)
+        if df is not None:                      # 雲端讀到（含空表）→ 用它
+            return df
+    p = track_file(user)                        # 本機 / 雲端讀失敗 → CSV
     if not p.exists():
         return pd.DataFrame(columns=COLUMNS)
     return pd.read_csv(p, encoding="utf-8-sig")
 
 
 def save_portfolio(df: pd.DataFrame, user: str):
-    DATA_DIR.mkdir(exist_ok=True)
+    ss = _sheets()
+    if ss is not None and ss.save_portfolio(df, user):
+        return                                  # 存進 Google 試算表成功
+    DATA_DIR.mkdir(exist_ok=True)               # 本機 / 雲端寫失敗 → CSV
     df.to_csv(track_file(user), index=False, encoding="utf-8-sig")
 
 
@@ -69,7 +86,12 @@ def add_position(user: str, ticker: str, name: str = "", entry_price: float = 0.
 
 
 def all_users() -> list[str]:
-    """有持倉檔的所有使用者（給背景守護掃描）"""
+    """有持倉的所有使用者（給背景守護掃描）"""
+    ss = _sheets()
+    if ss is not None:
+        us = ss.all_users()
+        if us:
+            return us
     out = []
     for f in glob.glob(str(DATA_DIR / "portfolio_*.csv")):
         out.append(Path(f).stem.replace("portfolio_", "", 1))
@@ -79,18 +101,29 @@ def all_users() -> list[str]:
 # ════════════════════════════════════════
 # 每人通知設定（Email）
 # ════════════════════════════════════════
+_NOTIFY_DEFAULT = {"email": {"enabled": False, "smtp": "smtp.gmail.com", "port": 587,
+                             "user": "", "password": "", "to": ""}}
+
+
 def load_notify(user: str) -> dict:
+    ss = _sheets()
+    if ss is not None:
+        cfg = ss.load_notify(user)
+        if cfg is not None:
+            return cfg or _NOTIFY_DEFAULT
     p = notify_file(user)
     if p.exists():
         try:
             return json.loads(p.read_text(encoding="utf-8"))
         except Exception:
             pass
-    return {"email": {"enabled": False, "smtp": "smtp.gmail.com", "port": 587,
-                      "user": "", "password": "", "to": ""}}
+    return dict(_NOTIFY_DEFAULT)
 
 
 def save_notify(user: str, cfg: dict):
+    ss = _sheets()
+    if ss is not None and ss.save_notify(user, cfg):
+        return
     DATA_DIR.mkdir(exist_ok=True)
     notify_file(user).write_text(json.dumps(cfg, ensure_ascii=False, indent=2),
                                  encoding="utf-8")
