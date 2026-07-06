@@ -207,6 +207,16 @@ def set_auto_update(on: bool):
 
 def ensure_started():
     """啟動背景自動更新（行程內只會有一條執行緒）"""
+    # 主執行緒把 DATA_PACK_URL 從 secrets 帶到環境變數，
+    # 背景執行緒(無 Streamlit context)才判得出「雲端資料包模式」→ 不亂跑 yfinance
+    try:
+        import os
+        import streamlit as st
+        u = st.secrets.get("DATA_PACK_URL")
+        if u:
+            os.environ["DATA_PACK_URL"] = str(u)
+    except Exception:
+        pass
     if any(t.name == _THREAD_NAME for t in threading.enumerate()):
         return
     t = threading.Thread(target=_loop, daemon=True, name=_THREAD_NAME)
