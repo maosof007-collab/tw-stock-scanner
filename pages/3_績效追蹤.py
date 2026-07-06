@@ -501,7 +501,7 @@ with tab2:
         disp = active_rich[show].rename(columns=rename)
         st.dataframe(
             disp.style
-                .applymap(color_pnl, subset=["損益%"] if "損益%" in disp.columns else [])
+                .map(color_pnl, subset=["損益%"] if "損益%" in disp.columns else [])
                 .format({
                     "進場價":"{:.1f}","現價":"{:.1f}","移動停損":"{:.1f}",
                     "損益%":"{:+.2f}%","損益額":"{:+,.0f}",
@@ -664,7 +664,7 @@ with tab3:
         disp2 = closed_rich[show2].rename(columns=rename2)
         st.dataframe(
             disp2.style
-                .applymap(color_pnl, subset=["損益%"] if "損益%" in disp2.columns else [])
+                .map(color_pnl, subset=["損益%"] if "損益%" in disp2.columns else [])
                 .format({"進場價":"{:.1f}","出場價":"{:.1f}","損益%":"{:+.2f}%","損益額":"{:+,.0f}"}),
             use_container_width=True,
         )

@@ -156,7 +156,7 @@ def _sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
         return ""
 
     st.dataframe(
-        tbl.style.applymap(_c, subset=["漲跌%"])
+        tbl.style.map(_c, subset=["漲跌%"])
            .format({"漲跌%": "{:+.2f}%", "收盤": "{:.1f}", "量(張)": "{:,}"}),
         use_container_width=True,
         height=min(500, len(tbl) * 36 + 60),
@@ -224,7 +224,7 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
             return ""
 
         st.dataframe(
-            disp.style.applymap(color_chg, subset=["平均漲跌%"])
+            disp.style.map(color_chg, subset=["平均漲跌%"])
                 .format({"平均漲跌%": "{:+.2f}%", "上漲": "{:.0f}",
                          "下跌": "{:.0f}", "合計": "{:.0f}"}),
             use_container_width=True,

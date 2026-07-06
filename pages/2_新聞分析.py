@@ -234,7 +234,7 @@ with tab1:
 
         st.dataframe(
             conf_df[show_cols].style
-                .applymap(color_conf, subset=["confidence"] if "confidence" in show_cols else [])
+                .map(color_conf, subset=["confidence"] if "confidence" in show_cols else [])
                 .format({
                     "收盤":"{:.1f}","停損":"{:.1f}",
                     "confidence":"{:.1f}","tech_score":"{:.1f}",
@@ -364,7 +364,7 @@ with tab2:
                 if c in filtered.columns]
         st.dataframe(
             filtered[show].style
-                .applymap(color_sentiment, subset=["sentiment"])
+                .map(color_sentiment, subset=["sentiment"])
                 .format({"score":"{:+.3f}"}),
             use_container_width=True, height=500,
         )

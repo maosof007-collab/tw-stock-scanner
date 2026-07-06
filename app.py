@@ -549,7 +549,7 @@ def render_signals_tab(all_df_sig, strategy_name):
             if val=="buy":  return "color:#1D9E75;font-weight:600"
             if val=="sell": return "color:#E24B4A;font-weight:600"
             return "color:#888"
-        st.dataframe(sig_df.style.applymap(color_sig,subset=["訊號"]),use_container_width=True)
+        st.dataframe(sig_df.style.map(color_sig,subset=["訊號"]),use_container_width=True)
         buy_cnt=(sig_df["訊號"]=="buy").sum()
         st.success(f"🔔 今日共 {buy_cnt} 檔買入訊號") if buy_cnt>0 else st.info("今日無買入訊號")
 

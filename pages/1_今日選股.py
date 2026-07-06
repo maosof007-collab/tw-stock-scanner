@@ -709,9 +709,9 @@ with tab_buy:
         st.caption("☑️ 勾選左側核取方塊，可一鍵加入績效追蹤")
         event = st.dataframe(
             disp.style
-                .applymap(timing_color, subset=["進場時機"])
-                .applymap(color_rs,     subset=["RS相對強度"])
-                .applymap(color_risk,   subset=["風險%"])
+                .map(timing_color, subset=["進場時機"])
+                .map(color_rs,     subset=["RS相對強度"])
+                .map(color_risk,   subset=["風險%"])
                 .format({"收盤":"{:.1f}","停損":"{:.1f}",
                          "風險%":"{:.1f}%","RS相對強度":"{:.2f}","量比(vs均)":"{:.1f}x"}),
             use_container_width=True,
@@ -773,7 +773,7 @@ with tab_watch:
         disp2 = other_df[show2].reset_index(drop=True)
         st.dataframe(
             disp2.style
-                .applymap(color_rs, subset=["RS相對強度"])
+                .map(color_rs, subset=["RS相對強度"])
                 .format({"收盤":"{:.1f}","RS相對強度":"{:.2f}"}),
             use_container_width=True,
             height=min(560, len(disp2)*38+60),
