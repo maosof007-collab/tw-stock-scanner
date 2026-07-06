@@ -51,12 +51,21 @@ def ensure_data(force: bool = False) -> str:
     try:
         import requests
         DATA.mkdir(parents=True, exist_ok=True)
-        r = requests.get(url, timeout=600)
-        r.raise_for_status()
-        with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-            # 資料包內含 data/ 這層 → 解到專案根；否則解到 data/
+        tmp = ROOT / "_data_pack.zip"
+        # 串流寫檔（低記憶體），避免雲端免費版被大檔一次載入吃爆
+        with requests.get(url, timeout=900, stream=True) as r:
+            r.raise_for_status()
+            with open(tmp, "wb") as f:
+                for chunk in r.iter_content(chunk_size=1 << 20):
+                    if chunk:
+                        f.write(chunk)
+        with zipfile.ZipFile(tmp) as z:
             top = z.namelist()[0] if z.namelist() else ""
             z.extractall(ROOT if top.startswith("data/") else DATA)
+        try:
+            tmp.unlink()
+        except Exception:
+            pass
         return "downloaded"
     except Exception as e:
         return f"error:{e}"
