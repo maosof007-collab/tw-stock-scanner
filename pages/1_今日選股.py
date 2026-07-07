@@ -468,9 +468,17 @@ def _latest_data_date() -> str:
 _data_date = _latest_data_date()
 _scan_ymd = f"{scan_date[:4]}-{scan_date[4:6]}-{scan_date[6:]}" if scan_date else ""
 if _data_date and _scan_ymd and _scan_ymd < _data_date:
-    st.warning(
-        f"📭 **今日（{_data_date}）沒有新的買進訊號**（多為大跌/量縮日，屬正常）。"
-        f"下方顯示的是最近一次有訊號的 **{_scan_ymd}** 選股，僅供回顧參考。")
+    if CLOUD:
+        # 雲端：掃描已由排程跑過 → 比資料舊代表今天真的沒訊號 → 只顯示這句、不掛舊清單
+        st.markdown(f"### 📭 今日（{_data_date}）無買進訊號")
+        st.info("大跌日／量縮日常見，屬正常——策略沒找到符合條件的股就不亂選。"
+                "有訊號的交易日會自動出現清單，你什麼都不用做。")
+        st.caption(f"（最近一次有訊號：{_scan_ymd}）")
+        st.stop()
+    else:
+        st.warning(
+            f"📭 **今日（{_data_date}）沒有新的買進訊號**（大跌/量縮日常見）。"
+            f"下方為最近一次 **{_scan_ymd}** 的選股，僅供參考。")
 
 # ── 工具列 ────────────────────────────────
 # 主推策略（回測期望值最高）：今日選股預設只看它，避免 7 策略合併破 50 檔
