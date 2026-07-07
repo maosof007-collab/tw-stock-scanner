@@ -1,0 +1,74 @@
+name: 每日更新資料包
+
+# 台股收盤後自動更新股價+掃描，重壓資料包上傳到 Release，雲端隔天自動抓新資料。
+# 保底：先下載現有資料包→在上面增量更新→健檢通過才覆蓋，更新失敗也不會清空既有資料。
+
+on:
+  schedule:
+    - cron: "0 9 * * 1-5"        # UTC 09:00 = 台灣 17:00（收盤後），週一~五
+  workflow_dispatch: {}          # 也可到 Actions 頁手動按執行
+
+permissions:
+  contents: write                 # 需要寫 Release + push 選股 csv
+
+concurrency:
+  group: daily-data-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: 取出程式碼
+        uses: actions/checkout@v4
+
+      - name: 安裝 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安裝套件（精簡：更新+掃描需要的）
+        run: pip install --quiet pandas numpy requests yfinance lxml beautifulsoup4 matplotlib
+
+      - name: 下載現有資料包並解開（保底基準）
+        run: |
+          curl -fsSL -o data_pack.zip \
+            "https://github.com/${{ github.repository }}/releases/download/data-v1/data_pack.zip" || true
+          if [ -f data_pack.zip ]; then unzip -q -o data_pack.zip && rm -f data_pack.zip; fi
+          echo "更新前價格檔數：$(ls data/*.TW.csv data/*.TWO.csv 2>/dev/null | wc -l)"
+
+      - name: 更新股價 + 掃描選股
+        run: |
+          python updater.py       || echo "::warning::updater 有部分失敗，續跑"
+          python scan_signals.py  || echo "::warning::scan 有部分失敗，續跑"
+
+      - name: 健檢（價格檔要夠多才上傳，避免壞包覆蓋好包）
+        run: |
+          n=$(ls data/*.TW.csv data/*.TWO.csv 2>/dev/null | wc -l)
+          echo "更新後價格檔數：$n"
+          if [ "$n" -lt 1500 ]; then echo "::error::價格檔太少($n)，中止上傳"; exit 1; fi
+          echo "最新股價日：$(tail -1 data/2330.TW.csv | cut -d, -f1)"
+
+      - name: 重壓資料包（含 scan_results，排除個人/暫存檔）
+        run: |
+          zip -q -r -X data_pack.zip data scan_results \
+            -x "data/portfolio_*.csv" "data/notify_*.json" "data/*.log" \
+               "data/_*.flag" "data/_*.txt" "data/_progress.json" "data/_market_margin.csv"
+          ls -lh data_pack.zip
+
+      - name: 覆蓋上傳到 Release data-v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload data-v1 data_pack.zip --clobber
+
+      - name: 把最新選股 csv commit 回 repo（觸發雲端重部署抓新包）
+        run: |
+          git config user.name  "data-bot"
+          git config user.email "data-bot@users.noreply.github.com"
+          latest=$(ls -t scan_results/signals_*.csv 2>/dev/null | head -1)
+          if [ -n "$latest" ]; then
+            git add -f "$latest"
+            git commit -m "chore(data): 自動更新 $(basename "$latest")" || echo "無變更"
+            git push || echo "push 略過"
+          fi
