@@ -454,6 +454,24 @@ sector_map= {r["ticker"]: r.get("sector","") for _, r in info_df.iterrows()}
 
 df_all, scan_date = load_latest_signals()
 
+# ── 「今日資料已更新，但今日沒新選股」的明確提示（避免舊選股看起來像今天）──
+def _latest_data_date() -> str:
+    import pandas as _pd
+    for _f in (DATA_DIR / "benchmark_TWII.csv", DATA_DIR / "2330.TW.csv"):
+        if _f.exists():
+            try:
+                _d = _pd.read_csv(_f, usecols=[0]).iloc[-1, 0]
+                return str(_pd.to_datetime(_d).date())
+            except Exception:
+                pass
+    return ""
+_data_date = _latest_data_date()
+_scan_ymd = f"{scan_date[:4]}-{scan_date[4:6]}-{scan_date[6:]}" if scan_date else ""
+if _data_date and _scan_ymd and _scan_ymd < _data_date:
+    st.warning(
+        f"📭 **今日（{_data_date}）沒有新的買進訊號**（多為大跌/量縮日，屬正常）。"
+        f"下方顯示的是最近一次有訊號的 **{_scan_ymd}** 選股，僅供回顧參考。")
+
 # ── 工具列 ────────────────────────────────
 # 主推策略（回測期望值最高）：今日選股預設只看它，避免 7 策略合併破 50 檔
 MAIN_STRATEGY = "量縮整理→出量突破（融資沒走）"
