@@ -40,8 +40,16 @@ jobs:
 
       - name: 更新股價 + 掃描選股
         run: |
-          python updater.py       || echo "::warning::updater 有部分失敗，續跑"
-          python scan_signals.py  || echo "::warning::scan 有部分失敗，續跑"
+          python updater.py 2>&1 | tail -5 || echo "::warning::updater 部分失敗，續跑"
+          echo "----- 開始掃描 -----"
+          python scan_signals.py > scan.log 2>&1 || echo "::warning::scan 非零退出"
+          tail -25 scan.log
+          today=$(date -u +%Y%m%d)
+          if [ -f "scan_results/signals_${today}.csv" ]; then
+            echo "✅ 已產生 signals_${today}.csv（$(( $(wc -l < scan_results/signals_${today}.csv) - 1 )) 檔）"
+          else
+            echo "::warning::未產生 signals_${today}.csv（見上方掃描輸出）"
+          fi
 
       - name: 健檢（價格檔要夠多才上傳，避免壞包覆蓋好包）
         run: |

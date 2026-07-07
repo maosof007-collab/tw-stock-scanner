@@ -194,8 +194,15 @@ def scan_all(strategy_filter: str = "") -> list[dict]:
 
 
 def print_report(signals: list[dict], top: int = 50):
+    OUT_DIR.mkdir(exist_ok=True)
+    _date = datetime.today().strftime("%Y%m%d")
+    _out = OUT_DIR / f"signals_{_date}.csv"
     if not signals:
-        print("❌ 今日無任何買入訊號")
+        # 0 訊號也要寫檔（帶欄位），否則今日選股會停在舊日期
+        print("❌ 今日無任何買入訊號（仍寫空檔）")
+        pd.DataFrame(columns=["訊號等級", "策略", "代碼", "收盤", "停損",
+                              "風險%", "RS相對強度", "量比(vs均)", "狀態"]
+                     ).to_csv(_out, index=False, encoding="utf-8-sig")
         return
 
     df = pd.DataFrame(signals)
