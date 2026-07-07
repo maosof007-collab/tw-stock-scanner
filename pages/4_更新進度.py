@@ -34,27 +34,39 @@ def launch(cmd: list[str], label: str):
     st.session_state["launched_at"] = time.time()
 
 
-c1, c2, c3 = st.columns([2, 2, 6])
-with c1:
-    if st.button("🔄 更新股價 ＋ 掃描", type="primary", use_container_width=True):
-        launch([sys.executable, "-c",
-                "import subprocess,sys;"
-                "subprocess.run([sys.executable,'updater.py']);"
-                "subprocess.run([sys.executable,'scan_signals.py'])"],
-               "更新股價＋掃描")
-        st.rerun()
-with c2:
-    if st.button("📡 只掃描訊號", use_container_width=True):
-        launch([sys.executable, "scan_signals.py"], "只掃描訊號")
-        st.rerun()
-with c3:
-    from auto_refresh import auto_update_enabled, set_auto_update
-    _au = st.toggle("背景自動更新（關閉＝只有按上面按鈕才更新）",
-                    value=auto_update_enabled())
-    if _au != auto_update_enabled():
-        set_auto_update(_au)
-        st.toast("背景自動更新已" + ("開啟" if _au else "關閉（全手動）"))
-    st.caption("開啟時：僅在『資料落後』才會自動補；今天已有資料 → 不會自動更新。")
+def _is_cloud():
+    try:
+        from auto_refresh import _pack_mode
+        return _pack_mode()
+    except Exception:
+        return False
+
+if _is_cloud():
+    # 雲端：資料由每日排程自動更新，不提供手動按鈕（避免混淆 + 暫存不留存）
+    st.success("☁️ **雲端版：資料每天自動更新（台灣 17:00），你不用手動做任何事。**")
+    st.caption("每天由 GitHub 排程更新股價+掃描、重壓資料包，隔天自動生效。這一頁在雲端只是說明用。")
+else:
+    c1, c2, c3 = st.columns([2, 2, 6])
+    with c1:
+        if st.button("🔄 更新股價 ＋ 掃描", type="primary", use_container_width=True):
+            launch([sys.executable, "-c",
+                    "import subprocess,sys;"
+                    "subprocess.run([sys.executable,'updater.py']);"
+                    "subprocess.run([sys.executable,'scan_signals.py'])"],
+                   "更新股價＋掃描")
+            st.rerun()
+    with c2:
+        if st.button("📡 只掃描訊號", use_container_width=True):
+            launch([sys.executable, "scan_signals.py"], "只掃描訊號")
+            st.rerun()
+    with c3:
+        from auto_refresh import auto_update_enabled, set_auto_update
+        _au = st.toggle("背景自動更新（關閉＝只有按上面按鈕才更新）",
+                        value=auto_update_enabled())
+        if _au != auto_update_enabled():
+            set_auto_update(_au)
+            st.toast("背景自動更新已" + ("開啟" if _au else "關閉（全手動）"))
+        st.caption("開啟時：僅在『資料落後』才會自動補；今天已有資料 → 不會自動更新。")
 
 st.markdown("---")
 

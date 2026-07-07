@@ -406,13 +406,23 @@ def _auto_update_triggered() -> bool:
         pass
     return (_is_trading_day() and _after_close() and not _data_is_today())
 
+# 雲端模式（資料包）判定：雲端一切自動、不顯示手動更新 UI
+def _is_cloud():
+    try:
+        from auto_refresh import _pack_mode
+        return _pack_mode()
+    except Exception:
+        return False
+CLOUD = _is_cloud()
+
 # 狀態列
 now = datetime.now()
 status_col, refresh_col = st.columns([5, 1])
 with status_col:
-    if _auto_update_triggered():
+    if CLOUD:
+        st.info("☁️ 雲端資料**每天自動更新**，你不用手動做任何事。大跌/量縮日可能顯示今日無新訊號，屬正常。")
+    elif _auto_update_triggered():
         st.warning("⏰ 收盤後資料未更新，正在背景更新中...")
-        # 背景觸發更新（不阻塞 UI）
         if "auto_update_running" not in st.session_state:
             st.session_state.auto_update_running = True
             subprocess.Popen(
@@ -457,8 +467,10 @@ with col_info:
         st.warning("尚無掃描結果")
 
 with col_btn:
-    if st.button("🔄 更新＋選股", type="primary", use_container_width=True,
-                 help="股價未更新→自動抓新股價再選股；股價已最新→只快速重選。進度看『⏱️ 更新進度』頁。"):
+    if CLOUD:
+        st.caption("☁️ 每日自動更新")     # 雲端不給手動更新按鈕，避免混淆
+    elif st.button("🔄 更新＋選股", type="primary", use_container_width=True,
+                   help="股價未更新→自動抓新股價再選股；股價已最新→只快速重選。進度看『⏱️ 更新進度』頁。"):
         try:
             from auto_refresh import _data_behind, trigger_full_update
             stale = _data_behind()
