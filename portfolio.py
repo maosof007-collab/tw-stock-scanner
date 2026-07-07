@@ -47,11 +47,19 @@ def load_portfolio(user: str) -> pd.DataFrame:
     if ss is not None:
         df = ss.load_portfolio(user, COLUMNS)
         if df is not None:                      # 雲端讀到（含空表）→ 用它
-            return df
+            return _as_object(df)
     p = track_file(user)                        # 本機 / 雲端讀失敗 → CSV
     if not p.exists():
         return pd.DataFrame(columns=COLUMNS)
-    return pd.read_csv(p, encoding="utf-8-sig")
+    return _as_object(pd.read_csv(p, encoding="utf-8-sig"))
+
+
+def _as_object(df: pd.DataFrame) -> pd.DataFrame:
+    """統一成 object 欄位，避免新版 pandas(arrow string)在後續指派數字時報 TypeError。"""
+    try:
+        return df.astype(object)
+    except Exception:
+        return df
 
 
 def save_portfolio(df: pd.DataFrame, user: str):
