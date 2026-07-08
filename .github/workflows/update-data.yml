@@ -70,13 +70,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload data-v1 data_pack.zip --clobber
 
-      - name: 把最新選股 csv commit 回 repo（觸發雲端重部署抓新包）
+      - name: 通知雲端刷新（更新標記→push→Streamlit 自動重部署抓新包）
         run: |
           git config user.name  "data-bot"
           git config user.email "data-bot@users.noreply.github.com"
-          latest=$(ls -t scan_results/signals_*.csv 2>/dev/null | head -1)
-          if [ -n "$latest" ]; then
-            git add -f "$latest"
-            git commit -m "chore(data): 自動更新 $(basename "$latest")" || echo "無變更"
-            git push || echo "push 略過"
-          fi
+          stamp="$(date -u '+%Y-%m-%d %H:%M UTC')"
+          pdate="$(tail -1 data/2330.TW.csv | cut -d, -f1)"
+          # 更新標記檔（每次都會變）→ 保證有一個 commit 可推，才會觸發雲端重部署
+          echo "auto_update=${stamp} | 資料日=${pdate}" > .last_data_update
+          latest="$(ls -t scan_results/signals_*.csv 2>/dev/null | head -1)"
+          git add -f .last_data_update ${latest:+"$latest"}
+          git commit -m "chore(data): 自動更新資料日 ${pdate} (${stamp})" || { echo "無變更，略過"; exit 0; }
+          git pull --rebase origin main || true
+          git push origin HEAD:main \
+            || echo "::warning::push 失敗——請確認 Settings→Actions→General→Workflow permissions 設為『Read and write』"
