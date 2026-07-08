@@ -42,8 +42,11 @@ from strategies import load_all_strategies
 # ════════════════════════════════════════
 # 設定
 # ════════════════════════════════════════
-DATA_DIR  = Path("data")
-OUT_DIR   = Path("backtest_results")
+# 用本檔位置定位，不依賴工作目錄；並確保 log 資料夾存在（雲端無此夾會讓 import 即崩）
+_HERE     = Path(__file__).resolve().parent
+DATA_DIR  = _HERE / "data"
+OUT_DIR   = _HERE / "backtest_results"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
 CAPITAL   = 1_000_000
 POS_RISK  = 0.02
 ATR_PER   = 14
