@@ -37,14 +37,34 @@ def _has_price_data() -> bool:
         return False
 
 
+# 版本標記：排程每天更新 repo 的 .last_data_update；本地下載後把它抄到 _pack_stamp。
+# 兩者不一致 = Release 有新資料包 → 即使檔案還在也要重新下載（修「雲端一直用舊資料」）。
+_MARKER = ROOT / ".last_data_update"        # 來自 repo（git pull 會更新）
+_STAMP  = DATA / "_pack_stamp.txt"          # 上次下載時的標記副本
+
+
+def _pack_outdated() -> bool:
+    try:
+        if not _MARKER.exists():
+            return False                     # 尚無標記（排程還沒跑過新版）→ 沿用舊行為
+        marker = _MARKER.read_text(encoding="utf-8", errors="replace").strip()
+        stamp = _STAMP.read_text(encoding="utf-8", errors="replace").strip() \
+            if _STAMP.exists() else ""
+        return marker != stamp
+    except Exception:
+        return False
+
+
 def ensure_data(force: bool = False) -> str:
     """需要時下載資料包。回傳狀態字串（供顯示/除錯）。"""
     global _done
     if _done and not force:
         return "skip"
     _done = True
-    if _has_price_data() and not force:
-        return "local"                       # 本機已有資料 → 不動作
+    if _has_price_data() and not force and not _pack_outdated():
+        return "local"                       # 檔案在且版本沒變 → 不動作
+    if _has_price_data() and _pack_outdated():
+        print("[cloud_bootstrap] 偵測到新資料包版本 → 重新下載", flush=True)
     url = _pack_url()
     if not url:
         print("[cloud_bootstrap] 無 DATA_PACK_URL，略過（本機或未設定）", flush=True)
@@ -72,6 +92,12 @@ def ensure_data(force: bool = False) -> str:
             pass
         cnt = len(list(DATA.glob("*.TW.csv"))) + len(list(DATA.glob("*.TWO.csv")))
         print(f"[cloud_bootstrap] 解壓完成，價格檔 {cnt} 個 ✅", flush=True)
+        try:                                  # 記住這版標記，之後版本沒變就不重下
+            if _MARKER.exists():
+                _STAMP.write_text(_MARKER.read_text(encoding="utf-8", errors="replace"),
+                                  encoding="utf-8")
+        except Exception:
+            pass
         return "downloaded"
     except Exception as e:
         print(f"[cloud_bootstrap] 失敗：{e}", flush=True)

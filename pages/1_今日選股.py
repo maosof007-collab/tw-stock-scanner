@@ -456,8 +456,9 @@ df_all, scan_date = load_latest_signals()
 
 # ── 「今日資料已更新，但今日沒新選股」的明確提示（避免舊選股看起來像今天）──
 def _latest_data_date() -> str:
+    # 先讀 2330（只來自資料包）；benchmark 有進 git，soft update 會被蓋回舊版造成誤判
     import pandas as _pd
-    for _f in (DATA_DIR / "benchmark_TWII.csv", DATA_DIR / "2330.TW.csv"):
+    for _f in (DATA_DIR / "2330.TW.csv", DATA_DIR / "benchmark_TWII.csv"):
         if _f.exists():
             try:
                 _d = _pd.read_csv(_f, usecols=[0]).iloc[-1, 0]
