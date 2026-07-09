@@ -390,6 +390,16 @@ if not active_rich.empty and "price_date" in active_rich.columns:
             st.caption("全市場更新請到「⏱️ 更新進度」頁")
 
 # ── 分頁 ────────────────────────────────────
+# 損益上色（持倉明細/出場紀錄共用；定義在分頁外，持倉為空時出場紀錄仍可用）
+def color_pnl(val):
+    if isinstance(val, float):
+        if val > 5:   return f"color:{GREEN};font-weight:700"
+        if val > 0:   return f"color:{GREEN}"
+        if val < -5:  return f"color:{RED};font-weight:700"
+        if val < 0:   return f"color:{RED}"
+    return ""
+
+
 tab1, tab2, tab3 = st.tabs(["📊 持倉損益圖", "📋 持倉明細", "🏁 出場紀錄"])
 
 # ══ Tab1：損益圖 ════════════════════════════
@@ -489,14 +499,6 @@ with tab2:
             "trail_stop":"移動停損","shares":"張數",
             "strategy":"策略","note":"備註",
         }
-
-        def color_pnl(val):
-            if isinstance(val, float):
-                if val > 5:   return f"color:{GREEN};font-weight:700"
-                if val > 0:   return f"color:{GREEN}"
-                if val < -5:  return f"color:{RED};font-weight:700"
-                if val < 0:   return f"color:{RED}"
-            return ""
 
         disp = active_rich[show].rename(columns=rename)
         st.dataframe(
