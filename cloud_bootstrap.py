@@ -56,14 +56,17 @@ def _pack_outdated() -> bool:
 
 
 def ensure_data(force: bool = False) -> str:
-    """需要時下載資料包。回傳狀態字串（供顯示/除錯）。"""
+    """需要時下載資料包。回傳狀態字串（供顯示/除錯）。
+    版本比對每次都做（很便宜，讀兩個小檔）——soft update 不重啟行程，
+    _done 旗標會殘留，若先看旗標就永遠不會抓新包。"""
     global _done
-    if _done and not force:
+    outdated = _pack_outdated()
+    if _done and not force and not outdated:
         return "skip"
     _done = True
-    if _has_price_data() and not force and not _pack_outdated():
+    if _has_price_data() and not force and not outdated:
         return "local"                       # 檔案在且版本沒變 → 不動作
-    if _has_price_data() and _pack_outdated():
+    if _has_price_data() and outdated:
         print("[cloud_bootstrap] 偵測到新資料包版本 → 重新下載", flush=True)
     url = _pack_url()
     if not url:
