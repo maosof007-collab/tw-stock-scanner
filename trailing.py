@@ -46,7 +46,7 @@ def trailing_stop(ticker: str, entry_price: float, entry_date,
       stop      動態停損價（打到就賣）
       triggered 是否已達保本（開始鎖利）
       lock_pct  鎖住的獲利%（停損相對進場）
-      state     顯示文字：⏳未達保本 / 🔒保本 / 📈鎖利+X%
+      state     顯示文字：⏳持有中(初始停損) / 🔒持有中(已保本) / 📈持有中(鎖利+X%)
     """
     ep = float(entry_price or 0)
     df = _load(ticker)
@@ -78,7 +78,7 @@ def trailing_stop(ticker: str, entry_price: float, entry_date,
 
     lock = (sl - ep) / ep * 100 if ep else 0.0
     if trig:
-        state = "🔒 保本" if abs(lock) < 0.6 else f"📈 鎖利 {lock:+.1f}%"
+        state = "🔒 持有中（已保本）" if abs(lock) < 0.6 else f"📈 持有中（鎖利 {lock:+.1f}%）"
     else:
-        state = "⏳ 未達保本"
+        state = "⏳ 持有中（初始停損）"
     return {"stop": round(sl, 2), "triggered": trig, "lock_pct": round(lock, 2), "state": state}

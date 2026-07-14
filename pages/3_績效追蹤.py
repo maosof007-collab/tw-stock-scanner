@@ -330,8 +330,8 @@ if not active_rich.empty and "hit_stop" in active_rich.columns:
     hit = active_rich[active_rich["hit_stop"]]
     if not hit.empty:
         lines = "　".join(
-            f"**{r['ticker']} {r.get('name','')}**（現價 {r['current_price']:.1f} ≤ 移動停損 "
-            f"{float(r.get('trail_stop', r.get('stop_loss', 0))):.1f}，鎖利 {float(r.get('lock_pct',0)):+.1f}%）"
+            f"**{r['ticker']} {r.get('name','')}**（現價 {r['current_price']:.1f} ≤ 停損價 "
+            f"{float(r.get('trail_stop', r.get('stop_loss', 0))):.1f}，出場約 {float(r.get('lock_pct',0)):+.1f}%）"
             for _, r in hit.iterrows()
         )
         wc, bc = st.columns([4.2, 1.4])
@@ -483,20 +483,20 @@ with tab2:
         st.info("尚無持倉")
     else:
         active_rich = active_rich.copy()
-        active_rich["停損狀態"] = active_rich.apply(
-            lambda x: "🛑 已觸發" if x.get("hit_stop")
+        active_rich["持有狀態"] = active_rich.apply(
+            lambda x: "🛑 跌破停損（該出場）" if x.get("hit_stop")
             else x.get("stop_state", "✅ 持有中"), axis=1)
 
         show = [c for c in [
             "ticker","name","entry_date","entry_price","current_price",
-            "pnl_pct","pnl_amt","trail_stop","停損狀態","shares","strategy","note"
+            "pnl_pct","pnl_amt","trail_stop","持有狀態","shares","strategy","note"
         ] if c in active_rich.columns]
 
         rename = {
             "ticker":"代碼","name":"名稱","entry_date":"進場日",
             "entry_price":"進場價","current_price":"現價",
             "pnl_pct":"損益%","pnl_amt":"損益額",
-            "trail_stop":"移動停損","shares":"張數",
+            "trail_stop":"停損價","shares":"張數",
             "strategy":"策略","note":"備註",
         }
 
@@ -505,7 +505,7 @@ with tab2:
             disp.style
                 .map(color_pnl, subset=["損益%"] if "損益%" in disp.columns else [])
                 .format({
-                    "進場價":"{:.1f}","現價":"{:.1f}","移動停損":"{:.1f}",
+                    "進場價":"{:.1f}","現價":"{:.1f}","停損價":"{:.1f}",
                     "損益%":"{:+.2f}%","損益額":"{:+,.0f}",
                 }),
             use_container_width=True,

@@ -34,8 +34,8 @@ ratio_win = c[1].selectbox("平滑窗(週)", [12, 8, 16], index=0)
 tail_weeks = c[2].selectbox("尾巴(週)", [8, 5, 12], index=0)
 maxm = c[3].selectbox("每產業取樣", [25, 40, 15], index=0)
 with c[4]:
-    show_tails = st.checkbox("顯示尾巴(軌跡)", value=False,
-                             help="產業近幾週移動軌跡；預設關閉，畫面較乾淨")
+    show_tails = st.checkbox("顯示尾巴(軌跡)", value=True,
+                             help="產業近幾週移動軌跡；嫌亂可關閉")
     if st.button("🔄 重新計算"):
         _rrg.clear()
 
