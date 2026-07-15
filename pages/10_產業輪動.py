@@ -39,7 +39,7 @@ with c[4]:
     if st.button("🔄 重新計算"):
         _rrg.clear()
 
-pts, tails = _rrg(weeks, ratio_win, tail_weeks, maxm)
+pts, tails, asof = _rrg(weeks, ratio_win, tail_weeks, maxm)
 if pts.empty:
     st.warning("資料不足，無法計算 RRG。")
     st.stop()
@@ -54,8 +54,14 @@ for i, q in enumerate(["領先", "改善", "弱化", "落後"]):
                   unsafe_allow_html=True)
 
 # ── RRG 圖 ──
-xmin, xmax = pts["RS-Ratio"].min(), pts["RS-Ratio"].max()
-ymin, ymax = pts["RS-Momentum"].min(), pts["RS-Momentum"].max()
+TAIL_SHOW = 5   # 尾巴只畫最近 N 週（全長軌跡交叉會糊成一團）
+xs, ys = list(pts["RS-Ratio"]), list(pts["RS-Momentum"])
+if show_tails:
+    for t in tails.values():
+        seg = t.tail(TAIL_SHOW)
+        xs += list(seg["ratio"]); ys += list(seg["mom"])
+xmin, xmax = min(xs), max(xs)
+ymin, ymax = min(ys), max(ys)
 padx = max(0.4, (xmax - xmin) * 0.15); pady = max(0.4, (ymax - ymin) * 0.15)
 x0, x1 = xmin - padx, xmax + padx
 y0, y1 = ymin - pady, ymax + pady
@@ -77,25 +83,26 @@ for (ax, ay, q) in [(x1, y1, "領先 LEADING"), (x0, y1, "改善 IMPROVING"),
                        yanchor="top" if ay == y1 else "bottom",
                        font=dict(size=12, color=THEME["muted"]))
 
-# 尾巴（近幾週軌跡）— 預設關閉，太多條會很亂
-if show_tails:
-    for _, r in pts.iterrows():
-        t = tails.get(r["產業"])
-        col = QUADRANTS[r["象限"]]["color"]
-        if t is not None and len(t) > 1:
-            fig.add_trace(go.Scatter(x=t["ratio"], y=t["mom"], mode="lines",
-                                     line=dict(color=col, width=1), opacity=0.35,
-                                     hoverinfo="skip", showlegend=False))
-# 現在點 + 標籤
-fig.add_trace(go.Scatter(
-    x=pts["RS-Ratio"], y=pts["RS-Momentum"], mode="markers+text",
-    marker=dict(size=13, color=[QUADRANTS[q]["color"] for q in pts["象限"]],
-                line=dict(width=1, color="#04070D")),
-    text=pts["產業"], textposition="top center", textfont=dict(size=10, color=THEME["text"]),
-    customdata=pts[["象限", "RS-Ratio", "RS-Momentum"]].values,
-    hovertemplate="<b>%{text}</b><br>%{customdata[0]}<br>"
-                  "RS-Ratio %{customdata[1]}<br>RS-Momentum %{customdata[2]}<extra></extra>",
-    showlegend=False))
+# 每產業一條「短尾巴」：只畫最近幾週、點由小到大＝行進方向
+for _, r in pts.iterrows():
+    t = tails.get(r["產業"])
+    col = QUADRANTS[r["象限"]]["color"]
+    seg = t.tail(TAIL_SHOW) if (show_tails and t is not None) else (t.tail(1) if t is not None else None)
+    if seg is None or seg.empty:
+        continue
+    n = len(seg)
+    sizes = [4 + 9 * i / max(n - 1, 1) for i in range(n)] if n > 1 else [13]
+    texts = [""] * (n - 1) + [r["產業"]]
+    fig.add_trace(go.Scatter(
+        x=list(seg["ratio"]), y=list(seg["mom"]),
+        mode="lines+markers+text" if n > 1 else "markers+text",
+        line=dict(color=col, width=1.2), opacity=0.9,
+        marker=dict(size=sizes, color=col, line=dict(width=1, color="#04070D")),
+        text=texts, textposition="top center", textfont=dict(size=10, color=THEME["text"]),
+        customdata=[[r["產業"], r["象限"], str(d)[:10]] for d in seg["date"]],
+        hovertemplate="<b>%{customdata[0]}</b>（%{customdata[1]}）%{customdata[2]}<br>"
+                      "RS-Ratio %{x:.2f}<br>RS-Momentum %{y:.2f}<extra></extra>",
+        showlegend=False))
 
 fig.update_layout(
     height=620, template="plotly_dark", paper_bgcolor=THEME["bg"], plot_bgcolor=THEME["panel"],
@@ -104,8 +111,9 @@ fig.update_layout(
     yaxis=dict(title="RS-Momentum 相對動能 ↑", range=[y0, y1], gridcolor=THEME["grid"]))
 st.plotly_chart(fig, use_container_width=True)
 
-st.caption("💡 順時針轉：**改善→領先→弱化→落後**。看**尾巴方向**比看點更重要——"
-           "往右上（領先）走＝資金流入；往左下（落後）走＝資金流出。**領先且尾巴續往右上**的產業最強。")
+asof_txt = f"　資料截至 **{str(asof)[:10]}**。" if asof is not None else ""
+st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**由小到大＝行進方向**（尾巴只畫最近 {TAIL_SHOW} 週）——"
+           f"往右上（領先）走＝資金流入；往左下（落後）走＝資金流出。**領先且尾巴續往右上**的產業最強。{asof_txt}")
 
 # ── 分象限清單 ──
 cc = st.columns(4)

@@ -46,26 +46,30 @@ def _weekly_close(code, weeks):
 
 
 def _bench_weekly(weeks):
+    """回傳 (週線收盤, 原始日線最後日期)。"""
     p = DATA / "benchmark_TWII.csv"
     if not p.exists():
-        return None
+        return None, None
     b = pd.read_csv(p)
     b["date"] = pd.to_datetime(b["Date"], errors="coerce")
     b["Close"] = pd.to_numeric(b["Close"], errors="coerce")
     b = b.dropna(subset=["date", "Close"]).set_index("date")["Close"]
-    return b.resample("W-FRI").last().dropna().tail(weeks + 20)
+    if b.empty:
+        return None, None
+    return b.resample("W-FRI").last().dropna().tail(weeks + 20), b.index[-1]
 
 
 def build_rrg(weeks: int = 60, ratio_win: int = 12, tail_weeks: int = 8,
               min_members: int = 5, max_members: int = 40):
-    """回傳 (points_df, tails_dict)。
-    points_df: 產業/RS-Ratio/RS-Momentum/象限/成員數；tails: {產業: DataFrame(ratio,mom)}。"""
+    """回傳 (points_df, tails_dict, asof)。
+    points_df: 產業/RS-Ratio/RS-Momentum/象限/成員數；
+    tails: {產業: DataFrame(date,ratio,mom)}；asof: 大盤日線最後日期。"""
     sl = pd.read_csv(DATA / "stock_list.csv", encoding="utf-8-sig", dtype=str)
     sl["code"] = sl["ticker"].str.replace(".TWO", "", regex=False)\
                              .str.replace(".TW", "", regex=False).str.strip()
-    bench = _bench_weekly(weeks)
+    bench, asof = _bench_weekly(weeks)
     if bench is None or len(bench) < ratio_win + tail_weeks + 5:
-        return pd.DataFrame(), {}
+        return pd.DataFrame(), {}, None
 
     points, tails = [], {}
     for sector, grp in sl.groupby("sector"):
@@ -110,11 +114,11 @@ def build_rrg(weeks: int = 60, ratio_win: int = 12, tail_weeks: int = 8,
             "RS-Momentum": round(float(cur["mom"]), 2),
             "象限": _quadrant(cur["ratio"], cur["mom"]), "成員數": len(cols),
         })
-        tails[sector] = tail.reset_index(drop=True)
+        tails[sector] = tail.rename_axis("date").reset_index()
 
     pts = pd.DataFrame(points)
     if not pts.empty:
         order = {"領先": 0, "改善": 1, "弱化": 2, "落後": 3}
         pts["_o"] = pts["象限"].map(order)
         pts = pts.sort_values(["_o", "RS-Ratio"], ascending=[True, False]).drop(columns="_o").reset_index(drop=True)
-    return pts, tails
+    return pts, tails, asof
