@@ -60,20 +60,25 @@ def _bench_weekly(weeks):
 
 
 def build_rrg(weeks: int = 60, ratio_win: int = 12, tail_weeks: int = 8,
-              min_members: int = 5, max_members: int = 40):
+              min_members: int = 5, max_members: int = 40,
+              groups: dict[str, list[str]] | None = None):
     """回傳 (points_df, tails_dict, asof)。
     points_df: 產業/RS-Ratio/RS-Momentum/象限/成員數；
-    tails: {產業: DataFrame(date,ratio,mom)}；asof: 大盤日線最後日期。"""
-    sl = pd.read_csv(DATA / "stock_list.csv", encoding="utf-8-sig", dtype=str)
-    sl["code"] = sl["ticker"].str.replace(".TWO", "", regex=False)\
-                             .str.replace(".TW", "", regex=False).str.strip()
+    tails: {產業: DataFrame(date,ratio,mom)}；asof: 大盤日線最後日期。
+    groups: 自訂分組 {名稱: [代碼...]}（例如概念族群）；None = 官方產業別。"""
+    if groups is None:
+        sl = pd.read_csv(DATA / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        sl["code"] = sl["ticker"].str.replace(".TWO", "", regex=False)\
+                                 .str.replace(".TW", "", regex=False).str.strip()
+        groups = {sec: grp["code"].dropna().tolist()
+                  for sec, grp in sl.dropna(subset=["sector"]).groupby("sector")}
     bench, asof = _bench_weekly(weeks)
     if bench is None or len(bench) < ratio_win + tail_weeks + 5:
         return pd.DataFrame(), {}, None
 
     points, tails = [], {}
-    for sector, grp in sl.groupby("sector"):
-        codes = grp["code"].dropna().tolist()[:max_members]
+    for sector, all_codes in groups.items():
+        codes = list(all_codes)[:max_members]
         cols = {}
         for c in codes:
             s = _weekly_close(c, weeks)
