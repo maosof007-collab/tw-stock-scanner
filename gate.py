@@ -15,6 +15,15 @@ USERS = ["阿原", "王媽", "翔老師", "黑哥", "珊"]
 ADMIN_USER = "管理者"
 
 
+def _auth_enabled() -> bool:
+    """登入門總開關：secrets [auth] enabled → 環境變數 APP_AUTH=1 → 預設關閉。
+    目前僅自用，免密碼直接進；要重新上鎖只需在 secrets.toml [auth] 加 enabled = true。"""
+    try:
+        return bool(st.secrets["auth"]["enabled"])
+    except Exception:
+        return os.environ.get("APP_AUTH", "") == "1"
+
+
 def _password() -> str:
     """朋友共用密碼：.streamlit/secrets.toml [auth] password → 環境變數 → 預設"""
     try:
@@ -45,6 +54,14 @@ def require_login() -> str:
         ensure_data()
     except Exception:
         pass
+
+    # ⓪.5 登入門關閉 → 直接以管理者身分進入（免密碼/免選人/免同意）
+    if not _auth_enabled():
+        st.session_state.authed = True
+        st.session_state.is_admin = True
+        st.session_state.agreed = True
+        st.session_state.setdefault("user", ADMIN_USER)
+        return st.session_state.user
 
     # ① 密碼（管理者密碼 → 直接以管理者身分登入；朋友密碼 → 進選人流程）
     if not st.session_state.get("authed"):
@@ -96,7 +113,9 @@ def is_admin() -> bool:
 
 
 def logout_button():
-    """側欄登出（換人或重登）"""
+    """側欄登出（換人或重登）；登入門關閉時不顯示"""
+    if not _auth_enabled():
+        return
     u = st.session_state.get("user", "")
     tag = "👑 管理者" if is_admin() else u
     if st.sidebar.button(f"🔓 登出（目前：{tag}）", use_container_width=True):
