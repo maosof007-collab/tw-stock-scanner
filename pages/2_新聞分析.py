@@ -83,7 +83,7 @@ if not has_key:
     )
 
 # 分頁
-tab1, tab2, tab3 = st.tabs(["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告", "🏭 產業趨勢雷達"])
 
 
 # ══════════════════════════════════════════
@@ -471,6 +471,72 @@ with tab3:
                         st.markdown(f"  🎯 {c}")
     else:
         st.info("尚無解析的法人報告。上傳 PDF 即可開始。")
+
+
+# ══════════════════════════════════════════
+# Tab 4：產業趨勢雷達（消息面 × 資金面）
+# ══════════════════════════════════════════
+with tab4:
+    from news_trend import build_sector_trend
+
+    @st.cache_data(ttl=900, show_spinner="彙整產業新聞趨勢…")
+    def _trend(win):
+        return build_sector_trend(win=win)
+
+    @st.cache_data(ttl=1800, show_spinner="計算 RRG 象限（首次約 15-25 秒）…")
+    def _rrg_quadrant():
+        from sector_rrg import build_rrg
+        pts, _, _ = build_rrg()
+        return dict(zip(pts["產業"], pts["象限"])) if not pts.empty else {}
+
+    tc = st.columns([1, 1.4, 3])
+    win = tc[0].selectbox("統計窗(日)", [7, 3, 14], index=0,
+                          help="近N日新聞則數 vs 前N日 → 熱度動能")
+    with tc[1]:
+        if st.button("📡 立即掃產業新聞", help="逐產業抓 Google News（約 20-30 秒）"):
+            with st.spinner("掃描 33 產業新聞中…"):
+                from fetch_news import fetch_sector_news
+                fetch_sector_news(days=max(win, 2))
+            _trend.clear()
+            st.rerun()
+
+    trend, headlines, asof = _trend(win)
+    if trend.empty:
+        st.info("還沒有產業新聞資料——按上方「📡 立即掃產業新聞」抓一批，之後每日更新會自動累積。")
+    else:
+        quad = _rrg_quadrant()
+        trend = trend.copy()
+        trend["RRG象限"] = trend["產業"].map(quad).fillna("—")
+        Q_ICON = {"領先": "🔴 領先", "改善": "🔵 改善", "弱化": "🟡 弱化", "落後": "🟣 落後", "—": "—"}
+        trend["RRG象限"] = trend["RRG象限"].map(lambda q: Q_ICON.get(q, q))
+        # 🔥 = 消息轉熱(熱度Δ>0 且情緒≥0) 且 資金面在改善/領先
+        trend["🔥"] = [
+            "🔥" if (r["熱度Δ%"] > 0 and r["情緒"] >= 0 and ("改善" in r["RRG象限"] or "領先" in r["RRG象限"]))
+            else ""
+            for _, r in trend.iterrows()
+        ]
+        st.caption(f"**消息面熱度 × 資金面位置**——🔥 = 新聞轉熱且 RRG 在改善/領先（趨勢起點候選）。"
+                   f"情緒為標題詞典計分(-1~+1)。資料截至 **{str(asof)[:10]}**。")
+
+        def _c_senti(v):
+            return f"color:{GREEN}" if v > 0.1 else (f"color:{RED}" if v < -0.1 else f"color:{MUTED}")
+        def _c_mom(v):
+            return f"color:{GREEN}" if v > 0 else (f"color:{RED}" if v < 0 else "")
+        st.dataframe(
+            trend.style.map(_c_senti, subset=["情緒"]).map(_c_mom, subset=["熱度Δ%"])
+                 .format({"熱度Δ%": "{:+.0f}%", "情緒": "{:+.2f}", "趨勢分": "{:+.2f}"}),
+            use_container_width=True, height=420, hide_index=True)
+
+        # 產業標題細看
+        pick = st.selectbox("🔍 看某產業的新聞標題", trend["產業"].tolist())
+        hs = headlines.get(pick)
+        if hs is not None and not hs.empty:
+            for _, h in hs.iterrows():
+                icon = "🟢" if h["score"] > 0 else ("🔴" if h["score"] < 0 else "⚪")
+                d = str(h["pub_date"])[:10]
+                st.markdown(f"{icon} `{d}` [{h['title']}]({h['url']})　"
+                            f"<span style='color:{MUTED};font-size:11px'>{h['source']}</span>",
+                            unsafe_allow_html=True)
 
 st.markdown(
     f"<p style='color:{MUTED};font-size:12px;text-align:right'>"

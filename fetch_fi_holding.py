@@ -15,6 +15,7 @@ import pandas as pd
 import time, logging
 from pathlib import Path
 from datetime import datetime, timedelta
+from twtime import now_tw
 
 DATA_DIR = Path("data/fi_holding")
 LOG_FILE = DATA_DIR / "fetch_log.csv"
@@ -139,7 +140,7 @@ def fetch_fi_holding_history(ticker: str,
     """
     tc       = ticker.replace(".TW", "").strip()
     out_path = DATA_DIR / f"{tc}_fi_holding.csv"
-    end_date = datetime.today()
+    end_date = now_tw()
 
     # 增量：有舊資料則只抓新的月份
     if out_path.exists():
@@ -187,7 +188,7 @@ def update_all_fi_holding(tickers: list):
     """批次更新所有股票的外資持股比例"""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     log.info("=" * 50)
-    log.info(f"  外資持股比例更新  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log.info(f"  外資持股比例更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")
     log.info("=" * 50)
 
     results = []
@@ -201,7 +202,7 @@ def update_all_fi_holding(tickers: list):
             results.append({"ticker": tc, "rows": 0, "status": "ERROR"})
 
     log_df = pd.DataFrame(results)
-    log_df["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_df["timestamp"] = now_tw().strftime("%Y-%m-%d %H:%M:%S")
     if LOG_FILE.exists():
         log_df = pd.concat([pd.read_csv(LOG_FILE), log_df], ignore_index=True)
     log_df.to_csv(LOG_FILE, index=False, encoding="utf-8-sig")

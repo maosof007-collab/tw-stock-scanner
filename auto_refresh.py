@@ -9,6 +9,7 @@ auto_refresh.py — App 內建自動更新（網站開著就一直更新，不�
 import sys, time, threading, subprocess
 from pathlib import Path
 from datetime import datetime, date, timedelta
+from twtime import now_tw
 
 ROOT   = Path(__file__).parent
 MARKER = ROOT / "data" / "_last_full_update.txt"
@@ -85,7 +86,7 @@ def _pack_mode() -> bool:
 
 def _last_trading_close_date() -> date:
     """最近一個『已收盤』的交易日（忽略國定假日，頂多多跑一次無害）"""
-    d = datetime.now()
+    d = now_tw()
     if d.weekday() < 5 and (d.hour * 60 + d.minute) >= 14 * 60 + 30:
         return d.date()                       # 今天是交易日且已收盤
     dd = d.date() - timedelta(days=1)
@@ -118,7 +119,7 @@ def trigger_full_update():
     """背景觸發全市場更新+掃描（進度頁可看；輸出寫 data/_auto_update.log 便於除錯）"""
     try:
         f = open(UPDLOG, "a", encoding="utf-8", errors="replace")
-        f.write(f"\n===== {datetime.now():%Y-%m-%d %H:%M:%S} 觸發全市場更新+掃描 =====\n")
+        f.write(f"\n===== {now_tw():%Y-%m-%d %H:%M:%S} 觸發全市場更新+掃描 =====\n")
         f.flush()
     except Exception:
         f = subprocess.DEVNULL
@@ -137,7 +138,7 @@ def _loop():
     time.sleep(20)                      # 等 App 完全啟動
     while True:
         try:
-            now = datetime.now()
+            now = now_tw()
             hm = now.hour * 60 + now.minute
             is_weekday = now.weekday() < 5
             if is_weekday and 9 * 60 <= hm <= 13 * 60 + 45:

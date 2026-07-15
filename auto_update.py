@@ -15,6 +15,7 @@ auto_update.py — 每日自動更新排程
 import sys, time, subprocess, logging
 from pathlib import Path
 from datetime import datetime, date
+from twtime import now_tw
 
 ROOT = Path(__file__).parent
 
@@ -54,12 +55,12 @@ def mark_updated():
 
 def is_trading_day() -> bool:
     """今天是否是交易日（週一~週五）"""
-    return datetime.today().weekday() < 5   # 0=Mon, 4=Fri
+    return now_tw().weekday() < 5   # 0=Mon, 4=Fri
 
 
 def is_after_close() -> bool:
     """現在是否已過收盤更新時間"""
-    now = datetime.now()
+    now = now_tw()
     return (now.hour > UPDATE_HOUR or
             (now.hour == UPDATE_HOUR and now.minute >= UPDATE_MINUTE))
 
@@ -104,11 +105,14 @@ def do_daily_update():
     # Step 3：更新融資融券餘額（增量）
     ok3 = run_step("fetch_margin.py", "--mode", "update")
 
+    # Step 3.5：產業新聞掃描（產業趨勢雷達）
+    ok35 = run_step("fetch_news.py", "--sectors")
+
     # Step 4：掃描今日訊號
     ok4 = run_step("scan_signals.py")
 
     mark_updated()
-    log.info(f"完成！股價:{ok1}  籌碼:{ok2}  融資:{ok3}  掃描:{ok4}")
+    log.info(f"完成！股價:{ok1}  籌碼:{ok2}  融資:{ok3}  新聞:{ok35}  掃描:{ok4}")
 
 
 def main():
@@ -117,7 +121,7 @@ def main():
 
     while True:
         try:
-            now = datetime.now()
+            now = now_tw()
             if (is_trading_day() and
                 is_after_close() and
                 not already_updated_today()):

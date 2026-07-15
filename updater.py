@@ -15,6 +15,7 @@ import pandas as pd
 import os, sys, time, glob, logging
 from pathlib import Path
 from datetime import datetime, timedelta
+from twtime import now_tw
 
 # 主控台改用 UTF-8，避免 ✅ 等 emoji 在 cp950 終端機觸發 UnicodeEncodeError 洗版
 try:
@@ -55,7 +56,7 @@ log = logging.getLogger(__name__)
 def update_one(ticker: str, csv_path: Path) -> dict:
     result = {
         "ticker":     ticker,
-        "timestamp":  datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp":  now_tw().strftime("%Y-%m-%d %H:%M:%S"),
         "status":     "",
         "old_rows":   0,
         "new_rows":   0,
@@ -82,7 +83,7 @@ def update_one(ticker: str, csv_path: Path) -> dict:
         last_date = None
 
     # ── 計算抓取起始日 ─────────────────────
-    today = datetime.today().date()
+    today = now_tw().date()
     # 只有「資料已涵蓋最近一個交易日」才跳過
     # （平日=今天；週六/週日=上週五。舊版用 7 天寬限導致股價最多落後一週）
     wd = today.weekday()
@@ -168,7 +169,7 @@ def update_all(data_dir: Path = DATA_DIR) -> pd.DataFrame:
     DATA_DIR.mkdir(exist_ok=True)
 
     log.info("=" * 50)
-    log.info(f"  台股資料每日更新  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log.info(f"  台股資料每日更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")
     log.info("=" * 50)
 
     # 大盤

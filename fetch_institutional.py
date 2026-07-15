@@ -17,6 +17,7 @@ import pandas as pd
 import time, os, json, logging
 from pathlib import Path
 from datetime import datetime, timedelta
+from twtime import now_tw
 
 # ════════════════════════════════════════
 # 設定
@@ -239,11 +240,11 @@ def update_institutional(data_dir: Path = DATA_DIR):
     """
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    end_date   = datetime.today().strftime("%Y-%m-%d")
-    start_date = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d")
+    end_date   = now_tw().strftime("%Y-%m-%d")
+    start_date = (now_tw() - timedelta(days=7)).strftime("%Y-%m-%d")
 
     log.info("=" * 50)
-    log.info(f"  三大法人資料增量更新  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log.info(f"  三大法人資料增量更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")
     log.info(f"  抓取範圍：{start_date} ~ {end_date}")
     log.info("=" * 50)
 
@@ -256,7 +257,7 @@ def update_institutional(data_dir: Path = DATA_DIR):
 
     # 記錄 log
     log_row = pd.DataFrame([{
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": now_tw().strftime("%Y-%m-%d %H:%M:%S"),
         "start":     start_date,
         "end":       end_date,
         "rows":      len(df),
@@ -303,7 +304,7 @@ if __name__ == "__main__":
                         help="update=增量更新(預設), history=抓歷史區間")
     parser.add_argument("--start", default="2015-01-01",
                         help="歷史模式起始日 YYYY-MM-DD")
-    parser.add_argument("--end",   default=datetime.today().strftime("%Y-%m-%d"),
+    parser.add_argument("--end",   default=now_tw().strftime("%Y-%m-%d"),
                         help="歷史模式結束日 YYYY-MM-DD")
     args = parser.parse_args()
 

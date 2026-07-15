@@ -21,6 +21,7 @@ parse_report.py — 法人報告 PDF 萃取器（Claude API + Files API）
 import sys, json, os, logging, argparse
 from pathlib import Path
 from datetime import datetime
+from twtime import now_tw
 
 import anthropic
 
@@ -177,7 +178,7 @@ def parse_one_report(
 
     data["file_id"]    = file_id
     data["source_pdf"] = str(pdf_path)
-    data["parsed_at"]  = datetime.now().strftime("%Y-%m-%d %H:%M")
+    data["parsed_at"]  = now_tw().strftime("%Y-%m-%d %H:%M")
 
     log.info(
         f"  → {data.get('company_name','?')} "
@@ -211,7 +212,7 @@ def parse_reports(pdf_paths: list[Path], cleanup: bool = False) -> list[dict]:
             log.error(f"解析失敗 {pdf_path}: {e}")
 
     # 存檔
-    date_str = datetime.today().strftime("%Y%m%d")
+    date_str = now_tw().strftime("%Y%m%d")
     out = REPORTS_DIR / f"parsed_{date_str}.json"
     with open(out, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)

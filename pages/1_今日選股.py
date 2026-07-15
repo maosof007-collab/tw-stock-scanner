@@ -4,6 +4,7 @@ pages/1_今日選股.py  — 今日選股 + 族群熱點
 import sys, glob, warnings, subprocess
 from pathlib import Path
 from datetime import datetime, timedelta, date
+from twtime import now_tw
 
 import streamlit as st
 import pandas as pd
@@ -383,10 +384,10 @@ page_header("今日選股訊號", "TODAY SIGNALS", "📡")
 
 # ── 自動刷新邏輯 ──────────────────────────
 def _is_trading_day() -> bool:
-    return datetime.today().weekday() < 5
+    return now_tw().weekday() < 5
 
 def _after_close() -> bool:
-    now = datetime.now()
+    now = now_tw()
     return now.hour > 14 or (now.hour == 14 and now.minute >= 30)
 
 def _data_is_today() -> bool:
@@ -416,7 +417,7 @@ def _is_cloud():
 CLOUD = _is_cloud()
 
 # 狀態列
-now = datetime.now()
+now = now_tw()
 status_col, refresh_col = st.columns([5, 1])
 with status_col:
     if CLOUD:

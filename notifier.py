@@ -15,6 +15,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from datetime import datetime
+from twtime import now_tw
 
 log = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ def notify_stop_exit(rows: list[dict], cfg: dict = None) -> bool:
         return False
     if cfg is None:
         cfg = load_config()
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = now_tw().strftime("%Y-%m-%d %H:%M")
     lines = [f"🛑 自動停損出場 {now}", "─" * 18]
     for r in rows:
         pnl = r.get("pnl_pct")
@@ -187,7 +188,7 @@ def notify_signals(signals: list[dict], strategy_name: str = ""):
         return
 
     cfg = load_config()
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = now_tw().strftime("%Y-%m-%d %H:%M")
 
     # ── 組成訊息 ─────────────────────────
     lines = [
@@ -232,7 +233,7 @@ def notify_update_done(ok: int, err: int):
     cfg = load_config()
     if not cfg["line"]["enabled"] and not cfg["email"]["enabled"]:
         return
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = now_tw().strftime("%Y-%m-%d %H:%M")
     msg = f"\n✅ 台股資料更新完成 {now}\n成功 {ok} 檔  失敗 {err} 檔"
     if cfg["line"]["enabled"] and cfg["line"]["token"]:
         send_line(cfg["line"]["token"], msg)

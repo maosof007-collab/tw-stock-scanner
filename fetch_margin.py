@@ -26,6 +26,7 @@ import pandas as pd
 import sys, time, logging
 from pathlib import Path
 from datetime import datetime, timedelta
+from twtime import now_tw
 
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -238,11 +239,11 @@ def save_by_ticker(df: pd.DataFrame, out_dir: Path = DATA_DIR):
 # 4. 增量更新（近 7 日）
 # ════════════════════════════════════════
 def update_margin(data_dir: Path = DATA_DIR):
-    end_date   = datetime.today().strftime("%Y-%m-%d")
-    start_date = (datetime.today() - timedelta(days=7)).strftime("%Y-%m-%d")
+    end_date   = now_tw().strftime("%Y-%m-%d")
+    start_date = (now_tw() - timedelta(days=7)).strftime("%Y-%m-%d")
 
     log.info("=" * 50)
-    log.info(f"  融資融券資料增量更新  {datetime.now():%Y-%m-%d %H:%M}")
+    log.info(f"  融資融券資料增量更新  {now_tw():%Y-%m-%d %H:%M}")
     log.info(f"  範圍：{start_date} ~ {end_date}")
     log.info("=" * 50)
 
@@ -257,7 +258,7 @@ def update_margin(data_dir: Path = DATA_DIR):
 
 def _log_run(start, end, df):
     row = pd.DataFrame([{
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": now_tw().strftime("%Y-%m-%d %H:%M:%S"),
         "start": start, "end": end,
         "rows": len(df), "tickers": df["ticker"].nunique(),
     }])
@@ -285,7 +286,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="個股融資融券餘額抓取工具")
     parser.add_argument("--mode", choices=["update", "history"], default="update")
     parser.add_argument("--start", default="2023-01-01")
-    parser.add_argument("--end",   default=datetime.today().strftime("%Y-%m-%d"))
+    parser.add_argument("--end",   default=now_tw().strftime("%Y-%m-%d"))
     args = parser.parse_args()
 
     if args.mode == "history":

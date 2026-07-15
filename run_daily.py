@@ -20,6 +20,7 @@ Windows Task Scheduler：
 import sys, logging, glob
 from pathlib import Path
 from datetime import datetime
+from twtime import now_tw
 from itertools import groupby
 
 try:
@@ -50,7 +51,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler(
-            f"logs/daily_{datetime.today().strftime('%Y%m%d')}.log",
+            f"logs/daily_{now_tw().strftime('%Y%m%d')}.log",
             encoding="utf-8"
         ),
         logging.StreamHandler(sys.stdout),
@@ -174,7 +175,7 @@ def scan_signals(strategies_map: dict,
 # 主流程
 # ════════════════════════════════════════
 def main():
-    today     = datetime.now()
+    today     = now_tw()
     is_thursday = today.weekday() == 3   # 週四才跑集保
 
     log.info("=" * 60)
@@ -233,6 +234,15 @@ def main():
             log.warning(f"  ⚠️  失敗: {e}")
     else:
         log.info(f"\n[Step 4/6] 集保資料：今日非週四（{today.strftime('%A')}），跳過")
+
+    # ── Step 4.5：產業新聞掃描（產業趨勢雷達）──
+    log.info("\n[Step 4.5/6] 產業新聞掃描...")
+    try:
+        from fetch_news import fetch_sector_news
+        fetch_sector_news(days=2)
+        log.info("  ✅ 完成")
+    except Exception as e:
+        log.warning(f"  ⚠️  失敗: {e}")
 
     # ── Step 5：掃描買入訊號 ──────────────
     log.info("\n[Step 5/6] 掃描策略訊號...")

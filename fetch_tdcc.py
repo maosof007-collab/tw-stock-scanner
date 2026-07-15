@@ -17,6 +17,7 @@ import pandas as pd
 import time, logging, io
 from pathlib import Path
 from datetime import datetime, timedelta
+from twtime import now_tw
 
 DATA_DIR = Path("data/tdcc")
 LOG_FILE = DATA_DIR / "fetch_log.csv"
@@ -124,7 +125,7 @@ def _normalize(df: pd.DataFrame) -> pd.DataFrame:
             format="%Y%m%d", errors="coerce"
         )
     else:
-        df["date"] = pd.Timestamp(datetime.today().date())
+        df["date"] = pd.Timestamp(now_tw().date())
 
     # 數值清理
     for col in ["level", "holders", "pct"]:
@@ -208,7 +209,7 @@ def fetch_history_via_finmind(stock_id: str,
         "dataset":   "TaiwanStockHoldingSharesPer",
         "data_id":   stock_id,
         "start_date": start,
-        "end_date":   datetime.today().strftime("%Y-%m-%d"),
+        "end_date":   now_tw().strftime("%Y-%m-%d"),
     }
     if token:
         params["token"] = token
@@ -256,7 +257,7 @@ def update_all_tdcc(tickers: list[str] = None):
     """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     log.info("=" * 50)
-    log.info(f"  集保股權分散表更新  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log.info(f"  集保股權分散表更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")
     log.info("=" * 50)
 
     df = fetch_latest_all()
@@ -281,7 +282,7 @@ def update_all_tdcc(tickers: list[str] = None):
 
 def _log_result(ticker, rows, status):
     row = pd.DataFrame([{
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": now_tw().strftime("%Y-%m-%d %H:%M:%S"),
         "ticker":    ticker,
         "rows":      rows,
         "status":    status,

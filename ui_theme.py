@@ -12,6 +12,7 @@ ui_theme.py — 全站統一設計系統（科幻 HUD 風）
 """
 import streamlit as st
 from datetime import datetime
+from twtime import now_tw
 
 # ════════════════════════════════════════
 # 調色盤（沿用各頁原變數名，直接換值即全站換裝）
@@ -239,7 +240,7 @@ div[data-testid="stAlert"] {{
 def page_header(title: str, subtitle_en: str = "", icon: str = ""):
     """統一頁首：中文標題 + 英文機讀風副標 + 系統時間
     若有資料管線正在跑（更新/掃描），自動在頁首下方顯示即時進度條。"""
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    ts = now_tw().strftime("%Y-%m-%d %H:%M")
     sub = f"// {subtitle_en} · SYS {ts}" if subtitle_en else f"// SYS {ts}"
     st.markdown(f"""
 <div class="hud-header">
