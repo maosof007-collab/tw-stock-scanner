@@ -163,6 +163,11 @@ def scan_all(strategy_filter: str = "") -> list[dict]:
                     continue
 
                 close = float(last["Close"])
+                # 當日漲跌%：收盤逼近跌停（≤-9.4%）＝鎖死買不到，也不該追 → 整筆剔除
+                prev_close = float(df_sig["Close"].iloc[-2]) if len(df_sig) >= 2 else 0.0
+                day_chg = (close / prev_close - 1) * 100 if prev_close else 0.0
+                if day_chg <= -9.4:
+                    continue
                 sl    = float(last["stop_loss"]) if "stop_loss" in last.index \
                         and not pd.isna(last.get("stop_loss")) else 0.0
                 rs    = float(last["RS"]) if "RS" in last.index \
@@ -177,6 +182,7 @@ def scan_all(strategy_filter: str = "") -> list[dict]:
                     "策略":       strat_name,
                     "代碼":       ticker,
                     "收盤":       round(close, 1),
+                    "當日%":      round(day_chg, 2),
                     "停損":       round(sl, 1),
                     "風險%":      round(risk, 1),
                     "RS相對強度": round(rs, 2),
@@ -200,7 +206,7 @@ def print_report(signals: list[dict], top: int = 50):
     if not signals:
         # 0 訊號也要寫檔（帶欄位），否則今日選股會停在舊日期
         print("❌ 今日無任何買入訊號（仍寫空檔）")
-        pd.DataFrame(columns=["訊號等級", "策略", "代碼", "收盤", "停損",
+        pd.DataFrame(columns=["訊號等級", "策略", "代碼", "收盤", "當日%", "停損",
                               "風險%", "RS相對強度", "量比(vs均)", "狀態"]
                      ).to_csv(_out, index=False, encoding="utf-8-sig")
         return

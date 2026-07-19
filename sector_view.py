@@ -178,7 +178,7 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
 
     stock_ret_df = compute_stock_returns(info_df)
 
-    ht1, ht2 = st.tabs(["🌡️ 熱力地圖", "📋 族群明細"])
+    ht3, ht1, ht2 = st.tabs(["📝 強弱日報", "🌡️ 熱力地圖", "📋 族群明細"])
 
     with ht1:
         st.caption("紅＝強勢族群　綠＝弱勢族群　·　點色塊看族群個股排行")
@@ -230,3 +230,31 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
             use_container_width=True,
             height=min(700, len(disp) * 38 + 60),
         )
+
+    with ht3:
+        _render_daily_brief(key_prefix)
+
+
+# ════════════════════════════════════════
+# 強弱日報（自動成文；引擎見 daily_report.py）
+# ════════════════════════════════════════
+@st.cache_data(ttl=1800, show_spinner="彙整今日強弱並撰寫日報中（約 10-30 秒）…")
+def _daily_brief(polish: bool) -> str:
+    import daily_report
+    return daily_report.generate(polish=polish)
+
+
+def _render_daily_brief(key_prefix: str = "sec"):
+    """把大盤/族群強弱/RRG輪動/新聞熱度寫成一篇有感覺的短文"""
+    c = st.columns([1.6, 1.4, 4])
+    polish = c[0].toggle("🤖 Claude 潤稿", value=True, key=f"{key_prefix}_brief_polish",
+                         help="需 ANTHROPIC_API_KEY；沒設也能出規則式版本")
+    if c[1].button("🔄 重新生成", key=f"{key_prefix}_brief_regen"):
+        _daily_brief.clear()
+    art = _daily_brief(polish)
+    st.markdown(art)
+    st.download_button(
+        "⬇️ 下載 Markdown", art.encode("utf-8"),
+        file_name="daily_brief.md", mime="text/markdown",
+        key=f"{key_prefix}_brief_dl")
+    st.caption("每 30 分鐘自動更新；強弱=族群成分等權漲跌，輪動=JdK RRG 近似，消息=產業新聞熱度。")

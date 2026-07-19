@@ -1,5 +1,5 @@
 """
-pages/2_新聞分析.py — 新聞情緒 + 法人報告 + 信心分數
+pages/5_新聞分析.py — 新聞情緒 + 法人報告 + 信心分數
 """
 import sys, json, os
 from pathlib import Path
