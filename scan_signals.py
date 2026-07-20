@@ -238,6 +238,13 @@ def print_report(signals: list[dict], top: int = 50):
     date_str = datetime.today().strftime("%Y%m%d")
     out = OUT_DIR / f"signals_{date_str}.csv"
     df.to_csv(out, index=False, encoding="utf-8-sig")
+
+    # 獨立查核：用原始資料重驗每筆訊號，「檢核」欄寫回 CSV（✅/❌原因）
+    try:
+        from verify_signals import verify_file
+        verify_file(out)
+    except Exception as e:
+        print(f"⚠️ 訊號查核失敗（不影響掃描結果）：{e}")
     print(f"\n💾 結果已存：{out}")
 
     # 畫圖

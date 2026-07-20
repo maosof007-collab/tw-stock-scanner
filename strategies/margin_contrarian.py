@@ -142,6 +142,9 @@ class MarginContrarianStrategy(BaseStrategy):
             return df
         try:
             m = pd.read_csv(p, parse_dates=["date"]).set_index("date").sort_index()
+            # 保險絲：融資資料落後股價 >7 天＝過期，寧可不出訊號也不用舊資料亂判
+            if len(m) and (df.index[-1] - m.index[-1]).days > 7:
+                return df
             if "margin_balance" in m.columns:
                 df["margin_balance"] = m["margin_balance"].reindex(df.index).ffill().values
         except Exception:

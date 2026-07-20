@@ -310,6 +310,9 @@ class MarginMaintenanceStrategy(BaseStrategy):
             if path.exists():
                 try:
                     m = pd.read_csv(path, parse_dates=["date"]).set_index("date").sort_index()
+                    # 保險絲：融資資料落後股價 >7 天＝過期 → 走股價代理，不用舊資料亂判
+                    if len(m) and (df.index[-1] - m.index[-1]).days > 7:
+                        raise ValueError("margin data stale")
                     bal = m["margin_balance"].reindex(df.index).ffill().fillna(0.0)
                     # TWSE 逐檔只有融資餘額（張），無金額。
                     # 以餘額「增量 × 當日股價」推估融資加權平均成本，
