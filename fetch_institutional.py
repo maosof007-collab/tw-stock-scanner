@@ -234,14 +234,31 @@ def save_by_ticker(df: pd.DataFrame, out_dir: Path):
 # ════════════════════════════════════════
 # 4. 每日增量更新
 # ════════════════════════════════════════
+def _last_data_date(data_dir: Path, ref: str = "2330_inst.csv"):
+    """參考檔（台積電）的最後資料日；讀不到回 None"""
+    p = data_dir / ref
+    if not p.exists():
+        return None
+    try:
+        d = pd.read_csv(p, usecols=["date"])
+        return pd.to_datetime(d["date"].iloc[-1])
+    except Exception:
+        return None
+
+
 def update_institutional(data_dir: Path = DATA_DIR):
     """
-    增量更新：只抓最近 5 個交易日
+    增量更新（缺口感知）：從實際最後資料日+1 接著抓，最多回補 45 天
     """
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    end_date   = now_tw().strftime("%Y-%m-%d")
-    start_date = (now_tw() - timedelta(days=7)).strftime("%Y-%m-%d")
+    end_date = now_tw().strftime("%Y-%m-%d")
+    last = _last_data_date(data_dir)
+    if last is not None:
+        start_dt = max(last + timedelta(days=1), now_tw() - timedelta(days=45))
+    else:
+        start_dt = now_tw() - timedelta(days=7)
+    start_date = start_dt.strftime("%Y-%m-%d")
 
     log.info("=" * 50)
     log.info(f"  三大法人資料增量更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")

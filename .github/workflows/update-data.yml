@@ -43,6 +43,10 @@ jobs:
           python updater.py 2>&1 | tail -5 || echo "::warning::updater 部分失敗，續跑"
           echo "----- 產業新聞掃描 -----"
           python fetch_news.py --sectors 2>&1 | tail -3 || echo "::warning::news 抓取失敗，續跑"
+          echo "----- 三大法人增量 -----"
+          python fetch_institutional.py --mode update 2>&1 | tail -3 || echo "::warning::institutional 失敗，續跑"
+          echo "----- 融資融券增量 -----"
+          python fetch_margin.py --mode update 2>&1 | tail -3 || echo "::warning::margin 失敗，續跑"
           echo "----- 開始掃描 -----"
           python scan_signals.py > scan.log 2>&1 || echo "::warning::scan 非零退出"
           tail -25 scan.log

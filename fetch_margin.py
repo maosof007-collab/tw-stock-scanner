@@ -236,11 +236,29 @@ def save_by_ticker(df: pd.DataFrame, out_dir: Path = DATA_DIR):
 
 
 # ════════════════════════════════════════
-# 4. 增量更新（近 7 日）
+# 4. 增量更新（缺口感知：從實際最後日期接著抓）
 # ════════════════════════════════════════
+def _last_data_date(data_dir: Path, ref: str = "2330_margin.csv"):
+    """參考檔（台積電）的最後資料日；讀不到回 None"""
+    p = data_dir / ref
+    if not p.exists():
+        return None
+    try:
+        d = pd.read_csv(p, usecols=["date"])
+        return pd.to_datetime(d["date"].iloc[-1])
+    except Exception:
+        return None
+
+
 def update_margin(data_dir: Path = DATA_DIR):
-    end_date   = now_tw().strftime("%Y-%m-%d")
-    start_date = (now_tw() - timedelta(days=7)).strftime("%Y-%m-%d")
+    end_date = now_tw().strftime("%Y-%m-%d")
+    # 從實際最後資料日+1 接著抓（電腦幾天沒開也不會漏），最多回補 45 天
+    last = _last_data_date(data_dir)
+    if last is not None:
+        start_dt = max(last + timedelta(days=1), now_tw() - timedelta(days=45))
+    else:
+        start_dt = now_tw() - timedelta(days=7)
+    start_date = start_dt.strftime("%Y-%m-%d")
 
     log.info("=" * 50)
     log.info(f"  融資融券資料增量更新  {now_tw():%Y-%m-%d %H:%M}")
