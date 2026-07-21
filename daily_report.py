@@ -160,6 +160,23 @@ def write_article(d: dict) -> str:
     weak = themes.tail(3).iloc[::-1]
     date_str = bench["date"] if bench else now_tw().strftime("%Y-%m-%d")
 
+    # 資料過期偵測：資料日落後「上一個應收盤交易日」就大聲警告，別讓人以為時間錯了
+    stale_note = ""
+    if bench:
+        today = now_tw()
+        expect = today.date()
+        # 今天還沒收盤(<14:00)或假日 → 往前找最近一個工作日
+        if today.weekday() >= 5 or today.hour < 14:
+            d = pd.Timestamp(expect) - pd.Timedelta(days=1)
+            while d.weekday() >= 5:
+                d -= pd.Timedelta(days=1)
+            expect = d.date()
+        behind = len(pd.bdate_range(bench["date"], expect)) - 1
+        if behind >= 1:
+            stale_note = (f"\n> ⚠️ **注意：資料只到 {date_str}，已落後約 {behind} 個交易日。**"
+                          f"標題日期＝資料日（不是今天）。請等背景更新完成，"
+                          f"或到「更新進度」頁按立即更新後重新生成。\n")
+
     # 一句話總結
     s_names = "、".join(strong["族群"])
     w_names = "、".join(weak["族群"])
@@ -172,7 +189,7 @@ def write_article(d: dict) -> str:
     else:
         summary = f"資金往 {s_names} 靠攏，{w_names} 相對承壓。"
 
-    L = [f"# 📋 {date_str} 台股強弱日報", "", f"> {summary}", ""]
+    L = [f"# 📋 {date_str} 台股強弱日報", stale_note, f"> {summary}", ""]
 
     # 大盤
     if bench:
@@ -251,7 +268,8 @@ def polish_with_claude(article: str) -> str | None:
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1500,
-            system=("你是台股資深盤後主筆。把使用者給的數據型日報改寫成 400-600 字、"
+            system=("你是台股資深盤後主筆。若原文含「⚠️」開頭的警告行，必須原封不動保留在標題下方。"
+                    "把使用者給的數據型日報改寫成 400-600 字、"
                     "口語有畫面感的盤後短評：保留所有數字與族群名，用「資金像水」的敘事"
                     "串起強弱與輪動，分 3-4 段，開頭一句抓住今天的主軸，結尾給一句"
                     "明日觀察。輸出 markdown，標題沿用原標題。不加免責聲明（原文已有）。"),
