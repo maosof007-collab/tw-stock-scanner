@@ -24,6 +24,7 @@ DATA = ROOT / "data"
 MARGIN_DIR = DATA / "margin"
 
 MARGIN_STRATS = ("大跌中融資逆勢買", "融資維持率創低反彈", "量縮整理→出量突破")
+INST_DIR = DATA / "institutional"
 STALE_DAYS = 7          # 融資落後股價超過此天數 = 過期
 DROP_PCT = 3.5          # 逆勢策略的大跌門檻（與策略 default 一致）
 MARGIN_WINDOW = 5       # 逆勢策略「近N筆融資增」視窗
@@ -112,6 +113,38 @@ def verify_row(row: pd.Series) -> str:
                         pct = (bal.iloc[-1] / max(bal.iloc[-1 - MARGIN_WINDOW], 1) - 1) * 100
                         if pct < -5:
                             errs.append(f"融資大減({pct:+.0f}%)")
+
+    # ④ 大跌後外資買進：法人資料新鮮 + 前一日真的大跌且外資真的買超
+    if "外資買進" in strat:
+        code = ticker.replace(".TWO", "").replace(".TW", "").strip()
+        p = INST_DIR / f"{code}_inst.csv"
+        if not p.exists():
+            errs.append("無法人資料")
+        else:
+            try:
+                m = pd.read_csv(p, usecols=lambda c2: c2 in
+                                ("date", "外陸資買賣超股數(不含外資自營商)", "外資買賣超股數"))
+                m["date"] = pd.to_datetime(m["date"], errors="coerce")
+                m = m.dropna(subset=["date"]).sort_values("date")
+                lag = (last_px_date - m["date"].iloc[-1]).days
+                if lag > STALE_DAYS:
+                    errs.append(f"法人過期(至{m['date'].iloc[-1].date()})")
+                else:
+                    a = pd.to_numeric(m.get("外陸資買賣超股數(不含外資自營商)"), errors="coerce")
+                    b = pd.to_numeric(m.get("外資買賣超股數"), errors="coerce")
+                    m["fi"] = a.fillna(b)
+                    # 訊號日 = 進場日前一交易日：那天要大跌且外資買超
+                    if len(px) >= 3:
+                        d_chg = (px["close"].iloc[-2] / px["close"].iloc[-3] - 1) * 100
+                        if d_chg > -DROP_PCT:
+                            errs.append(f"前一日未大跌({d_chg:+.1f}%)")
+                    prev_date = px["date"].iloc[-2] if len(px) >= 2 else None
+                    if prev_date is not None:
+                        hit = m[m["date"] == prev_date]
+                        if not hit.empty and float(hit["fi"].iloc[-1]) <= 0:
+                            errs.append(f"前一日外資未買超({float(hit['fi'].iloc[-1])/1000:+.0f}張)")
+            except Exception:
+                errs.append("法人資料讀取失敗")
 
     return "；".join(f"❌{e}" if not e.startswith("❌") else e for e in errs)
 
