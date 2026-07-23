@@ -15,6 +15,7 @@ data/*.TW.csv
 data/*.TWO.csv
 data/margin/
 data/markets/
+data/fundamentals/
 data/institutional/
 data/tdcc/
 data/news/
