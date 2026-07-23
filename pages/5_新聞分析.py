@@ -97,8 +97,8 @@ else:
         (st.success if ok else st.error)(msg)
 
 # 分頁
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告", "🏭 產業趨勢雷達", "📎 文章解讀"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    ["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告", "🏭 產業趨勢雷達", "📎 文章解讀", "📝 個股筆記"])
 
 
 # ══════════════════════════════════════════
@@ -607,6 +607,34 @@ with tab5:
             if cs:
                 st.caption("🎯 催化劑：" + "、".join(cs))
             st.caption(f"[原文連結]({a['url']})")
+
+# ══════════════════════════════════════════
+# Tab 6：個股筆記（財報觀察筆記產生器）
+# ══════════════════════════════════════════
+with tab6:
+    st.caption("輸入代碼 → 自動抓**月營收/季度毛利率/營益率/EPS**（FinMind）+ 系統籌碼，"
+               "寫成「觀察→數字推論→主觀結論」風格的財報筆記。"
+               "可貼**補充資料**（法說 QA、公開說明書產品佔比、ASP…），會一起縫進推論——"
+               "這是這種筆記最有價值的部分。")
+
+    nc1, nc2 = st.columns([1, 3])
+    note_code = nc1.text_input("股票代碼", placeholder="4764", key="note_code")
+    note_extra = nc2.text_area("補充資料（選填：法說重點、產品佔比、單價…）",
+                               height=100, key="note_extra")
+    if st.button("📝 產生筆記", type="primary", key="note_go"):
+        code = note_code.strip().replace(".TW", "").replace(".TWO", "")
+        if not code.isdigit():
+            st.warning("請輸入 4~6 位數股票代碼")
+        else:
+            from fundamentals import write_note
+            with st.spinner("抓財報資料並撰寫筆記中（約 20-40 秒）…"):
+                note = write_note(code, extra=note_extra)
+            st.session_state["last_note"] = note
+    if st.session_state.get("last_note"):
+        st.markdown("---")
+        st.markdown(st.session_state["last_note"])
+        st.download_button("⬇️ 下載筆記", st.session_state["last_note"].encode("utf-8"),
+                           file_name="stock_note.md", mime="text/markdown", key="note_dl")
 
 st.markdown(
     f"<p style='color:{MUTED};font-size:12px;text-align:right'>"
