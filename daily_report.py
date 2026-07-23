@@ -245,21 +245,8 @@ def write_article(d: dict) -> str:
 # ────────────────────────────────────────
 def polish_with_claude(article: str) -> str | None:
     """有 API key 就把規則式文章交給 Claude 重寫得更口語有畫面感；失敗回 None。"""
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not key:
-        cfg = ROOT / "config.json"
-        if cfg.exists():
-            try:
-                import json
-                key = json.loads(cfg.read_text(encoding="utf-8")).get("anthropic_api_key", "")
-            except Exception:
-                pass
-    if not key:
-        try:                                  # 雲端：Streamlit secrets
-            import streamlit as st
-            key = st.secrets.get("ANTHROPIC_API_KEY", "")
-        except Exception:
-            pass
+    from apikey import get_key
+    key = get_key()
     if not key:
         return None
     try:

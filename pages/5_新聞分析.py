@@ -72,15 +72,29 @@ def check_api_key() -> bool:
 # ─────────────────────────────────────────
 page_header("新聞情緒 × 法人報告 × 信心分數", "NEWS INTEL · CONFIDENCE", "📰")
 
-# API Key 狀態
-has_key = check_api_key()
-if not has_key:
+# API Key 狀態（統一經 apikey：env → config.json → Streamlit secrets）
+from apikey import key_status, test_key
+_ks = key_status()
+has_key = _ks["found"]
+if has_key:
+    kc1, kc2 = st.columns([4, 1.2])
+    kc1.caption(f"🔑 API Key：**已設定**（{_ks['source']}，{_ks['masked']}）— "
+                f"新聞情緒 / 日報潤稿 / 文章解讀 / 法人報告 已升級 Claude 解析")
+    if kc2.button("🧪 測試連線", key="key_test"):
+        ok, msg = test_key()
+        (st.success if ok else st.error)(msg)
+else:
     st.warning(
-        "⚠️ 未設定 ANTHROPIC_API_KEY。\n\n"
-        "請在終端機設定：`set ANTHROPIC_API_KEY=sk-ant-...`\n"
-        "或在 `config.json` 加入 `'anthropic_api_key'` 欄位後重啟 APP。\n\n"
-        "設定後即可使用新聞情緒分析和法人報告解析功能。"
+        "⚠️ 未設定 ANTHROPIC_API_KEY——新聞情緒/日報潤稿/文章解讀目前為離線退化模式。\n\n"
+        "放在以下**任一**位置即可全系統自動升級（改完重新整理頁面）：\n"
+        "1. `config.json` 加一行：`\"anthropic_api_key\": \"sk-ant-...\"`（本機最簡單）\n"
+        "2. 環境變數 `ANTHROPIC_API_KEY`\n"
+        "3. 雲端：Streamlit Cloud → App settings → Secrets 加 `ANTHROPIC_API_KEY = \"sk-ant-...\"`\n\n"
+        "金鑰申請：console.anthropic.com → API Keys。設定後可按下方「測試連線」驗證。"
     )
+    if st.button("🧪 測試連線（設定後按我驗證）", key="key_test_none"):
+        ok, msg = test_key()
+        (st.success if ok else st.error)(msg)
 
 # 分頁
 tab1, tab2, tab3, tab4, tab5 = st.tabs(

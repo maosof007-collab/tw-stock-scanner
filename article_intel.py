@@ -87,21 +87,8 @@ _SYS = """你是台股產業分析師。把財經文章解析成嚴格 JSON（�
 
 
 def _get_key() -> str:
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not key:
-        cfg = ROOT / "config.json"
-        if cfg.exists():
-            try:
-                key = json.loads(cfg.read_text(encoding="utf-8")).get("anthropic_api_key", "")
-            except Exception:
-                pass
-    if not key:
-        try:
-            import streamlit as st
-            key = st.secrets.get("ANTHROPIC_API_KEY", "")
-        except Exception:
-            pass
-    return key
+    from apikey import get_key
+    return get_key()
 
 
 def analyze_article(art: dict) -> dict:

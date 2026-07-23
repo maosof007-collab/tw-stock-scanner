@@ -55,17 +55,9 @@ SYSTEM_PROMPT = """你是一位專業的台灣股市分析師，專門分析財�
 
 
 def get_client() -> anthropic.Anthropic:
-    """取得 Anthropic client（讀取 API Key）"""
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not key:
-        # 嘗試從 config.json 讀取
-        cfg_path = Path("config.json")
-        if cfg_path.exists():
-            try:
-                cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-                key = cfg.get("anthropic_api_key", "")
-            except:
-                pass
+    """取得 Anthropic client（統一經 apikey.get_key：env → config.json → secrets）"""
+    from apikey import get_key
+    key = get_key()
     if not key:
         raise ValueError(
             "找不到 ANTHROPIC_API_KEY。\n"
