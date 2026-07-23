@@ -42,9 +42,18 @@ def _is_cloud():
         return False
 
 if _is_cloud():
-    # 雲端：資料由每日排程自動更新，不提供手動按鈕（避免混淆 + 暫存不留存）
-    st.success("☁️ **雲端版：資料每天自動更新（台灣 17:00），你不用手動做任何事。**")
-    st.caption("每天由 GitHub 排程更新股價+掃描、重壓資料包，隔天自動生效。這一頁在雲端只是說明用。")
+    # 雲端：資料由每日排程自動更新
+    st.success("☁️ **雲端版：資料每天自動更新（台灣 17:00 排程 → 資料包）。**")
+    from cloud_bootstrap import bootstrap_status, ensure_data
+    bs = bootstrap_status()
+    if bs:
+        (st.error if "❌" in bs else st.caption)(f"資料包自舉狀態：{bs}")
+    if st.button("📦 立即重抓最新資料包", help="雲端資料日期落後時按這裡強制重新下載"):
+        with st.spinner("下載資料包中（約 200MB，1-3 分鐘）…"):
+            r = ensure_data(force=True)
+        st.write(f"結果：{r}")
+        st.cache_data.clear()
+        st.rerun()
 else:
     c1, c2, c3 = st.columns([2, 2, 6])
     with c1:

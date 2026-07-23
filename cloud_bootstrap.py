@@ -41,6 +41,25 @@ def _has_price_data() -> bool:
 # 兩者不一致 = Release 有新資料包 → 即使檔案還在也要重新下載（修「雲端一直用舊資料」）。
 _MARKER = ROOT / ".last_data_update"        # 來自 repo（git pull 會更新）
 _STAMP  = DATA / "_pack_stamp.txt"          # 上次下載時的標記副本
+_STATUS = DATA / "_bootstrap_status.txt"    # 最近一次 ensure_data 結果（除錯用）
+_RETRY_MIN = 10                             # 下載失敗後最少隔幾分鐘才重試（避免每次rerun狂抓211MB）
+
+
+def _write_status(msg: str):
+    try:
+        from twtime import now_tw
+        DATA.mkdir(parents=True, exist_ok=True)
+        _STATUS.write_text(f"{now_tw():%Y-%m-%d %H:%M} {msg}", encoding="utf-8")
+    except Exception:
+        pass
+
+
+def bootstrap_status() -> str:
+    """最近一次資料包自舉結果（更新進度頁顯示）"""
+    try:
+        return _STATUS.read_text(encoding="utf-8", errors="replace").strip()
+    except Exception:
+        return ""
 
 
 def _pack_outdated() -> bool:
@@ -72,6 +91,14 @@ def ensure_data(force: bool = False) -> str:
     if not url:
         print("[cloud_bootstrap] 無 DATA_PACK_URL，略過（本機或未設定）", flush=True)
         return "no-url"                      # 雲端但尚未設定資料包網址
+    # 失敗節流：上次失敗未滿 _RETRY_MIN 分鐘就先不重試（別讓每次 rerun 都抓 211MB）
+    try:
+        import time
+        if _STATUS.exists() and "失敗" in _STATUS.read_text(encoding="utf-8", errors="replace"):
+            if (time.time() - _STATUS.stat().st_mtime) < _RETRY_MIN * 60 and not force:
+                return "error-throttled"
+    except Exception:
+        pass
     try:
         import requests
         DATA.mkdir(parents=True, exist_ok=True)
@@ -95,6 +122,7 @@ def ensure_data(force: bool = False) -> str:
             pass
         cnt = len(list(DATA.glob("*.TW.csv"))) + len(list(DATA.glob("*.TWO.csv")))
         print(f"[cloud_bootstrap] 解壓完成，價格檔 {cnt} 個 ✅", flush=True)
+        _write_status(f"✅ 下載成功（{n/1048576:.0f}MB，價格檔 {cnt} 個）")
         try:                                  # 記住這版標記，之後版本沒變就不重下
             if _MARKER.exists():
                 _STAMP.write_text(_MARKER.read_text(encoding="utf-8", errors="replace"),
@@ -104,4 +132,5 @@ def ensure_data(force: bool = False) -> str:
         return "downloaded"
     except Exception as e:
         print(f"[cloud_bootstrap] 失敗：{e}", flush=True)
+        _write_status(f"❌ 下載失敗：{type(e).__name__}: {str(e)[:120]}")
         return f"error:{e}"
