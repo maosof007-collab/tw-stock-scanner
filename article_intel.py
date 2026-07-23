@@ -92,20 +92,11 @@ def _get_key() -> str:
 
 
 def analyze_article(art: dict) -> dict:
-    """回傳解讀結果（含 engine 欄標明 claude / offline）。"""
-    key = _get_key()
-    if key:
+    """回傳解讀結果（含 engine 欄標明 claude / offline）。API 或本機 Claude CLI 皆可。"""
+    from llm import generate_json
+    raw = generate_json(_SYS, f"標題：{art['title']}\n\n{art['text'][:9000]}", max_tokens=1600)
+    if raw:
         try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=key)
-            msg = client.messages.create(
-                model="claude-haiku-4-5-20251001", max_tokens=1600,
-                system=[{"type": "text", "text": _SYS, "cache_control": {"type": "ephemeral"}}],
-                messages=[{"role": "user",
-                           "content": f"標題：{art['title']}\n\n{art['text'][:9000]}"}],
-            )
-            raw = "".join(b.text for b in msg.content if b.type == "text").strip()
-            raw = re.sub(r"^```(json)?|```$", "", raw, flags=re.M).strip()
             parsed = json.loads(raw)
             parsed["engine"] = "claude"
             return parsed

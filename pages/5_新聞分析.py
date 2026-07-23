@@ -84,17 +84,28 @@ if has_key:
         ok, msg = test_key()
         (st.success if ok else st.error)(msg)
 else:
-    st.warning(
-        "⚠️ 未設定 ANTHROPIC_API_KEY——新聞情緒/日報潤稿/文章解讀目前為離線退化模式。\n\n"
-        "放在以下**任一**位置即可全系統自動升級（改完重新整理頁面）：\n"
-        "1. `config.json` 加一行：`\"anthropic_api_key\": \"sk-ant-...\"`（本機最簡單）\n"
-        "2. 環境變數 `ANTHROPIC_API_KEY`\n"
-        "3. 雲端：Streamlit Cloud → App settings → Secrets 加 `ANTHROPIC_API_KEY = \"sk-ant-...\"`\n\n"
-        "金鑰申請：console.anthropic.com → API Keys。設定後可按下方「測試連線」驗證。"
-    )
-    if st.button("🧪 測試連線（設定後按我驗證）", key="key_test_none"):
-        ok, msg = test_key()
-        (st.success if ok else st.error)(msg)
+    from llm import engine_status
+
+    @st.cache_data(ttl=600, show_spinner="檢查可用的 Claude 引擎…")
+    def _engine():
+        return engine_status()
+
+    es = _engine()
+    if es["engine"] == "cli":
+        st.caption(f"🔑 無 API 金鑰，但偵測到 **{es['detail']}** ✅ — "
+                   f"日報潤稿 / 文章解讀 / 個股筆記 已可用（走本機 Claude 訂閱，免 API 付款）")
+        has_key = True    # 讓下游功能視同可用
+    else:
+        st.warning(
+            f"⚠️ 目前無可用 Claude 引擎（{es['detail']}）——相關功能為離線退化模式。\n\n"
+            "兩條升級路線擇一：\n"
+            "1. **本機免付款**：終端機執行 `claude` → 輸入 `/login` 登入你的 Claude 訂閱即可\n"
+            "2. **API 金鑰**（雲端也能用）：`config.json` 加 `\"anthropic_api_key\": \"sk-ant-...\"`，"
+            "或雲端 Secrets 設 `ANTHROPIC_API_KEY`"
+        )
+        if st.button("🔁 重新檢查引擎", key="engine_recheck"):
+            _engine.clear()
+            st.rerun()
 
 # 分頁
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(

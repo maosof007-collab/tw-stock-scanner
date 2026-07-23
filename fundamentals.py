@@ -160,22 +160,10 @@ def write_note(code: str, extra: str = "") -> str:
     if extra.strip():
         digest += f"\n【使用者提供的補充資料（法說/公開說明書等）】\n{extra.strip()[:4000]}\n"
 
-    from apikey import get_key
-    key = get_key()
-    if key:
-        try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=key)
-            msg = client.messages.create(
-                model="claude-haiku-4-5-20251001", max_tokens=2000,
-                system=[{"type": "text", "text": _STYLE, "cache_control": {"type": "ephemeral"}}],
-                messages=[{"role": "user", "content": digest}],
-            )
-            out = "".join(b.text for b in msg.content if b.type == "text").strip()
-            if out:
-                return out + f"\n\n---\n*數據：FinMind/系統籌碼庫，產生於 {now_tw():%Y-%m-%d %H:%M}*"
-        except Exception:
-            pass
+    from llm import generate
+    out = generate(_STYLE, digest, max_tokens=2000)
+    if out:
+        return out + f"\n\n---\n*數據：FinMind/系統籌碼庫，產生於 {now_tw():%Y-%m-%d %H:%M}*"
 
     # 離線版：純數據摘要
     L = [f"# 📝 {d['code']} {d['name']} 財報數據摘要（離線模式）",

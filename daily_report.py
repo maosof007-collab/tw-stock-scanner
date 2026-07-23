@@ -244,28 +244,15 @@ def write_article(d: dict) -> str:
 # Claude 潤稿（選配）
 # ────────────────────────────────────────
 def polish_with_claude(article: str) -> str | None:
-    """有 API key 就把規則式文章交給 Claude 重寫得更口語有畫面感；失敗回 None。"""
-    from apikey import get_key
-    key = get_key()
-    if not key:
-        return None
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=key)
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1500,
-            system=("你是台股資深盤後主筆。若原文含「⚠️」開頭的警告行，必須原封不動保留在標題下方。"
-                    "把使用者給的數據型日報改寫成 400-600 字、"
-                    "口語有畫面感的盤後短評：保留所有數字與族群名，用「資金像水」的敘事"
-                    "串起強弱與輪動，分 3-4 段，開頭一句抓住今天的主軸，結尾給一句"
-                    "明日觀察。輸出 markdown，標題沿用原標題。不加免責聲明（原文已有）。"),
-            messages=[{"role": "user", "content": article}],
-        )
-        out = "".join(b.text for b in msg.content if b.type == "text").strip()
-        return out or None
-    except Exception:
-        return None
+    """把規則式文章交給 Claude 重寫得更口語（API 或本機 Claude CLI）；不可用回 None。"""
+    from llm import generate
+    return generate(
+        ("你是台股資深盤後主筆。若原文含「⚠️」開頭的警告行，必須原封不動保留在標題下方。"
+         "把使用者給的數據型日報改寫成 400-600 字、"
+         "口語有畫面感的盤後短評：保留所有數字與族群名，用「資金像水」的敘事"
+         "串起強弱與輪動，分 3-4 段，開頭一句抓住今天的主軸，結尾給一句"
+         "明日觀察。輸出 markdown，標題沿用原標題。不加免責聲明（原文已有）。"),
+        article, max_tokens=1500)
 
 
 def generate(polish: bool = True) -> str:
