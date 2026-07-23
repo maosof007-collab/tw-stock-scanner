@@ -83,7 +83,8 @@ if not has_key:
     )
 
 # 分頁
-tab1, tab2, tab3, tab4 = st.tabs(["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告", "🏭 產業趨勢雷達"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ["📊 信心分數排行", "📰 新聞情緒", "📄 法人報告", "🏭 產業趨勢雷達", "📎 文章解讀"])
 
 
 # ══════════════════════════════════════════
@@ -537,6 +538,61 @@ with tab4:
                 st.markdown(f"{icon} `{d}` [{h['title']}]({h['url']})　"
                             f"<span style='color:{MUTED};font-size:11px'>{h['source']}</span>",
                             unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# Tab 5：文章解讀（貼網址 → 個股情報卡）
+# ══════════════════════════════════════════
+with tab5:
+    import article_intel
+
+    st.caption("貼上電子報/財經網站的文章網址（優分析、鉅亨等，一行一個）→ 自動抓全文、"
+               "解析出**個股多空、論點、關鍵數字、風險**。"
+               + ("" if has_key else "⚠️ 未設 API Key：目前為離線模式，只能偵測提到哪些個股；"
+                  "設定 ANTHROPIC_API_KEY 後可完整解析論點。"))
+
+    urls_in = st.text_area("文章網址", height=80, placeholder="https://uanalyze.com.tw/articles/...",
+                           key="art_urls")
+    if st.button("🔍 解讀文章", type="primary", key="art_go"):
+        urls = [u.strip() for u in urls_in.splitlines() if u.strip().startswith("http")]
+        if not urls:
+            st.warning("請貼至少一個網址")
+        for u in urls:
+            with st.spinner(f"解讀中：{u[:60]}…"):
+                rec = article_intel.ingest(u)
+            if rec is None:
+                st.error(f"抓取失敗（可能需要登入或非文章頁）：{u}")
+            else:
+                st.success(f"完成：{rec['title'][:40]}")
+        st.rerun()
+
+    STANCE = {"bull": ("🟢 偏多", GREEN), "bear": ("🔴 偏空", RED), "neutral": ("⚪ 中性", MUTED)}
+    arts = article_intel.load_articles(limit=20)
+    if not arts:
+        st.info("還沒有解讀過的文章。")
+    for a in arts:
+        eng = "🤖 Claude 解析" if a.get("engine") == "claude" else "📴 離線模式"
+        with st.expander(f"📎 {a['title']}　·　{a.get('source','')}　·　{a.get('ingested_at','')[:10]}",
+                         expanded=(a is arts[0])):
+            st.markdown(f"**{a.get('one_liner','')}**　<span style='color:{MUTED};font-size:11px'>"
+                        f"{eng}</span>", unsafe_allow_html=True)
+            for s_ in a.get("stocks", []):
+                tag, col = STANCE.get(s_.get("stance", "neutral"), STANCE["neutral"])
+                st.markdown(f"<span style='color:{col};font-weight:700'>{tag}</span>　"
+                            f"**{s_.get('code','')} {s_.get('name','')}**　{s_.get('summary','')}",
+                            unsafe_allow_html=True)
+                for kp in s_.get("key_points", []):
+                    st.caption(f"　• {kp}")
+                nums = s_.get("numbers", [])
+                if nums:
+                    st.caption("　🔢 " + "　|　".join(nums))
+                for rk in s_.get("risks", []):
+                    st.caption(f"　⚠️ {rk}")
+            gs, cs = a.get("groups", []), a.get("catalysts", [])
+            if gs:
+                st.caption("🧬 族群：" + "、".join(gs))
+            if cs:
+                st.caption("🎯 催化劑：" + "、".join(cs))
+            st.caption(f"[原文連結]({a['url']})")
 
 st.markdown(
     f"<p style='color:{MUTED};font-size:12px;text-align:right'>"
