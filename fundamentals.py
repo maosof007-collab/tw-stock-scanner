@@ -132,6 +132,67 @@ def build_note_digest(code: str) -> dict:
     }
 
 
+# ────────────────────────────────────────
+# 選股/回測用：時點對齊的基本面序列（含公布時滯，避免未來函數）
+# ────────────────────────────────────────
+def revenue_yoy_series(code: str) -> pd.Series:
+    """月營收 YoY%，index=「可得日」（次月10日才公布）。回測按日 ffill 使用。"""
+    data = _fm("TaiwanStockMonthRevenue", code, "2014-01-01")
+    if not data:
+        return pd.Series(dtype=float)
+    df = pd.DataFrame(data).sort_values(["revenue_year", "revenue_month"])
+    rev = df["revenue"].astype(float)
+    yoy = (rev / rev.shift(12) - 1) * 100
+    avail = pd.to_datetime(dict(year=df["revenue_year"], month=df["revenue_month"], day=1)) \
+        + pd.offsets.MonthBegin(1) + pd.Timedelta(days=9)      # 次月10日
+    s = pd.Series(yoy.values, index=avail)
+    return s.dropna()
+
+
+def eps5_series(code: str) -> pd.Series:
+    """近5年平均EPS，index=可得日（年報隔年4/1）。"""
+    data = _fm("TaiwanStockFinancialStatements", code, "2014-01-01")
+    if not data:
+        return pd.Series(dtype=float)
+    df = pd.DataFrame(data)
+    eps = df[df["type"] == "EPS"].copy()
+    if eps.empty:
+        return pd.Series(dtype=float)
+    eps["year"] = pd.to_datetime(eps["date"]).dt.year
+    annual = eps.groupby("year")["value"].sum()
+    annual = annual[annual.index < now_tw().year]      # 今年未完不算年度EPS
+    avg5 = annual.rolling(5, min_periods=3).mean()      # 資料不足5年放寬到3年
+    avail = pd.to_datetime([f"{y + 1}-04-01" for y in avg5.index])
+    return pd.Series(avg5.values, index=avail).dropna()
+
+
+def shares_map() -> dict:
+    """{code: 流通股數}（實收資本額/10；上市+上櫃 bulk，快取20h）"""
+    p = FUND_DIR / "shares_map.json"
+    if p.exists() and (time.time() - p.stat().st_mtime) < CACHE_HOURS * 3600:
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    out = {}
+    for url in ("https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+                "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O"):
+        try:
+            r = requests.get(url, timeout=25, headers={"User-Agent": "Mozilla/5.0"})
+            for row in r.json():
+                code = str(row.get("公司代號") or row.get("SecuritiesCompanyCode") or "").strip()
+                cap = str(row.get("實收資本額") or row.get("實收資本額(元)")
+                          or row.get("Paidin.Capital.NTDollars") or "0")
+                cap = float(cap.replace(",", "") or 0)
+                if code and cap > 0:
+                    out[code] = cap / 10.0          # 面額10元 → 股數
+        except Exception:
+            continue
+    if out:
+        p.write_text(json.dumps(out), encoding="utf-8")
+    return out
+
+
 _STYLE = """你是寫「個股觀察筆記」的個人投資人，文風範例（要學的骨架）：
 - 開頭一律附免責：**「以下屬個人基於公開資訊的主觀推論及投資筆記，不構成任何投資建議，歡迎指正。」**
 - 觀察 → 數字推論 → 主觀結論的節奏：先陳述財報可見的「變化」（如毛利率逐季改善、
