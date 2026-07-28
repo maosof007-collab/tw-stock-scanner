@@ -167,7 +167,11 @@ def _asia():
     from asia_watch import asia_snapshot
     return asia_snapshot()
 
-asia = _asia()
+try:
+    asia = _asia()
+except Exception as _e:
+    st.caption(f"亞洲對照暫時無法計算（{type(_e).__name__}）")
+    asia = {"markets": [], "spreads": []}
 if asia["markets"]:
     mc = st.columns(len(asia["markets"]))
     for i, m in enumerate(asia["markets"]):

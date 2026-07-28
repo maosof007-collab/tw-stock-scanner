@@ -164,14 +164,13 @@ def write_article(d: dict) -> str:
     stale_note = ""
     if bench:
         today = now_tw()
-        expect = today.date()
+        expect = pd.Timestamp(today.date())
         # 今天還沒收盤(<14:00)或假日 → 往前找最近一個工作日
         if today.weekday() >= 5 or today.hour < 14:
-            d = pd.Timestamp(expect) - pd.Timedelta(days=1)
-            while d.weekday() >= 5:
-                d -= pd.Timedelta(days=1)
-            expect = d.date()
-        behind = len(pd.bdate_range(bench["date"], expect)) - 1
+            expect -= pd.Timedelta(days=1)
+            while expect.weekday() >= 5:
+                expect -= pd.Timedelta(days=1)
+        behind = len(pd.bdate_range(pd.Timestamp(str(bench["date"])), expect)) - 1
         if behind >= 1:
             stale_note = (f"\n> ⚠️ **注意：資料只到 {date_str}，已落後約 {behind} 個交易日。**"
                           f"標題日期＝資料日（不是今天）。請等背景更新完成，"

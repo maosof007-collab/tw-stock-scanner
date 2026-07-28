@@ -251,7 +251,14 @@ def _render_daily_brief(key_prefix: str = "sec"):
                          help="需 ANTHROPIC_API_KEY；沒設也能出規則式版本")
     if c[1].button("🔄 重新生成", key=f"{key_prefix}_brief_regen"):
         _daily_brief.clear()
-    art = _daily_brief(polish)
+    try:
+        art = _daily_brief(polish)
+    except Exception as e:                      # 日報壞了不能拖垮整個主頁
+        import traceback
+        st.error(f"日報生成失敗：{type(e).__name__}: {e}")
+        with st.expander("錯誤細節（回報用）"):
+            st.code(traceback.format_exc()[-1500:])
+        return
     st.markdown(art)
     st.download_button(
         "⬇️ 下載 Markdown", art.encode("utf-8"),
