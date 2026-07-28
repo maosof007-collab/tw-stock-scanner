@@ -159,6 +159,34 @@ st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**�
            f"往右上＝資金流入、往左下＝資金流出；跌破領先區後一直沒站回去＝資金棄守，先避雷。"
            f"按 ▶ 播放看近{tail_days}個交易日的資金輪動（尾巴只顯示最近 {TAIL_SHOW} 日，跟著播放移動）{asof_txt}。")
 
+# ── 亞洲大盤對照（台/韓/日 20日報酬差 極端監測）──
+st.markdown("### 🌏 亞洲大盤對照")
+
+@st.cache_data(ttl=1800, show_spinner="計算亞洲市場對照中…")
+def _asia():
+    from asia_watch import asia_snapshot
+    return asia_snapshot()
+
+asia = _asia()
+if asia["markets"]:
+    mc = st.columns(len(asia["markets"]))
+    for i, m in enumerate(asia["markets"]):
+        col = "#FF4D6D" if m["dd60"] > -5 else ("#FFC857" if m["dd60"] > -15 else "#B49BFF")
+        mc[i].markdown(
+            f"<div class='metric-card'><div class='l'>{m['name']}</div>"
+            f"<div class='v' style='color:{col};font-size:20px'>{m['chg20']:+.1f}%"
+            f"<span style='font-size:11px'> /20日</span></div>"
+            f"<div style='font-size:11px;color:{THEME['muted']}'>距60日高 {m['dd60']:+.1f}%</div></div>",
+            unsafe_allow_html=True)
+    for sp in asia["spreads"]:
+        extreme = sp["pctile"] <= 2 or sp["pctile"] >= 98
+        icon = "🚨" if extreme else "·"
+        st.caption(f"{icon} **{sp['pair']} 20日報酬差 {sp['cur']:+.1f}pp**　"
+                   f"歷史百分位 {sp['pctile']:.1f}%（{sp['n']:,} 交易日）　z={sp['z']:+.1f}σ"
+                   + ("　——**史級極端狀態（僅記錄，不預測方向）**" if extreme else ""))
+    st.caption("⚠️ 報酬差極端＝罕見狀態的「紀錄」，不是方向預測。歷史上缺口多靠落後方反彈收斂，"
+               "但 1997-11 亞洲金融風暴（同為兩邊齊跌型）缺口曾持續擴大——極端可以更極端。")
+
 # ── 分象限清單 ──
 cc = st.columns(4)
 for i, q in enumerate(["領先", "改善", "弱化", "落後"]):
