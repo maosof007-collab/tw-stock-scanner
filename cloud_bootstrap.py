@@ -79,14 +79,16 @@ def ensure_data(force: bool = False) -> str:
     版本比對每次都做（很便宜，讀兩個小檔）——soft update 不重啟行程，
     _done 旗標會殘留，若先看旗標就永遠不會抓新包。"""
     global _done
-    outdated = _pack_outdated()
+    # benchmark 已移出 git（repo 版曾過期害雲端大盤停在舊日期）→ 缺檔=要抓包
+    missing_bench = not (DATA / "benchmark_TWII.csv").exists()
+    outdated = _pack_outdated() or missing_bench
     if _done and not force and not outdated:
         return "skip"
     _done = True
     if _has_price_data() and not force and not outdated:
         return "local"                       # 檔案在且版本沒變 → 不動作
     if _has_price_data() and outdated:
-        print("[cloud_bootstrap] 偵測到新資料包版本 → 重新下載", flush=True)
+        print("[cloud_bootstrap] 偵測到新資料包版本/大盤檔缺失 → 重新下載", flush=True)
     url = _pack_url()
     if not url:
         print("[cloud_bootstrap] 無 DATA_PACK_URL，略過（本機或未設定）", flush=True)
