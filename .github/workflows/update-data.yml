@@ -5,7 +5,8 @@ name: 每日更新資料包
 
 on:
   schedule:
-    - cron: "0 9 * * 1-5"        # UTC 09:00 = 台灣 17:00（收盤後），週一~五
+    - cron: "0 9 * * 1-5"        # UTC 09:00 = 台灣 17:00（第一槍；Yahoo 常還沒出當日資料）
+    - cron: "30 14 * * 1-5"      # UTC 14:30 = 台灣 22:30（第二槍；確保當日資料入包）
   workflow_dispatch: {}          # 也可到 Actions 頁手動按執行
 
 permissions:

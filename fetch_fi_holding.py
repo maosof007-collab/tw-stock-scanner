@@ -133,7 +133,8 @@ def fetch_fi_holding_month(ticker: str, year: int, month: int) -> pd.DataFrame:
 # 完整歷史 & 增量更新
 # ════════════════════════════════════════
 def fetch_fi_holding_history(ticker: str,
-                              start: str = "2015-01-01") -> pd.DataFrame:
+                              start: str = "2015-01-01",
+                              full_history: bool = False) -> pd.DataFrame:
     """
     抓取單一股票完整外資持股歷史
     ticker: "2330.TW" 或 "2330"
@@ -149,9 +150,15 @@ def fetch_fi_holding_history(ticker: str,
         start_dt = last_d - timedelta(days=32)   # 回推一個月確保不漏
         log.info(f"{tc} 增量更新：{start_dt.strftime('%Y-%m')} ~ {end_date.strftime('%Y-%m')}")
     else:
-        old      = pd.DataFrame()
-        start_dt = pd.Timestamp(start)
-        log.info(f"{tc} 首次抓取：{start_dt.strftime('%Y-%m')} ~ {end_date.strftime('%Y-%m')}")
+        old = pd.DataFrame()
+        if full_history:
+            start_dt = pd.Timestamp(start)
+            log.info(f"{tc} 首次抓取(完整歷史)：{start_dt.strftime('%Y-%m')} ~ {end_date.strftime('%Y-%m')}")
+        else:
+            # 每日模式嚴禁整段歷史回補：一檔 139 個月×2秒≈4.5分鐘,全市場要跑6天,
+            # 曾把每日排程整條卡死 → 無檔者只補近2個月,歷史用 --mode history 手動跑
+            start_dt = (end_date - timedelta(days=62)).replace(day=1)
+            log.info(f"{tc} 無歷史檔,每日模式僅補近2月：{start_dt.strftime('%Y-%m')} ~")
 
     # 產生月份清單
     months = pd.date_range(
@@ -184,8 +191,8 @@ def fetch_fi_holding_history(ticker: str,
     return combined
 
 
-def update_all_fi_holding(tickers: list):
-    """批次更新所有股票的外資持股比例"""
+def update_all_fi_holding(tickers: list, full_history: bool = False):
+    """批次更新所有股票的外資持股比例（每日模式無檔者只補近2月）"""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     log.info("=" * 50)
     log.info(f"  外資持股比例更新  {now_tw().strftime('%Y-%m-%d %H:%M')}")
@@ -195,7 +202,7 @@ def update_all_fi_holding(tickers: list):
     for t in tickers:
         tc = t.replace(".TW", "").strip()
         try:
-            df = fetch_fi_holding_history(t)
+            df = fetch_fi_holding_history(t, full_history=full_history)
             results.append({"ticker": tc, "rows": len(df), "status": "OK"})
         except Exception as e:
             log.error(f"{tc} 失敗: {e}")
@@ -245,4 +252,4 @@ if __name__ == "__main__":
         if not tickers:
             log.warning("找不到 data/*.TW.csv，請先執行 download_tw_stocks.py")
         else:
-            update_all_fi_holding(tickers)
+            update_all_fi_holding(tickers, full_history=(args.mode == "history"))
