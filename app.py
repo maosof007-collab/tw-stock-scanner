@@ -372,7 +372,7 @@ def render_sidebar(strategies_map, stocks_map):
     col1,col2=st.sidebar.columns(2)
     col1.metric("成功",upd["ok"]); col2.metric("失敗",upd["err"])
 
-    if st.sidebar.button("🔄 立即更新資料",use_container_width=True):
+    if st.sidebar.button("🔄 立即更新資料",width="stretch"):
         with st.spinner("更新中..."):
             load_csv.clear(); load_benchmark.clear()
             update_all(DATA_DIR)
@@ -422,7 +422,7 @@ def render_sidebar(strategies_map, stocks_map):
     cfg["slip"]=st.sidebar.slider("滑點 (%)",0.0,0.5,0.1,0.05)/100
 
     st.sidebar.divider()
-    cfg["run"]=st.sidebar.button("🚀 執行回測 + 稽核",type="primary",use_container_width=True)
+    cfg["run"]=st.sidebar.button("🚀 執行回測 + 稽核",type="primary",width="stretch")
     return cfg
 
 # ════════════════════════════════════════
@@ -457,7 +457,7 @@ def render_backtest_tab(all_eq,all_trades,bm_eq,all_stats,selected):
             .format("{:.2f}",subset=["報酬(%)","年化(%)","回撤(%)","夏普","勝率(%)","獲利因子"])
             .background_gradient("RdYlGn",subset=["報酬(%)","年化(%)"])
             .background_gradient("RdYlGn_r",subset=["回撤(%)"]),
-            use_container_width=True)
+            width="stretch")
 
 def render_audit_tab(audit, all_df_sig, all_eq):
     score=audit["_score"]; total=audit["_total"]
@@ -517,7 +517,7 @@ def render_audit_tab(audit, all_df_sig, all_eq):
                 st.dataframe(r["wf_df"].set_index("股票").style
                     .background_gradient("RdYlGn",subset=["樣本內(%)","樣本外(%)"])
                     .background_gradient("RdYlGn_r",subset=["衰退"])
-                    .format("{:.1f}"),use_container_width=True)
+                    .format("{:.1f}"),width="stretch")
 
     st.markdown("#### 稽核總覽")
     audit_rows=[{"項目":f"{k}. {r['title']}",
@@ -525,7 +525,7 @@ def render_audit_tab(audit, all_df_sig, all_eq):
                  "數據":r["detail"][:70]}
                 for k,r in audit.items()
                 if not k.startswith("_") and isinstance(r,dict)]
-    st.dataframe(pd.DataFrame(audit_rows).set_index("項目"),use_container_width=True)
+    st.dataframe(pd.DataFrame(audit_rows).set_index("項目"),width="stretch")
 
 def render_signals_tab(all_df_sig, strategy_name):
     st.markdown(f"#### 今日訊號掃描 — {strategy_name}")
@@ -549,7 +549,7 @@ def render_signals_tab(all_df_sig, strategy_name):
             if val=="buy":  return "color:#1D9E75;font-weight:600"
             if val=="sell": return "color:#E24B4A;font-weight:600"
             return "color:#888"
-        st.dataframe(sig_df.style.map(color_sig,subset=["訊號"]),use_container_width=True)
+        st.dataframe(sig_df.style.map(color_sig,subset=["訊號"]),width="stretch")
         buy_cnt=(sig_df["訊號"]=="buy").sum()
         st.success(f"🔔 今日共 {buy_cnt} 檔買入訊號") if buy_cnt>0 else st.info("今日無買入訊號")
 
@@ -675,7 +675,7 @@ class MyStrategy(BaseStrategy):
             st.dataframe(all_t.style
                 .background_gradient("RdYlGn",subset=["pnl"])
                 .format({"entry_price":"{:.1f}","exit_price":"{:.1f}","pnl":"{:,.0f}"}),
-                use_container_width=True,height=480)
+                width="stretch",height=480)
             st.download_button("⬇️ 下載 CSV",
                 data=all_t.to_csv(index=False,encoding="utf-8-sig").encode("utf-8-sig"),
                 file_name=f"{strategy_name}_trades.csv",mime="text/csv")

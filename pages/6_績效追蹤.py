@@ -178,9 +178,9 @@ with st.sidebar:
                              "to": (to.strip() or usr.strip())}
             save_notify(_USER, _cfg)
 
-        if c1.button("💾 儲存", use_container_width=True):
+        if c1.button("💾 儲存", width="stretch"):
             _save_email(en); st.success("已儲存")
-        if c2.button("🔔 測試寄信", use_container_width=True):
+        if c2.button("🔔 測試寄信", width="stretch"):
             _save_email(True)
             ok = notify_stop_exit([{"ticker": "TEST", "name": "測試", "exit_price": 100.0,
                                     "stop_loss": 100.0, "pnl_pct": -5.0}], load_notify(_USER))
@@ -233,7 +233,7 @@ with st.sidebar:
                                   value=False,
                                   help="勾選後即使已持有同一檔也會另計一列（第2次/第3次進場）。")
 
-        if st.form_submit_button("✅ 加入追蹤", type="primary", use_container_width=True):
+        if st.form_submit_button("✅ 加入追蹤", type="primary", width="stretch"):
             if not ticker_in:
                 st.error("請輸入股票代碼")
             elif entry_price <= 0:
@@ -285,7 +285,7 @@ with st.sidebar:
         )
         exit_price_in = st.number_input("出場價", min_value=0.0, step=0.1, key="exit_price")
         exit_date_in  = st.date_input("出場日", value=date.today(), key="exit_date")
-        if st.button("✅ 確認出場", use_container_width=True):
+        if st.button("✅ 確認出場", width="stretch"):
             idx = portfolio[
                 (portfolio["ticker"] == exit_sel) & (portfolio["status"] == "持倉中")
             ].index
@@ -339,7 +339,7 @@ if not active_rich.empty and "hit_stop" in active_rich.columns:
             st.error(f"🛑 **{len(hit)} 檔已觸發停損：**　{lines}")
         with bc:
             if st.button("🛑 停損出場（記錄並移除）", type="primary",
-                         use_container_width=True):
+                         width="stretch"):
                 today = str(date.today())
                 done = []
                 for _, r in hit.iterrows():
@@ -375,7 +375,7 @@ if not active_rich.empty and "price_date" in active_rich.columns:
             )
         with bc:
             if st.button("🔄 立即更新持倉股價", type="primary",
-                         use_container_width=True):
+                         width="stretch"):
                 from auto_refresh import update_held_now
                 bar = st.progress(0.0, text="準備更新...")
                 def _cb(i, total, tk):
@@ -443,7 +443,7 @@ with tab1:
             margin=dict(l=10, r=120, t=50, b=30),
             showlegend=False,
         )
-        st.plotly_chart(fig_pnl, use_container_width=True)
+        st.plotly_chart(fig_pnl, width="stretch")
 
         # 距停損空間（用移動停損）
         _stopcol = "trail_stop" if "trail_stop" in ar.columns else "stop_loss"
@@ -474,7 +474,7 @@ with tab1:
                     margin=dict(l=10, r=80, t=50, b=30),
                     showlegend=False,
                 )
-                st.plotly_chart(fig_stop, use_container_width=True)
+                st.plotly_chart(fig_stop, width="stretch")
 
 
 # ══ Tab2：持倉明細 ══════════════════════════
@@ -508,7 +508,7 @@ with tab2:
                     "進場價":"{:.1f}","現價":"{:.1f}","停損價":"{:.1f}",
                     "損益%":"{:+.2f}%","損益額":"{:+,.0f}",
                 }),
-            use_container_width=True,
+            width="stretch",
             height=min(600, len(disp)*38+60),
         )
 
@@ -532,7 +532,7 @@ with tab2:
                     "整體損益%": round((cur - avg_cost) / avg_cost * 100, 2) if avg_cost else 0.0,
                     "整體損益額": round(pnl_amt, 0),
                 })
-            st.dataframe(pd.DataFrame(sm), use_container_width=True, hide_index=True,
+            st.dataframe(pd.DataFrame(sm), width="stretch", hide_index=True,
                          column_config={
                              "整體損益%": st.column_config.NumberColumn(format="%+.2f%%"),
                              "整體損益額": st.column_config.NumberColumn(format="%+,.0f"),
@@ -564,7 +564,7 @@ with tab2:
             with stc1:
                 stfig = build_supertrend_figure(str(krow["ticker"]), height=340)
                 if stfig is not None:
-                    st.plotly_chart(stfig, use_container_width=True)
+                    st.plotly_chart(stfig, width="stretch")
                 else:
                     st.caption("SUPER TREND：資料不足")
             with stc2:
@@ -574,7 +574,7 @@ with tab2:
                 from chip_chart import build_chip_figure
                 cfig = build_chip_figure(str(krow["ticker"]), height=720)
                 if cfig is not None:
-                    st.plotly_chart(cfig, use_container_width=True)
+                    st.plotly_chart(cfig, width="stretch")
                 else:
                     st.caption("無籌碼資料")
             except Exception as e:
@@ -651,7 +651,7 @@ with tab3:
             margin=dict(l=10, r=100, t=50, b=30),
             showlegend=False,
         )
-        st.plotly_chart(fig_cl, use_container_width=True)
+        st.plotly_chart(fig_cl, width="stretch")
 
         # 明細表
         show2 = [c for c in [
@@ -668,7 +668,7 @@ with tab3:
             disp2.style
                 .map(color_pnl, subset=["損益%"] if "損益%" in disp2.columns else [])
                 .format({"進場價":"{:.1f}","出場價":"{:.1f}","損益%":"{:+.2f}%","損益額":"{:+,.0f}"}),
-            use_container_width=True,
+            width="stretch",
         )
 
         csv = disp2.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")

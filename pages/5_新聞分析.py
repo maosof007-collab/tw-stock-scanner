@@ -129,7 +129,7 @@ with tab1:
 
     with col_run:
         if st.button("🧮 重新計算信心分數", type="primary",
-                     use_container_width=True, disabled=not has_key):
+                     width="stretch", disabled=not has_key):
             with st.spinner("計算中..."):
                 import subprocess
                 proc = subprocess.run(
@@ -201,7 +201,7 @@ with tab1:
                     showlegend=False,
                     title=dict(text="信心分數 Top 15", font=dict(size=14, color=TEXT)),
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
             with col_table:
                 # 三維分數散佈
@@ -240,7 +240,7 @@ with tab1:
                         title=dict(text="三維信心散佈圖", font=dict(size=14, color=TEXT)),
                         margin=dict(l=60, r=20, t=50, b=50),
                     )
-                    st.plotly_chart(fig2, use_container_width=True)
+                    st.plotly_chart(fig2, width="stretch")
 
         # 明細表
         st.markdown("---")
@@ -266,7 +266,7 @@ with tab1:
                     "confidence":"{:.1f}","tech_score":"{:.1f}",
                     "news_score":"{:.1f}","report_score":"{:.1f}",
                 }),
-            use_container_width=True, height=500,
+            width="stretch", height=500,
         )
 
         csv = conf_df.to_csv(index=False, encoding="utf-8-sig").encode("utf-8-sig")
@@ -287,7 +287,7 @@ with tab2:
             st.markdown(f"**分析日期：** `{fmt}`　共 {len(sent_df)} 則")
     with col_b:
         if st.button("🔄 抓取並分析今日新聞", type="primary",
-                     use_container_width=True, disabled=not has_key):
+                     width="stretch", disabled=not has_key):
             with st.spinner("抓取中（約1-2分鐘）..."):
                 import subprocess
                 proc = subprocess.run(
@@ -344,7 +344,7 @@ with tab2:
                 legend=dict(font=dict(color=TEXT), bgcolor=CARD),
                 height=320, margin=dict(t=50, b=40, l=50, r=20),
             )
-            st.plotly_chart(fig_hist, use_container_width=True)
+            st.plotly_chart(fig_hist, width="stretch")
 
         with c2:
             # 來源分布
@@ -361,7 +361,7 @@ with tab2:
                 showlegend=False,
                 height=320, margin=dict(t=50, b=40, l=10, r=20),
             )
-            st.plotly_chart(fig_src, use_container_width=True)
+            st.plotly_chart(fig_src, width="stretch")
 
         # 新聞明細
         st.markdown("---")
@@ -392,7 +392,7 @@ with tab2:
             filtered[show].style
                 .map(color_sentiment, subset=["sentiment"])
                 .format({"score":"{:+.3f}"}),
-            use_container_width=True, height=500,
+            width="stretch", height=500,
         )
 
     else:
@@ -551,7 +551,7 @@ with tab4:
         st.dataframe(
             trend.style.map(_c_senti, subset=["情緒"]).map(_c_mom, subset=["熱度Δ%"])
                  .format({"熱度Δ%": "{:+.0f}%", "情緒": "{:+.2f}", "趨勢分": "{:+.2f}"}),
-            use_container_width=True, height=420, hide_index=True)
+            width="stretch", height=420, hide_index=True)
 
         # 產業標題細看
         pick = st.selectbox("🔍 看某產業的新聞標題", trend["產業"].tolist())

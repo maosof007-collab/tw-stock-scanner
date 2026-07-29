@@ -87,7 +87,7 @@ fig.update_layout(
 fig.update_xaxes(showgrid=True, gridcolor=THEME["grid"])
 fig.update_yaxes(title_text="融資維持率 %", gridcolor=THEME["grid"], secondary_y=False)
 fig.update_yaxes(title_text="加權指數", showgrid=False, secondary_y=True)
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 st.caption(
     "💡 **怎麼看**：維持率**跌破警戒線並持續走低**＝市場槓桿壓力大、追繳賣壓升高（常見於下跌段）；"
@@ -124,7 +124,7 @@ else:
                 unsafe_allow_html=True)
 
     with st.expander("歷年逐年報酬（TWII 實測）"):
-        st.dataframe(sw["table"], use_container_width=True, hide_index=True,
+        st.dataframe(sw["table"], width="stretch", hide_index=True,
                      column_config={
                          "七月前10日%": st.column_config.NumberColumn(format="%+.2f%%"),
                          "八月後7日%": st.column_config.NumberColumn(format="%+.2f%%"),

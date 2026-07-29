@@ -152,7 +152,7 @@ fig.update_layout(
                   x=0.13, y=1.10, xanchor="left", len=0.85,
                   currentvalue=dict(prefix="截至 ", font=dict(size=11)),
                   font=dict(size=9), bgcolor=THEME["panel"])])
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 asof_txt = f"（資料截至 {str(asof)[:10]}）" if asof is not None else ""
 st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**由小到大＝行進方向**，大點=最新位置；"

@@ -143,7 +143,7 @@ def _sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
         height=max(400, len(plot_grp) * 28 + 80),
         margin=dict(l=10, r=90, t=50, b=30), showlegend=False,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.markdown("**個股明細**")
     tbl = grp[["ticker", "name", "chg", "close", "volume"]].copy()
@@ -158,7 +158,7 @@ def _sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
     st.dataframe(
         tbl.style.map(_c, subset=["漲跌%"])
            .format({"漲跌%": "{:+.2f}%", "收盤": "{:.1f}", "量(張)": "{:,}"}),
-        use_container_width=True,
+        width="stretch",
         height=min(500, len(tbl) * 36 + 60),
     )
 
@@ -206,7 +206,7 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
                         unsafe_allow_html=True,
                     )
                     if st.button("查看個股", key=f"{key_prefix}_{sec['sector']}",
-                                 use_container_width=True):
+                                 width="stretch"):
                         if not stock_ret_df.empty:
                             _sector_drill_dialog(sec["sector"], stock_ret_df)
 
@@ -227,7 +227,7 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
             disp.style.map(color_chg, subset=["平均漲跌%"])
                 .format({"平均漲跌%": "{:+.2f}%", "上漲": "{:.0f}",
                          "下跌": "{:.0f}", "合計": "{:.0f}"}),
-            use_container_width=True,
+            width="stretch",
             height=min(700, len(disp) * 38 + 60),
         )
 

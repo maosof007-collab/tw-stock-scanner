@@ -45,7 +45,7 @@ min_cont = c[5].slider("最低支撐延續機率%", 0, 100, 0, 5)
 
 st.caption("翻多＝SuperTrend 由空翻多（趨勢反轉向上）。延續機率＝歷史多頭段中長度≥M 的比率，越高越少假訊號。")
 
-if st.button("🚀 掃描全市場翻多", type="primary", use_container_width=True):
+if st.button("🚀 掃描全市場翻多", type="primary", width="stretch"):
     st.session_state.run_flip_scan = True
 
 if st.session_state.get("run_flip_scan"):
@@ -57,7 +57,7 @@ if st.session_state.get("run_flip_scan"):
             df = df[df["支撐延續機率%"].fillna(0) >= min_cont].reset_index(drop=True)
         st.success(f"共 {len(df)} 檔翻多（按支撐延續機率排序）")
         st.dataframe(
-            df, use_container_width=True, hide_index=True, height=620,
+            df, width="stretch", hide_index=True, height=620,
             column_config={
                 "收盤": st.column_config.NumberColumn(format="%.2f"),
                 "支撐": st.column_config.NumberColumn(format="%.2f"),

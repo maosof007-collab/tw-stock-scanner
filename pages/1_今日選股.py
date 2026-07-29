@@ -311,13 +311,13 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
     # 分頁：原 K線 + 新增 5 軌籌碼圖
     tab_k, tab_chip = st.tabs(["📈 K 線 + 均線", "📊 籌碼 5 軌"])
     with tab_k:
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
     with tab_chip:
         try:
             from chip_chart import build_chip_figure
             cfig = build_chip_figure(ticker, height=720)
             if cfig is not None:
-                st.plotly_chart(cfig, use_container_width=True)
+                st.plotly_chart(cfig, width="stretch")
             else:
                 st.caption("無籌碼資料")
         except Exception as e:
@@ -367,7 +367,7 @@ def render_kline_buttons(source_df, info, key_prefix):
         name = info.get(tk, {}).get("name", "")
         label = f"{tk}\n{name}" if name else tk
         # key 用全局唯一 index，完全不會重複
-        if col.button(label, key=f"{key_prefix}_{idx}", use_container_width=True):
+        if col.button(label, key=f"{key_prefix}_{idx}", width="stretch"):
             row = dedup_df[dedup_df["代碼"] == tk].iloc[0]
             kline_dialog(
                 ticker=tk,
@@ -497,7 +497,7 @@ with col_info:
 with col_btn:
     if CLOUD:
         st.caption("☁️ 每日自動更新")     # 雲端不給手動更新按鈕，避免混淆
-    elif st.button("🔄 更新＋選股", type="primary", use_container_width=True,
+    elif st.button("🔄 更新＋選股", type="primary", width="stretch",
                    help="股價未更新→自動抓新股價再選股；股價已最新→只快速重選。進度看『⏱️ 更新進度』頁。"):
         try:
             from auto_refresh import _data_behind, trigger_full_update
@@ -663,7 +663,7 @@ if not buy_df.empty:
             height=max(380, len(sdf)*34+80),
             margin=dict(l=10, r=90, t=20, b=40), showlegend=False,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with ct2:
         sdf2 = buy_df.sort_values("風險%", ascending=True)
@@ -687,7 +687,7 @@ if not buy_df.empty:
             height=max(380, len(sdf2)*34+80),
             margin=dict(l=10, r=90, t=20, b=40), showlegend=False,
         )
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width="stretch")
 
     with ct3:
         bdf = buy_df.copy()
@@ -711,7 +711,7 @@ if not buy_df.empty:
             yaxis=dict(gridcolor=BORDER, title="RS 相對強度"),
             height=500, margin=dict(l=60, r=40, t=30, b=60), showlegend=False,
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width="stretch")
 
 # ─────────────────────────────────────────
 # ② 選股明細表 + K線按鈕
@@ -760,7 +760,7 @@ with tab_buy:
                 .map(color_risk,   subset=["風險%"])
                 .format({"收盤":"{:.1f}","停損":"{:.1f}",
                          "風險%":"{:.1f}%","RS相對強度":"{:.2f}","量比(vs均)":"{:.1f}x"}),
-            use_container_width=True,
+            width="stretch",
             height=min(600, len(disp)*38+60),
             on_select="rerun",
             selection_mode="multi-row",
@@ -774,7 +774,7 @@ with tab_buy:
         with ac1:
             add_clicked = st.button(
                 f"➕ 加入績效追蹤（已選 {len(sel_rows)} 檔）",
-                type="primary", use_container_width=True,
+                type="primary", width="stretch",
                 disabled=(len(sel_rows) == 0),
             )
         with ac2:
@@ -821,7 +821,7 @@ with tab_watch:
             disp2.style
                 .map(color_rs, subset=["RS相對強度"])
                 .format({"收盤":"{:.1f}","RS相對強度":"{:.2f}"}),
-            use_container_width=True,
+            width="stretch",
             height=min(560, len(disp2)*38+60),
         )
         st.markdown("**點擊看 K 線圖：**")
@@ -861,7 +861,7 @@ if not buy_df.empty:
             legend=dict(font=dict(size=12, color=TEXT), bgcolor=CARD),
             margin=dict(t=50,b=20,l=10,r=10), height=300,
         )
-        col.plotly_chart(fig_p, use_container_width=True)
+        col.plotly_chart(fig_p, width="stretch")
 
 st.markdown(f"<p style='color:{MUTED};font-size:12px;text-align:right'>"
             f"掃描結果：{SCAN_DIR}</p>", unsafe_allow_html=True)

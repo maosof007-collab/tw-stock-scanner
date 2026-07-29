@@ -57,7 +57,7 @@ if _is_cloud():
 else:
     c1, c2, c3 = st.columns([2, 2, 6])
     with c1:
-        if st.button("🔄 更新股價 ＋ 掃描", type="primary", use_container_width=True):
+        if st.button("🔄 更新股價 ＋ 掃描", type="primary", width="stretch"):
             launch([sys.executable, "-c",
                     "import subprocess,sys;"
                     "subprocess.run([sys.executable,'updater.py']);"
@@ -65,7 +65,7 @@ else:
                    "更新股價＋掃描")
             st.rerun()
     with c2:
-        if st.button("📡 只掃描訊號", use_container_width=True):
+        if st.button("📡 只掃描訊號", width="stretch"):
             launch([sys.executable, "scan_signals.py"], "只掃描訊號")
             st.rerun()
     with c3:

@@ -107,7 +107,7 @@ fig.update_layout(
     font=dict(color=THEME["text"], size=12), margin=dict(l=10, r=10, t=20, b=10),
     xaxis=dict(title="RS-Ratio 相對強弱 →", range=[x0, x1], gridcolor=THEME["grid"]),
     yaxis=dict(title="RS-Momentum 相對動能 ↑", range=[y0, y1], gridcolor=THEME["grid"]))
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 asof_txt = f"　資料截至 **{str(asof)[:10]}**。" if asof is not None else ""
 st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**由小到大＝行進方向**（尾巴只畫最近 {TAIL_SHOW} 週）——"

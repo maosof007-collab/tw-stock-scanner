@@ -105,7 +105,7 @@ for i in range(0, len(names), per_row):
     cols = st.columns(per_row)
     for j, nm in enumerate(names[i:i + per_row]):
         active = (nm == st.session_state.grp_sel)
-        if cols[j].button(nm, key=f"gbtn_{nm}", use_container_width=True,
+        if cols[j].button(nm, key=f"gbtn_{nm}", width="stretch",
                           type=("primary" if active else "secondary")):
             st.session_state.grp_sel = nm
             st.rerun()
@@ -211,7 +211,7 @@ fig.update_layout(
 fig.update_xaxes(showgrid=True, gridcolor=THEME["grid"])
 fig.update_yaxes(showgrid=True, gridcolor=THEME["grid"])
 fig.update_yaxes(title_text="相對指數", row=1, col=1)
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 st.caption("💡 各成員線（細）擠成一束＝集團一起動；散開＝各走各的。"
            "粗 K 線是把成員拉到同起點後平均出來的「集團指數」。")
@@ -238,7 +238,7 @@ tbl = pd.DataFrame(rows).sort_values("區間%", ascending=False).reset_index(dro
 if missing:
     st.caption(f"⚠️ 查無資料已略過：{'、'.join(missing)}")
 st.dataframe(
-    tbl, use_container_width=True, hide_index=True,
+    tbl, width="stretch", hide_index=True,
     column_config={
         "今日%": st.column_config.NumberColumn(format="%.2f%%"),
         "區間%": st.column_config.NumberColumn(format="%.2f%%"),

@@ -34,7 +34,7 @@ with st.sidebar:
     metric = st.selectbox("排序指標",
                           ["外資買超%", "投信買超%", "主力買超%", "大戶買進%"])
     # 排行要掃全市場（首次約20秒），故改成點按才載入，不卡主畫面
-    if st.button("🔄 載入/更新排行", use_container_width=True):
+    if st.button("🔄 載入/更新排行", width="stretch"):
         st.session_state.show_rank = True
     if st.session_state.get("show_rank"):
         rank = dp.get_ranking(days=days, metric=metric, top_n=50)
@@ -43,7 +43,7 @@ with st.sidebar:
             st.caption("無排行資料（請先更新三大法人/集保）")
         for _, r in rank.head(15).iterrows():
             label = f"{r['ticker']} {r['name']}  ({'+' if r['value']>=0 else ''}{r['value']:.2f}%)"
-            if st.button(label, key=f"rk_{r['ticker']}", use_container_width=True):
+            if st.button(label, key=f"rk_{r['ticker']}", width="stretch"):
                 st.session_state.sel_ticker = r["ticker"]
                 st.rerun()
             st.markdown(f"<div class='muted'>{r['industry']} · {r['legal_action']}</div>",
@@ -76,7 +76,7 @@ with main_col:
     _h = 860 if len(_sel) >= 4 else max(300, 180 * max(1, len(_sel)) + 120)
     fig = build_chip_figure(ticker, height=_h, tracks=_sel or None)
     if fig is not None:
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.markdown("#### 分點 · 近5天累計")
     bf = dp.get_branch_flows(ticker, days=days)
@@ -85,7 +85,7 @@ with main_col:
     else:
         st.dataframe(bf.rename(columns={"branch": "分點", "net_lots": "淨張數",
                                         "pct": "佔股本%"}),
-                     use_container_width=True, hide_index=True, height=300)
+                     width="stretch", hide_index=True, height=300)
 
 # ---------------- 右欄：SUPER TREND 統計 + 研究報告摘要 + 情緒 ----------------
 with right_col:

@@ -177,4 +177,4 @@ def render_kline(ticker: str, name: str = "", *,
         height=height, hovermode="x unified",
         margin=dict(l=10, r=55, t=44, b=28),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")

@@ -45,7 +45,7 @@ else:
             st.session_state.sel_report_id = int(reps.iloc[0]["id"])
         for _, r in reps.iterrows():
             if st.button(f"{r['date']}　{r['ticker']} {r['name']}",
-                         key=f"rp_{r['id']}", use_container_width=True):
+                         key=f"rp_{r['id']}", width="stretch"):
                 st.session_state.sel_report_id = int(r["id"])
             st.markdown(f"<div class='muted'>{r['rtype']} · {r['broker']} · "
                         f"TWD {r['target_price']:.0f}</div>", unsafe_allow_html=True)

@@ -118,7 +118,7 @@ def logout_button():
         return
     u = st.session_state.get("user", "")
     tag = "👑 管理者" if is_admin() else u
-    if st.sidebar.button(f"🔓 登出（目前：{tag}）", use_container_width=True):
+    if st.sidebar.button(f"🔓 登出（目前：{tag}）", width="stretch"):
         for k in ("authed", "user", "agreed", "is_admin"):
             st.session_state.pop(k, None)
         st.rerun()
