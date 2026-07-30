@@ -5,8 +5,9 @@ name: 每日更新資料包
 
 on:
   schedule:
-    - cron: "0 9 * * 1-5"        # UTC 09:00 = 台灣 17:00（第一槍；Yahoo 常還沒出當日資料）
-    - cron: "30 14 * * 1-5"      # UTC 14:30 = 台灣 22:30（第二槍；確保當日資料入包）
+    - cron: "10 7 * * 1-5"       # UTC 07:10 = 台灣 15:10（第一槍；官方盤後資料已出）
+    - cron: "0 9 * * 1-5"        # UTC 09:00 = 台灣 17:00（第二槍）
+    - cron: "30 14 * * 1-5"      # UTC 14:30 = 台灣 22:30（保險槍；Yahoo 也有了）
   workflow_dispatch: {}          # 也可到 Actions 頁手動按執行
 
 permissions:
@@ -41,6 +42,8 @@ jobs:
 
       - name: 更新股價 + 掃描選股
         run: |
+          echo "----- 官方源當日快速更新（TWSE/TPEX，不靠 Yahoo）-----"
+          python fetch_daily_official.py 2>&1 | tail -3 || echo "::warning::official 失敗，續跑"
           python updater.py 2>&1 | tail -5 || echo "::warning::updater 部分失敗，續跑"
           echo "----- 產業新聞掃描 -----"
           python fetch_news.py --sectors 2>&1 | tail -3 || echo "::warning::news 抓取失敗，續跑"
