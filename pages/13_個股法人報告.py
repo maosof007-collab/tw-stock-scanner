@@ -80,6 +80,29 @@ fig.update_layout(height=380, template="plotly_dark", paper_bgcolor=THEME["bg"],
                   legend=dict(orientation="h", y=1.12))
 st.plotly_chart(fig, width="stretch")
 
+# 月營收明細表(key 股號就有:營收/MoM/YoY/累計YoY)
+with st.expander("📅 月營收明細表(近 18 月)", expanded=False):
+    tbl = mon.tail(18).copy()
+    tbl["MoM%"] = tbl["revenue"].pct_change() * 100
+    cur_year = tbl["ym"].iloc[-1][:4]
+    ytd = mon[mon["ym"].str.startswith(cur_year)]["revenue"].sum()
+    ytd_prev = mon[mon["ym"].str.startswith(str(int(cur_year) - 1))].head(
+        len(mon[mon["ym"].str.startswith(cur_year)]))["revenue"].sum()
+    tbl = tbl.rename(columns={"ym": "月份", "revenue": "營收(百萬)", "yoy%": "YoY%"})
+    tbl["營收(百萬)"] = tbl["營收(百萬)"].round(1)
+
+    def _c(v):
+        if isinstance(v, float):
+            return f"color:{'#FF4D6D' if v > 0 else '#2BE4A8'}"
+        return ""
+    st.dataframe(
+        tbl[["月份", "營收(百萬)", "MoM%", "YoY%"]].style
+           .map(_c, subset=["MoM%", "YoY%"])
+           .format({"營收(百萬)": "{:,.1f}", "MoM%": "{:+.1f}%", "YoY%": "{:+.1f}%"}),
+        width="stretch", hide_index=True, height=400)
+    if ytd_prev > 0:
+        st.caption(f"{cur_year} 年累計 {ytd:,.0f} 百萬,累計 YoY {(ytd/ytd_prev-1)*100:+.1f}%")
+
 fc_col, eps_col = st.columns([3, 2])
 with fc_col:
     if not fc.empty:
