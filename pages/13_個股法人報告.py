@@ -26,7 +26,7 @@ page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
 import analyst_report as _ar
-if not hasattr(_ar, "backcast_monthly"):
+if not hasattr(_ar, "generate_industry_report"):     # 熱更新防護:缺最新函式就 reload
     _ar = importlib.reload(_ar)
 build_digest = _ar.build_digest
 forecast_monthly = _ar.forecast_monthly
@@ -34,6 +34,8 @@ eps_scenarios = _ar.eps_scenarios
 generate_report = _ar.generate_report
 backcast_monthly = _ar.backcast_monthly
 attribute_errors = _ar.attribute_errors
+peer_compare = _ar.peer_compare
+generate_industry_report = _ar.generate_industry_report
 
 c1, c2 = st.columns([1, 3])
 code_in = c1.text_input("股票代碼", placeholder="4991", key="rpt_code")
@@ -183,11 +185,59 @@ if not q.empty:
     with qc2:
         st.dataframe(q.tail(8), width="stretch", hide_index=True, height=300)
 
-# ── ③ 法人報告 ──
-st.markdown("### 🧾 產生法人報告(六層框架+正反方對照表)")
+# ── ②.5 同業比較(產業寫作模式的素材) ──
+st.markdown("### ⚔️ 同業比較")
+# 預設帶入同族群成員
+_default_peers = ""
+try:
+    from theme_groups import THEME_GROUPS
+    for _g, _cs in THEME_GROUPS.items():
+        if code in _cs:
+            _default_peers = ",".join([c for c in _cs if c != code][:3])
+            break
+except Exception:
+    pass
+peers_in = st.text_input("比較對象(逗號分隔,自動帶入同族群)", value=_default_peers, key="rpt_peers")
+peers = [p.strip() for p in peers_in.replace("、", ",").split(",") if p.strip().isdigit()]
+if peers:
+    rev_cmp, gm_cmp = peer_compare([code] + peers)
+    pc1, pc2 = st.columns(2)
+    with pc1:
+        if not rev_cmp.empty:
+            figr = go.Figure()
+            for col in rev_cmp.columns[1:]:
+                figr.add_trace(go.Scatter(x=rev_cmp["ym"], y=rev_cmp[col], name=col,
+                                          mode="lines", line=dict(width=2)))
+            figr.update_layout(title="月營收指數化(24月前=100)——誰先創高?",
+                               height=300, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                               plot_bgcolor=THEME["panel"], font=dict(color=THEME["text"], size=11),
+                               margin=dict(l=10, r=10, t=40, b=10),
+                               legend=dict(orientation="h", y=-0.2))
+            st.plotly_chart(figr, width="stretch")
+    with pc2:
+        if not gm_cmp.empty:
+            figg = go.Figure()
+            for col in gm_cmp.columns[1:]:
+                figg.add_trace(go.Scatter(x=gm_cmp["季度"].astype(str), y=gm_cmp[col], name=col,
+                                          mode="lines+markers", line=dict(width=2)))
+            figg.update_layout(title="季度毛利率%對比——產品結構的成績單",
+                               height=300, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                               plot_bgcolor=THEME["panel"], font=dict(color=THEME["text"], size=11),
+                               margin=dict(l=10, r=10, t=40, b=10),
+                               legend=dict(orientation="h", y=-0.2))
+            st.plotly_chart(figg, width="stretch")
+
+# ── ③ 報告產生(兩種模式) ──
+st.markdown("### 🧾 產生報告")
+mode = st.radio("報告模式", ["產業比較型(優分析風:問句標題/產品結構→客群→週期位置/教方法論)",
+                          "法人六層型(驅動力→估值三情境→正反方對照表)"],
+                horizontal=False, key="rpt_mode")
 if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
-    with st.spinner("撰寫法人報告中(約 30-90 秒)…"):
-        rpt = generate_report(code, extra=extra_in)
+    with st.spinner("撰寫報告中(約 30-90 秒)…"):
+        if mode.startswith("產業比較"):
+            rpt = generate_industry_report(code, peers, extra=extra_in)
+        else:
+            rpt = generate_report(code, extra=extra_in)
     st.session_state["last_rpt"] = rpt
     st.session_state["last_rpt_code"] = code
 

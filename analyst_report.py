@@ -186,6 +186,68 @@ def build_digest(code: str, extra: str = "") -> dict:
 
 
 # ────────────────────────────────────────
+# 同業比較(產業寫作模式用)
+# ────────────────────────────────────────
+def peer_compare(codes: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """回傳 (月營收指數化表, 季度毛利率對比表)。指數化=各自24月前=100。"""
+    from pathlib import Path
+    sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                     encoding="utf-8-sig", dtype=str)
+    nm = dict(zip(sl["code"], sl["name"]))
+    rev_cols, gm_cols = {}, {}
+    for c in codes:
+        label = f"{c} {nm.get(c, '')}"
+        mon = monthly_revenue(c, years=2)
+        if not mon.empty:
+            s = mon.set_index("ym")["revenue"]
+            rev_cols[label] = (s / s.iloc[0] * 100).round(1)
+        q = quarterly_fin(c, years=3)
+        if not q.empty and "毛利率%" in q.columns:
+            gm_cols[label] = q.set_index("季度")["毛利率%"]
+    rev = pd.DataFrame(rev_cols).rename_axis("ym").reset_index() if rev_cols else pd.DataFrame()
+    gm = pd.DataFrame(gm_cols).rename_axis("季度").reset_index() if gm_cols else pd.DataFrame()
+    return rev, gm
+
+
+_SYS_INDUSTRY = """你是產業分析寫作者(優分析風格),寫一篇「同業比較型」產業文章。
+【輸出格式鐵律】回覆就是文章本文,從標題開始,嚴禁前言或完成總結。
+風格規範(嚴格遵守):
+· 標題用**問句式**:點出現象+懸念(例:「XX三雄當中,為什麼A的營收最先創高?」)
+· 開場:現象→成因預告,兩三句直接切入,不寒暄
+· 論述遞進鏈:**產品結構→客群→產業週期位置→營運表現**——解釋「同族群為何表現分化」
+· 數據呈現:講**趨勢與占比**,避免數字堆砌;引用給你的營收指數化/毛利率對比,數字照抄
+· 語氣:條件式語言(「通常會較快反映」「若景氣成長來源改變」),不喊買賣、不給目標價
+· 每家公司一段:它的產品結構(有補充資料就用,沒有就誠實說「公開產品佔比待查」並列出該查什麼)
+  →對應客群→在本輪週期的位置
+· 結論:**教方法論**——「下次比較同族群時,先從景氣成長來源找受惠順序」這類可遷移的框架
+· 結尾列「觀察清單」:接下來每家該盯的一個數字
+600-1000字,markdown。免責一句話帶過。"""
+
+
+def generate_industry_report(code: str, peers: list[str], extra: str = "") -> str:
+    """產業比較型報告(優分析風):主角+同業的營收/毛利對比,產品結構靠補充資料。"""
+    all_codes = [code] + [p for p in peers if p and p != code]
+    rev, gm = peer_compare(all_codes)
+    if rev.empty:
+        return "（抓不到比較資料）"
+    d = build_digest(code, extra)
+    parts = [f"主角:{code} {d['name']}　{d['price']}",
+             f"比較對象:{', '.join(all_codes)}",
+             "【月營收指數化(各自24月前=100)】", rev.tail(15).to_string(index=False),
+             "【季度毛利率%對比】", gm.tail(8).to_string(index=False),
+             f"【主角月營收YoY 近6月】{[round(v,1) for v in d['monthly']['yoy%'].tail(6)]}"]
+    if extra.strip():
+        parts += ["【補充資料(產品結構/法說等,使用者提供)】", extra.strip()[:5000]]
+    else:
+        parts += ["【注意】未提供產品結構資料——文章需誠實標明,並列出該查的產品別問題"]
+    from llm import generate
+    out = generate(_SYS_INDUSTRY, "\n".join(parts), max_tokens=2500)
+    if out:
+        return out + f"\n\n---\n*數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。產業觀察非投資建議。*"
+    return "（無可用 Claude 引擎）"
+
+
+# ────────────────────────────────────────
 # 法人報告生成(Claude)
 # ────────────────────────────────────────
 _SYS = """你是一位嚴謹的台股賣方分析師。
