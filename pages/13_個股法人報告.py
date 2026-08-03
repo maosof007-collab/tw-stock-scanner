@@ -124,5 +124,32 @@ if st.session_state.get("last_rpt") and st.session_state.get("last_rpt_code") ==
                        st.session_state["last_rpt"].encode("utf-8"),
                        file_name=f"report_{code}.md", mime="text/markdown", key="rpt_dl")
 
+# ── ④ 模型預實追蹤(預測 vs 實際,自動對答案) ──
+st.markdown("### 📋 模型預實追蹤")
+from model_track import add_prediction, check_all
+
+tc = st.columns([1.2, 1, 1, 1.4, 1])
+mt_metric = tc[0].selectbox("指標", ["monthly_rev", "quarterly_rev", "quarterly_gm"],
+                            format_func=lambda m: {"monthly_rev": "月營收(百萬)",
+                                                   "quarterly_rev": "季營收(百萬)",
+                                                   "quarterly_gm": "季毛利率(%)"}[m],
+                            key="mt_metric")
+mt_period = tc[1].text_input("期間", placeholder="2026-07 或 2026-Q3", key="mt_period")
+mt_val = tc[2].number_input("預測值", value=0.0, step=1.0, key="mt_val")
+mt_note = tc[3].text_input("備註", key="mt_note")
+if tc[4].button("➕ 存預測", key="mt_add"):
+    if mt_period.strip() and mt_val:
+        add_prediction(code, mt_metric, mt_period.strip(), mt_val, mt_note)
+        st.success("已存,公布後自動對答案")
+        st.rerun()
+
+trk = check_all(code)
+if not trk.empty:
+    st.dataframe(trk, width="stretch", hide_index=True)
+    st.caption("燈號:誤差 ±5% 🟢 | ±10% 🟡 | 更大 🔴(毛利率用 ±2pp/±4pp);"
+               "月營收每月10日前公布、季報 5/15・8/14・11/14・3/31 前公布,系統自動抓新資料比對。")
+else:
+    st.caption("此股尚無追蹤中的預測——把模型的關鍵數字存進來,公布後自動對答案。")
+
 st.caption("方法論:六層分析師框架(驅動力/供需量化/營收模型/毛利分層/估值三情境/反方風險)+"
            "正反方對照表。推估=情境試算,非投資建議;關鍵數字請自行覆核。")
