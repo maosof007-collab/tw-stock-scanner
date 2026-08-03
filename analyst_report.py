@@ -204,6 +204,31 @@ def save_article(code: str, name: str, mode: str, content: str) -> str:
     return p.name
 
 
+def git_publish(fname: str) -> str:
+    """把文章 commit 進 git(+嘗試 push)。雲端無權限時自動略過,不影響存檔。"""
+    import subprocess
+    root = ART_DIR.parent.parent          # repo 根目錄
+
+    def run(*args):
+        return subprocess.run(["git", *args], cwd=root, capture_output=True,
+                              text=True, timeout=90, encoding="utf-8", errors="replace")
+    try:
+        rel = f"data/research_articles/{fname}"
+        if run("add", rel).returncode != 0:
+            return "git add 失敗(略過)"
+        r = run("commit", "-m", f"docs: 研究文章 {fname}")
+        out = (r.stdout or "") + (r.stderr or "")
+        if r.returncode != 0 and "nothing to commit" not in out:
+            return "git commit 失敗(略過)"
+        run("pull", "--rebase", "origin", "main")
+        p = run("push", "origin", "main")
+        return ("已 commit 並推上 GitHub ✅(雲端重部署也不會消失)"
+                if p.returncode == 0 else
+                "已本機 commit ✅(push 失敗——雲端環境無權限屬正常,本機下次推送會帶上)")
+    except Exception as e:
+        return f"git 發佈略過({type(e).__name__})"
+
+
 def list_articles() -> list[dict]:
     """文章清單(新到舊):{file,title,code,name,mode,date}"""
     out = []

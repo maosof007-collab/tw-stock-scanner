@@ -244,7 +244,8 @@ if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
     if rpt and not rpt.startswith("（"):
         fn = _ar.save_article(code, d.get("name", ""),
                               "產業比較" if mode.startswith("產業比較") else "法人六層", rpt)
-        st.success(f"已發佈到「📰 研究文章」:{fn}")
+        gmsg = _ar.git_publish(fn)
+        st.success(f"已發佈到「📰 研究文章」:{fn}｜{gmsg}")
 
 if st.session_state.get("last_rpt") and st.session_state.get("last_rpt_code") == code:
     st.markdown("---")
