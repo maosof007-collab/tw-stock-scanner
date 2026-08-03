@@ -23,7 +23,17 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 
-from analyst_report import build_digest, forecast_monthly, eps_scenarios, generate_report
+# 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
+import importlib
+import analyst_report as _ar
+if not hasattr(_ar, "backcast_monthly"):
+    _ar = importlib.reload(_ar)
+build_digest = _ar.build_digest
+forecast_monthly = _ar.forecast_monthly
+eps_scenarios = _ar.eps_scenarios
+generate_report = _ar.generate_report
+backcast_monthly = _ar.backcast_monthly
+attribute_errors = _ar.attribute_errors
 
 c1, c2 = st.columns([1, 3])
 code_in = c1.text_input("股票代碼", placeholder="4991", key="rpt_code")
@@ -115,8 +125,6 @@ with eps_col:
 
 # ── ①.5 模型回測與誤差歸因 ──
 st.markdown("### 🔬 模型回測(用當時資訊回推 vs 實際)")
-from analyst_report import backcast_monthly, attribute_errors
-
 bc = backcast_monthly(code, lookback=12)
 if not bc.empty:
     mae = bc["誤差%"].abs().mean()
