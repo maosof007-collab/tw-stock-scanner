@@ -26,7 +26,7 @@ page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
 import analyst_report as _ar
-if not hasattr(_ar, "generate_industry_report"):     # 熱更新防護:缺最新函式就 reload
+if not hasattr(_ar, "save_article"):     # 熱更新防護:缺最新函式就 reload
     _ar = importlib.reload(_ar)
 build_digest = _ar.build_digest
 forecast_monthly = _ar.forecast_monthly
@@ -240,6 +240,11 @@ if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
             rpt = generate_report(code, extra=extra_in)
     st.session_state["last_rpt"] = rpt
     st.session_state["last_rpt_code"] = code
+    # 存進研究文章庫(頁12「研究文章」可像網站一樣瀏覽)
+    if rpt and not rpt.startswith("（"):
+        fn = _ar.save_article(code, d.get("name", ""),
+                              "產業比較" if mode.startswith("產業比較") else "法人六層", rpt)
+        st.success(f"已發佈到「📰 研究文章」:{fn}")
 
 if st.session_state.get("last_rpt") and st.session_state.get("last_rpt_code") == code:
     st.markdown("---")

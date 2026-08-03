@@ -186,6 +186,53 @@ def build_digest(code: str, extra: str = "") -> dict:
 
 
 # ────────────────────────────────────────
+# 研究文章庫(生成的報告存檔,像網站一樣瀏覽)
+# ────────────────────────────────────────
+ART_DIR = __import__("pathlib").Path(__file__).parent / "data" / "research_articles"
+
+
+def save_article(code: str, name: str, mode: str, content: str) -> str:
+    """存成文章;回傳檔名。標題取內文第一行。"""
+    ART_DIR.mkdir(parents=True, exist_ok=True)
+    ts = now_tw().strftime("%Y%m%d_%H%M")
+    first = next((ln.strip().lstrip("#* ").rstrip("*")
+                  for ln in content.splitlines() if ln.strip()), f"{code} 研究")
+    header = (f"<!--meta\ntitle: {first[:80]}\ncode: {code}\nname: {name}\n"
+              f"mode: {mode}\ndate: {now_tw():%Y-%m-%d %H:%M}\n-->\n\n")
+    p = ART_DIR / f"art_{ts}_{code}.md"
+    p.write_text(header + content, encoding="utf-8")
+    return p.name
+
+
+def list_articles() -> list[dict]:
+    """文章清單(新到舊):{file,title,code,name,mode,date}"""
+    out = []
+    if not ART_DIR.exists():
+        return out
+    for p in sorted(ART_DIR.glob("art_*.md"), reverse=True):
+        meta = {"file": p.name, "title": p.stem, "code": "", "name": "",
+                "mode": "", "date": ""}
+        try:
+            txt = p.read_text(encoding="utf-8")
+            if txt.startswith("<!--meta"):
+                for ln in txt.split("-->")[0].splitlines()[1:]:
+                    if ":" in ln:
+                        k, v = ln.split(":", 1)
+                        if k.strip() in meta:
+                            meta[k.strip()] = v.strip()
+        except Exception:
+            continue
+        out.append(meta)
+    return out
+
+
+def read_article(fname: str) -> str:
+    p = ART_DIR / fname
+    txt = p.read_text(encoding="utf-8")
+    return txt.split("-->", 1)[1].strip() if txt.startswith("<!--meta") else txt
+
+
+# ────────────────────────────────────────
 # 同業比較(產業寫作模式用)
 # ────────────────────────────────────────
 def peer_compare(codes: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
