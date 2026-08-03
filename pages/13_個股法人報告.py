@@ -113,6 +113,49 @@ with eps_col:
         st.markdown("**EPS 情境(近2季淨利率±3pp)**")
         st.dataframe(eps_sc, width="stretch", hide_index=True)
 
+# ── ①.5 模型回測與誤差歸因 ──
+st.markdown("### 🔬 模型回測(用當時資訊回推 vs 實際)")
+from analyst_report import backcast_monthly, attribute_errors
+
+bc = backcast_monthly(code, lookback=12)
+if not bc.empty:
+    mae = bc["誤差%"].abs().mean()
+    hit5 = (bc["誤差%"].abs() <= 5).mean() * 100
+    hit10 = (bc["誤差%"].abs() <= 10).mean() * 100
+    st.caption(f"walk-forward 回測近 {len(bc)} 個月(預測=去年同月×前3月YoY中位,不偷看未來):"
+               f"平均絕對誤差 **{mae:.1f}%**,±5%內 **{hit5:.0f}%**,±10%內 **{hit10:.0f}%**")
+    figb = go.Figure()
+    figb.add_trace(go.Scatter(x=bc["月份"], y=bc["實際"], name="實際",
+                              mode="lines+markers", line=dict(color=CYAN, width=2.5)))
+    figb.add_trace(go.Scatter(x=bc["月份"], y=bc["模型"], name="模型回推",
+                              mode="lines+markers", line=dict(color=GOLD, dash="dash", width=2)))
+    figb.add_trace(go.Bar(x=bc["月份"], y=bc["誤差%"], name="誤差%", yaxis="y2",
+                          marker_color=[RED if abs(v) > 10 else (GOLD if abs(v) > 5 else GREEN)
+                                        for v in bc["誤差%"]], opacity=0.5))
+    figb.update_layout(height=340, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                       plot_bgcolor=THEME["panel"], font=dict(color=THEME["text"], size=11),
+                       margin=dict(l=10, r=10, t=25, b=10),
+                       yaxis=dict(title="月營收(百萬)", gridcolor=THEME["grid"]),
+                       yaxis2=dict(title="誤差%", overlaying="y", side="right",
+                                   showgrid=False, zeroline=True),
+                       legend=dict(orientation="h", y=1.14))
+    st.plotly_chart(figb, width="stretch")
+    with st.expander("誤差明細表"):
+        st.dataframe(bc, width="stretch", hide_index=True)
+    if st.button("🧠 誤差歸因(找原因:新聞/法說/財報看哪裡)", key="attr_go"):
+        with st.spinner("分析誤差來源中(約 30-60 秒)…"):
+            attr = attribute_errors(code, bc, extra=extra_in)
+        st.session_state["last_attr"] = attr
+        st.session_state["last_attr_code"] = code
+    if (st.session_state.get("last_attr")
+            and st.session_state.get("last_attr_code") == code):
+        st.markdown(st.session_state["last_attr"])
+    st.caption("誤差判讀指南:**連續同向偏低**=動能模型抓不到轉折(放量/砍單)→看法說產能與月營收公告備註;"
+               "**單月大誤差**=一次性(節慶/出貨遞延)→看財報存貨與業外;"
+               "**誤差伴隨毛利率跳動**=產品組合轉換→看公開說明書產品別佔比。")
+else:
+    st.caption("月營收歷史不足 18 個月,無法回測。")
+
 # ── ② 財報結構 ──
 st.markdown("### 🧮 財報結構(毛利分層的證據)")
 if not q.empty:

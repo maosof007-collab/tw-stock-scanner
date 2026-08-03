@@ -78,6 +78,76 @@ def eps_scenarios(code: str, fc: pd.DataFrame) -> pd.DataFrame:
 
 
 # ────────────────────────────────────────
+# 模型回測(backcast):用「當時可得資訊」回推歷史預測,對照實際
+# ────────────────────────────────────────
+def backcast_monthly(code: str, lookback: int = 12) -> pd.DataFrame:
+    """walk-forward:第 m 月的預測 = 去年同月 × (1 + 前3個月YoY中位數)。
+    不偷看未來——完全用 m 月之前已公布的資料。回傳 月份/實際/模型/誤差%。"""
+    mon = monthly_revenue(code, years=4).reset_index(drop=True)
+    if len(mon) < 18:
+        return pd.DataFrame()
+    rows = []
+    for i in range(max(15, len(mon) - lookback), len(mon)):
+        base_idx = i - 12
+        if base_idx < 0:
+            continue
+        yoy_hist = mon["yoy%"].iloc[max(0, i - 3):i].dropna()
+        if len(yoy_hist) < 3 or pd.isna(mon["revenue"].iloc[base_idx]):
+            continue
+        pred = mon["revenue"].iloc[base_idx] * (1 + float(yoy_hist.median()) / 100)
+        act = mon["revenue"].iloc[i]
+        rows.append({"月份": mon["ym"].iloc[i], "實際": round(act, 1),
+                     "模型": round(pred, 1), "誤差%": round((act / pred - 1) * 100, 1)})
+    return pd.DataFrame(rows)
+
+
+_SYS_ATTR = """你是研究員,任務是「模型誤差歸因」。給你:某股的模型回測誤差表
+(walk-forward:預測=去年同月×前3月YoY中位)、季度財務、近月新聞標題、使用者補充。
+輸出 markdown:
+1. 整體評估:模型偏差是「結構性」(持續同向=動能模型抓不到轉折)還是「單月事件」
+2. 挑出 |誤差|最大的 2-3 個月,各給:可能原因假說(依據數據,不可瞎編)+
+   **驗證路徑**——具體到看哪裡:財報哪個科目(毛利率→產品組合/公開說明書產品別;
+   存貨→備貨或遞延出貨;業外→一次性;月營收公告備註欄=公司自己解釋)、
+   法說該問什麼、可查什麼新聞關鍵字
+3. 模型改進建議一條(如:該股 YoY 動能窗口太短/該用季節性)
+事實與推測分開;沒有新聞資料的月份就明說。300-500字,直接輸出本文。"""
+
+
+def attribute_errors(code: str, bc: pd.DataFrame, extra: str = "") -> str:
+    """Claude 誤差歸因:大誤差月份 × 季度財務 × 新聞標題。"""
+    if bc.empty:
+        return "（無回測資料）"
+    q = quarterly_fin(code, years=2)
+    # 撈系統新聞庫中提及該股的標題(2026-06 起才有累積,誠實標註)
+    news_txt = ""
+    try:
+        from pathlib import Path
+        name = ""
+        sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        hit = sl[sl["code"] == code]
+        name = hit["name"].iloc[0] if not hit.empty else ""
+        hits = []
+        for p in sorted((Path(__file__).parent / "data" / "news").glob("news_*.csv")):
+            try:
+                nd = pd.read_csv(p, encoding="utf-8-sig", usecols=["title", "published"])
+                m = nd[nd["title"].astype(str).str.contains(name, na=False)] if name else nd.iloc[0:0]
+                hits += [f"{str(r['published'])[:10]} {r['title'][:60]}" for _, r in m.iterrows()]
+            except Exception:
+                continue
+        news_txt = "\n".join(hits[-15:]) if hits else "（系統新聞庫 2026-06 起累積,無此股標題）"
+    except Exception:
+        news_txt = "（新聞庫讀取失敗）"
+    digest = (f"個股:{code} {name}\n【模型回測誤差表】\n{bc.to_string(index=False)}\n\n"
+              f"【季度財務】\n{q.to_string(index=False)}\n\n【新聞標題】\n{news_txt}\n")
+    if extra.strip():
+        digest += f"\n【使用者補充(法說等)】\n{extra.strip()[:3000]}\n"
+    from llm import generate
+    out = generate(_SYS_ATTR, digest, max_tokens=1500)
+    return out or "（無可用 Claude 引擎,僅顯示誤差表）"
+
+
+# ────────────────────────────────────────
 # 數據包
 # ────────────────────────────────────────
 def build_digest(code: str, extra: str = "") -> dict:
