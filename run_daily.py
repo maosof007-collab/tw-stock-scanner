@@ -235,6 +235,15 @@ def main():
     else:
         log.info(f"\n[Step 4/6] 集保資料：今日非週四（{today.strftime('%A')}），跳過")
 
+    # ── Step 4.4：大盤融資維持率快取重算（總經頁秒開的關鍵）──
+    log.info("\n[Step 4.4/6] 大盤融資維持率彙整...")
+    try:
+        from macro import build_market_margin_series
+        s = build_market_margin_series(rebuild=True)
+        log.info(f"  ✅ 完成（至 {s['date'].iloc[-1].date() if not s.empty else '無資料'}）")
+    except Exception as e:
+        log.warning(f"  ⚠️  失敗: {e}")
+
     # ── Step 4.5：產業新聞掃描（產業趨勢雷達）──
     log.info("\n[Step 4.5/6] 產業新聞掃描...")
     try:

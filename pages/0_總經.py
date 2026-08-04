@@ -21,20 +21,30 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("總體環境觀測", "MACRO MONITOR", "🌐")
 
-from macro import build_market_margin_series, margin_status
+import importlib
+import macro as _mc
+if not hasattr(_mc, "cache_is_stale"):
+    _mc = importlib.reload(_mc)
+build_market_margin_series = _mc.build_market_margin_series
+margin_status = _mc.margin_status
+cache_is_stale = _mc.cache_is_stale
 
 
-@st.cache_data(ttl=1800, show_spinner="彙整全市場融資維持率中（首次約 20 秒）…")
+@st.cache_data(ttl=900, show_spinner="讀取大盤融資維持率快取…")
 def _series():
     return build_market_margin_series(window_days=500)
 
 c1, c2, c3 = st.columns([1.2, 1, 3])
 warn = c1.selectbox("警戒線 %", [150, 180, 170, 160, 140], index=0)
-rebuild = c2.button("🔄 重新彙整")
-if rebuild:
+if c2.button("🔄 重新彙整", help="全市場重算約 20-60 秒;每日排程會自動重算,平常不用按"):
+    with st.spinner("全市場重算中（約 20-60 秒）…"):
+        build_market_margin_series(rebuild=True)
     _series.clear()
+    st.rerun()
 
 s = _series()
+if cache_is_stale():
+    st.caption("⏳ 快取落後於最新融資資料——每日排程會自動重算;急著看最新可按「重新彙整」。")
 if s.empty:
     st.warning("尚無融資資料，無法計算大盤融資維持率。請先更新融資（fetch_margin）。")
     st.stop()

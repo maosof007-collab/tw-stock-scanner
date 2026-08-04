@@ -35,6 +35,17 @@ def _price(code: str):
     return None
 
 
+def cache_is_stale() -> bool:
+    """快取最後日 < 融資參考檔(2330)最後日 → 過期。無快取=過期。"""
+    try:
+        ref = pd.read_csv(DATA / "margin" / "2330_margin.csv", usecols=["date"])
+        ref_last = str(ref["date"].iloc[-1])[:10]
+        c = pd.read_csv(CACHE, usecols=["date"])
+        return str(c["date"].iloc[-1])[:10] < ref_last
+    except Exception:
+        return True
+
+
 def build_market_margin_series(window_days: int = 500, rebuild: bool = False) -> pd.DataFrame:
     """回傳 DataFrame(date, ratio, margin_lots, twii)。當日算一次，快取到 data/_market_margin.csv。"""
     if CACHE.exists() and not rebuild:
