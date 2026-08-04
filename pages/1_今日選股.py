@@ -781,24 +781,25 @@ with tab_buy:
             st.caption("進場價=收盤、停損=訊號停損、張數預設 1（可到績效頁修改）")
 
         if add_clicked and sel_rows:
-            from portfolio import add_position
+            import importlib
+            import portfolio as _pf
+            if not hasattr(_pf, "add_positions"):
+                _pf = importlib.reload(_pf)
             fmt_date = (f"{scan_date[:4]}-{scan_date[4:6]}-{scan_date[6:]}"
                         if scan_date else "")
-            added, dup = [], []
+            batch = []
             for ridx in sel_rows:
                 r = buy_rows.iloc[ridx]
-                tk = str(r["代碼"])
-                res = add_position(
-                    _USER,
-                    ticker      = tk,
+                batch.append(dict(
+                    ticker      = str(r["代碼"]),
                     name        = str(r.get("名稱", "")),
                     entry_price = float(r.get("收盤", 0) or 0),
                     stop_loss   = float(r.get("停損", 0) or 0),
                     strategy    = str(r.get("策略", "")),
                     note        = f"今日選股加入（{r.get('進場時機','')}）",
                     entry_date  = fmt_date,
-                )
-                (added if res == "added" else dup).append(tk)
+                ))
+            added, dup = _pf.add_positions(_USER, batch)   # 批次一次寫入,防雲端覆蓋
             if added:
                 st.success(f"✅ 已加入績效追蹤：{'、'.join(dict.fromkeys(added))}　"
                            f"→ 到「📈 績效追蹤」頁查看")

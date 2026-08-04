@@ -93,6 +93,39 @@ def add_position(user: str, ticker: str, name: str = "", entry_price: float = 0.
     return "added"
 
 
+def add_positions(user: str, rows: list[dict], allow_add: bool = False) -> tuple[list, list]:
+    """批次加入多筆持倉:一次讀+一次存。回傳 (added_tickers, dup_tickers)。
+    修正:逐筆 add_position 在雲端(Google Sheets)有寫後讀回延遲,
+    第二筆會用舊資料覆蓋第一筆 → 勾四檔只存活一兩檔。"""
+    df = load_portfolio(user)
+    held = set()
+    if not df.empty:
+        held = set(df[df["status"] == "持倉中"]["ticker"].astype(str).str.upper())
+    added, dup, new_rows = [], [], []
+    base_id = int(datetime.now().timestamp() * 1000)
+    for i, r in enumerate(rows):
+        tk = str(r.get("ticker", "")).strip().upper()
+        if not tk:
+            continue
+        if tk in held and not allow_add:
+            dup.append(tk)
+            continue
+        new_rows.append({
+            "id": base_id + i, "ticker": tk, "name": r.get("name", ""),
+            "entry_date": r.get("entry_date") or str(date.today()),
+            "entry_price": float(r.get("entry_price", 0) or 0),
+            "shares": int(r.get("shares", 1) or 1),
+            "stop_loss": float(r.get("stop_loss", 0) or 0),
+            "strategy": r.get("strategy", ""), "note": r.get("note", ""),
+            "exit_date": "", "exit_price": "", "status": "持倉中",
+        })
+        held.add(tk)
+        added.append(tk)
+    if new_rows:
+        save_portfolio(pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True), user)
+    return added, dup
+
+
 def all_users() -> list[str]:
     """有持倉的所有使用者（給背景守護掃描）"""
     ss = _sheets()
