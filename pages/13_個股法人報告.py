@@ -187,17 +187,56 @@ if not q.empty:
 
 # ── ②.5 同業比較(產業寫作模式的素材) ──
 st.markdown("### ⚔️ 同業比較")
-# 預設帶入同族群成員
+# 預設帶入:①概念族群成員 ②否則官方產業別中市值最接近的3檔
 _default_peers = ""
+_peer_src = ""
 try:
     from theme_groups import THEME_GROUPS
     for _g, _cs in THEME_GROUPS.items():
         if code in _cs:
             _default_peers = ",".join([c for c in _cs if c != code][:3])
+            _peer_src = f"概念族群「{_g}」"
             break
 except Exception:
     pass
-peers_in = st.text_input("比較對象(逗號分隔,自動帶入同族群)", value=_default_peers, key="rpt_peers")
+if not _default_peers:
+    try:
+        from fundamentals import shares_map
+        sl = pd.read_csv(Path(__file__).parent.parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        my = sl[sl["code"] == code]
+        if not my.empty:
+            sec = my["sector"].iloc[0]
+            sm = shares_map()
+
+            @st.cache_data(ttl=3600)
+            def _close_map():
+                import glob as _g2
+                out = {}
+                for f in _g2.glob(str(Path(__file__).parent.parent / "data" / "*.T*.csv")):
+                    c2 = Path(f).stem.split(".")[0]
+                    try:
+                        with open(f, "rb") as fh:
+                            fh.seek(-120, 2)
+                            last = fh.read().decode("utf-8", "replace").strip().splitlines()[-1]
+                        out[c2] = float(last.split(",")[4])
+                    except Exception:
+                        continue
+                return out
+
+            cm = _close_map()
+            mycap = cm.get(code, 0) * sm.get(code, 0)
+            cands = []
+            for _, r in sl[(sl["sector"] == sec) & (sl["code"] != code)].iterrows():
+                cap = cm.get(r["code"], 0) * sm.get(r["code"], 0)
+                if cap > 0 and mycap > 0:
+                    cands.append((abs(cap - mycap), r["code"]))
+            _default_peers = ",".join(c for _, c in sorted(cands)[:3])
+            _peer_src = f"官方產業「{sec}」市值最接近"
+    except Exception:
+        pass
+peers_in = st.text_input(f"比較對象(逗號分隔;自動帶入:{_peer_src or '無'})",
+                         value=_default_peers, key=f"rpt_peers_{code}")
 peers = [p.strip() for p in peers_in.replace("、", ",").split(",") if p.strip().isdigit()]
 if peers:
     rev_cmp, gm_cmp = peer_compare([code] + peers)
