@@ -125,6 +125,28 @@ def _append_row(path: Path, date_iso: str, row_vals: list) -> bool:
         return False
 
 
+def clean_benchmark() -> int:
+    """自我修復:清除大盤檔中的異常列(0.62之亂遺毒)。
+    規則:Close<5000 或與前一列差>40% → 刪除。回傳刪除筆數。"""
+    p = DATA / "benchmark_TWII.csv"
+    if not p.exists():
+        return 0
+    try:
+        b = pd.read_csv(p)
+        c = pd.to_numeric(b["Close"], errors="coerce")
+        bad = c.isna() | (c < 5000)
+        prev = c.shift(1)
+        jump = (prev > 0) & ((c / prev - 1).abs() > 0.40)
+        bad = bad | jump
+        n = int(bad.sum())
+        if n:
+            log.warning(f"大盤檔清除異常列 {n} 筆:{b.loc[bad, 'Date'].tolist()}")
+            b[~bad].to_csv(p, index=False)
+        return n
+    except Exception:
+        return 0
+
+
 def run(date_override: str = "") -> int:
     t = now_tw()
     if date_override:
@@ -137,6 +159,8 @@ def run(date_override: str = "") -> int:
             log.info("未到 14:00（官方盤後資料未出），跳過"); return 0
         date_str = t.strftime("%Y%m%d")
         date_iso = t.strftime("%Y-%m-%d")
+
+    clean_benchmark()          # 先清舊毒(雲端資料包可能還帶著壞列),再追加新資料
 
     twse = fetch_twse(date_str)
     tpex, tpex_date = fetch_tpex()
