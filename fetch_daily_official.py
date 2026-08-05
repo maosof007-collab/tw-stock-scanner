@@ -92,19 +92,21 @@ def fetch_tpex() -> tuple[dict, str]:
 
 
 def fetch_index(date_str: str):
-    """加權指數當日 OHLC；查無回 None"""
-    u = f"https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={date_str}&type=IND"
+    """加權指數當日 OHLC（MI_5MINS_HIST：日期,開,高,低,收）。查無回 None。
+    ※舊版誤用 MI_INDEX（那張表是收盤/漲跌點/漲跌%，無OHLC），曾把漲跌%
+      當收盤寫進大盤檔（0.62之亂），已換端點並在寫入端加防呆。"""
+    month = date_str[:6] + "01"
+    u = f"https://www.twse.com.tw/indicesReport/MI_5MINS_HIST?response=json&date={month}"
     r = requests.get(u, headers=H, timeout=30)
     j = r.json()
     if j.get("stat") != "OK":
         return None
-    tables = j.get("tables") or ([{"data": j.get("data"), "fields": j.get("fields")}] if j.get("data") else [])
-    for tb in tables:
-        for row in (tb.get("data") or []):
-            if row and "發行量加權股價指數" in str(row[0]):
-                o, hi, lo, c = (_f(row[1]), _f(row[2]), _f(row[3]), _f(row[4]))
-                if c:
-                    return (o or c, hi or c, lo or c, c)
+    roc = f"{int(date_str[:4]) - 1911}/{date_str[4:6]}/{date_str[6:]}"
+    for row in (j.get("data") or []):
+        if row and str(row[0]).strip() == roc:
+            o, hi, lo, c = (_f(row[1]), _f(row[2]), _f(row[3]), _f(row[4]))
+            if c:
+                return (o or c, hi or c, lo or c, c)
     return None
 
 
@@ -158,9 +160,19 @@ def run(date_override: str = "") -> int:
     idx = fetch_index(date_str)
     if idx:
         o, hi, lo, c = idx
+        # 防呆：與前一日收盤差 >15% 視為壞資料拒寫（0.62之亂的保險絲）
+        ok = True
+        try:
+            bm = pd.read_csv(DATA / "benchmark_TWII.csv", usecols=["Date", "Close"])
+            prev = float(pd.to_numeric(bm["Close"], errors="coerce").dropna().iloc[-1])
+            if prev > 0 and abs(c / prev - 1) > 0.15:
+                log.warning(f"加權指數 {c} 與前日 {prev:,.0f} 差異>15%，疑壞資料拒寫")
+                ok = False
+        except Exception:
+            pass
         # benchmark 欄位順序：Date,Close,Open,High,Low,Volume
-        if _append_row(DATA / "benchmark_TWII.csv", date_iso,
-                       [date_iso, c, o, hi, lo, 0]):
+        if ok and _append_row(DATA / "benchmark_TWII.csv", date_iso,
+                              [date_iso, c, o, hi, lo, 0]):
             log.info(f"加權指數 {date_iso} 收 {c:,.0f} 已追加")
     log.info(f"完成：{n} 檔個股追加今日K（3 個官方請求）")
     return 0
