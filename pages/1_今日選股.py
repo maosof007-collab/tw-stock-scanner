@@ -599,16 +599,20 @@ if not other_df.empty:
     other_df = (other_df.sort_values("RS相對強度", ascending=False)
                 .drop_duplicates(subset=["代碼"], keep="first").reset_index(drop=True))
 
-# ── 風險上限開關（1~10% 逐1%、10 以上逐5%）：過濾 BUY 的圖與表 ──
-_risk_opts = ["不限"] + list(range(1, 11)) + [15, 20, 25, 30]
-rf1, rf2 = st.columns([1.4, 4.6])
-risk_cap = rf1.selectbox("風險上限%（停損距離）", _risk_opts, index=0,
-                         help="只顯示 風險% ≤ 上限 的 BUY 訊號；風險%=進場價到停損的距離")
+# ── 風險上限開關（按鈕列：1~10% 逐1%、10以上逐5%）：圖表與清單即時切換 ──
+_risk_opts = ["不限"] + [str(v) for v in list(range(1, 11)) + [15, 20, 25, 30]]
+st.markdown("**⚡ 風險上限%（停損距離）— 點選即切換圖表與清單**")
+try:
+    risk_cap = st.segmented_control("風險上限", _risk_opts, default="不限",
+                                    key="risk_cap_seg", label_visibility="collapsed")
+except Exception:                                   # 舊版 Streamlit 退回下拉
+    risk_cap = st.selectbox("風險上限%", _risk_opts, index=0, key="risk_cap_sel")
+risk_cap = risk_cap or "不限"
 if risk_cap != "不限" and not buy_df.empty and "風險%" in buy_df.columns:
     _n0 = len(buy_df)
     buy_df = buy_df[pd.to_numeric(buy_df["風險%"], errors="coerce") <= float(risk_cap)]\
         .reset_index(drop=True)
-    rf2.caption(f"風險 ≤{risk_cap}%：{len(buy_df)}/{_n0} 檔通過（圖表與下方清單同步過濾）")
+    st.caption(f"風險 ≤{risk_cap}%：**{len(buy_df)}/{_n0} 檔**通過——泡泡圖/風險圖/BUY清單已同步切換")
 
 # ── KPI 卡 ────────────────────────────────
 st.markdown("---")
