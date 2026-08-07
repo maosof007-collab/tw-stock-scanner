@@ -158,8 +158,19 @@ def calc_chips(inst_df: pd.DataFrame, kdf: pd.DataFrame) -> dict:
 # ─────────────────────────────────────────
 # K 線彈出視窗（@st.dialog）
 # ─────────────────────────────────────────
+@st.cache_data(ttl=3600)
+def _strategy_desc_map() -> dict:
+    """{策略名: 一句話描述} — 「為什麼選它」用"""
+    try:
+        from strategies import load_all_strategies
+        return {n: getattr(s, "description", "") for n, s in load_all_strategies().items()}
+    except Exception:
+        return {}
+
+
 @st.dialog("📈 K 線圖", width="large")
-def kline_dialog(ticker: str, name: str, entry: float, stop: float):
+def kline_dialog(ticker: str, name: str, entry: float, stop: float,
+                 sig: dict | None = None, sig_date: str = ""):
     kdf     = load_kline(ticker)
     inst_df = load_institutional(ticker)
     if kdf.empty:
@@ -179,6 +190,31 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
         st.markdown(f"<h3 style='text-align:right'>{last['Close']:.1f}　"
                     f"<span style='font-size:16px;color:{'#FF4D6D' if chg<0 else '#2BE4A8'}'>"
                     f"{chg:+.2f}%</span></h3>", unsafe_allow_html=True)
+
+    # ── 🎯 為什麼選它(策略邏輯+當日訊號數據) ──
+    if sig:
+        strat = str(sig.get("策略", ""))
+        desc = _strategy_desc_map().get(strat, "")
+        timing = str(sig.get("進場時機", "") or "")
+        state = str(sig.get("狀態", "") or "")
+        bits = []
+        for k, fmt in [("風險%", "風險 {}%"), ("量比(vs均)", "量比 {}x"),
+                       ("RS相對強度", "RS {}"), ("當日%", "當日 {}%")]:
+            v = sig.get(k)
+            if v is not None and str(v) not in ("", "nan"):
+                bits.append(fmt.format(v))
+        chk = str(sig.get("檢核", "") or "")
+        st.markdown(
+            f"<div style='background:#0B1322;border:1px solid #1F6FEB;border-radius:8px;"
+            f"padding:10px 14px;margin:4px 0 8px'>"
+            f"<b style='color:#00E5FF'>🎯 為什麼選它</b>　"
+            f"<span style='color:#FFC857'>{strat}</span>"
+            + (f"　·　{timing}" if timing else "")
+            + f"<br><span style='font-size:13px;color:#C9D1D9'>策略邏輯:{desc}</span>"
+            + (f"<br><span style='font-size:13px;color:#C9D1D9'>觸發狀態:{state}</span>" if state else "")
+            + (f"<br><span style='font-size:12px;color:#647B9C'>{'　|　'.join(bits)}</span>" if bits else "")
+            + (f"<br><span style='font-size:12px'>{'✅ 檢核通過' if chk=='✅' else ('檢核:'+chk if chk else '')}</span>" if chk else "")
+            + "</div>", unsafe_allow_html=True)
 
     # ── 基本指標列 ───────────────────────
     c1, c2, c3, c4, c5 = st.columns(5)
@@ -293,6 +329,31 @@ def kline_dialog(ticker: str, name: str, entry: float, stop: float):
                       annotation_text=f"停損 {stop:.1f}",
                       annotation_font=dict(color=RED, size=12))
 
+    # ── 訊號日/入場點標記(綠色▲+標註) ──
+    if sig_date:
+        try:
+            sd = pd.to_datetime(sig_date)
+            kidx = kdf.index if hasattr(kdf.index, "tz") else kdf.index
+            hit = kdf[kdf.index == sd]
+            if hit.empty:                       # 訊號日不在顯示範圍就取最近一根
+                near = kdf.index[kdf.index <= sd]
+                if len(near):
+                    hit = kdf.loc[[near[-1]]]
+            if not hit.empty:
+                hx = hit.index[0]; hlow = float(hit["Low"].iloc[0])
+                fig.add_trace(go.Scatter(
+                    x=[hx], y=[hlow * 0.975], mode="markers+text",
+                    marker=dict(symbol="triangle-up", size=16, color=GREEN,
+                                line=dict(width=1.5, color="#021014")),
+                    text=["入場"], textposition="bottom center",
+                    textfont=dict(size=11, color=GREEN),
+                    name="入場點", showlegend=False,
+                    hovertemplate=f"訊號日 {str(sd.date())}<br>入場價 {entry:.1f}<extra></extra>"))
+                fig.add_vline(x=hx, line_dash="dot", line_color=GREEN,
+                              line_width=1, opacity=0.5)
+        except Exception:
+            pass
+
     fig.update_layout(
         paper_bgcolor=DARK, plot_bgcolor=CARD,
         font=dict(family="Microsoft JhengHei, Arial", size=13, color=TEXT),
@@ -374,6 +435,8 @@ def render_kline_buttons(source_df, info, key_prefix):
                 name=name,
                 entry=float(row.get("收盤", 0) or 0),
                 stop =float(row.get("停損", 0) or 0),
+                sig=row.to_dict(),                        # 為什麼選它(策略/狀態/數據)
+                sig_date=str(row.get("日期", "") or ""),  # K線標入場點
             )
 
 
