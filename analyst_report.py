@@ -80,6 +80,32 @@ def eps_scenarios(code: str, fc: pd.DataFrame) -> pd.DataFrame:
 # ────────────────────────────────────────
 # H1 實績 + H2 推估 → 全年估值(半年報視角)
 # ────────────────────────────────────────
+_SELF_RPT = __import__("pathlib").Path(__file__).parent / "data" / "fundamentals" / "self_report.json"
+
+
+def get_self_h1(code: str, year: int) -> float | None:
+    """公司自結 H1 EPS(使用者輸入過就記住)"""
+    import json
+    try:
+        d = json.loads(_SELF_RPT.read_text(encoding="utf-8"))
+        v = d.get(f"{code}_{year}H1")
+        return float(v) if v is not None else None
+    except Exception:
+        return None
+
+
+def set_self_h1(code: str, year: int, eps: float):
+    import json
+    d = {}
+    try:
+        d = json.loads(_SELF_RPT.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    d[f"{code}_{year}H1"] = float(eps)
+    _SELF_RPT.parent.mkdir(parents=True, exist_ok=True)
+    _SELF_RPT.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 def h1_valuation(code: str) -> dict:
     """半年報估值:今年 H1 用實績(Q1/Q2 EPS;Q2未公布則用月營收×淨利率推估並標註),
     H2 用月營收推估×淨利率情境 → FY EPS 三情境 × 本益比階梯 → 目標價。"""
@@ -99,14 +125,30 @@ def h1_valuation(code: str) -> dict:
 
     q1 = _q_eps(f"{year}-03-31")
     q2 = _q_eps(f"{year}-06-30")
-    notes = []
-    if q2 is None:                          # Q2 財報未公布 → 月營收加總×淨利率推估
-        q2_rev = mon[mon["ym"].isin([f"{year}-04", f"{year}-05", f"{year}-06"])]["revenue"].sum()
-        if q2_rev > 0 and nm2:
-            q2 = q2_rev * 1e6 * nm2 / 100 / sh
-            notes.append(f"Q2 財報未公布,以月營收加總 {q2_rev:,.0f}百萬 × 近2季淨利率 {nm2:.1f}% 推估 EPS {q2:.2f}")
     if q1 is None:
         return {}
+    notes = []
+    # 事前推估的 Q2(月營收×淨利率)——不論最後用哪個來源,都拿它「對答案」
+    q2_rev = mon[mon["ym"].isin([f"{year}-04", f"{year}-05", f"{year}-06"])]["revenue"].sum()
+    q2_est = (q2_rev * 1e6 * nm2 / 100 / sh) if (q2_rev > 0 and nm2) else None
+    q2_src = ""
+    if q2 is not None:                       # ① 財報實績
+        q2_src = "財報實績"
+    else:
+        self_h1 = get_self_h1(code, year)    # ② 公司自結(輸入過會記住)
+        if self_h1 is not None:
+            q2 = self_h1 - q1
+            q2_src = "公司自結(H1−Q1)"
+            notes.append(f"Q2 取自公司自結 H1 {self_h1:.2f} − Q1 {q1:.2f} = {q2:.2f};8/14 財報公布後自動改用實績")
+        elif q2_est is not None:             # ③ 推估
+            q2 = q2_est
+            q2_src = "推估"
+            notes.append(f"Q2 財報未公布,以月營收加總 {q2_rev:,.0f}百萬 × 近2季淨利率 {nm2:.1f}% 推估 EPS {q2:.2f}")
+    # 對答案:實際(財報/自結) vs 事前推估
+    if q2 is not None and q2_est is not None and q2_src != "推估":
+        gap = (q2 - q2_est)
+        notes.append(f"📏 對答案:Q2 {q2_src} {q2:.2f} vs 事前推估 {q2_est:.2f}(差 {gap:+.2f}"
+                     f",{'實際優於推估=獲利結構比近2季更好' if gap > 0 else '實際低於推估'})")
     h1 = q1 + (q2 or 0)
 
     # H2 = 已公布的 7-12 月實際 + 其餘月份推估
@@ -139,6 +181,7 @@ def h1_valuation(code: str) -> dict:
     except Exception:
         pass
     return {"year": year, "q1": round(q1, 2), "q2": (round(q2, 2) if q2 is not None else None),
+            "q2_src": q2_src,
             "h1": round(h1, 2), "table": pd.DataFrame(rows), "notes": notes,
             "price": price,
             "implied_pe": (round(price / rows[1]["FY EPS"], 1)

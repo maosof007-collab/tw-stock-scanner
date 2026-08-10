@@ -127,9 +127,24 @@ with eps_col:
 
 # ── ①.4 全年估值:H1 實績 + H2 推估(半年報視角) ──
 st.markdown("### ⚖️ 全年估值(H1 實績 + H2 推估)")
+# 自結 H1 輸入(公司公告自結時先填,財報公布後自動改用實績)
+sr1, sr2 = st.columns([1.5, 4.5])
+from twtime import now_tw as _ntw
+_cur_year = _ntw().year
+_self_now = _ar.get_self_h1(code, _cur_year)
+self_in = sr1.number_input(f"自結 {_cur_year}H1 EPS(選填)",
+                           value=float(_self_now or 0.0), step=0.05, format="%.2f",
+                           key=f"self_h1_{code}")
+if sr1.button("💾 存自結", key=f"self_save_{code}") and self_in > 0:
+    _ar.set_self_h1(code, _cur_year, self_in)
+    st.rerun()
+sr2.caption("公司自結常早於正式財報(8/14)——填一次會記住;正式財報上架後自動改用實績並對答案。")
+
 hv = _ar.h1_valuation(code)
 if hv:
     q2_txt = (f"{hv['q2']:.2f}" if hv["q2"] is not None else "未公布")
+    if hv.get("q2_src"):
+        q2_txt += f"({hv['q2_src']})"
     hc1, hc2, hc3, hc4 = st.columns(4)
     hc1.metric(f"{hv['year']} Q1 EPS(實績)", f"{hv['q1']:.2f}")
     hc2.metric("Q2 EPS", q2_txt)
