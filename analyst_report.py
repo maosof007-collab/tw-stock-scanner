@@ -78,6 +78,74 @@ def eps_scenarios(code: str, fc: pd.DataFrame) -> pd.DataFrame:
 
 
 # ────────────────────────────────────────
+# H1 實績 + H2 推估 → 全年估值(半年報視角)
+# ────────────────────────────────────────
+def h1_valuation(code: str) -> dict:
+    """半年報估值:今年 H1 用實績(Q1/Q2 EPS;Q2未公布則用月營收×淨利率推估並標註),
+    H2 用月營收推估×淨利率情境 → FY EPS 三情境 × 本益比階梯 → 目標價。"""
+    from twtime import now_tw
+    year = now_tw().year
+    q = quarterly_fin(code, years=2)
+    mon = monthly_revenue(code, years=3)
+    fc, assume = forecast_monthly(code, months=8)
+    sh = shares_map().get(code, 0)
+    if q.empty or mon.empty or sh <= 0:
+        return {}
+    nm2 = float(q["淨利率%"].tail(2).mean()) if "淨利率%" in q.columns else 0.0
+
+    def _q_eps(qdate):
+        hit = q[q["季度"].astype(str).str.startswith(qdate)]
+        return float(hit["EPS"].iloc[0]) if not hit.empty and pd.notna(hit["EPS"].iloc[0]) else None
+
+    q1 = _q_eps(f"{year}-03-31")
+    q2 = _q_eps(f"{year}-06-30")
+    notes = []
+    if q2 is None:                          # Q2 財報未公布 → 月營收加總×淨利率推估
+        q2_rev = mon[mon["ym"].isin([f"{year}-04", f"{year}-05", f"{year}-06"])]["revenue"].sum()
+        if q2_rev > 0 and nm2:
+            q2 = q2_rev * 1e6 * nm2 / 100 / sh
+            notes.append(f"Q2 財報未公布,以月營收加總 {q2_rev:,.0f}百萬 × 近2季淨利率 {nm2:.1f}% 推估 EPS {q2:.2f}")
+    if q1 is None:
+        return {}
+    h1 = q1 + (q2 or 0)
+
+    # H2 = 已公布的 7-12 月實際 + 其餘月份推估
+    h2_months = [f"{year}-{m:02d}" for m in range(7, 13)]
+    act = mon[mon["ym"].isin(h2_months)]
+    act_sum = float(act["revenue"].sum())
+    act_n = len(act)
+    fc_rest = fc[fc["月份"].isin(h2_months)] if not fc.empty else pd.DataFrame()
+    rows = []
+    for label, adj in [("保守", -3.0), ("中性", 0.0), ("樂觀", +3.0)]:
+        fc_sum = float(fc_rest[label].sum()) if not fc_rest.empty else 0.0
+        h2_rev = act_sum + fc_sum
+        h2_eps = h2_rev * 1e6 * max(nm2 + adj, 0) / 100 / sh
+        fy = h1 + h2_eps
+        rows.append({"情境": label, "H2營收推估(百萬)": round(h2_rev, 0),
+                     "假設淨利率%": round(nm2 + adj, 1),
+                     "H2 EPS": round(h2_eps, 2), "FY EPS": round(fy, 2),
+                     "×15": round(fy * 15, 0), "×20": round(fy * 20, 0),
+                     "×25": round(fy * 25, 0), "×30": round(fy * 30, 0)})
+    if act_n:
+        notes.append(f"H2 已含 {act_n} 個月實際營收({act_sum:,.0f}百萬),其餘為推估")
+    price = None
+    try:
+        for suf in (".TW", ".TWO"):
+            p = (ROOT if False else __import__("pathlib").Path(__file__).parent) / "data" / f"{code}{suf}.csv"
+            if p.exists():
+                d = pd.read_csv(p, usecols=[0, 4]); d.columns = ["date", "close"]
+                price = float(pd.to_numeric(d["close"], errors="coerce").dropna().iloc[-1])
+                break
+    except Exception:
+        pass
+    return {"year": year, "q1": round(q1, 2), "q2": (round(q2, 2) if q2 is not None else None),
+            "h1": round(h1, 2), "table": pd.DataFrame(rows), "notes": notes,
+            "price": price,
+            "implied_pe": (round(price / rows[1]["FY EPS"], 1)
+                           if price and rows[1]["FY EPS"] > 0 else None)}
+
+
+# ────────────────────────────────────────
 # 模型回測(backcast):用「當時可得資訊」回推歷史預測,對照實際
 # ────────────────────────────────────────
 def backcast_monthly(code: str, lookback: int = 12) -> pd.DataFrame:

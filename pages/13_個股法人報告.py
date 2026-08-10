@@ -26,7 +26,7 @@ page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
 import analyst_report as _ar
-if not hasattr(_ar, "save_article"):     # 熱更新防護:缺最新函式就 reload
+if not hasattr(_ar, "h1_valuation"):     # 熱更新防護:缺最新函式就 reload
     _ar = importlib.reload(_ar)
 build_digest = _ar.build_digest
 forecast_monthly = _ar.forecast_monthly
@@ -124,6 +124,27 @@ with eps_col:
     if not eps_sc.empty:
         st.markdown("**EPS 情境(近2季淨利率±3pp)**")
         st.dataframe(eps_sc, width="stretch", hide_index=True)
+
+# ── ①.4 全年估值:H1 實績 + H2 推估(半年報視角) ──
+st.markdown("### ⚖️ 全年估值(H1 實績 + H2 推估)")
+hv = _ar.h1_valuation(code)
+if hv:
+    q2_txt = (f"{hv['q2']:.2f}" if hv["q2"] is not None else "未公布")
+    hc1, hc2, hc3, hc4 = st.columns(4)
+    hc1.metric(f"{hv['year']} Q1 EPS(實績)", f"{hv['q1']:.2f}")
+    hc2.metric("Q2 EPS", q2_txt)
+    hc3.metric("H1 合計", f"{hv['h1']:.2f}")
+    if hv.get("implied_pe"):
+        hc4.metric("現價隱含 PE(中性FY)", f"{hv['implied_pe']:.1f}x",
+                   help=f"現價 {hv['price']:.1f} ÷ 中性情境全年EPS")
+    st.dataframe(hv["table"], width="stretch", hide_index=True)
+    for n in hv["notes"]:
+        st.caption(f"※ {n}")
+    st.caption("讀法:H1 是已落袋的實績(錨),只賭 H2——比純推估的年化EPS可信;"
+               "×15/×20/×25/×30 為本益比階梯目標價,對照現價看市場給的定價站在哪一格。"
+               "季報公布時點:Q2=8/14 前、Q3=11/14 前,公布後本表自動改用實績。")
+else:
+    st.caption("H1 估值需要今年 Q1 財報與月營收資料,目前不足。")
 
 # ── ①.5 模型回測與誤差歸因 ──
 st.markdown("### 🔬 模型回測(用當時資訊回推 vs 實際)")
