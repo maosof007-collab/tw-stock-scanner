@@ -26,7 +26,7 @@ page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
 import analyst_report as _ar
-if not hasattr(_ar, "h1_valuation"):     # 熱更新防護:缺最新函式就 reload
+if not hasattr(_ar, "margin_conclusion"):     # 熱更新防護:缺最新函式就 reload
     _ar = importlib.reload(_ar)
 build_digest = _ar.build_digest
 forecast_monthly = _ar.forecast_monthly
@@ -124,6 +124,41 @@ with eps_col:
     if not eps_sc.empty:
         st.markdown("**EPS 情境(近2季淨利率±3pp)**")
         st.dataframe(eps_sc, width="stretch", hide_index=True)
+
+# ── ①.3 融資融券日表 + 每日結論(含期貨結算對應) ──
+st.markdown("### 🏦 融資融券(每日結論)")
+mst = _ar.margin_short_table(code, days=20)
+if not mst.empty:
+    _mst_date = mst["日期"].iloc[0]
+    st.caption(f"資料日:**{_mst_date}**(融資融券為 TWSE 盤後 21:00 左右公布;"
+               "系統傍晚時段每 2 小時自動補抓,白天看到前一日屬正常)")
+    for line in _ar.margin_conclusion(mst):
+        st.markdown(f"- {line}")
+    def _c_chg(v):
+        if isinstance(v, (int, float)) and pd.notna(v):
+            return f"color:{'#FF4D6D' if v > 0 else ('#2BE4A8' if v < 0 else '#647B9C')}"
+        return ""
+    st.dataframe(
+        mst.style.map(_c_chg, subset=[c for c in ["融資增減", "融券增減"] if c in mst.columns])
+           .format({"融資餘額(張)": "{:,.0f}", "融資增減": "{:+,.0f}",
+                    "融券餘額(張)": "{:,.0f}", "融券增減": "{:+,.0f}",
+                    "維持率(推估)%": "{:.1f}", "券資比%": "{:.1f}", "收盤": "{:.1f}"},
+                   na_rep="—"),
+        width="stretch", hide_index=True, height=420)
+    st.caption("維持率為推估(收盤÷(0.6×MA60成本代理),與總經頁同口徑),非券商整戶真值。")
+else:
+    st.caption("無融資融券資料(可能非信用交易股)。")
+
+# ── ①.35 重大訊息(MOPS) ──
+with st.expander("📢 重大訊息(今年+去年,🔴=關鍵事項)", expanded=False):
+    ann = _ar.fetch_announcements(code)
+    if not ann.empty:
+        n_imp = (ann["重要"] == "🔴").sum()
+        st.caption(f"共 {len(ann)} 則,關鍵事項 {n_imp} 則(CB/增減資/財報/處置/裁罰等)")
+        st.dataframe(ann, width="stretch", hide_index=True,
+                     height=min(420, len(ann) * 36 + 60))
+    else:
+        st.caption("查無重大訊息(或 MOPS 暫時擋抓)。")
 
 # ── ①.4 全年估值:H1 實績 + H2 推估(半年報視角) ──
 st.markdown("### ⚖️ 全年估值(H1 實績 + H2 推估)")

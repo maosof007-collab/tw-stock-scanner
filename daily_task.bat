@@ -10,4 +10,8 @@ G:\python\python.exe check_run_needed.py >> logs\daily_task.log 2>&1
 if errorlevel 1 (
   G:\python\python.exe run_daily.py >> logs\daily_task.log 2>&1
 )
+rem margin/short data publishes ~21:00, institutional ~16:00 - keep chips fresh
+rem in every evening slot even after run_daily already completed (gap-aware, cheap)
+G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log 2>&1
+G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
 exit /b 0

@@ -80,6 +80,167 @@ def eps_scenarios(code: str, fc: pd.DataFrame) -> pd.DataFrame:
 # ────────────────────────────────────────
 # H1 實績 + H2 推估 → 全年估值(半年報視角)
 # ────────────────────────────────────────
+# ────────────────────────────────────────
+# 重大訊息(MOPS)與融資融券日表
+# ────────────────────────────────────────
+_IMPORTANT_KW = ["轉換公司債", "現金增資", "減資", "私募", "合併", "收購", "處分",
+                 "財務報告", "財測", "股利", "注意交易", "處置", "違約", "裁罰",
+                 "更正", "暫停", "解除", "質押", "備案"]
+
+
+def fetch_announcements(code: str) -> pd.DataFrame:
+    """MOPS 重大訊息(今年+去年)。欄:日期/時間/主旨/重要。快取20h。"""
+    import json, time, requests
+    from pathlib import Path
+    cache = Path(__file__).parent / "data" / "fundamentals" / f"{code}_ann.json"
+    if cache.exists() and (time.time() - cache.stat().st_mtime) < 20 * 3600:
+        try:
+            return pd.DataFrame(json.loads(cache.read_text(encoding="utf-8")))
+        except Exception:
+            pass
+    from twtime import now_tw
+    roc = now_tw().year - 1911
+    rows = []
+    for y in (roc, roc - 1):
+        try:
+            r = requests.post("https://mops.twse.com.tw/mops/api/t05st01",
+                              json={"companyId": code, "year": str(y), "month": "all",
+                                    "firstDay": "", "lastDay": ""},
+                              headers={"User-Agent": "Mozilla/5.0",
+                                       "Content-Type": "application/json",
+                                       "Referer": "https://mops.twse.com.tw/mops/#/web/t05st01"},
+                              timeout=20)
+            j = r.json()
+            for row in ((j.get("result") or {}).get("data") or []):
+                subj = str(row[4]).replace("\r\n", "").replace("\n", "")
+                rows.append({"日期": row[2], "時間": row[3], "主旨": subj,
+                             "重要": "🔴" if any(k in subj for k in _IMPORTANT_KW) else ""})
+        except Exception:
+            continue
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        df = df.sort_values(["日期", "時間"], ascending=False).reset_index(drop=True)
+        try:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(df.to_dict("records"), ensure_ascii=False),
+                             encoding="utf-8")
+        except Exception:
+            pass
+    return df
+
+
+def margin_short_table(code: str, days: int = 20) -> pd.DataFrame:
+    """每日融資融券表:融資餘額/增減/維持率(推估)/融券餘額/增減/券資比。"""
+    from pathlib import Path
+    D = Path(__file__).parent / "data"
+    p = D / "margin" / f"{code}_margin.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    m = pd.read_csv(p, usecols=["date", "margin_balance", "short_balance"])
+    m["date"] = pd.to_datetime(m["date"], errors="coerce")
+    m = m.dropna(subset=["date"]).tail(days + 1)
+    px = None
+    for suf in (".TW", ".TWO"):
+        pp = D / f"{code}{suf}.csv"
+        if pp.exists():
+            px = pd.read_csv(pp, usecols=[0, 4]); px.columns = ["date", "close"]
+            px["date"] = pd.to_datetime(px["date"], errors="coerce")
+            px["close"] = pd.to_numeric(px["close"], errors="coerce")
+            px["ma60"] = px["close"].rolling(60).mean()
+            break
+    if px is not None:
+        m = m.merge(px[["date", "close", "ma60"]], on="date", how="left")
+        # 維持率推估:收盤/(融資成數0.6×成本MA60)×100(與總經頁同款推估口徑)
+        m["維持率(推估)%"] = (m["close"] / (0.6 * m["ma60"]) * 100).round(1)
+    m["融資增減"] = m["margin_balance"].diff()
+    m["融券增減"] = m["short_balance"].diff()
+    m["券資比%"] = (m["short_balance"] / m["margin_balance"].replace(0, pd.NA) * 100).round(1)
+    out = m.tail(days).copy()
+    out["日期"] = out["date"].dt.strftime("%Y-%m-%d")
+    if "close" in out.columns:
+        out["收盤"] = out["close"].round(1)
+    cols = ["日期", "收盤", "margin_balance", "融資增減", "維持率(推估)%",
+            "short_balance", "融券增減", "券資比%"]
+    out = out[[c for c in cols if c in out.columns]].rename(
+        columns={"margin_balance": "融資餘額(張)", "short_balance": "融券餘額(張)"})
+    return out.iloc[::-1].reset_index(drop=True)     # 最新在上
+
+
+def next_futures_settlement():
+    """下一個台指期結算日(每月第三個週三)。回傳 (date, 距今日曆天)。"""
+    from twtime import now_tw
+    import datetime as _dt
+    t = now_tw().date()
+
+    def third_wed(y, m):
+        d = _dt.date(y, m, 1)
+        wed = 2 - d.weekday()
+        if wed < 0:
+            wed += 7
+        return d + _dt.timedelta(days=wed + 14)
+    s = third_wed(t.year, t.month)
+    if s < t:
+        ny, nm = (t.year + 1, 1) if t.month == 12 else (t.year, t.month + 1)
+        s = third_wed(ny, nm)
+    return s, (s - t).days
+
+
+def margin_conclusion(tbl: pd.DataFrame) -> list[str]:
+    """每日融資融券白話結論(規則式),含台指期結算日對應。tbl=margin_short_table輸出(最新在上)。"""
+    if tbl.empty or len(tbl) < 6:
+        return ["融資融券資料不足,無法下結論。"]
+    t = tbl.iloc[::-1].reset_index(drop=True)          # 轉回舊→新
+    out = []
+    mb = t["融資餘額(張)"].astype(float)
+    sb = t["融券餘額(張)"].astype(float)
+    d5m = mb.iloc[-1] - mb.iloc[-6]
+    d5s = sb.iloc[-1] - sb.iloc[-6]
+    pct5m = d5m / max(mb.iloc[-6], 1) * 100
+    # ① 融資
+    if pct5m > 5:
+        out.append(f"🔺 **融資近5日大增 {d5m:+,.0f} 張({pct5m:+.1f}%)**——散戶槓桿追價升溫,"
+                   "短線籌碼轉浮動(反指標警戒),漲勢中助漲、回檔時殺融資會放大跌幅。")
+    elif pct5m < -5:
+        out.append(f"🔻 **融資近5日大減 {d5m:+,.0f} 張({pct5m:+.1f}%)**——槓桿退場/清洗,"
+                   "若價格同步止穩=籌碼沉澱偏正面;若價跌融資減=多殺多退潮。")
+    else:
+        out.append(f"➖ 融資近5日 {d5m:+,.0f} 張,槓桿變化平穩。")
+    # ② 維持率
+    if "維持率(推估)%" in t.columns and pd.notna(t["維持率(推估)%"].iloc[-1]):
+        mr = float(t["維持率(推估)%"].iloc[-1])
+        if mr < 130:
+            out.append(f"⚠️ **維持率推估 {mr:.0f}%,逼近追繳線(130)**——融資戶瀕臨斷頭,"
+                       "既是殺盤引信也是跌深反彈的彈簧,嚴設停損。")
+        elif mr < 150:
+            out.append(f"🟡 維持率推估 {mr:.0f}%(150 以下偏低)——融資戶普遍套牢,上方解套賣壓重。")
+        else:
+            out.append(f"🟢 維持率推估 {mr:.0f}%,融資結構健康。")
+    # ③ 融券 + 券資比
+    ratio = float(t["券資比%"].iloc[-1]) if "券資比%" in t.columns and pd.notna(t["券資比%"].iloc[-1]) else None
+    if d5s > 0 and (ratio or 0) > 20:
+        out.append(f"🩳 **融券近5日 +{d5s:,.0f} 張、券資比 {ratio:.0f}%(偏高)**——"
+                   "空單大量堆積:股價若續強,軋空燃料充足;若轉弱,空方判斷正確。")
+    elif d5s > 0:
+        out.append(f"🩳 融券近5日 +{d5s:,.0f} 張(券資比 {ratio if ratio is not None else 0:.0f}%),空方試單/避險增加。")
+    elif d5s < 0:
+        px_up = ("收盤" in t.columns and pd.notna(t["收盤"].iloc[-1])
+                 and float(t["收盤"].iloc[-1]) > float(t["收盤"].iloc[-6]))
+        out.append(f"🧯 融券近5日回補 {d5s:,.0f} 張——"
+                   + ("**且股價同步上漲=軋空進行中**,動能未竭前勿逆勢放空。" if px_up
+                      else "空方退場,上方壓力減輕。"))
+    # ④ 期貨結算對應
+    sdate, dleft = next_futures_settlement()
+    if dleft <= 2:
+        out.append(f"⏰ **台指期結算日就在 {sdate:%m/%d}(剩 {dleft} 天)**——結算前融券強制回補與"
+                   "期現套利平倉會放大波動;此時的融券增減參考性低(避險盤進出),隔天再看趨勢較準。")
+    elif dleft <= 7:
+        out.append(f"📅 本月台指期結算日 {sdate:%m/%d}(約 {dleft} 天後)——進入結算週,"
+                   "若融券偏高且股價撐在高檔,結算前軋空機率上升;反之高融資+價弱易被壓低結算。")
+    else:
+        out.append(f"📅 下次台指期結算日 {sdate:%m/%d}(約 {dleft} 天後),目前非結算干擾期,籌碼變化可照常解讀。")
+    return out
+
+
 _SELF_RPT = __import__("pathlib").Path(__file__).parent / "data" / "fundamentals" / "self_report.json"
 
 
