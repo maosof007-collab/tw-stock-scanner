@@ -113,6 +113,109 @@ asof_txt = f"　資料截至 **{str(asof)[:10]}**。" if asof is not None else "
 st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**由小到大＝行進方向**（尾巴只畫最近 {TAIL_SHOW} 週）——"
            f"往右上＝資金流入；往左下＝資金流出。**領先且尾巴續往右上**的族群最強。{asof_txt}")
 
+# ── 💰 法人資金潮汐（族群，金額版——X=近5日法人買超億元） ──
+st.markdown("### 💰 法人資金潮汐（錢實際搬去哪）")
+
+@st.cache_data(ttl=1800, show_spinner="彙整各族群法人買賣超金額中（約 5 秒）…")
+def _inst_flow():
+    import pandas as _pd
+    from pathlib import Path as _P
+    D = _P(__file__).parent.parent / "data"
+    rows = []
+    for theme, codes in THEME_GROUPS.items():
+        daily = {}
+        for c in codes:
+            p = D / "institutional" / f"{c}_inst.csv"
+            if not p.exists():
+                continue
+            try:
+                m = _pd.read_csv(p, usecols=lambda x: x in
+                                 ("date", "外陸資買賣超股數(不含外資自營商)",
+                                  "外資買賣超股數", "it_net"))
+                m["date"] = _pd.to_datetime(m["date"], errors="coerce")
+                a = _pd.to_numeric(m.get("外陸資買賣超股數(不含外資自營商)"), errors="coerce")
+                b = _pd.to_numeric(m.get("外資買賣超股數"), errors="coerce")
+                it = _pd.to_numeric(m.get("it_net"), errors="coerce").fillna(0)
+                m["net_sh"] = a.fillna(b).fillna(0) + it
+                m = m.dropna(subset=["date"]).tail(25)
+                px = None
+                for suf in (".TW", ".TWO"):
+                    pp = D / f"{c}{suf}.csv"
+                    if pp.exists():
+                        px = _pd.read_csv(pp, usecols=[0, 4])
+                        px.columns = ["date", "close"]
+                        px["date"] = _pd.to_datetime(px["date"], errors="coerce")
+                        px["close"] = _pd.to_numeric(px["close"], errors="coerce")
+                        break
+                if px is None:
+                    continue
+                mm = m.merge(px, on="date", how="inner")\
+                      .dropna(subset=["net_sh", "close"])   # 只驗關鍵欄(舊欄位NaN勿誤殺)
+                mm["val"] = mm["net_sh"] * mm["close"] / 1e8      # 億元
+                for _, r2 in mm.iterrows():
+                    daily[r2["date"]] = daily.get(r2["date"], 0) + r2["val"]
+            except Exception:
+                continue
+        if not daily:
+            continue
+        s2 = _pd.Series(daily).sort_index()
+        f5 = float(s2.tail(5).sum())
+        p5 = float(s2.tail(10).head(5).sum())
+        t20 = float(s2.tail(20).abs().sum())
+        rows.append({"族群": theme, "近5日買超(億)": round(f5, 1),
+                     "前5日(億)": round(p5, 1), "加速度(億)": round(f5 - p5, 1),
+                     "近20日規模(億)": round(t20, 1)})
+    return _pd.DataFrame(rows)
+
+flow = _inst_flow()
+if not flow.empty:
+    def _state(r):
+        if r["近5日買超(億)"] > 0:
+            return "🌊 漲潮(加速流入)" if r["加速度(億)"] >= 0 else "🔁 輪動(流入放緩)"
+        return "👀 觀望(流出放緩)" if r["加速度(億)"] > 0 else "🌑 退潮(資金流出)"
+    flow["狀態"] = flow.apply(_state, axis=1)
+    _SC = {"🌊 漲潮(加速流入)": "#FF4D6D", "🔁 輪動(流入放緩)": "#FFC857",
+           "👀 觀望(流出放緩)": "#00E5FF", "🌑 退潮(資金流出)": "#2BE4A8"}
+    cnt2 = flow["狀態"].value_counts()
+    sc = st.columns(4)
+    for i, stt in enumerate(_SC):
+        sc[i].markdown(f"<div class='metric-card'><div class='l'>{stt}</div>"
+                       f"<div class='v' style='color:{_SC[stt]}'>{cnt2.get(stt,0)}</div></div>",
+                       unsafe_allow_html=True)
+    import numpy as _np
+    figf = go.Figure()
+    for stt, col in _SC.items():
+        sub = flow[flow["狀態"] == stt]
+        if sub.empty:
+            continue
+        figf.add_trace(go.Scatter(
+            x=sub["近5日買超(億)"], y=sub["加速度(億)"], mode="markers+text",
+            marker=dict(size=8 + _np.sqrt(sub["近20日規模(億)"].clip(lower=0)) * 3,
+                        color=col, opacity=0.85, line=dict(width=1, color="#04070D")),
+            text=sub["族群"], textposition="top center",
+            textfont=dict(size=10, color=THEME["text"]), name=stt,
+            customdata=sub[["前5日(億)", "近20日規模(億)"]].values,
+            hovertemplate="<b>%{text}</b><br>近5日買超 %{x:+.1f} 億<br>"
+                          "加速度 %{y:+.1f} 億(前5日 %{customdata[0]:+.1f})<br>"
+                          "近20日規模 %{customdata[1]:.1f} 億<extra></extra>"))
+    figf.add_hline(y=0, line_color=THEME["muted"], line_width=1)
+    figf.add_vline(x=0, line_color=THEME["muted"], line_width=1)
+    figf.update_layout(height=520, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                       plot_bgcolor=THEME["panel"], font=dict(color=THEME["text"], size=12),
+                       margin=dict(l=10, r=10, t=20, b=10),
+                       xaxis=dict(title="近5日法人買超金額(億元)→ 越右=錢流入越多",
+                                  gridcolor=THEME["grid"], zeroline=False),
+                       yaxis=dict(title="加速度(近5日−前5日,億)↑ 越上=流入在加快",
+                                  gridcolor=THEME["grid"], zeroline=False),
+                       legend=dict(orientation="h", y=1.08))
+    st.plotly_chart(figf, width="stretch")
+    st.caption("**跟上面 RRG 的差別**:RRG 看「價格相對強弱」,這張看「法人真金白銀搬去哪」——"
+               "X=近5日外資+投信買超金額(億)、Y=加速度、泡泡大小=近20日進出規模。"
+               "右上=漲潮最強;左下=退潮。兩張圖同向=可信度加倍;背離=價格與籌碼打架,小心。")
+    with st.expander("📋 明細表"):
+        st.dataframe(flow.sort_values("近5日買超(億)", ascending=False),
+                     width="stretch", hide_index=True)
+
 # ── 分象限清單（含成分股）──
 _name_map = {}
 try:
