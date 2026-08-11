@@ -120,70 +120,52 @@ def analyze_batch(
     max_items: int = 50,
     delay: float = 0.3,
 ) -> pd.DataFrame:
-    """
-    批次分析新聞情緒
-    max_items: 最多分析幾則（節省 API 費用）
-    """
+    """批次分析新聞情緒——15 則打包成一次請求,走三層引擎
+    (API 金鑰 → 本機 Claude CLI → 無引擎回中性),沒 API key 也能跑。"""
     if news_df.empty:
         return pd.DataFrame()
 
-    client = get_client()
-
-    # 按重要性排序：市場整體 > 個股
-    df = news_df.head(max_items).copy()
-    results = []
-    cache_hits = 0
-
-    log.info(f"開始分析 {len(df)} 則新聞...")
-
-    for i, (_, row) in enumerate(df.iterrows(), 1):
+    from llm import generate_json
+    df = news_df.head(max_items).copy().reset_index(drop=True)
+    CHUNK = 15
+    sys_p = (SYSTEM_PROMPT
+             + "\n\n【批次模式】輸入為多則編號新聞,輸出「嚴格 JSON 陣列」,"
+               "每元素含 idx(對應編號) 與上述欄位,順序照編號,不得遺漏。")
+    results = {}
+    n_chunks = (len(df) + CHUNK - 1) // CHUNK
+    for ci in range(n_chunks):
+        part = df.iloc[ci * CHUNK:(ci + 1) * CHUNK]
+        lines = [f"{i}. {str(r.get('title',''))[:120]} | {str(r.get('summary',''))[:80]}"
+                 for i, (_, r) in enumerate(part.iterrows(), start=ci * CHUNK)]
+        log.info(f"  批次 {ci+1}/{n_chunks}({len(part)} 則)...")
+        raw = generate_json(sys_p, "\n".join(lines), max_tokens=2500)
+        if not raw:
+            continue
         try:
-            res = analyze_one(
-                client,
-                str(row.get("title", "")),
-                str(row.get("summary", "")),
-            )
-            cache_hits += 1 if res["cache_read"] > 0 else 0
-            results.append({
-                "source":    row.get("source", ""),
-                "title":     row.get("title", ""),
-                "url":       row.get("url", ""),
-                "published": row.get("published", ""),
-                "query":     row.get("query", ""),
-                "sentiment": res["sentiment"],
-                "score":     res["score"],
-                "impact":    res["impact"],
-                "tickers":   ",".join(res["tickers"]),
-                "reason":    res["reason"],
-            })
-            sys.stdout.write(
-                f"\r  [{i:3d}/{len(df)}] "
-                f"快取命中 {cache_hits} 次  "
-                f"最新：{row.get('title','')[:30]}..."
-            )
-            sys.stdout.flush()
-            time.sleep(delay)
+            arr = json.loads(raw)
+            for item in arr:
+                results[int(item.get("idx", -1))] = item
+        except Exception:
+            log.warning("  批次 JSON 解析失敗,該批以中性代替")
 
-        except json.JSONDecodeError:
-            log.debug(f"  JSON解析失敗，跳過：{row.get('title','')[:40]}")
-            results.append({
-                "source":    row.get("source", ""),
-                "title":     row.get("title", ""),
-                "url":       row.get("url", ""),
-                "published": row.get("published", ""),
-                "query":     row.get("query", ""),
-                "sentiment": "neutral",
-                "score":     0.0,
-                "impact":    "low",
-                "tickers":   "",
-                "reason":    "解析失敗",
-            })
-        except Exception as e:
-            log.warning(f"\n  分析失敗：{e}")
-            time.sleep(1)
-
-    print(f"\n  快取命中率：{cache_hits}/{len(df)} ({cache_hits/max(len(df),1)*100:.0f}%)")
-    return pd.DataFrame(results)
+    out = []
+    for i, (_, row) in enumerate(df.iterrows()):
+        res = results.get(i, {})
+        out.append({
+            "source":    row.get("source", ""),
+            "title":     row.get("title", ""),
+            "url":       row.get("url", ""),
+            "published": row.get("published", ""),
+            "query":     row.get("query", ""),
+            "sentiment": res.get("sentiment", "neutral"),
+            "score":     float(res.get("score", 0.0) or 0.0),
+            "impact":    res.get("impact", "low"),
+            "tickers":   ",".join(res.get("tickers", []) if isinstance(res.get("tickers"), list)
+                                  else [str(res.get("tickers", ""))]),
+            "reason":    res.get("reason", "" if res else "無引擎,以中性代替"),
+        })
+    log.info(f"  完成 {len([r for r in out if r['reason'] != '無引擎,以中性代替'])}/{len(out)} 則")
+    return pd.DataFrame(out)
 
 
 def get_ticker_sentiment(

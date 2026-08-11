@@ -21,7 +21,7 @@ st.set_page_config(page_title="個股法人報告", layout="wide")
 inject_css()
 from gate import require_login, logout_button
 require_login(); logout_button()
-page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
+page_header("個股研究中心", "STOCK RESEARCH HUB", "🧾")
 
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
@@ -37,10 +37,40 @@ attribute_errors = _ar.attribute_errors
 peer_compare = _ar.peer_compare
 generate_industry_report = _ar.generate_industry_report
 
+# 文章解讀「填入補充欄」的暫存(必須在 widget 建立前併入)
+if st.session_state.get("extra_pending"):
+    st.session_state["rpt_extra"] = (st.session_state.get("rpt_extra", "") + "\n"
+                                     + st.session_state.pop("extra_pending")).strip()
+
 c1, c2 = st.columns([1, 3])
 code_in = c1.text_input("股票代碼", placeholder="4991", key="rpt_code")
 extra_in = c2.text_area("補充資料(選填:法說紀要/產能/產品佔比/ASP——會縫進報告推論)",
                         height=90, key="rpt_extra")
+
+with st.expander("📎 文章解讀(貼網址 → 個股情報卡,可一鍵填入補充欄)", expanded=False):
+    import article_intel
+    art_url = st.text_input("文章網址(優分析/鉅亨等)", key="hub_art_url")
+    if st.button("🔍 解讀", key="hub_art_go") and art_url.strip().startswith("http"):
+        with st.spinner("抓取並解讀中(約 30-60 秒)…"):
+            rec = article_intel.ingest(art_url.strip())
+        st.session_state["hub_art_rec"] = rec
+    rec = st.session_state.get("hub_art_rec")
+    if rec:
+        st.markdown(f"**{rec['title']}**　·　{rec.get('source','')}")
+        st.caption(rec.get("one_liner", ""))
+        for s_ in rec.get("stocks", []):
+            st.markdown(f"- **{s_.get('code','')} {s_.get('name','')}**"
+                        f"({s_.get('stance','')}):{s_.get('summary','')}")
+            for kp in s_.get("key_points", []):
+                st.caption(f"　• {kp}")
+        if st.button("⬇️ 把解讀重點填入補充欄", key="hub_art_fill"):
+            bits = [f"文章解讀({rec.get('source','')}):{rec.get('one_liner','')}"]
+            for s_ in rec.get("stocks", []):
+                bits.append(f"{s_.get('code','')}{s_.get('name','')}:{s_.get('summary','')};"
+                            + ";".join(s_.get("key_points", []) + s_.get("numbers", [])))
+            st.session_state["extra_pending"] = "\n".join(bits)
+            st.rerun()
+
 code = code_in.strip().replace(".TW", "").replace(".TWO", "")
 
 if not code.isdigit():
