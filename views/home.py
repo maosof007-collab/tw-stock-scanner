@@ -578,6 +578,20 @@ def main():
         # 首頁熱力圖每 10 分鐘自動刷新（盤中跟著 auto_refresh 更新的資料滾動）
         st_autorefresh(interval=10 * 60 * 1000, key="home_autorefresh")
 
+        # 今日晨報(07:15 排程自動產生;雲端由 git 同步)
+        try:
+            from analyst_report import list_articles, read_article
+            from twtime import now_tw as _now
+            _briefs = [a for a in list_articles() if a.get("mode") == "晨報"]
+            if _briefs:
+                _b = _briefs[0]
+                _is_today = str(_b.get("date", ""))[:10] == f"{_now():%Y-%m-%d}"
+                _tag = "🌅 今日晨報" if _is_today else f"🌅 最新晨報({str(_b.get('date',''))[:10]})"
+                with st.expander(f"{_tag} — {_b['title']}", expanded=False):
+                    st.markdown(read_article(_b["file"]))
+        except Exception:
+            pass
+
         col_main, col_side = st.columns([3.2, 1], gap="large")
 
         with col_main:
