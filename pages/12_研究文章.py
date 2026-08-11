@@ -28,6 +28,34 @@ if not arts:
     st.info("還沒有文章——到「🧾 個股法人報告」頁產生報告,會自動發佈到這裡。")
     st.stop()
 
+# ── 分類瀏覽:晨報 / 各族群(批次報告) / 個股報告 ──
+try:
+    from theme_groups import THEME_GROUPS
+    _tg = set(THEME_GROUPS)
+except Exception:
+    _tg = set()
+
+
+def _cat(a: dict) -> str:
+    if a.get("mode") == "晨報":
+        return "🌅 晨報"
+    if a.get("name") in _tg:
+        return f"🧩 {a['name']}"
+    return "🔬 個股"
+
+
+_cats = ["全部"]
+for a in arts:                                  # 依出現順序去重
+    c = _cat(a)
+    if c not in _cats:
+        _cats.append(c)
+_sel = st.segmented_control("分類", _cats, default="全部", key="lib_cat")
+if _sel and _sel != "全部":
+    arts = [a for a in arts if _cat(a) == _sel]
+    if not arts:
+        st.info("此分類目前沒有文章")
+        st.stop()
+
 # 閱讀版面 CSS(文章寬度/字距,像網站)
 st.markdown("""<style>
 .article-body {max-width: 860px; margin: 0 auto; line-height: 1.9; font-size: 16px;}
