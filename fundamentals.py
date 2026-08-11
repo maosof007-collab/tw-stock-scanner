@@ -28,13 +28,23 @@ CACHE_HOURS = 20
 
 
 def _fm(dataset: str, code: str, start: str) -> list[dict]:
-    """FinMind 免費端點（無 token，量少夠用）；20 小時快取。"""
+    """FinMind 免費端點（無 token，量少夠用）；20 小時快取。
+    限流(402)或任何失敗 → 退回舊快取(不論多舊)——基本面資料月更,舊快取遠勝空手。"""
     p = FUND_DIR / f"{code}_{dataset}.json"
     if p.exists() and (time.time() - p.stat().st_mtime) < CACHE_HOURS * 3600:
         try:
             return json.loads(p.read_text(encoding="utf-8"))
         except Exception:
             pass
+
+    def _stale() -> list[dict]:
+        if p.exists():
+            try:
+                return json.loads(p.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return []
+
     try:
         r = requests.get(FM_URL, params={"dataset": dataset, "data_id": code,
                                          "start_date": start}, timeout=25)
@@ -42,14 +52,10 @@ def _fm(dataset: str, code: str, start: str) -> list[dict]:
         data = j.get("data", []) if j.get("status") == 200 else []
         if data:
             p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        return data
+            return data
+        return _stale()          # 限流/空回應:用舊快取,並保留舊 mtime 讓下次仍會嘗試更新
     except Exception:
-        if p.exists():
-            try:
-                return json.loads(p.read_text(encoding="utf-8"))
-            except Exception:
-                pass
-        return []
+        return _stale()
 
 
 def monthly_revenue(code: str, years: int = 3) -> pd.DataFrame:
@@ -190,6 +196,12 @@ def shares_map() -> dict:
             continue
     if out:
         p.write_text(json.dumps(out), encoding="utf-8")
+        return out
+    if p.exists():                        # 兩源都失敗 → 舊快取(股數變動極慢)
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            pass
     return out
 
 
