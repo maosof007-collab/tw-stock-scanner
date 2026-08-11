@@ -66,7 +66,8 @@ _QUERIES = ["台股 盤前", "美股 收盤", "聯準會 利率", "半導體 台
             "AI 伺服器", "中國 經濟", "地緣政治 關稅"]
 
 
-def overnight_news(max_items: int = 45) -> list[str]:
+def overnight_news(max_items: int = 45) -> list[dict]:
+    """近20小時新聞:[{stamp, source, title, url}](新到舊,去重)。"""
     import fetch_news as fn
     items = []
     for q in _QUERIES:
@@ -80,21 +81,39 @@ def overnight_news(max_items: int = 45) -> list[str]:
         except Exception:
             continue
     seen, out = set(), []
-    cutoff = now_tw().replace(tzinfo=None) - pd.Timedelta(hours=20)
+    now = now_tw().replace(tzinfo=None)
+    # 盤前資訊集鐵律:新聞窗上緣最多到當天 08:30(開盤前)。
+    # 07:15 正常跑不受影響;下午補跑時擋掉盤中/盤後新聞,預判才不會有事後之明。
+    end = min(now, now.replace(hour=8, minute=30, second=0, microsecond=0))
+    start = end - pd.Timedelta(hours=20)
     for it in items:
         t = (it.get("title") or "").strip()
         key = t[:24]
         if not t or key in seen:
             continue
         pub = pd.to_datetime(it.get("published"), errors="coerce")
-        if pd.notna(pub) and pub < cutoff:
+        if pd.notna(pub) and not (start <= pub <= end):
             continue
+        if pd.isna(pub):
+            continue          # 無時間戳的新聞無法證明是盤前發布,一律不用
         seen.add(key)
-        stamp = pub.strftime("%m/%d %H:%M") if pd.notna(pub) else "--"
-        out.append(f"[{stamp}|{it.get('source','')}] {t}")
+        out.append({"stamp": pub.strftime("%m/%d %H:%M") if pd.notna(pub) else "--",
+                    "source": it.get("source", ""),
+                    "title": t,
+                    "url": (it.get("url") or "").strip()})
         if len(out) >= max_items:
             break
     return out
+
+
+def news_links_section(news: list[dict], limit: int = 30) -> str:
+    """連結清單由程式直出(轉址網址太長,交給模型抄寫容易斷鏈)。"""
+    if not news:
+        return ""
+    lines = [f"- {n['stamp']}｜{n['source']}｜" +
+             (f"[{n['title']}]({n['url']})" if n["url"] else n["title"])
+             for n in news[:limit]]
+    return "\n\n## 📎 新聞原文連結\n" + "\n".join(lines)
 
 
 # ────────────────────────────────────────
@@ -174,35 +193,46 @@ _SYS_MORNING = """你是台股盤前晨報主筆,讀者是早上開盤前 10 分
 
 
 def build_brief() -> str:
-    date_s = f"{now_tw():%Y-%m-%d}"
+    now = now_tw()
+    date_s = f"{now:%Y-%m-%d}"
+    late_run = (now.hour, now.minute) >= (8, 45)      # 開盤後才補跑
+    asof = data_asof()
     mkt = overnight_markets()
     news = overnight_news()
     sect = yesterday_sectors()
     cal = calendar_notes()
+    if late_run and asof == date_s:
+        # 當天收盤價已入庫——「前一交易日動能」會變成今日收盤,直接洩漏答案,不給模型
+        sect = "（盤後補跑且當日資料已入庫,為避免事後之明,本段不提供）"
     digest = "\n".join([
         f"日期:{date_s}(台灣時間早晨)",
         "【隔夜國際盤面】",
         mkt.to_string(index=False) if not mkt.empty else "（yfinance 全數抓取失敗——盤面段寫「無資料」）",
-        f"【昨日({data_asof()})台股產業動能】",
+        f"【前一交易日({asof})台股產業動能】",
         sect,
         "【隔夜新聞標題(近20小時)】",
-        "\n".join(news) if news else "（新聞抓取失敗）",
+        "\n".join(f"[{n['stamp']}|{n['source']}] {n['title']}" for n in news)
+        if news else "（新聞抓取失敗）",
         "【行事曆】",
         "\n".join(f"- {n}" for n in cal) if cal else "- 無特別事項",
     ])
     import llm
+    banner = ""
+    if late_run:
+        banner = (f"> ⚠️ **本篇為盤後補產生（{now:%H:%M}）**——新聞窗已截至當日 08:30 模擬盤前資訊,"
+                  f"但仍非正式盤前產出;「今日主流預判」僅供格式參考,不具盤前效力。\n\n")
     out = llm.generate(_SYS_MORNING.replace("{date}", date_s), digest, max_tokens=2200)
     if out:
-        return out
+        return banner + out + news_links_section(news)
     # 離線退化:純數據版
     body = [f"# 台股晨報 {date_s}（數據版,無 Claude 引擎:{llm.fail_reason()}）",
             "## ① 隔夜國際盤面",
             "```", mkt.to_string(index=False) if not mkt.empty else "無資料", "```",
             f"## ② 昨日({data_asof()})產業動能", "```", sect, "```",
-            "## ③ 隔夜新聞標題"] + [f"- {n}" for n in news[:20]] + \
+            "## ③ 隔夜新聞標題"] + [f"- {n['title']}" for n in news[:20]] + \
            ["## ④ 行事曆"] + [f"- {n}" for n in cal] + \
            ["", "本晨報由系統自動彙整,非投資建議。"]
-    return "\n".join(body)
+    return banner + "\n".join(body) + news_links_section(news)
 
 
 def already_done_today() -> bool:
