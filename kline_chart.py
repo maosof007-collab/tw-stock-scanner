@@ -95,20 +95,28 @@ def render_kline(ticker: str, name: str = "", *,
     if show_strategy_signals and strategy_name:
         sig = _strategy_signals(ticker, strategy_name)
         if not sig.empty:
-            sig = sig.reindex(kdf.index)
-            sg  = sig["signal"]
-            # 計算「波段中第幾次進場」：每次出場(sell)後歸零、遇 buy 累加
-            seq, cur = [], 0
-            for s in sg.values:
-                if s == "sell":
-                    cur = 0
-                    seq.append(0)
-                elif s == "buy":
+            # 先在「全歷史」上事件化(不能先切窗,否則持倉狀態會斷):
+            # buy=進場(累計第幾次);sell 只有「持倉中遇到的第一個」算出場事件——
+            # 很多策略的 sell 是條件旗標(條件成立天天標),全畫會變紅雨
+            sg_full = sig["signal"]
+            seq, sell_ev, cur, inpos = [], [], 0, False
+            for s in sg_full.values:
+                if s == "buy":
                     cur += 1
+                    inpos = True
                     seq.append(cur)
+                    sell_ev.append(False)
+                elif s == "sell" and inpos:
+                    cur = 0
+                    inpos = False
+                    seq.append(0)
+                    sell_ev.append(True)
                 else:
                     seq.append(0)
-            sig = sig.assign(seq=seq)
+                    sell_ev.append(False)
+            sig = sig.assign(seq=seq, sell_ev=sell_ev)
+            sig = sig.reindex(kdf.index)
+            sg = sig["signal"]
 
             # 第1~5+次進場各自顏色
             seq_colors = {1: CYAN, 2: GOLD, 3: PURPLE, 4: GREEN, 5: "#FF8FB1"}
@@ -125,7 +133,7 @@ def render_kline(ticker: str, name: str = "", *,
                     name=lbl,
                     hovertemplate=f"{lbl} %{{x|%Y-%m-%d}}<extra></extra>",
                 ))
-            sells = kdf[sg == "sell"]
+            sells = kdf[sig["sell_ev"] == True]          # noqa: E712 事件化出場
             if not sells.empty:
                 fig.add_trace(go.Scatter(
                     x=sells.index, y=sells["High"] * 1.015, mode="markers",
