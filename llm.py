@@ -50,29 +50,52 @@ def _api_generate(system: str, user: str, max_tokens: int) -> str | None:
         return None
 
 
+LAST_ERROR = ""       # 最近一次 generate 失敗原因(給呼叫端顯示,別再只回「無引擎」)
+
+
 def _cli_generate(system: str, user: str) -> str | None:
+    global LAST_ERROR
     exe = _cli_path()
     if not exe:
+        LAST_ERROR = "本機沒有 Claude CLI(雲端環境或未安裝)"
         return None
     prompt = f"{system}\n\n=== 以下是要處理的內容 ===\n{user}"
     try:
         r = subprocess.run(
             [exe, "-p", prompt, "--output-format", "text", "--model", "haiku"],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
-            timeout=180,
+            timeout=300,
         )
         out = (r.stdout or "").strip()
-        if r.returncode != 0 or not out or "Not logged in" in out or "/login" in out[:80]:
+        if "Not logged in" in out or "/login" in out[:80]:
+            LAST_ERROR = "Claude CLI 未登入(終端機執行 claude → /login)"
             return None
+        if r.returncode != 0 or not out:
+            LAST_ERROR = f"Claude CLI 執行失敗(exit {r.returncode}):{(r.stderr or out)[:120]}"
+            return None
+        LAST_ERROR = ""
         return out
-    except Exception:
+    except subprocess.TimeoutExpired:
+        LAST_ERROR = "Claude CLI 逾時(300秒)——內容太長或系統忙,重試一次通常會過"
+        return None
+    except Exception as e:
+        LAST_ERROR = f"Claude CLI 例外:{type(e).__name__}"
         return None
 
 
 def generate(system: str, user: str, max_tokens: int = 2000) -> str | None:
-    """依序嘗試 API → CLI；都不行回 None（呼叫端走離線退化）。"""
-    return (_api_generate(system, user, max_tokens)
-            or _cli_generate(system, user))
+    """依序嘗試 API → CLI；都不行回 None（呼叫端走離線退化，原因看 fail_reason()）。"""
+    global LAST_ERROR
+    out = _api_generate(system, user, max_tokens)
+    if out:
+        LAST_ERROR = ""
+        return out
+    return _cli_generate(system, user)
+
+
+def fail_reason() -> str:
+    """最近一次生成失敗的白話原因（頁面顯示用）。"""
+    return LAST_ERROR or "無 API 金鑰、無可用 Claude CLI（離線模式）"
 
 
 def generate_json(system: str, user: str, max_tokens: int = 2000) -> str | None:

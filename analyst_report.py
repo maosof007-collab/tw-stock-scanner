@@ -416,7 +416,10 @@ def attribute_errors(code: str, bc: pd.DataFrame, extra: str = "") -> str:
         digest += f"\n【使用者補充(法說等)】\n{extra.strip()[:3000]}\n"
     from llm import generate
     out = generate(_SYS_ATTR, digest, max_tokens=1500)
-    return out or "（無可用 Claude 引擎,僅顯示誤差表）"
+    if out:
+        return out
+    from llm import fail_reason
+    return f"（歸因生成失敗：{fail_reason()}——僅顯示誤差表）"
 
 
 # ────────────────────────────────────────
@@ -588,7 +591,8 @@ def generate_industry_report(code: str, peers: list[str], extra: str = "") -> st
     out = generate(_SYS_INDUSTRY, "\n".join(parts), max_tokens=2500)
     if out:
         return out + f"\n\n---\n*數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。產業觀察非投資建議。*"
-    return "（無可用 Claude 引擎）"
+    from llm import fail_reason
+    return f"（報告生成失敗：{fail_reason()}）"
 
 
 _SYS_FLASH = """你是券商晨報研究員,寫一則「月營收快評」(仿投顧晨報格式,但不喊買賣)。
@@ -630,7 +634,8 @@ def generate_flash_note(code: str, extra: str = "") -> str:
     out = generate(_SYS_FLASH, "\n".join(parts), max_tokens=1800)
     if out:
         return out + f"\n\n---\n*模型預期值=去年同月×前3月YoY中位;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
-    return "（無可用 Claude 引擎）"
+    from llm import fail_reason
+    return f"（快評生成失敗：{fail_reason()}）"
 
 
 # ────────────────────────────────────────
@@ -673,4 +678,5 @@ def generate_report(code: str, extra: str = "") -> str:
     out = generate(_SYS, "\n".join(parts), max_tokens=3000)
     if out:
         return out + f"\n\n---\n*系統數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。情境試算非投資建議。*"
-    return "（無可用 Claude 引擎——請確認 API key 或本機 claude 登入後重試;下方數據表仍可用）"
+    from llm import fail_reason
+    return f"（報告生成失敗：{fail_reason()}——下方數據表仍可用）"

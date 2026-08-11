@@ -373,7 +373,21 @@ mode = st.radio("報告模式", ["月營收快評(晨報式:公布數字vs模型
                           "產業比較型(優分析風:問句標題/產品結構→客群→週期位置/教方法論)",
                           "法人六層型(驅動力→估值三情境→正反方對照表)"],
                 horizontal=False, key="rpt_mode")
-if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
+
+# 雲端(資料包模式)沒有 Claude 訂閱——與其讓使用者按下去才失敗,先講清楚
+_cloud_no_engine = False
+try:
+    import auto_refresh as _arf
+    from apikey import get_key as _getkey
+    _cloud_no_engine = _arf._pack_mode() and not _getkey()
+except Exception:
+    pass
+
+if _cloud_no_engine:
+    st.info("☁️ **雲端顯示模式**:雲端沒有 Claude 引擎,報告請在**本機**產生——"
+            "產生後會自動發佈到「📰 研究文章」並同步上雲,這裡就能看。"
+            "(若想在雲端直接產生:Streamlit Secrets 設 `ANTHROPIC_API_KEY`)")
+if st.button("🖋️ 產生報告", type="primary", key="rpt_go", disabled=_cloud_no_engine):
     with st.spinner("撰寫報告中(約 30-90 秒)…"):
         if mode.startswith("月營收快評"):
             rpt = _ar.generate_flash_note(code, extra=extra_in)
