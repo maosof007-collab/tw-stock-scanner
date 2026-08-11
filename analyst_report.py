@@ -591,6 +591,48 @@ def generate_industry_report(code: str, peers: list[str], extra: str = "") -> st
     return "（無可用 Claude 引擎）"
 
 
+_SYS_FLASH = """你是券商晨報研究員,寫一則「月營收快評」(仿投顧晨報格式,但不喊買賣)。
+【輸出鐵律】回覆即快評本文,從粗體導言開始,無前言無總結。格式:
+1. **導言一段**(粗體):「XX(代碼) MM/YYYY 營收 A 百萬,MoM±x%、YoY±y%,優於/低於模型預期
+   (與模型預期值 B 差異約 ±z%),主因……」——主因只能寫數據可支持或補充資料提供的;
+   都沒有就寫「主因待查(建議看月營收公告備註/法說)」
+2. 「## 數據明細」:當月/累計營收與YoY、近3月走勢
+3. 「## 模型 vs 實際」:模型預期值怎麼來(去年同月×前3月YoY中位)、誤差、
+   這個誤差是雜訊還是趨勢轉變(對照歷史回測誤差)
+4. 「## 展望與情境」:引用給你的 H1 估值/推估表數字(照抄勿改)
+5. 「## 追蹤點」2-3條
+數字精確、單位照抄;推測與事實分開。350-600字。結尾一句免責。"""
+
+
+def generate_flash_note(code: str, extra: str = "") -> str:
+    """月營收快評(晨報式):最新月營收 vs 模型預期值+誤差+展望。"""
+    d = build_digest(code, extra)
+    mon = d["monthly"]
+    if mon.empty:
+        return f"（抓不到 {code} 月營收）"
+    bc = backcast_monthly(code, lookback=6)
+    hv = h1_valuation(code)
+    last = mon.iloc[-1]
+    mom = (mon["revenue"].iloc[-1] / mon["revenue"].iloc[-2] - 1) * 100 if len(mon) > 1 else 0
+    ytd = mon[mon["ym"].str.startswith(last["ym"][:4])]["revenue"].sum()
+    parts = [f"個股:{d['code']} {d['name']}　{d['price']}",
+             f"最新月營收:{last['ym']} = {last['revenue']:,.1f} 百萬,MoM {mom:+.1f}%,YoY {last['yoy%']:+.1f}%",
+             f"今年累計:{ytd:,.0f} 百萬",
+             "【近6月營收】", mon.tail(6).to_string(index=False)]
+    if not bc.empty:
+        parts += ["【模型 vs 實際(walk-forward 回測)】", bc.to_string(index=False)]
+    if hv:
+        parts += [f"【H1估值】Q1 {hv['q1']} / Q2 {hv['q2']}({hv.get('q2_src','')}) / H1 {hv['h1']};現價隱含PE {hv.get('implied_pe')}x",
+                  hv["table"].to_string(index=False)]
+    if extra.strip():
+        parts += ["【補充資料(使用者提供:法說/公告歸因等)】", extra.strip()[:3000]]
+    from llm import generate
+    out = generate(_SYS_FLASH, "\n".join(parts), max_tokens=1800)
+    if out:
+        return out + f"\n\n---\n*模型預期值=去年同月×前3月YoY中位;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
+    return "（無可用 Claude 引擎）"
+
+
 # ────────────────────────────────────────
 # 法人報告生成(Claude)
 # ────────────────────────────────────────

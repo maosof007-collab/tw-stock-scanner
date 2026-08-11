@@ -26,7 +26,7 @@ page_header("個股法人報告", "EQUITY RESEARCH BUILDER", "🧾")
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib
 import analyst_report as _ar
-if not hasattr(_ar, "margin_conclusion"):     # 熱更新防護:缺最新函式就 reload
+if not hasattr(_ar, "generate_flash_note"):     # 熱更新防護:缺最新函式就 reload
     _ar = importlib.reload(_ar)
 build_digest = _ar.build_digest
 forecast_monthly = _ar.forecast_monthly
@@ -339,12 +339,15 @@ if peers:
 
 # ── ③ 報告產生(兩種模式) ──
 st.markdown("### 🧾 產生報告")
-mode = st.radio("報告模式", ["產業比較型(優分析風:問句標題/產品結構→客群→週期位置/教方法論)",
+mode = st.radio("報告模式", ["月營收快評(晨報式:公布數字vs模型預期→歸因→展望,最快)",
+                          "產業比較型(優分析風:問句標題/產品結構→客群→週期位置/教方法論)",
                           "法人六層型(驅動力→估值三情境→正反方對照表)"],
                 horizontal=False, key="rpt_mode")
 if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
     with st.spinner("撰寫報告中(約 30-90 秒)…"):
-        if mode.startswith("產業比較"):
+        if mode.startswith("月營收快評"):
+            rpt = _ar.generate_flash_note(code, extra=extra_in)
+        elif mode.startswith("產業比較"):
             rpt = generate_industry_report(code, peers, extra=extra_in)
         else:
             rpt = generate_report(code, extra=extra_in)
@@ -352,8 +355,9 @@ if st.button("🖋️ 產生報告", type="primary", key="rpt_go"):
     st.session_state["last_rpt_code"] = code
     # 存進研究文章庫(頁12「研究文章」可像網站一樣瀏覽)
     if rpt and not rpt.startswith("（"):
-        fn = _ar.save_article(code, d.get("name", ""),
-                              "產業比較" if mode.startswith("產業比較") else "法人六層", rpt)
+        _mode_tag = ("月營收快評" if mode.startswith("月營收快評")
+                     else ("產業比較" if mode.startswith("產業比較") else "法人六層"))
+        fn = _ar.save_article(code, d.get("name", ""), _mode_tag, rpt)
         gmsg = _ar.git_publish(fn)
         st.success(f"已發佈到「📰 研究文章」:{fn}｜{gmsg}")
 
