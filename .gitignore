@@ -18,13 +18,15 @@ data/markets/
 data/fundamentals/
 data/institutional/
 data/tdcc/
-data/news/
+data/news/*
+!data/news/sentiment_*.csv
+scan_results/*
+!scan_results/confidence_*.csv
 data/reports/
 data/fi_holding/
 data/_rank_*.csv
 data/_market_margin.csv
 data/_auto_update*.log
-scan_results/
 backtest_results/
 logs/
 .claude/

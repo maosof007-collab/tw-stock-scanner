@@ -14,4 +14,10 @@ rem margin/short data publishes ~21:00, institutional ~16:00 - keep chips fresh
 rem in every evening slot even after run_daily already completed (gap-aware, cheap)
 G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log 2>&1
 G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
+rem sync locally-generated Claude artifacts (sentiment/confidence) to git so
+rem the cloud app can display them without any API key
+git add data/news/sentiment_*.csv scan_results/confidence_*.csv >> logs\daily_task.log 2>&1
+git commit -m "data: daily sentiment/confidence sync" >> logs\daily_task.log 2>&1
+git pull --rebase origin main >> logs\daily_task.log 2>&1
+git push origin main >> logs\daily_task.log 2>&1
 exit /b 0

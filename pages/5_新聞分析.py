@@ -96,16 +96,28 @@ else:
                    f"日報潤稿 / 文章解讀 / 個股筆記 已可用（走本機 Claude 訂閱，免 API 付款）")
         has_key = True    # 讓下游功能視同可用
     else:
-        st.warning(
-            f"⚠️ 目前無可用 Claude 引擎（{es['detail']}）——相關功能為離線退化模式。\n\n"
-            "兩條升級路線擇一：\n"
-            "1. **本機免付款**：終端機執行 `claude` → 輸入 `/login` 登入你的 Claude 訂閱即可\n"
-            "2. **API 金鑰**（雲端也能用）：`config.json` 加 `\"anthropic_api_key\": \"sk-ant-...\"`，"
-            "或雲端 Secrets 設 `ANTHROPIC_API_KEY`"
-        )
-        if st.button("🔁 重新檢查引擎", key="engine_recheck"):
-            _engine.clear()
-            st.rerun()
+        def _is_cloud():
+            try:
+                from auto_refresh import _pack_mode
+                return _pack_mode()
+            except Exception:
+                return False
+        if _is_cloud():
+            st.info(
+                "☁️ **雲端顯示模式**：情緒與信心分數由**本機每天自動產生並同步**到這裡"
+                "（看下方各分頁的「最後計算」日期）——瀏覽不需要任何金鑰。\n\n"
+                "想在雲端「即時重算」才需要在 App Secrets 設 `ANTHROPIC_API_KEY`。"
+            )
+        else:
+            st.warning(
+                f"⚠️ 目前無可用 Claude 引擎（{es['detail']}）——相關功能為離線退化模式。\n\n"
+                "兩條升級路線擇一：\n"
+                "1. **本機免付款**：終端機執行 `claude` → 輸入 `/login` 登入你的 Claude 訂閱即可\n"
+                "2. **API 金鑰**：`config.json` 加 `\"anthropic_api_key\": \"sk-ant-...\"`"
+            )
+            if st.button("🔁 重新檢查引擎", key="engine_recheck"):
+                _engine.clear()
+                st.rerun()
 
 # 分頁
 tab1, tab2, tab3, tab4 = st.tabs(
