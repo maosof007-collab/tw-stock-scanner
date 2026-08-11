@@ -61,12 +61,13 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
     for f in files:
         code = os.path.basename(f).replace("_margin.csv", "")
         try:
-            mg = pd.read_csv(f, usecols=["date", "margin_balance"]).dropna()
+            mg = pd.read_csv(f, usecols=["date", "margin_balance", "short_balance"])
             if mg.empty:
                 continue
             mg["date"] = pd.to_datetime(mg["date"], errors="coerce")
             mg["margin_balance"] = pd.to_numeric(mg["margin_balance"], errors="coerce")
-            mg = mg.dropna()
+            mg["short_balance"] = pd.to_numeric(mg["short_balance"], errors="coerce").fillna(0)
+            mg = mg.dropna(subset=["date", "margin_balance"])
             mg = mg[mg["margin_balance"] > 0]
             if mg.empty:
                 continue
@@ -80,7 +81,7 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
                 continue
             m["numer"] = m["close"] * m["margin_balance"]
             m["cost"] = m["ma"] * m["margin_balance"]
-            parts.append(m[["date", "numer", "cost", "margin_balance"]])
+            parts.append(m[["date", "numer", "cost", "margin_balance", "short_balance"]])
         except Exception:
             pass
 
@@ -90,7 +91,8 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
     allm = pd.concat(parts, ignore_index=True)
     g = allm.groupby("date", as_index=False).sum()
     g["ratio"] = 100 * g["numer"] / (MARGIN_RATE * g["cost"])
-    s = g[["date", "ratio", "margin_balance"]].rename(columns={"margin_balance": "margin_lots"})
+    s = g[["date", "ratio", "margin_balance", "short_balance"]].rename(
+        columns={"margin_balance": "margin_lots", "short_balance": "short_lots"})
     s = s.sort_values("date").reset_index(drop=True)
 
     # 併大盤指數
@@ -169,6 +171,93 @@ def seasonal_window() -> dict | None:
         cur = ("⚪ 窗口外", "muted", "非七月前段／八月末段")
 
     return {"table": tbl, "stats": stats, "current": cur, "as_of": str(today.date())}
+
+
+def market_margin_table(days: int = 20) -> pd.DataFrame:
+    """大盤融資融券日表(最新在上):日期/加權指數/融資餘額/增減/維持率/融券餘額/增減。"""
+    s = build_market_margin_series(window_days=days + 5)
+    if s.empty:
+        return pd.DataFrame()
+    t = s.tail(days + 1).copy()
+    t["融資增減"] = t["margin_lots"].diff()
+    if "short_lots" in t.columns:
+        t["融券增減"] = t["short_lots"].diff()
+    t = t.tail(days)
+    out = pd.DataFrame({
+        "日期": pd.to_datetime(t["date"]).dt.strftime("%Y-%m-%d"),
+        "加權指數": t["twii"].round(0) if "twii" in t.columns else np.nan,
+        "融資餘額(張)": t["margin_lots"].round(0),
+        "融資增減": t["融資增減"].round(0),
+        "維持率(推估)%": t["ratio"].round(1),
+    })
+    if "short_lots" in t.columns:
+        out["融券餘額(張)"] = t["short_lots"].round(0)
+        out["融券增減"] = t["融券增減"].round(0)
+    return out.iloc[::-1].reset_index(drop=True)
+
+
+def market_margin_conclusion(tbl: pd.DataFrame) -> list[str]:
+    """大盤融資融券每日結論(白話,含台指期結算對應)。"""
+    if tbl.empty or len(tbl) < 6:
+        return ["資料不足,無法下結論。"]
+    t = tbl.iloc[::-1].reset_index(drop=True)          # 舊→新
+    out = []
+    mb = t["融資餘額(張)"].astype(float)
+    d5 = mb.iloc[-1] - mb.iloc[-6]
+    pct5 = d5 / max(mb.iloc[-6], 1) * 100
+    mr = float(t["維持率(推估)%"].iloc[-1])
+    # ① 融資
+    if pct5 < -3:
+        out.append(f"🔻 **全市場融資近5日大減 {d5:+,.0f} 張({pct5:+.1f}%)**——散戶槓桿快速退場:"
+                   "若指數同步止穩=籌碼沉澱、浮額清洗(偏正面);若指數續跌=多殺多退潮進行中。")
+    elif pct5 > 3:
+        out.append(f"🔺 **全市場融資近5日大增 {d5:+,.0f} 張({pct5:+.1f}%)**——散戶槓桿追價,"
+                   "行情火熱但籌碼轉浮動,拉回時融資多殺多會放大跌幅。")
+    else:
+        out.append(f"➖ 全市場融資近5日 {d5:+,.0f} 張({pct5:+.1f}%),槓桿變化平穩。")
+    # ② 維持率
+    if mr < 130:
+        out.append(f"🚨 **大盤維持率推估 {mr:.1f}%,跌破追繳線(130)**——全市場融資戶進入追繳/斷頭區,"
+                   "強制賣壓與跌深反彈會劇烈交錯,槓桿者先降倉。")
+    elif mr < 140:
+        out.append(f"⚠️ **大盤維持率推估 {mr:.1f}%(130~140 高壓區)**——距追繳線僅"
+                   f" {mr-130:.1f} 個百分點,指數再跌 {max((1-130/mr)*100,0):.0f}% 就見系統性斷頭潮,"
+                   "此區歷史上常出現急殺與 V 彈並存。")
+    elif mr < 150:
+        out.append(f"🟡 大盤維持率推估 {mr:.1f}%(警戒區)——融資普遍套牢,反彈到解套區賣壓重。")
+    elif mr >= 166:
+        out.append(f"🟢 大盤維持率推估 {mr:.1f}%(≥166 健康)——融資結構乾淨,槓桿風險低。")
+    else:
+        out.append(f"⚪ 大盤維持率推估 {mr:.1f}%,正常範圍。")
+    # ③ 融券
+    if "融券餘額(張)" in t.columns:
+        sb = t["融券餘額(張)"].astype(float)
+        d5s = sb.iloc[-1] - sb.iloc[-6]
+        px_up = float(t["加權指數"].iloc[-1]) > float(t["加權指數"].iloc[-6]) \
+            if "加權指數" in t.columns and pd.notna(t["加權指數"].iloc[-1]) else False
+        if d5s < 0 and px_up:
+            out.append(f"🧯 **全市場融券近5日回補 {d5s:+,.0f} 張且指數上漲=軋空行情**,"
+                       "空單燃料續燒前不宜逆勢摸頭。")
+        elif d5s < 0:
+            out.append(f"🧯 全市場融券近5日回補 {d5s:+,.0f} 張,空方退場。")
+        elif d5s > 0:
+            out.append(f"🩳 全市場融券近5日 +{d5s:,.0f} 張,空方布局增加"
+                       + ("(指數仍漲=空單持續累積軋空燃料)。" if px_up else "。"))
+    # ④ 期貨結算
+    try:
+        from analyst_report import next_futures_settlement
+        sdate, dleft = next_futures_settlement()
+        if dleft <= 2:
+            out.append(f"⏰ **台指期結算日 {sdate:%m/%d}(剩 {dleft} 天)**——結算前融券強制回補、"
+                       "期現套利平倉放大指數波動;結算日的融資融券變化屬技術性進出,隔日再解讀。")
+        elif dleft <= 7:
+            out.append(f"📅 進入台指期結算週(結算日 {sdate:%m/%d})——高融券+指數撐高檔=結算前軋空常見;"
+                       "高融資+指數轉弱=壓低結算風險,留意期現價差方向。")
+        else:
+            out.append(f"📅 下次台指期結算日 {sdate:%m/%d}(約 {dleft} 天後),非結算干擾期,籌碼可照常解讀。")
+    except Exception:
+        pass
+    return out
 
 
 def margin_status(ratio: float, warn: float = 150.0) -> tuple[str, str]:

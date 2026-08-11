@@ -7,6 +7,7 @@
 """
 import sys
 from pathlib import Path
+import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -23,7 +24,7 @@ page_header("總體環境觀測", "MACRO MONITOR", "🌐")
 
 import importlib
 import macro as _mc
-if not hasattr(_mc, "cache_is_stale"):
+if not hasattr(_mc, "market_margin_conclusion"):
     _mc = importlib.reload(_mc)
 build_market_margin_series = _mc.build_market_margin_series
 margin_status = _mc.margin_status
@@ -98,6 +99,28 @@ fig.update_xaxes(showgrid=True, gridcolor=THEME["grid"])
 fig.update_yaxes(title_text="融資維持率 %", gridcolor=THEME["grid"], secondary_y=False)
 fig.update_yaxes(title_text="加權指數", showgrid=False, secondary_y=True)
 st.plotly_chart(fig, width="stretch")
+
+# ═══════════════ 大盤融資融券日表 + 每日結論 ═══════════════
+st.markdown("### 🏦 大盤融資融券（每日結論）")
+_mmt = _mc.market_margin_table(days=20)
+if not _mmt.empty:
+    for line in _mc.market_margin_conclusion(_mmt):
+        st.markdown(f"- {line}")
+
+    def _c_chg2(v):
+        if isinstance(v, (int, float)) and not pd.isna(v):
+            return f"color:{'#FF4D6D' if v > 0 else ('#2BE4A8' if v < 0 else '#647B9C')}"
+        return ""
+    st.dataframe(
+        _mmt.style.map(_c_chg2, subset=[c for c in ["融資增減", "融券增減"] if c in _mmt.columns])
+            .format({"加權指數": "{:,.0f}", "融資餘額(張)": "{:,.0f}", "融資增減": "{:+,.0f}",
+                     "融券餘額(張)": "{:,.0f}", "融券增減": "{:+,.0f}",
+                     "維持率(推估)%": "{:.1f}"}, na_rep="—"),
+        width="stretch", hide_index=True, height=420)
+    st.caption("融資融券為 TWSE 盤後約 21:00 公布（白天顯示前一日屬正常）；"
+               "維持率為全市場加權推估。結算日=台指期每月第三個週三。")
+else:
+    st.caption("融資融券彙整資料不足。")
 
 st.caption(
     "💡 **怎麼看**：維持率**跌破警戒線並持續走低**＝市場槓桿壓力大、追繳賣壓升高（常見於下跌段）；"
