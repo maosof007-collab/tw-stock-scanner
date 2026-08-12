@@ -44,6 +44,32 @@ def _cat(a: dict) -> str:
     return "🔬 個股"
 
 
+# ── 月營收快評賞味期:同股只留最新一篇,且超過 7 天自動下架(檔案保留,僅不顯示) ──
+import re as _re
+from datetime import datetime as _dt
+
+def _flash_month(a: dict) -> str:
+    """從標題抽「幾月」營收(07/2026 或 7月),抽不到回空。"""
+    t = a.get("title", "")
+    m = _re.search(r"(\d{1,2})\s*/\s*20\d{2}", t) or _re.search(r"(\d{1,2})\s*月", t)
+    return f"{int(m.group(1))}月" if m else ""
+
+
+_show_old = st.toggle("顯示已下架的舊快評", value=False, key="lib_oldflash")
+if not _show_old:
+    _seen_flash, _vis = set(), []
+    for a in arts:                              # arts 新到舊
+        if a.get("mode") == "月營收快評":
+            try:
+                _age = (_dt.now() - _dt.strptime(a["date"][:10], "%Y-%m-%d")).days
+            except Exception:
+                _age = 0
+            if a["code"] in _seen_flash or _age >= 7:
+                continue
+            _seen_flash.add(a["code"])
+        _vis.append(a)
+    arts = _vis
+
 _cats = ["全部"]
 for a in arts:                                  # 依出現順序去重
     c = _cat(a)
@@ -108,7 +134,9 @@ with left:
                                 unsafe_allow_html=True)
                 for a in items:
                     cur = a["file"] == st.session_state["lib_file"]
-                    lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{a['mode']}"
+                    _md = (f"{_flash_month(a)}營收快評" if a.get("mode") == "月營收快評"
+                           and _flash_month(a) else a["mode"])
+                    lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{_md}"
                     if st.button(lbl, key=f"lib_{a['file']}",
                                  type="primary" if cur else "secondary",
                                  width="stretch"):
