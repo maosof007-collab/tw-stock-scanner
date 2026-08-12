@@ -78,6 +78,20 @@ def _stock_names() -> dict:
         return {}
 
 
+def _done_today(code: str, mode: str) -> bool:
+    """今天已產生過同股同模式的文章 → 跳過(批次被中斷後可無腦重跑續完)。"""
+    from analyst_report import ART_DIR
+    from twtime import now_tw
+    tag = now_tw().strftime("%Y%m%d")
+    for p in ART_DIR.glob(f"art_{tag}_*_{code}.md"):
+        try:
+            if f"mode: {mode}" in p.read_text(encoding="utf-8")[:300]:
+                return True
+        except Exception:
+            pass
+    return False
+
+
 def run_per_stock(gname: str) -> list[str]:
     """族群內每檔成分股:月營收快評 + 法人六層,各自發佈。"""
     from theme_groups import THEME_GROUPS
@@ -93,6 +107,9 @@ def run_per_stock(gname: str) -> list[str]:
         nm = names.get(c, "")
         for label, gen, mode in (("快評", ar.generate_flash_note, "月營收快評"),
                                  ("六層", ar.generate_report, "法人六層")):
+            if _done_today(c, mode):
+                print(f"[{gname}] {c} {nm} {label} 今日已有 ⏭")
+                continue
             print(f"[{gname}] {c} {nm} {label} 撰寫中…")
             try:
                 rpt = gen(c, extra=f"本篇為『{gname}』族群批次掃描的成分股報告。")
