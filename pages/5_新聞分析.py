@@ -153,6 +153,23 @@ with tab1:
             st.rerun()
 
     if not conf_df.empty:
+        # 補中文股名 + 同股去重(同檔可被多個策略選中,排行/散佈只留最高分那筆;明細表仍列全部)
+        try:
+            _sl = pd.read_csv(ROOT / "data" / "stock_list.csv",
+                              encoding="utf-8-sig", dtype=str)
+            _nm = dict(zip(_sl["ticker"], _sl["name"]))
+        except Exception:
+            _nm = {}
+        if "代碼" in conf_df.columns:
+            conf_df["名稱"] = conf_df["代碼"].map(_nm).fillna("")
+            conf_uni = (conf_df.sort_values("confidence", ascending=False)
+                        .drop_duplicates(subset=["代碼"]))
+        else:
+            conf_uni = conf_df
+
+        st.caption("📌 **這份名單怎麼來的**:母體=昨日全部策略掃描出的訊號股(非新聞挑的),"
+                   "每檔評分=技術面40%(訊號等級/RS/風險)+新聞情緒30%+法人報告30%;"
+                   "沒有相關新聞或報告時該層以中性50計,Top15=綜合分最高的15檔(同股多策略取最高分)。")
         # KPI
         st.markdown("---")
         strong = (conf_df["confidence"] >= 80).sum() if "confidence" in conf_df else 0
@@ -182,10 +199,11 @@ with tab1:
             col_chart, col_table = st.columns([1, 1])
 
             with col_chart:
-                # 橫條圖：前15名
-                top = conf_df.head(15).copy()
+                # 橫條圖：前15名(高分在上)
+                top = conf_uni.head(15).copy().iloc[::-1]
                 top["label"] = top.apply(
-                    lambda r: f"{r.get('代碼','')}\n{str(r.get('名稱',''))[:6]}",
+                    lambda r: f"{str(r.get('代碼','')).split('.')[0]} "
+                              f"{str(r.get('名稱',''))[:6]}",
                     axis=1,
                 )
                 bar_colors = [
@@ -218,15 +236,18 @@ with tab1:
 
             with col_table:
                 # 三維分數散佈
-                plot_df = conf_df[conf_df["confidence"] >= 50].head(30)
+                plot_df = conf_uni[conf_uni["confidence"] >= 50].head(30)
                 if not plot_df.empty and all(
                     c in plot_df for c in ["tech_score","news_score","report_score"]
                 ):
+                    _sc_txt = (plot_df.get("代碼", plot_df.index).astype(str)
+                               .str.split(".").str[0]
+                               + " " + plot_df.get("名稱", "").astype(str).str[:4])
                     fig2 = go.Figure(go.Scatter(
                         x=plot_df["tech_score"],
                         y=plot_df["news_score"],
                         mode="markers+text",
-                        text=plot_df.get("代碼", plot_df.index).astype(str),
+                        text=_sc_txt,
                         textposition="top center",
                         textfont=dict(size=10, color=TEXT),
                         marker=dict(
