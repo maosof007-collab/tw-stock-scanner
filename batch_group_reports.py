@@ -127,6 +127,15 @@ def run_per_stock(gname: str) -> list[str]:
 
 
 if __name__ == "__main__":
+    # 防重疊鎖:兩個批次同時跑會產生重複文章(_done_today 查的是「已存檔」,擋不住進行中的)
+    _lock = Path(__file__).parent / "data" / "_batch_reports.lock"
+    if _lock.exists() and (time.time() - _lock.stat().st_mtime) < 2 * 3600:
+        print("另一個批次正在進行(鎖未逾2小時),跳出。要強制跑請先刪 data/_batch_reports.lock")
+        sys.exit(0)
+    _lock.write_text(str(int(time.time())), encoding="utf-8")
+    import atexit
+    atexit.register(lambda: _lock.unlink(missing_ok=True))
+
     per_stock = "--per-stock" in sys.argv
     groups = [a for a in sys.argv[1:] if not a.startswith("--")] or DEFAULT_GROUPS
     for i, g in enumerate(groups):
