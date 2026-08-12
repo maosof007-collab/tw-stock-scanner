@@ -60,13 +60,27 @@ def run_group(gname: str) -> str:
     peers = [c for c in codes if c != leader]
     print(f"[{gname}] 主角 {leader}(市值最大),同業 {','.join(peers)} — 撰寫中…")
     extra = (f"本篇為『{gname}』族群批次掃描報告(主角=族群內市值最大者,同業=其餘成分股)。"
-             f"請以族群視角寫:比較成分股的營收動能與毛利結構差異,點出族群內最強/最弱者及原因。")
+             f"請以族群視角寫:比較成分股的營收動能與毛利結構差異,點出族群內最強/最弱者及原因。"
+             + _us_note(gname))
     rpt = generate_industry_report(leader, peers, extra=extra)
     if rpt.startswith("（"):
         return f"❌ {gname}:{rpt}"
     fn = save_article(leader, gname, "產業比較", rpt)
     msg = git_publish(fn)
     return f"✅ {gname}:{fn}|{msg}"
+
+
+def _us_note(gname: str) -> str:
+    """美股同業對照段(有定義的族群才有;CPO 跟 AXT/LITE/COHR 財報連動最強)。"""
+    try:
+        from us_peers import us_digest
+        d = us_digest(gname)
+        if d:
+            return ("\n【美股同業對照(yfinance,營收單位百萬美元)——請在報告中加一節"
+                    "『美股同業訊號』:用這些數字判斷產業景氣方向與台股族群的領先/落後】\n" + d)
+    except Exception:
+        pass
+    return ""
 
 
 def _stock_names() -> dict:
@@ -106,7 +120,7 @@ def run_per_stock(gname: str) -> list[str]:
             time.sleep(3)
         nm = names.get(c, "")
         peers = [x for x in codes if x != c]
-        extra = f"本篇為『{gname}』族群批次掃描的成分股報告。"
+        extra = f"本篇為『{gname}』族群批次掃描的成分股報告。" + _us_note(gname)
         gens = (("快評", lambda cc: ar.generate_flash_note(cc, extra=extra), "月營收快評"),
                 ("產比", lambda cc: ar.generate_industry_report(cc, peers, extra=extra), "產業比較"),
                 ("六層", lambda cc: ar.generate_report(cc, extra=extra), "法人六層"))
