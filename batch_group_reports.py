@@ -5,8 +5,9 @@ batch_group_reports.py — 族群批次產業報告(免逐檔 key 代碼)
 → 存研究文章庫 → git push 上雲(雲端「研究文章」頁可讀)。
 
 執行:
-  python batch_group_reports.py                  # 預設 光通訊CPO 封測 晶圓代工
-  python batch_group_reports.py 散熱 PCB 重電     # 任何 theme_groups.py 定義的族群
+  python batch_group_reports.py                       # 預設 光通訊CPO 封測 晶圓代工(族群比較報告)
+  python batch_group_reports.py 散熱 PCB 重電          # 任何 theme_groups.py 定義的族群
+  python batch_group_reports.py 光通訊CPO --per-stock  # 族群內每檔:月營收快評+法人六層
 """
 from __future__ import annotations
 import sys
@@ -68,9 +69,53 @@ def run_group(gname: str) -> str:
     return f"✅ {gname}:{fn}|{msg}"
 
 
+def _stock_names() -> dict:
+    try:
+        sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        return dict(zip(sl["code"], sl["name"]))
+    except Exception:
+        return {}
+
+
+def run_per_stock(gname: str) -> list[str]:
+    """族群內每檔成分股:月營收快評 + 法人六層,各自發佈。"""
+    from theme_groups import THEME_GROUPS
+    import analyst_report as ar
+    codes = THEME_GROUPS.get(gname)
+    if not codes:
+        return [f"❌ {gname}:theme_groups.py 沒有這個族群"]
+    names = _stock_names()
+    out = []
+    for i, c in enumerate(codes):
+        if i:
+            time.sleep(3)
+        nm = names.get(c, "")
+        for label, gen, mode in (("快評", ar.generate_flash_note, "月營收快評"),
+                                 ("六層", ar.generate_report, "法人六層")):
+            print(f"[{gname}] {c} {nm} {label} 撰寫中…")
+            try:
+                rpt = gen(c, extra=f"本篇為『{gname}』族群批次掃描的成分股報告。")
+            except Exception as e:
+                out.append(f"❌ {c} {nm} {label}:{type(e).__name__} {e}")
+                continue
+            if rpt.startswith("（"):
+                out.append(f"❌ {c} {nm} {label}:{rpt}")
+                continue
+            fn = ar.save_article(c, nm, mode, rpt)
+            msg = ar.git_publish(fn)
+            out.append(f"✅ {c} {nm} {label}:{fn}|{msg}")
+            print(out[-1])
+    return out
+
+
 if __name__ == "__main__":
-    groups = sys.argv[1:] or DEFAULT_GROUPS
+    per_stock = "--per-stock" in sys.argv
+    groups = [a for a in sys.argv[1:] if not a.startswith("--")] or DEFAULT_GROUPS
     for i, g in enumerate(groups):
         if i:
             time.sleep(3)                    # FinMind 限流禮貌間隔
-        print(run_group(g))
+        if per_stock:
+            print("\n".join(run_per_stock(g)))
+        else:
+            print(run_group(g))

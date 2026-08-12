@@ -70,14 +70,38 @@ left, right = st.columns([1.1, 3])
 
 with left:
     st.markdown("**文章列表**")
-    labels = [f"{a['date'][:10]}｜{a['code']} {a['name']}｜{a['mode']}" for a in arts]
-    pick = st.radio("選擇文章", labels, key="lib_pick", label_visibility="collapsed")
-    idx = labels.index(pick)
-    meta = arts[idx]
+    # 樹狀:第一層=對象(個股/族群/晨報),點開才看到它的每篇報告
+    tree: dict[str, list[dict]] = {}
+    for a in arts:
+        if a.get("mode") == "晨報":
+            node = "🌅 晨報"
+        elif a.get("name") in _tg:
+            node = f"🧩 {a['name']}"          # 族群報告:同族群歷次收同一節點
+        else:
+            node = f"🔬 {a['code']} {a['name']}"
+        tree.setdefault(node, []).append(a)
+
+    valid_files = {a["file"] for a in arts}
+    if st.session_state.get("lib_file") not in valid_files:
+        st.session_state["lib_file"] = arts[0]["file"]
+
+    for node, items in tree.items():
+        cur_in = any(a["file"] == st.session_state["lib_file"] for a in items)
+        with st.expander(f"{node}（{len(items)}）", expanded=cur_in or len(tree) <= 3):
+            for a in items:
+                cur = a["file"] == st.session_state["lib_file"]
+                lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{a['mode']}"
+                if st.button(lbl, key=f"lib_{a['file']}",
+                             type="primary" if cur else "secondary",
+                             width="stretch"):
+                    st.session_state["lib_file"] = a["file"]
+                    st.rerun()
+    meta = next(a for a in arts if a["file"] == st.session_state["lib_file"])
     st.caption(f"共 {len(arts)} 篇")
     if st.button("🗑 刪除這篇", key="lib_del"):
         try:
             (_ar.ART_DIR / meta["file"]).unlink()
+            st.session_state.pop("lib_file", None)
             st.rerun()
         except Exception:
             st.error("刪除失敗")
