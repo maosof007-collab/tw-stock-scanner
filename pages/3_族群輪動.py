@@ -124,6 +124,7 @@ def _inst_flow():
     rows = []
     for theme, codes in THEME_GROUPS.items():
         daily = {}
+        chgs = []                       # 成分股昨日漲跌%(等權,給背離備註用)
         for c in codes:
             p = D / "institutional" / f"{c}_inst.csv"
             if not p.exists():
@@ -149,6 +150,9 @@ def _inst_flow():
                         break
                 if px is None:
                     continue
+                _pc = px.dropna(subset=["close"])
+                if len(_pc) >= 2:
+                    chgs.append(float(_pc["close"].iloc[-1] / _pc["close"].iloc[-2] - 1) * 100)
                 mm = m.merge(px, on="date", how="inner")\
                       .dropna(subset=["net_sh", "close"])   # 只驗關鍵欄(舊欄位NaN勿誤殺)
                 mm["val"] = mm["net_sh"] * mm["close"] / 1e8      # 億元
@@ -164,7 +168,10 @@ def _inst_flow():
         t20 = float(s2.tail(20).abs().sum())
         rows.append({"族群": theme, "近5日買超(億)": round(f5, 1),
                      "前5日(億)": round(p5, 1), "加速度(億)": round(f5 - p5, 1),
-                     "近20日規模(億)": round(t20, 1)})
+                     "近20日規模(億)": round(t20, 1),
+                     "昨日買超(億)": round(float(s2.iloc[-1]), 1),
+                     "昨日均漲%": round(sum(chgs) / len(chgs), 2) if chgs else None,
+                     "資料日": str(s2.index[-1])[:10]})
     return _pd.DataFrame(rows)
 
 flow = _inst_flow()
@@ -212,6 +219,26 @@ if not flow.empty:
     st.caption("**跟上面 RRG 的差別**:RRG 看「價格相對強弱」,這張看「法人真金白銀搬去哪」——"
                "X=近5日外資+投信買超金額(億)、Y=加速度、泡泡大小=近20日進出規模。"
                "右上=漲潮最強;左下=退潮。兩張圖同向=可信度加倍;背離=價格與籌碼打架,小心。")
+
+    # ── 🔍 價格 × 法人背離備註(自動點名) ──
+    _dv = flow.dropna(subset=["昨日均漲%"])
+    _hot = _dv[(_dv["昨日均漲%"] >= 2) & (_dv["昨日買超(億)"] < 0)]
+    _dip = _dv[(_dv["昨日均漲%"] <= -2) & (_dv["昨日買超(億)"] > 0)]
+    if not _hot.empty or not _dip.empty:
+        st.markdown(f"#### 🔍 價格 × 法人背離備註（{_dv['資料日'].max()}）")
+        for _, r in _hot.sort_values("昨日均漲%", ascending=False).iterrows():
+            st.markdown(
+                f"- ⚠️ **{r['族群']}**:昨日成分股均漲 **{r['昨日均漲%']:+.1f}%**,"
+                f"法人卻賣超 **{r['昨日買超(億)']:+.1f} 億**——推升力道來自散戶/主力/隔日沖熱錢,"
+                f"法人趁強調節(漲停惜售時流動性最好,正是法人出貨窗口)。"
+                f"沒有法人接手的噴出,動能一斷回檔通常也快;之後幾天若法人翻買才算「真漲潮」,"
+                f"續賣則把它當一日行情看待。")
+        for _, r in _dip.sort_values("昨日均漲%").iterrows():
+            st.markdown(
+                f"- 🧲 **{r['族群']}**:昨日成分股均跌 **{r['昨日均漲%']:+.1f}%**,"
+                f"法人反而買超 **{r['昨日買超(億)']:+.1f} 億**——法人逢低承接,留意止跌轉強訊號。")
+        st.caption("口徑=外資+投信(不含自營商;漲停日常見的權證避險買盤屬自營,故法人賣超"
+                   "不代表「所有機構」都在賣)。背離不是必跌/必漲,是「價格與籌碼打架」的警示。")
     with st.expander("📋 明細表"):
         st.dataframe(flow.sort_values("近5日買超(億)", ascending=False),
                      width="stretch", hide_index=True)
