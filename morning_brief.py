@@ -250,8 +250,32 @@ def run(force: bool = False) -> str:
     from analyst_report import save_article, git_publish
     fname = save_article("MKT", "台股", "晨報", content)
     msg = git_publish(fname)
+    _log_mentions(content)
     print(f"[morning_brief] 完成:{fname}|{msg}")
     return fname
+
+
+def _log_mentions(content: str) -> None:
+    """記錄晨報點名的個股 → data/brief_mentions.csv(前瞻追蹤當沖/隔日表現用)。"""
+    try:
+        import re
+        sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        names = {str(r["name"]).strip(): str(r["code"]).strip()
+                 for _, r in sl.iterrows() if len(str(r["name"]).strip()) >= 2}
+        pat = re.compile("|".join(re.escape(n) for n in
+                                  sorted(names, key=len, reverse=True)))
+        hits = sorted({names[n] + "|" + n for n in set(pat.findall(content))})
+        if not hits:
+            return
+        p = Path(__file__).parent / "data" / "brief_mentions.csv"
+        rows = [f"{now_tw():%Y-%m-%d},{h.split('|')[0]},{h.split('|')[1]}" for h in hits]
+        header = "" if p.exists() else "date,code,name\n"
+        with open(p, "a", encoding="utf-8-sig") as f:
+            f.write(header + "\n".join(rows) + "\n")
+        print(f"[morning_brief] 記錄提及個股 {len(rows)} 檔 → brief_mentions.csv")
+    except Exception as e:
+        print(f"[morning_brief] 提及記錄失敗(不影響晨報):{type(e).__name__}")
 
 
 if __name__ == "__main__":
