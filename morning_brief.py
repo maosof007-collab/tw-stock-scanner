@@ -261,8 +261,12 @@ def _log_mentions(content: str) -> None:
         import re
         sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
                          encoding="utf-8-sig", dtype=str)
+        # 媒體品牌與同名股票撞名(東森新聞≠東森國際、工商時報≠時報文化)→ 這些股名不匹配
+        _MEDIA = {"東森", "時報", "中視", "三立", "聯合", "中央", "自由", "風傳媒", "力士"}
         names = {str(r["name"]).strip(): str(r["code"]).strip()
-                 for _, r in sl.iterrows() if len(str(r["name"]).strip()) >= 2}
+                 for _, r in sl.iterrows()
+                 if len(str(r["name"]).strip()) >= 2
+                 and str(r["name"]).strip() not in _MEDIA}
         pat = re.compile("|".join(re.escape(n) for n in
                                   sorted(names, key=len, reverse=True)))
         hits = sorted({names[n] + "|" + n for n in set(pat.findall(content))})
