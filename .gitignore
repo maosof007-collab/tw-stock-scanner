@@ -37,3 +37,4 @@ data/update_log.csv
 # benchmark_TWII.csv 改由每日更新/資料包提供——repo 版本會過期，
 # 雲端每次 code push 被 git 蓋回舊版（曾造成大盤停在 7/13），故移出 git
 data/benchmark_TWII.csv
+data/_batch_reports.lock
