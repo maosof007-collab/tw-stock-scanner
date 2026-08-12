@@ -24,6 +24,7 @@ if not hasattr(_ar, "list_articles"):
     _ar = importlib.reload(_ar)
 
 arts = _ar.list_articles()
+arts = [a for a in arts if a.get("mode") != "晨報"]   # 晨報屬每日時效品,在「今日總覽」首頁看
 if not arts:
     st.info("還沒有文章——到「🧾 個股法人報告」頁產生報告,會自動發佈到這裡。")
     st.stop()
@@ -37,8 +38,6 @@ except Exception:
 
 
 def _cat(a: dict) -> str:
-    if a.get("mode") == "晨報":
-        return "🌅 晨報"
     if a.get("name") in _tg:
         return f"🧩 {a['name']}"
     return "🔬 個股"
@@ -108,9 +107,7 @@ with left:
 
     tree: dict[str, dict[str, list[dict]]] = {}
     for a in arts:
-        if a.get("mode") == "晨報":
-            node, sub = "🌅 晨報", ""
-        elif a.get("name") in _tg:
+        if a.get("name") in _tg:
             node, sub = f"🧩 {a['name']}", "📊 族群總覽"
         elif a.get("code") in code2grp:
             node, sub = f"🧩 {code2grp[a['code']]}", f"{a['code']} {a['name']}"
