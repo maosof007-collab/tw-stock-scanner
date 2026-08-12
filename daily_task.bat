@@ -16,7 +16,9 @@ G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log
 G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
 rem sync locally-generated Claude artifacts (sentiment/confidence) to git so
 rem the cloud app can display them without any API key
-git add data/news/sentiment_*.csv scan_results/confidence_*.csv >> logs\daily_task.log 2>&1
+rem directory-level add: gitignore keeps only sentiment_*/confidence_* csv;
+rem glob pathspec would go fatal when no file exists yet and abort the whole add
+git add -A data/news scan_results >> logs\daily_task.log 2>&1
 git commit -m "data: daily sentiment/confidence sync" >> logs\daily_task.log 2>&1
 git pull --rebase origin main >> logs\daily_task.log 2>&1
 git push origin main >> logs\daily_task.log 2>&1
