@@ -70,32 +70,50 @@ left, right = st.columns([1.1, 3])
 
 with left:
     st.markdown("**文章列表**")
-    # 樹狀:第一層=對象(個股/族群/晨報),點開才看到它的每篇報告
-    tree: dict[str, list[dict]] = {}
+    # 三層樹:族群 → 成分股 → 文章(晨報/非族群個股各自成節點)
+    code2grp = {}
+    try:
+        from theme_groups import THEME_GROUPS as _TGM
+        for g, cs in _TGM.items():
+            for c in cs:
+                code2grp.setdefault(c, g)     # 一檔多族群時取第一個
+    except Exception:
+        pass
+
+    tree: dict[str, dict[str, list[dict]]] = {}
     for a in arts:
         if a.get("mode") == "晨報":
-            node = "🌅 晨報"
+            node, sub = "🌅 晨報", ""
         elif a.get("name") in _tg:
-            node = f"🧩 {a['name']}"          # 族群報告:同族群歷次收同一節點
+            node, sub = f"🧩 {a['name']}", "📊 族群總覽"
+        elif a.get("code") in code2grp:
+            node, sub = f"🧩 {code2grp[a['code']]}", f"{a['code']} {a['name']}"
         else:
-            node = f"🔬 {a['code']} {a['name']}"
-        tree.setdefault(node, []).append(a)
+            node, sub = "🔬 其他個股", f"{a['code']} {a['name']}"
+        tree.setdefault(node, {}).setdefault(sub, []).append(a)
 
     valid_files = {a["file"] for a in arts}
     if st.session_state.get("lib_file") not in valid_files:
         st.session_state["lib_file"] = arts[0]["file"]
 
-    for node, items in tree.items():
-        cur_in = any(a["file"] == st.session_state["lib_file"] for a in items)
-        with st.expander(f"{node}（{len(items)}）", expanded=cur_in or len(tree) <= 3):
-            for a in items:
-                cur = a["file"] == st.session_state["lib_file"]
-                lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{a['mode']}"
-                if st.button(lbl, key=f"lib_{a['file']}",
-                             type="primary" if cur else "secondary",
-                             width="stretch"):
-                    st.session_state["lib_file"] = a["file"]
-                    st.rerun()
+    for node, subs in tree.items():
+        n_arts = sum(len(v) for v in subs.values())
+        cur_in = any(a["file"] == st.session_state["lib_file"]
+                     for v in subs.values() for a in v)
+        with st.expander(f"{node}（{n_arts}）", expanded=cur_in or len(tree) <= 2):
+            for sub, items in subs.items():
+                if sub:
+                    st.markdown(f"<div style='color:#8b949e;font-size:12px;"
+                                f"margin:6px 0 2px 2px'>▾ {sub}</div>",
+                                unsafe_allow_html=True)
+                for a in items:
+                    cur = a["file"] == st.session_state["lib_file"]
+                    lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{a['mode']}"
+                    if st.button(lbl, key=f"lib_{a['file']}",
+                                 type="primary" if cur else "secondary",
+                                 width="stretch"):
+                        st.session_state["lib_file"] = a["file"]
+                        st.rerun()
     meta = next(a for a in arts if a["file"] == st.session_state["lib_file"])
     st.caption(f"共 {len(arts)} 篇")
     if st.button("🗑 刪除這篇", key="lib_del"):
