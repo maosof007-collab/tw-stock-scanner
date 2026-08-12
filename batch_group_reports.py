@@ -105,14 +105,18 @@ def run_per_stock(gname: str) -> list[str]:
         if i:
             time.sleep(3)
         nm = names.get(c, "")
-        for label, gen, mode in (("快評", ar.generate_flash_note, "月營收快評"),
-                                 ("六層", ar.generate_report, "法人六層")):
+        peers = [x for x in codes if x != c]
+        extra = f"本篇為『{gname}』族群批次掃描的成分股報告。"
+        gens = (("快評", lambda cc: ar.generate_flash_note(cc, extra=extra), "月營收快評"),
+                ("產比", lambda cc: ar.generate_industry_report(cc, peers, extra=extra), "產業比較"),
+                ("六層", lambda cc: ar.generate_report(cc, extra=extra), "法人六層"))
+        for label, gen, mode in gens:
             if _done_today(c, mode):
                 print(f"[{gname}] {c} {nm} {label} 今日已有 ⏭")
                 continue
             print(f"[{gname}] {c} {nm} {label} 撰寫中…")
             try:
-                rpt = gen(c, extra=f"本篇為『{gname}』族群批次掃描的成分股報告。")
+                rpt = gen(c)
             except Exception as e:
                 out.append(f"❌ {c} {nm} {label}:{type(e).__name__} {e}")
                 continue
