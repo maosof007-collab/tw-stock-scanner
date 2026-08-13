@@ -260,15 +260,27 @@ if not flow.empty:
         _flagged = list(_hot["族群"]) + list(_dip["族群"])
         if _flagged and not flow_detail.empty:
             with st.expander("🔬 背離族群逐檔明細(誰被翻買、誰是純散戶動能)", expanded=False):
+                # 隔日沖熱區:該股歷史上外資大買後隔日倒貨(賣回≥50%)的比率
+                _dump = {}
+                try:
+                    _dr = pd.read_csv(Path(__file__).parent.parent / "data" / "inst_dump_rate.csv",
+                                      encoding="utf-8-sig", dtype={"code": str})
+                    _dump = dict(zip(_dr["code"], _dr["dump_rate"]))
+                except Exception:
+                    pass
                 for g in _flagged:
                     sub = flow_detail[flow_detail["族群"] == g].copy()
                     if sub.empty:
                         continue
+                    sub["倒貨率%"] = sub["代碼"].map(_dump)
 
                     def _judge(r):
                         chg = r["昨日漲跌%"] or 0
                         net = r["昨日法人(張)"] or 0
+                        dr = r.get("倒貨率%")
                         if chg >= 4 and net > 0:
+                            if dr is not None and dr >= 40:
+                                return "🟡 價漲+法人買,但此股是隔日沖熱區——等明天續買才信"
                             return "✅ 價漲+法人買(背離解除,可信升級)"
                         if chg >= 4 and net < 0:
                             return "⚠️ 價漲但法人賣(散戶/隔日沖動能)"
@@ -277,9 +289,13 @@ if not flow.empty:
                         return "—"
                     sub["判讀"] = sub.apply(_judge, axis=1)
                     st.markdown(f"**{g}**")
-                    st.dataframe(sub[["代碼", "名稱", "昨日漲跌%", "昨日法人(張)", "判讀"]]
+                    st.dataframe(sub[["代碼", "名稱", "昨日漲跌%", "昨日法人(張)",
+                                      "倒貨率%", "判讀"]]
                                  .sort_values("昨日漲跌%", ascending=False),
                                  width="stretch", hide_index=True)
+                st.caption("「倒貨率」=2024/08 起該股外資大買(≥500張且≥當日量5%)後,"
+                           "隔日賣回一半以上的比率;全市場中位 22%,≥40% 即隔日沖熱區(70檔)。"
+                           "熱區股的外資買超要打折看,等隔日續買確認。")
     with st.expander("📋 明細表"):
         st.dataframe(flow.sort_values("近5日買超(億)", ascending=False),
                      width="stretch", hide_index=True)
