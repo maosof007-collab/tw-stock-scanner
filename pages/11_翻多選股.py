@@ -47,6 +47,27 @@ min_vol  = c[6].selectbox("最低20日均量", [0, 100, 300, 500, 1000, 2000], i
 
 st.caption("翻多＝SuperTrend 由空翻多（趨勢反轉向上）。延續機率＝歷史多頭段中長度≥M 的比率，越高越少假訊號。")
 
+@st.cache_data(ttl=1800, show_spinner=False)
+def _strategy_pick_map():
+    """歷史掃描檔(signals_*.csv)彙整:code → 策略第一次/最近選到(BUY級)與次數。"""
+    import glob, os
+    import pandas as pd
+    m = {}
+    for f in sorted(glob.glob(str(Path(__file__).parent.parent / "scan_results" / "signals_*.csv"))):
+        d = os.path.basename(f)[8:16]
+        d_fmt = f"{d[:4]}-{d[4:6]}-{d[6:]}"
+        try:
+            s = pd.read_csv(f, encoding="utf-8-sig", usecols=["代碼", "訊號等級"])
+        except Exception:
+            continue
+        s = s[s["訊號等級"].astype(str).str.startswith("BUY")]
+        for c in s["代碼"].astype(str):
+            e = m.setdefault(c.split(".")[0], {"first": d_fmt, "n": 0, "last": d_fmt})
+            e["n"] += 1
+            e["last"] = d_fmt
+    return m
+
+
 if st.button("🚀 掃描全市場翻多", type="primary", width="stretch"):
     st.session_state.run_flip_scan = True
 
@@ -61,6 +82,14 @@ if st.session_state.get("run_flip_scan"):
         if min_vol > 0 and "20日均量(張)" in df.columns:
             df = df[df["20日均量(張)"].fillna(0) >= min_vol].reset_index(drop=True)
         cut = f"(流動性濾掉 {n_all - len(df)} 檔)" if n_all != len(df) else ""
+        # 對照自家策略掃描史:翻多日是技術指標翻轉日,「策略首選日」才是系統第一次選到它
+        pm = _strategy_pick_map()
+        df["策略首選日"] = df["代碼"].astype(str).map(lambda c: pm.get(c, {}).get("first", ""))
+        df["策略入選次數"] = df["代碼"].astype(str).map(lambda c: pm.get(c, {}).get("n", 0))
+        df["策略最近入選"] = df["代碼"].astype(str).map(lambda c: pm.get(c, {}).get("last", ""))
+        _order = [c for c in ["代碼", "名稱", "翻多日", "策略首選日", "策略入選次數",
+                              "策略最近入選"] if c in df.columns]
+        df = df[_order + [c for c in df.columns if c not in _order]]
         st.success(f"共 {len(df)} 檔翻多（按支撐延續機率排序）{cut}")
         st.dataframe(
             df, width="stretch", hide_index=True, height=620,
@@ -80,7 +109,11 @@ if st.session_state.get("run_flip_scan"):
         st.caption("💡 排序靠前＝歷史上這種多頭較容易延續。「距支撐%」小＝離停損(支撐)近、風險小。"
                    "「已延續」小＝剛翻多不久，追進較不追高。"
                    "「量比」>1＝翻多當下有量進來(放量翻多可信度較高);"
-                   "「日均值」太小(<數十百萬)滑價會吃掉利潤,買賣都難。")
+                   "「日均值」太小(<數十百萬)滑價會吃掉利潤,買賣都難。"
+                   "「翻多日」只是 SuperTrend 技術翻轉日;「策略首選日」是本系統策略掃描"
+                   "(今日選股 BUY 級,2026-06 起有檔案)第一次選到它的日子——首選日很早+入選多次"
+                   "＝多頭排列已久且策略反覆確認;空白＝策略從沒選過,純技術翻多要多留心。"
+                   "細節到「訊號回查」頁 key 代碼看每一次紀錄。")
 else:
     st.info("設定參數後，點上方「🚀 掃描全市場翻多」。全市場約 1969 檔，首次約 30-60 秒，"
             "同參數 30 分內秒開。")
