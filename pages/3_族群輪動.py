@@ -121,7 +121,13 @@ def _inst_flow():
     import pandas as _pd
     from pathlib import Path as _P
     D = _P(__file__).parent.parent / "data"
+    try:
+        _sl = _pd.read_csv(D / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        _nmap = dict(zip(_sl["code"], _sl["name"]))
+    except Exception:
+        _nmap = {}
     rows = []
+    detail = []                         # 逐檔:族群/代碼/昨日漲跌/昨日法人(背離下鑽用)
     for theme, codes in THEME_GROUPS.items():
         daily = {}
         chgs = []                       # 成分股昨日漲跌%(等權,給背離備註用)
@@ -151,8 +157,15 @@ def _inst_flow():
                 if px is None:
                     continue
                 _pc = px.dropna(subset=["close"])
+                _chg = None
                 if len(_pc) >= 2:
-                    chgs.append(float(_pc["close"].iloc[-1] / _pc["close"].iloc[-2] - 1) * 100)
+                    _chg = float(_pc["close"].iloc[-1] / _pc["close"].iloc[-2] - 1) * 100
+                    chgs.append(_chg)
+                _net_last = m.dropna(subset=["net_sh"]).tail(1)
+                detail.append({"族群": theme, "代碼": c, "名稱": _nmap.get(c, ""),
+                               "昨日漲跌%": round(_chg, 2) if _chg is not None else None,
+                               "昨日法人(張)": round(float(_net_last["net_sh"].iloc[0]) / 1000)
+                               if len(_net_last) else None})
                 mm = m.merge(px, on="date", how="inner")\
                       .dropna(subset=["net_sh", "close"])   # 只驗關鍵欄(舊欄位NaN勿誤殺)
                 mm["val"] = mm["net_sh"] * mm["close"] / 1e8      # 億元
@@ -172,9 +185,9 @@ def _inst_flow():
                      "昨日買超(億)": round(float(s2.iloc[-1]), 1),
                      "昨日均漲%": round(sum(chgs) / len(chgs), 2) if chgs else None,
                      "資料日": str(s2.index[-1])[:10]})
-    return _pd.DataFrame(rows)
+    return _pd.DataFrame(rows), _pd.DataFrame(detail)
 
-flow = _inst_flow()
+flow, flow_detail = _inst_flow()
 if not flow.empty:
     # 資料截至日常駐顯示(不用等背離備註才看得到);法人數據 ~16:00 公布
     _asof = flow["資料日"].max() if "資料日" in flow.columns else "?"
@@ -242,6 +255,31 @@ if not flow.empty:
                 f"法人反而買超 **{r['昨日買超(億)']:+.1f} 億**——法人逢低承接,留意止跌轉強訊號。")
         st.caption("口徑=外資+投信(不含自營商;漲停日常見的權證避險買盤屬自營,故法人賣超"
                    "不代表「所有機構」都在賣)。背離不是必跌/必漲,是「價格與籌碼打架」的警示。")
+
+        # 下鑽:族群合計會蓋掉個股差異(龍頭被翻買 vs 小型股純散戶動能,天差地遠)
+        _flagged = list(_hot["族群"]) + list(_dip["族群"])
+        if _flagged and not flow_detail.empty:
+            with st.expander("🔬 背離族群逐檔明細(誰被翻買、誰是純散戶動能)", expanded=False):
+                for g in _flagged:
+                    sub = flow_detail[flow_detail["族群"] == g].copy()
+                    if sub.empty:
+                        continue
+
+                    def _judge(r):
+                        chg = r["昨日漲跌%"] or 0
+                        net = r["昨日法人(張)"] or 0
+                        if chg >= 4 and net > 0:
+                            return "✅ 價漲+法人買(背離解除,可信升級)"
+                        if chg >= 4 and net < 0:
+                            return "⚠️ 價漲但法人賣(散戶/隔日沖動能)"
+                        if chg <= -2 and net > 0:
+                            return "🧲 價跌法人接"
+                        return "—"
+                    sub["判讀"] = sub.apply(_judge, axis=1)
+                    st.markdown(f"**{g}**")
+                    st.dataframe(sub[["代碼", "名稱", "昨日漲跌%", "昨日法人(張)", "判讀"]]
+                                 .sort_values("昨日漲跌%", ascending=False),
+                                 width="stretch", hide_index=True)
     with st.expander("📋 明細表"):
         st.dataframe(flow.sort_values("近5日買超(億)", ascending=False),
                      width="stretch", hide_index=True)
