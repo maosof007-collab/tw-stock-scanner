@@ -22,7 +22,7 @@ page_header("SUPER TREND 翻多選股", "BULL FLIP SCANNER", "🚀")
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
-def _scan(period, mult, cont_window, lookback_years, flip_within):
+def _scan(period, mult, cont_window, lookback_years, flip_within, ver=2):   # ver:欄位改版時+1 破舊快取(底線開頭會被cache忽略,不能用)
     from chip_chart import scan_supertrend_flips
     bar = st.progress(0.0, text="掃描全市場中…")
     def cb(k, tot):
@@ -34,7 +34,7 @@ def _scan(period, mult, cont_window, lookback_years, flip_within):
 
 
 # ── 參數（與籌碼頁 SUPER TREND 相同）──
-c = st.columns([1, 1, 1, 1, 1.2, 1.4])
+c = st.columns([1, 1, 1, 1, 1.2, 1.4, 1.4])
 period = c[0].selectbox("ATR 期間", [10, 14, 20], index=0)
 mult   = c[1].selectbox("ATR 乘數", [4.0, 3.0, 2.0, 1.5], index=0)
 years  = c[2].selectbox("統計年數 N", [10, 5, 3, 1], index=0, format_func=lambda y: f"{y} 年")
@@ -42,6 +42,8 @@ win    = c[3].selectbox("統計窗口 M", [20, 5, 10, 60], index=0, format_func=
 within = c[4].selectbox("翻多範圍", [1, 3, 5, 10], index=2,
                         format_func=lambda d: "今日剛翻多" if d == 1 else f"近 {d} 日翻多")
 min_cont = c[5].slider("最低支撐延續機率%", 0, 100, 0, 5)
+min_vol  = c[6].selectbox("最低20日均量", [0, 100, 300, 500, 1000, 2000], index=3,
+                          format_func=lambda v: "不限" if v == 0 else f"{v:,} 張")
 
 st.caption("翻多＝SuperTrend 由空翻多（趨勢反轉向上）。延續機率＝歷史多頭段中長度≥M 的比率，越高越少假訊號。")
 
@@ -55,20 +57,30 @@ if st.session_state.get("run_flip_scan"):
     else:
         if min_cont > 0 and "支撐延續機率%" in df.columns:
             df = df[df["支撐延續機率%"].fillna(0) >= min_cont].reset_index(drop=True)
-        st.success(f"共 {len(df)} 檔翻多（按支撐延續機率排序）")
+        n_all = len(df)
+        if min_vol > 0 and "20日均量(張)" in df.columns:
+            df = df[df["20日均量(張)"].fillna(0) >= min_vol].reset_index(drop=True)
+        cut = f"(流動性濾掉 {n_all - len(df)} 檔)" if n_all != len(df) else ""
+        st.success(f"共 {len(df)} 檔翻多（按支撐延續機率排序）{cut}")
         st.dataframe(
             df, width="stretch", hide_index=True, height=620,
             column_config={
                 "收盤": st.column_config.NumberColumn(format="%.2f"),
                 "支撐": st.column_config.NumberColumn(format="%.2f"),
                 "距支撐%": st.column_config.NumberColumn(format="%.2f%%"),
+                "昨日量(張)": st.column_config.NumberColumn(format="%,d"),
+                "20日均量(張)": st.column_config.NumberColumn(format="%,d"),
+                "日均值(百萬)": st.column_config.NumberColumn(format="%,.0f"),
+                "量比": st.column_config.NumberColumn(format="%.2f"),
                 "支撐延續機率%": st.column_config.ProgressColumn(
                     "支撐延續機率%", min_value=0, max_value=100, format="%.0f%%"),
             })
         st.download_button("⬇️ 下載 CSV", df.to_csv(index=False, encoding="utf-8-sig"),
                            file_name="supertrend_bull_flip.csv", mime="text/csv")
         st.caption("💡 排序靠前＝歷史上這種多頭較容易延續。「距支撐%」小＝離停損(支撐)近、風險小。"
-                   "「已延續」小＝剛翻多不久，追進較不追高。")
+                   "「已延續」小＝剛翻多不久，追進較不追高。"
+                   "「量比」>1＝翻多當下有量進來(放量翻多可信度較高);"
+                   "「日均值」太小(<數十百萬)滑價會吃掉利潤,買賣都難。")
 else:
     st.info("設定參數後，點上方「🚀 掃描全市場翻多」。全市場約 1969 檔，首次約 30-60 秒，"
             "同參數 30 分內秒開。")

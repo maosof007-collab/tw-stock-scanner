@@ -241,11 +241,24 @@ def scan_supertrend_flips(period: int = 10, mult: float = 4.0, cont_window: int 
         vdates = ohlc["date"].values[valid]
         close = float(ohlc["close"].iloc[-1])
         support = float(l_all[-1])
+        # 流動性:昨日量/20日均量(張)與日均成交值——沒量的翻多做不了
+        v_lots = a_lots = turn_m = vol_ratio = None
+        if "volume" in ohlc.columns:
+            v = ohlc["volume"].dropna()
+            if len(v):
+                v_lots = float(v.iloc[-1]) / 1000
+                a_lots = float(v.tail(20).mean()) / 1000
+                turn_m = a_lots * 1000 * close / 1e6
+                vol_ratio = v_lots / a_lots if a_lots else None
         rows.append({
             "代碼": code, "名稱": dp.stock_name(code),
             "翻多日": str(pd.to_datetime(vdates[flip_i]).date()),
             "收盤": round(close, 2), "支撐": round(support, 2),
             "距支撐%": round((close - support) / close * 100, 2) if close else None,
+            "昨日量(張)": round(v_lots) if v_lots is not None else None,
+            "20日均量(張)": round(a_lots) if a_lots is not None else None,
+            "日均值(百萬)": round(turn_m, 1) if turn_m is not None else None,
+            "量比": round(vol_ratio, 2) if vol_ratio is not None else None,
             "多頭平均長度": round(s["bull_avg"]) if s["bull_avg"] else None,
             "支撐延續機率%": round(s["bull_cont"], 1) if s["bull_cont"] is not None else None,
             "已延續": s["current_len"],
