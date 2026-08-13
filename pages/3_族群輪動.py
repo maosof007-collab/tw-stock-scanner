@@ -176,6 +176,9 @@ def _inst_flow():
 
 flow = _inst_flow()
 if not flow.empty:
+    # 資料截至日常駐顯示(不用等背離備註才看得到);法人數據 ~16:00 公布
+    _asof = flow["資料日"].max() if "資料日" in flow.columns else "?"
+    st.caption(f"🕐 **資料截至 {_asof}**(外資+投信買賣超,約每日16:00後更新;快取30分鐘)")
     def _state(r):
         if r["近5日買超(億)"] > 0:
             return "🌊 漲潮(加速流入)" if r["加速度(億)"] >= 0 else "🔁 輪動(流入放緩)"
