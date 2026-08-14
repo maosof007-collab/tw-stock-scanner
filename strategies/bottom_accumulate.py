@@ -55,6 +55,16 @@ class BottomAccumulateStrategy(BaseStrategy):
                 "type": "float", "default": 1.5, "min": 1.0, "max": 3.0, "step": 0.25,
                 "label": "初始停損（ATR 倍數）",
             },
+            "entry_mode": {
+                "type": "select", "default": "突破打底區上緣才進(確認)",
+                "options": ["突破打底區上緣才進(確認)", "平盤區直接進(早鳥)"],
+                "label": "進場模式(回測:平盤直接進EV+0.22%/突破確認+0.54%)",
+            },
+            "market_filter": {
+                "type": "select", "default": "大盤站上季線才進場",
+                "options": ["大盤站上季線才進場", "停用（不看大盤）"],
+                "label": "大盤過濾(回測:季線上EV+0.89%/季線下-1.10%——熊市腰斬股會繼續腰斬)",
+            },
         }
 
     def get_audit_config(self) -> dict:
@@ -104,7 +114,16 @@ class BottomAccumulateStrategy(BaseStrategy):
         cond_liq = v.rolling(20).mean() >= 500_000
 
         all_cond = (cond_halved & cond_base & cond_acc & cond_liq).fillna(False)
-        buy = all_cond & ~all_cond.shift(1).fillna(False)      # 邊緣觸發
+        if str(params.get("market_filter", "大盤站上季線才進場")).startswith("大盤"):
+            all_cond = all_cond & self._market_above_ma60(df)
+        entry_mode = params.get("entry_mode", "突破打底區上緣才進(確認)")
+        if entry_mode.startswith("突破"):
+            # 打底(含外資回補)狀態近5日內成立過 + 今日收盤突破打底區上緣 = 打底成功確認
+            setup_recent = all_cond.shift(1).rolling(5).max().fillna(0) > 0
+            buy = setup_recent & (c > roll_max.shift(1))
+            buy = buy & ~buy.shift(1).fillna(False)
+        else:
+            buy = all_cond & ~all_cond.shift(1).fillna(False)  # 平盤區直接進(邊緣觸發)
 
         df.loc[buy, "signal"] = "buy"
         df.loc[buy, "stop_loss"] = (c - atr * atr_stop)[buy]
@@ -121,6 +140,20 @@ class BottomAccumulateStrategy(BaseStrategy):
         return df
 
     # ════════════════════════════════════
+    def _market_above_ma60(self, df: pd.DataFrame) -> pd.Series:
+        p = Path("data/benchmark_TWII.csv")
+        if not p.exists():
+            return pd.Series(True, index=df.index)
+        try:
+            bm = pd.read_csv(p, index_col=0, parse_dates=True)
+            idx = pd.to_datetime(bm.index)
+            bm.index = idx.tz_convert(None) if idx.tz is not None else idx
+            bc = pd.to_numeric(bm.iloc[:, 0], errors="coerce")
+            above = bc > bc.rolling(60).mean()
+            return above.reindex(df.index, method="ffill").fillna(True).astype(bool)
+        except Exception:
+            return pd.Series(True, index=df.index)
+
     def _attach_fi(self, df: pd.DataFrame) -> pd.DataFrame:
         """外資買賣超(張);過期>7天=無資料,不 ffill(同 fi_follow 保險絲)。"""
         ticker = (df.attrs.get("ticker", "") or
