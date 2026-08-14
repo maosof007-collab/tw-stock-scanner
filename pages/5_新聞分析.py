@@ -163,19 +163,27 @@ with tab1:
         if "代碼" in conf_df.columns:
             conf_df["名稱"] = conf_df["代碼"].map(_nm).fillna("")
             conf_uni = (conf_df.sort_values("confidence", ascending=False)
-                        .drop_duplicates(subset=["代碼"]))
+                        .drop_duplicates(subset=["代碼"]).copy())
+            # 一檔一列:同股被多策略選中 → 合併成「入選策略」欄,分數取最高
+            if "策略" in conf_df.columns:
+                _ag = (conf_df.groupby("代碼")["策略"].agg(
+                    lambda s: "、".join(dict.fromkeys(s.astype(str)))))
+                _cnt = conf_df.groupby("代碼")["策略"].nunique()
+                conf_uni["入選策略"] = conf_uni["代碼"].map(_ag)
+                conf_uni["策略數"] = conf_uni["代碼"].map(_cnt)
         else:
             conf_uni = conf_df
 
         st.caption("📌 **這份名單怎麼來的**:母體=昨日全部策略掃描出的訊號股(非新聞挑的),"
                    "每檔評分=技術面40%(訊號等級/RS/風險)+新聞情緒30%+法人報告30%;"
-                   "沒有相關新聞或報告時該層以中性50計,Top15=綜合分最高的15檔(同股多策略取最高分)。")
-        # KPI
+                   "沒有相關新聞或報告時該層以中性50計。同股被多策略選中只列一次"
+                   "(分數取最高,「入選策略」欄看全部);策略數≥2=多策略共振,可信度加分。")
+        # KPI(檔數口徑,不重複計)
         st.markdown("---")
-        strong = (conf_df["confidence"] >= 80).sum() if "confidence" in conf_df else 0
-        bullish = (conf_df["confidence"] >= 65).sum() if "confidence" in conf_df else 0
-        watch = (conf_df["confidence"].between(50, 65)).sum() if "confidence" in conf_df else 0
-        avg_conf = conf_df["confidence"].mean() if "confidence" in conf_df else 0
+        strong = (conf_uni["confidence"] >= 80).sum() if "confidence" in conf_uni else 0
+        bullish = (conf_uni["confidence"] >= 65).sum() if "confidence" in conf_uni else 0
+        watch = (conf_uni["confidence"].between(50, 65)).sum() if "confidence" in conf_uni else 0
+        avg_conf = conf_uni["confidence"].mean() if "confidence" in conf_uni else 0
 
         k1, k2, k3, k4 = st.columns(4)
         for col, label, val, cls in [
@@ -276,13 +284,13 @@ with tab1:
                     )
                     st.plotly_chart(fig2, width="stretch")
 
-        # 明細表
+        # 明細表(一檔一列;要看每個策略的個別紀錄到「訊號回查」頁)
         st.markdown("---")
-        st.markdown("### 📋 信心分數明細")
+        st.markdown("### 📋 信心分數明細(一檔一列)")
         show_cols = [c for c in [
-            "代碼","名稱","產業","訊號等級","進場時機","收盤","停損",
+            "代碼","名稱","入選策略","策略數","訊號等級","進場時機","收盤","停損",
             "confidence","signal_type","tech_score","news_score","report_score"
-        ] if c in conf_df.columns]
+        ] if c in conf_uni.columns]
 
         def color_conf(val):
             if isinstance(val, float):
@@ -293,7 +301,7 @@ with tab1:
             return ""
 
         st.dataframe(
-            conf_df[show_cols].style
+            conf_uni[show_cols].style
                 .map(color_conf, subset=["confidence"] if "confidence" in show_cols else [])
                 .format({
                     "收盤":"{:.1f}","停損":"{:.1f}",
