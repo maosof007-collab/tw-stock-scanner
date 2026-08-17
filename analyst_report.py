@@ -464,6 +464,43 @@ def build_digest(code: str, extra: str = "") -> dict:
 # 研究文章庫(生成的報告存檔,像網站一樣瀏覽)
 # ────────────────────────────────────────
 ART_DIR = __import__("pathlib").Path(__file__).parent / "data" / "research_articles"
+CONF_PATH = __import__("pathlib").Path(__file__).parent / "data" / "conf_notes.json"
+
+
+def get_conf_notes(code: str) -> list[dict]:
+    """該股的法說/重要質性筆記 [{date, note}](新到舊)。"""
+    import json
+    try:
+        d = json.loads(CONF_PATH.read_text(encoding="utf-8"))
+        return sorted(d.get(code, []), key=lambda x: x.get("date", ""), reverse=True)
+    except Exception:
+        return []
+
+
+def add_conf_note(code: str, note: str) -> None:
+    """存法說筆記(進 git → 雲端同步;之後該股與其族群的報告自動引用)。"""
+    import json
+    d = {}
+    try:
+        d = json.loads(CONF_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    d.setdefault(code, []).append({"date": f"{now_tw():%Y-%m-%d}", "note": note.strip()})
+    CONF_PATH.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def _conf_extra(codes) -> str:
+    """一組股票的法說筆記文字包(縫進報告 digest;質性資訊修正量化誤讀,如營收虛胖)。"""
+    if isinstance(codes, str):
+        codes = [codes]
+    lines = []
+    for c in codes:
+        for n in get_conf_notes(c)[:3]:
+            lines.append(f"- {c}({n['date']}):{n['note']}")
+    if not lines:
+        return ""
+    return ("\n【法說/質性筆記(使用者記錄——量化數據要用這些修正,"
+            "例如營收成長若為漲價轉嫁則屬虛胖,需以毛利率驗證)】\n" + "\n".join(lines))
 
 
 def save_article(code: str, name: str, mode: str, content: str) -> str:
@@ -574,6 +611,7 @@ _SYS_INDUSTRY = """你是產業分析寫作者(優分析風格),寫一篇「同�
 def generate_industry_report(code: str, peers: list[str], extra: str = "") -> str:
     """產業比較型報告(優分析風):主角+同業的營收/毛利對比,產品結構靠補充資料。"""
     all_codes = [code] + [p for p in peers if p and p != code]
+    extra = (extra or "") + _conf_extra(all_codes)
     rev, gm = peer_compare(all_codes)
     if rev.empty:
         return "（抓不到比較資料）"
@@ -610,6 +648,7 @@ _SYS_FLASH = """你是券商晨報研究員,寫一則「月營收快評」(仿�
 
 def generate_flash_note(code: str, extra: str = "") -> str:
     """月營收快評(晨報式):最新月營收 vs 模型預期值+誤差+展望。"""
+    extra = (extra or "") + _conf_extra(code)
     d = build_digest(code, extra)
     mon = d["monthly"]
     if mon.empty:
@@ -660,6 +699,7 @@ _SYS = """你是一位嚴謹的台股賣方分析師。
 
 
 def generate_report(code: str, extra: str = "") -> str:
+    extra = (extra or "") + _conf_extra(code)
     d = build_digest(code, extra)
     if d["monthly"].empty:
         return f"（抓不到 {code} 的財務資料）"

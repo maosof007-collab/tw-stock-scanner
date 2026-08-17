@@ -73,6 +73,30 @@ with st.expander("📎 文章解讀(貼網址 → 個股情報卡,可一鍵填�
 
 code = code_in.strip().replace(".TW", "").replace(".TWO", "")
 
+with st.expander("🎤 法說筆記(存下來,之後這檔與其族群的報告都會自動引用)", expanded=False):
+    if not hasattr(_ar, "add_conf_note"):
+        _ar = importlib.reload(_ar)
+    if code:
+        _notes = _ar.get_conf_notes(code)
+        for n in _notes[:5]:
+            st.markdown(f"- `{n['date']}` {n['note']}")
+        _new_note = st.text_area("新增筆記(法說重點/質性判斷,例如「營收成長是漲價轉嫁,屬虛胖」)",
+                                 height=70, key=f"conf_note_{code}")
+        if st.button("💾 存筆記", key=f"conf_save_{code}") and _new_note.strip():
+            _ar.add_conf_note(code, _new_note.strip())
+            try:
+                import subprocess as _sp
+                _root = str(Path(__file__).parent.parent)
+                _sp.run(["git", "add", "data/conf_notes.json"], cwd=_root, timeout=30)
+                _sp.run(["git", "commit", "-q", "-m", f"docs: 法說筆記 {code}"], cwd=_root, timeout=30)
+                _sp.run(["git", "push", "-q", "origin", "main"], cwd=_root, timeout=60)
+            except Exception:
+                pass
+            st.success("已存(git 同步雲端);之後產生報告會自動縫進推論")
+            st.rerun()
+    else:
+        st.caption("先輸入股票代碼")
+
 if not code.isdigit():
     st.info("輸入代碼後自動載入:出貨動能、財報結構、月營收推估;再一鍵產生法人報告。")
     st.stop()
