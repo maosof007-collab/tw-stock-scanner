@@ -253,6 +253,15 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️  失敗: {e}")
 
+    # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
+    log.info("\n[Step 4.6/6] 營收反轉雷達...")
+    try:
+        from revenue_radar import rebuild_if_stale
+        rebuild_if_stale()
+        log.info("  ✅ 完成")
+    except Exception as e:
+        log.warning(f"  ⚠️  失敗: {e}")
+
     # ── Step 4.7：新聞情緒+信心分數(本機 Claude 引擎;雲端顯示靠 git 同步)──
     log.info("\n[Step 4.7/6] 新聞情緒分析...")
     try:

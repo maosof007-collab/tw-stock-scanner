@@ -126,3 +126,83 @@ for i, q in enumerate(["領先", "改善", "弱化", "落後"]):
 
 st.caption("⚠️ 產業指數為成員股等權平均、RS 為近似 JdK RRG 演算。輪動是**傾向**非保證，"
            "仍須配合個股訊號與大盤環境。")
+
+# ════════════════════════════════════════
+# 📈 營收反轉雷達(基本面對照)——價格 RRG 看資金,這張看營收動能
+# ════════════════════════════════════════
+st.markdown("---")
+st.markdown("### 📈 營收反轉雷達(月營收動能)")
+import pandas as pd
+
+_REV = Path(__file__).parent.parent / "data" / "revenue_trend.csv"
+if not _REV.exists():
+    st.info("尚無營收趨勢資料——本機執行 `python revenue_radar.py` 產生(每月自動更新)")
+else:
+    rv = pd.read_csv(_REV, encoding="utf-8-sig")
+    yms = sorted(rv["ym"].unique())
+    piv = rv.pivot_table(index=["group", "kind"], columns="ym", values="yoy_med")
+    nmap = rv.groupby("group")["n"].max()
+    if len(yms) >= 6:
+        early = piv[yms[:3]].mean(axis=1)          # 窗口前3月
+        late = piv[yms[-3:]].mean(axis=1)          # 近3月
+        cur = piv[yms[-1]]
+        rad = pd.DataFrame({"最新YoY": cur, "改善幅度": late - early}).dropna().reset_index()
+        rad["n"] = rad["group"].map(nmap)
+
+        _turn = rad[(rad["最新YoY"] < 25) & (rad["改善幅度"] > 5)]     # 谷底反轉區
+        figr = go.Figure()
+        for kind, col in (("產業", "#00E5FF"), ("族群", "#FFC857")):
+            sub = rad[rad["kind"] == kind]
+            figr.add_trace(go.Scatter(
+                x=sub["最新YoY"], y=sub["改善幅度"], mode="markers+text",
+                text=sub["group"], textposition="top center",
+                textfont=dict(size=9, color=THEME["text"]),
+                marker=dict(size=(sub["n"] ** 0.5).clip(2, 15) + 5, color=col,
+                            opacity=0.8, line=dict(width=1, color="#04070D")),
+                name=kind,
+                hovertemplate="<b>%{text}</b><br>最新月YoY中位 %{x:+.1f}%<br>"
+                              "改善幅度 %{y:+.1f}pp<extra></extra>"))
+        figr.add_hline(y=0, line_color=THEME["muted"], line_width=1)
+        figr.add_vline(x=0, line_color=THEME["muted"], line_width=1)
+        for xx, yy, tt in ((-0.9, 0.95, "谷底反轉(主流孵化區)"), (0.9, 0.95, "強者恆強"),
+                           (0.9, 0.05, "高檔降溫"), (-0.9, 0.05, "持續低迷")):
+            figr.add_annotation(xref="x domain", yref="y domain", x=(xx + 1) / 2, y=yy,
+                                text=tt, showarrow=False,
+                                font=dict(size=11, color=THEME["muted"]))
+        figr.update_layout(height=560, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                           plot_bgcolor=THEME["panel"],
+                           font=dict(color=THEME["text"], size=12),
+                           margin=dict(l=10, r=10, t=20, b=10),
+                           xaxis=dict(title=f"最新月({yms[-1]})YoY 中位數 % →",
+                                      gridcolor=THEME["grid"]),
+                           yaxis=dict(title="改善幅度(近3月 − 前3月, pp)↑",
+                                      gridcolor=THEME["grid"]),
+                           legend=dict(orientation="h", y=1.06))
+        st.plotly_chart(figr, width="stretch")
+        st.caption(f"🕐 資料截至 **{yms[-1]} 營收**(每月10日後更新)。"
+                   "**左上=YoY還不高但快速改善=谷底反轉**——與上方價格RRG交叉:"
+                   "營收反轉+RRG改善象限=下季主流孵化區;營收反轉但RRG落後=市場還不信(最早期)。"
+                   "⚠️ 營收YoY分不出「量增」vs「漲價轉嫁」(如記憶體漲價→網通報價虛胖),"
+                   "重要判讀配法說筆記與毛利率驗證。")
+
+        # 軌跡檢視
+        _def = list(_turn.sort_values("改善幅度", ascending=False)["group"].head(5))
+        _sel = st.multiselect("軌跡對照(可加選)", sorted(piv.reset_index()["group"]),
+                              default=_def, key="rev_traj")
+        if _sel:
+            figt = go.Figure()
+            for g in _sel:
+                row = piv[piv.index.get_level_values("group") == g]
+                if row.empty:
+                    continue
+                s = row.iloc[0]
+                figt.add_trace(go.Scatter(x=yms, y=[s.get(m) for m in yms],
+                                          mode="lines+markers", name=g))
+            figt.add_hline(y=0, line_color=THEME["muted"], line_width=1)
+            figt.update_layout(height=380, template="plotly_dark",
+                               paper_bgcolor=THEME["bg"], plot_bgcolor=THEME["panel"],
+                               font=dict(color=THEME["text"], size=12),
+                               margin=dict(l=10, r=10, t=20, b=10),
+                               yaxis=dict(title="月營收YoY中位 %", gridcolor=THEME["grid"]),
+                               legend=dict(orientation="h", y=1.1))
+            st.plotly_chart(figt, width="stretch")
