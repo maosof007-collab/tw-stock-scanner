@@ -115,18 +115,6 @@ asof_txt = f"　資料截至 **{str(asof)[:10]}**。" if asof is not None else "
 st.caption(f"💡 順時針轉：**改善→領先→弱化→落後**。點**由小到大＝行進方向**（尾巴只畫最近 {TAIL_SHOW} 週）——"
            f"往右上（領先）走＝資金流入；往左下（落後）走＝資金流出。**領先且尾巴續往右上**的產業最強。{asof_txt}")
 
-# ── 分象限清單 ──
-cc = st.columns(4)
-for i, q in enumerate(["領先", "改善", "弱化", "落後"]):
-    sub = pts[pts["象限"] == q]
-    with cc[i]:
-        st.markdown(f"<b style='color:{QUADRANTS[q]['color']}'>{q}</b>", unsafe_allow_html=True)
-        for _, r in sub.iterrows():
-            st.caption(f"{r['產業']}　({r['RS-Ratio']}, {r['RS-Momentum']})")
-
-st.caption("⚠️ 產業指數為成員股等權平均、RS 為近似 JdK RRG 演算。輪動是**傾向**非保證，"
-           "仍須配合個股訊號與大盤環境。")
-
 # ════════════════════════════════════════
 # 📈 營收反轉雷達(基本面對照)——價格 RRG 看資金,這張看營收動能
 # ════════════════════════════════════════
@@ -206,3 +194,15 @@ else:
                                yaxis=dict(title="月營收YoY中位 %", gridcolor=THEME["grid"]),
                                legend=dict(orientation="h", y=1.1))
             st.plotly_chart(figt, width="stretch")
+
+# ── 分象限清單 ──
+cc = st.columns(4)
+for i, q in enumerate(["領先", "改善", "弱化", "落後"]):
+    sub = pts[pts["象限"] == q]
+    with cc[i]:
+        st.markdown(f"<b style='color:{QUADRANTS[q]['color']}'>{q}</b>", unsafe_allow_html=True)
+        for _, r in sub.iterrows():
+            st.caption(f"{r['產業']}　({r['RS-Ratio']}, {r['RS-Momentum']})")
+
+st.caption("⚠️ 產業指數為成員股等權平均、RS 為近似 JdK RRG 演算。輪動是**傾向**非保證，"
+           "仍須配合個股訊號與大盤環境。")
