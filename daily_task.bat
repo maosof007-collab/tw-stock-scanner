@@ -17,6 +17,8 @@ G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
 rem daily money-flow journal article - self-guarded: needs today's institutional
 rem data (16:00+), local Claude engine, and skips if already generated today
 G:\python\python.exe money_flow_daily.py >> logs\daily_task.log 2>&1
+rem daily index structure map (two-ruler fib + decision tree) - self-guarded
+G:\python\python.exe index_map.py >> logs\daily_task.log 2>&1
 rem sync locally-generated Claude artifacts (sentiment/confidence) to git so
 rem the cloud app can display them without any API key
 rem directory-level add: gitignore keeps only sentiment_*/confidence_* csv;

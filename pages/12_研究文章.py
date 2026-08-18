@@ -24,7 +24,7 @@ if not hasattr(_ar, "list_articles"):
     _ar = importlib.reload(_ar)
 
 arts = _ar.list_articles()
-arts = [a for a in arts if a.get("mode") not in ("晨報", "資金流向")]   # 時效品各回自己的頁(今日總覽/資金流向日誌)
+arts = [a for a in arts if a.get("mode") not in ("晨報", "資金流向", "大盤解析")]   # 時效品各回自己的頁(今日總覽/資金流向日誌/總經)
 if not arts:
     st.info("還沒有文章——到「🧾 個股法人報告」頁產生報告,會自動發佈到這裡。")
     st.stop()

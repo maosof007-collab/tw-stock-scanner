@@ -22,6 +22,25 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("總體環境觀測", "MACRO MONITOR", "🌐")
 
+# ── 📐 每日大盤解析(兩把尺+裁決樹;本機盤後自動產生,git 同步) ──
+try:
+    import analyst_report as _arx
+    if not hasattr(_arx, "list_articles"):
+        import importlib as _il
+        _arx = _il.reload(_arx)
+    _idx_arts = [a for a in _arx.list_articles() if a.get("mode") == "大盤解析"]
+    if _idx_arts:
+        _a0 = _idx_arts[0]
+        _today = str(_a0.get("date", ""))[:10]
+        with st.expander(f"📐 大盤解析({_today})— {_a0['title']}", expanded=False):
+            _pick = st.selectbox("日期", [a["date"][:10] for a in _idx_arts],
+                                 key="idx_map_pick", label_visibility="collapsed") \
+                if len(_idx_arts) > 1 else _today
+            _sel = next(a for a in _idx_arts if a["date"][:10] == _pick)
+            st.markdown(_arx.read_article(_sel["file"]))
+except Exception:
+    pass
+
 import importlib
 import macro as _mc
 if not hasattr(_mc, "market_margin_conclusion"):
