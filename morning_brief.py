@@ -166,9 +166,10 @@ def calendar_notes() -> list[str]:
     if today.day <= 10:
         notes.append(f"月營收公布旬(每月10日前)——{today.month}月上旬陸續公布上月營收,留意優於預期個股")
     try:
-        from us_events import upcoming_macro, upcoming_earnings
+        from us_events import upcoming_macro, upcoming_earnings, expo_events
         notes += upcoming_macro(today, days=8)
         notes += upcoming_earnings(today, days=10)
+        notes += expo_events(today, days=14)
     except Exception:
         pass
     return notes

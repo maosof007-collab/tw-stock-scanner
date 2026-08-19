@@ -71,6 +71,37 @@ def upcoming_macro(today: date, days: int = 8) -> list[str]:
     return notes
 
 
+def _nth_weekday(y: int, m: int, weekday: int, n: int) -> date:
+    d = date(y, m, 1)
+    off = (weekday - d.weekday()) % 7
+    return d + timedelta(days=off + 7 * (n - 1))
+
+
+def expo_events(today: date, days: int = 14) -> list[str]:
+    """台股題材展覽(近似日期,以官網為準)。附五年事件回測結論提醒。"""
+    y = today.year
+    expos = []
+    for yy in (y, y + 1):
+        expos += [
+            (_nth_weekday(yy, 8, 2, 3), "台北自動化展(含機器人展)",
+             "機器人族群五年回測:展前並無拉升(超額-3.2%),行情集中展期(+1.2%),"
+             "**展後5-20日利多出盡平均-3.4%(2025年-10.4%)**——持有者留意展後減碼窗"),
+            (_nth_weekday(yy, 9, 2, 2), "SEMICON Taiwan 半導體展",
+             "半導體設備/材料題材曝光週"),
+            (_nth_weekday(yy, 6, 1, 1), "COMPUTEX 台北電腦展",
+             "AI伺服器/PC供應鏈題材曝光週"),
+            (date(yy, 1, 6), "CES 消費電子展",
+             "年度AI/消費電子題材定調"),
+        ]
+    notes = []
+    horizon = today + timedelta(days=days)
+    for d, name, hint in sorted(expos):
+        if today <= d <= horizon:
+            tag = "今天開展" if d == today else f"{d:%m/%d}(約{(d-today).days}天後)"
+            notes.append(f"🎪 {tag} {name}(日期為慣例推估,以官網為準)——{hint}")
+    return notes
+
+
 def upcoming_earnings(today: date, days: int = 10) -> list[str]:
     """觀察名單未來 N 天的財報日(yfinance,20h 快取,失敗退舊快取)。"""
     cache = FUND_DIR / "us_earnings_dates.json"
