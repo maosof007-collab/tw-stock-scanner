@@ -73,15 +73,23 @@ arts = [a for a in _ar.list_articles() if a.get("mode") == "資金流向"]
 c1, c2 = st.columns([3, 1.4])
 with c2:
     import llm as _llm
-    _es = _llm.engine_status()
-    if st.button("🖋️ 立即產生今日解讀", type="primary", width="stretch",
-                 disabled=_es["engine"] == "none",
-                 help="本機盤後排程會自動產生;這裡可手動補產"):
-        with st.spinner("撰寫中(約 60 秒)…"):
+    from apikey import get_key as _gk
+    # 便宜檢查(不打真 CLI 探測,頁面才不會卡):有 CLI 執行檔或有金鑰=可產
+    _has_engine = bool(_llm._cli_path()) or bool(_gk())
+    if not _mf.data_is_today():
+        st.caption("⏳ 今日法人資料未到(約16:00後)——現在產生會用最近一個交易日資料")
+    if st.button("🖋️ 立即產生解讀(最新資料)", type="primary", width="stretch",
+                 disabled=not _has_engine,
+                 help="本機盤後排程會自動產生;這裡可手動補產/重產"):
+        with st.spinner("撰寫中(約 60-120 秒)…"):
             fn = _mf.run(force=True)
-        _ar.list_articles.__dict__.pop("clear", None)
-        st.rerun()
-    if _es["engine"] == "none":
+        if fn:
+            st.success(f"已產生並上雲:{fn}")
+            _flow.clear()
+            st.rerun()
+        else:
+            st.error(f"產生失敗:{_llm.fail_reason()}")
+    if not _has_engine:
         st.caption("☁️ 雲端顯示模式:文章由本機盤後自動產生同步")
 
 if arts:

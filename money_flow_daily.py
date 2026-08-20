@@ -140,14 +140,24 @@ def generate_article() -> str:
     import llm
     out = llm.generate(_SYS_FLOW, digest, max_tokens=1800)
     if out:
-        return out + f"\n\n---\n*口徑:外資+投信買賣超(不含自營商),金額為估算;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
+        return out + (f"\n\n---\n*資料日:{asof}｜口徑:外資+投信買賣超(不含自營商),金額為估算;"
+                      f"產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*")
     return f"（文章生成失敗:{llm.fail_reason()}）"
 
 
 def already_done_today() -> bool:
+    """只認「16:00 後產生」的正式件——白天的手動測試件不佔當日名額,
+    否則傍晚排程會誤以為做過而跳過(2026-08-18 實際踩過)。"""
     from analyst_report import ART_DIR
     tag = now_tw().strftime("%Y%m%d")
-    return any(ART_DIR.glob(f"art_{tag}_*_FLOW.md"))
+    for p in ART_DIR.glob(f"art_{tag}_*_FLOW.md"):
+        try:
+            hhmm = p.stem.split("_")[2]
+            if hhmm >= "1600":
+                return True
+        except Exception:
+            continue
+    return False
 
 
 def data_is_today() -> bool:
@@ -168,8 +178,10 @@ def run(force: bool = False) -> str:
         print("[money_flow] 今日法人資料未到(約16:00後),跳過")
         return ""
     import llm
-    if llm.engine_status()["engine"] == "none":
-        print("[money_flow] 無 Claude 引擎,跳過")
+    from apikey import get_key
+    # 便宜檢查:engine_status 的真實探測(90秒CLI呼叫)會間歇逾時造成誤判跳過
+    if not (llm._cli_path() or get_key()):
+        print("[money_flow] 無 Claude 引擎(無CLI執行檔且無金鑰),跳過")
         return ""
     print(f"[money_flow] 產生資金流向日誌 {now_tw():%H:%M}")
     content = generate_article()
