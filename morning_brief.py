@@ -267,6 +267,12 @@ def run(force: bool = False) -> str:
     msg = git_publish(fname)
     if "數據版" not in content[:120]:
         _log_mentions(content)      # 退化件=生新聞標題堆,會把33檔雜訊灌進前瞻追蹤,不記
+        try:                        # LINE 群組推播(best-effort;config.json 有金鑰才會動)
+            import line_push
+            if line_push.enabled():
+                print(f"[morning_brief] {line_push.push_markdown(content)}")
+        except Exception:
+            pass
     else:
         print("[morning_brief] 數據版不記提及(避免污染前瞻追蹤)")
     print(f"[morning_brief] 完成:{fname}|{msg}")
