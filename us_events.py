@@ -61,6 +61,12 @@ def upcoming_macro(today: date, days: int = 8) -> list[str]:
             dd = (d - today).days
             when = "今晚(台灣時間隔日凌晨2:00聲明)" if dd == 0 else f"{d:%m/%d}(倒數{dd}天)"
             notes.append(f"🇺🇸 FOMC 利率決議 {when}——決議前市場常縮手觀望,決議後開盤跳空機率高")
+    # 權責者行事曆(聽大人說話:發言要負責,大多兌現)
+    jh = date(today.year, 8, 27)                      # 全球央行年會(Jackson Hole,8月下旬慣例)
+    if today <= jh <= horizon:
+        notes.append(f"🏛️ {jh:%m/%d} 全球央行年會(Jackson Hole)——Fed主席談話+日央態度是重點:"
+                     f"寬鬆訊號=成長股鬆綁;日央轉鷹=日圓套利平倉尾部風險(2024/8/5考古題,"
+                     f"台股單日-8%),錯殺V轉策略待命")
     nfp = _first_friday(today.year, today.month)
     if nfp < today:
         nm = today.month % 12 + 1
