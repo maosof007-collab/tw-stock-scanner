@@ -244,9 +244,16 @@ def build_brief() -> str:
 
 
 def already_done_today() -> bool:
+    """數據版(引擎故障退化件)不佔當日名額——之後的重試槍要能換成正式版。"""
     from analyst_report import ART_DIR
     tag = now_tw().strftime("%Y%m%d")
-    return any(ART_DIR.glob(f"art_{tag}_*_MKT.md"))
+    for p in ART_DIR.glob(f"art_{tag}_*_MKT.md"):
+        try:
+            if "數據版" not in p.read_text(encoding="utf-8")[:300]:
+                return True
+        except Exception:
+            return True
+    return False
 
 
 def run(force: bool = False) -> str:
@@ -258,7 +265,10 @@ def run(force: bool = False) -> str:
     from analyst_report import save_article, git_publish
     fname = save_article("MKT", "台股", "晨報", content)
     msg = git_publish(fname)
-    _log_mentions(content)
+    if "數據版" not in content[:120]:
+        _log_mentions(content)      # 退化件=生新聞標題堆,會把33檔雜訊灌進前瞻追蹤,不記
+    else:
+        print("[morning_brief] 數據版不記提及(避免污染前瞻追蹤)")
     print(f"[morning_brief] 完成:{fname}|{msg}")
     return fname
 
