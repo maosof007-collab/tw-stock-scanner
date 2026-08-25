@@ -30,12 +30,13 @@ OUT = ROOT / "data" / "revenue_trend.csv"
 from twtime import now_tw
 
 
-def fetch_bulk_month(mkt: str, roc_year: int, m: int) -> pd.DataFrame:
-    """單月全市場營收(mkt: sii/otc);檔案快取永存(歷史月份不會變)。"""
-    p = CACHE / f"bulk_rev_{roc_year}_{m}_{mkt}.csv"
+def fetch_bulk_month(mkt: str, roc_year: int, m: int, kind: int = 0) -> pd.DataFrame:
+    """單月全市場營收(mkt: sii/otc;kind 0=國內、1=KY外國企業);快取永存。"""
+    suffix = f"_{mkt}" if kind == 0 else f"_{mkt}_ky"      # kind=0 沿用舊快取檔名
+    p = CACHE / f"bulk_rev_{roc_year}_{m}{suffix}.csv"
     if p.exists():
         return pd.read_csv(p, dtype={"code": str})
-    url = f"https://mopsov.twse.com.tw/nas/t21/{mkt}/t21sc03_{roc_year}_{m}_0.html"
+    url = f"https://mopsov.twse.com.tw/nas/t21/{mkt}/t21sc03_{roc_year}_{m}_{kind}.html"
     r = requests.get(url, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
     r.encoding = "big5"
     rows = []
@@ -85,13 +86,14 @@ def rebuild(months: int = 8) -> pd.DataFrame:
     frames = []
     for y, m in ym_list:
         for mkt in ("sii", "otc"):
-            try:
-                d = fetch_bulk_month(mkt, y, m)
-                if not d.empty:
-                    d["ym"] = f"{y + 1911}-{m:02d}"
-                    frames.append(d)
-            except Exception as e:
-                print(f"  {mkt} {y}/{m} 失敗:{type(e).__name__}")
+            for kind in (0, 1):                    # 1=KY外國企業(臻鼎/慧洋等,漏抓過)
+                try:
+                    d = fetch_bulk_month(mkt, y, m, kind)
+                    if not d.empty:
+                        d["ym"] = f"{y + 1911}-{m:02d}"
+                        frames.append(d)
+                except Exception as e:
+                    print(f"  {mkt} {y}/{m} k{kind} 失敗:{type(e).__name__}")
     allrev = pd.concat(frames, ignore_index=True).drop_duplicates(subset=["code", "ym"])
     allrev["yoy"] = allrev["yoy"].clip(-100, 300)
 
