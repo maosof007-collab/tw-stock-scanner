@@ -680,3 +680,60 @@ st.markdown(
     f"持倉資料：{TRACK_FILE}</p>",
     unsafe_allow_html=True,
 )
+
+# ════════════════════════════════════════
+# 📓 決策日誌(週檢視 SOP)— 填買入價/論點,自動算停損建議
+# ════════════════════════════════════════
+st.markdown("---")
+st.markdown("### 📓 決策日誌(週檢視 SOP)")
+
+import importlib
+import weekly_review as _wr
+if not hasattr(_wr, "stop_suggestion"):
+    _wr = importlib.reload(_wr)
+
+_jn = _wr._load()
+if "buy_price" not in _jn.columns:
+    _jn["buy_price"] = None
+
+if _jn.empty:
+    st.info("尚無記錄。新增:本機執行 python weekly_review.py --buy 代碼 --price 買入價 --thesis \"論點\"")
+else:
+    st.caption("直接在表格填/改 **買入價** 與論點(status 改 closed=平倉),按儲存。"
+               "買入價填入後,停損建議會照家規計算:未賺1R守初始停損(買價-1.5ATR)、賺1R後保本+移動。")
+    _edit = st.data_editor(
+        _jn, width="stretch", hide_index=True, key="journal_editor",
+        column_config={
+            "buy_price": st.column_config.NumberColumn("買入價(可填)", format="%.2f"),
+            "thesis": st.column_config.TextColumn("論點", width="large"),
+            "status": st.column_config.SelectboxColumn("狀態", options=["open", "closed"]),
+            "date": st.column_config.TextColumn("記錄日", disabled=True),
+            "code": st.column_config.TextColumn("代碼", disabled=True),
+            "name": st.column_config.TextColumn("名稱", disabled=True),
+            "ref_close": st.column_config.NumberColumn("記錄日收盤", disabled=True),
+        })
+    if st.button("💾 儲存日誌", key="journal_save"):
+        _wr._save(_edit)
+        st.success("已儲存;週六的週檢視會用新買入價計算")
+        st.rerun()
+
+    # 停損建議表(open 持倉)
+    st.markdown("#### 🛑 停損建議(家規:未賺1R守初始/賺1R後保本+移動)")
+    _rows = []
+    for _, r in _jn[_jn["status"] == "open"].iterrows():
+        bp = float(r["buy_price"]) if pd.notna(r.get("buy_price")) and r.get("buy_price") else None
+        s = _wr.stop_suggestion(r["code"], bp)
+        if not s:
+            continue
+        _rows.append({"代碼": r["code"], "名稱": r["name"], "買入價": bp,
+                      "現價": s.get("現價"),
+                      "報酬%": round((s["現價"] / bp - 1) * 100, 1) if bp else None,
+                      "建議停損": s.get("建議"),
+                      "距停損%": round((s["建議"] / s["現價"] - 1) * 100, 1),
+                      "初始(買價-1.5ATR)": s.get("初始(買價-1.5ATR)"),
+                      "移動(收盤-2ATR)": s.get("移動(收盤-2ATR)"),
+                      "20日低": s.get("20日低"),
+                      "說明": s.get("說明")})
+    if _rows:
+        st.dataframe(pd.DataFrame(_rows), width="stretch", hide_index=True)
+        st.caption("「建議停損」只升不降;跌破=紀律出場,不討論。未填買入價的先用移動煞車代替。")

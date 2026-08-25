@@ -51,18 +51,49 @@ def _px(code: str) -> pd.DataFrame | None:
     return None
 
 
-def add_trade(code: str, thesis: str) -> None:
-    from theme_groups import THEME_GROUPS
+def add_trade(code: str, thesis: str, buy_price: float | None = None) -> None:
     sl = pd.read_csv(ROOT / "data" / "stock_list.csv", encoding="utf-8-sig", dtype=str)
     nm = dict(zip(sl["code"], sl["name"])).get(code, "")
     px = _px(code)
     ref = round(float(px["Close"].iloc[-1]), 2) if px is not None else None
     df = _load()
+    if "buy_price" not in df.columns:
+        df["buy_price"] = None
     df.loc[len(df)] = {"date": f"{now_tw():%Y-%m-%d}", "code": code, "name": nm,
-                       "ref_close": ref, "thesis": thesis, "status": "open",
-                       "close_date": "", "close_note": ""}
+                       "ref_close": ref, "buy_price": buy_price, "thesis": thesis,
+                       "status": "open", "close_date": "", "close_note": ""}
     _save(df)
-    print(f"[journal] 記錄買進 {code} {nm} 參考價 {ref}|論點:{thesis}")
+    print(f"[journal] 記錄買進 {code} {nm} 買入價 {buy_price or f'(未填,參考{ref})'}|論點:{thesis}")
+
+
+def stop_suggestion(code: str, buy_price: float | None = None) -> dict:
+    """停損建議(家規):未賺1R=初始停損(買價-1.5ATR);賺≥1R=保本+移動(收盤-2ATR取高)。
+    回傳 {初始, 移動, 20日低, 建議, 說明}。"""
+    px = _px(code)
+    if px is None or len(px) < 30:
+        return {}
+    c = px["Close"]
+    close = float(c.iloc[-1])
+    tr = pd.concat([(px["High"] - px["Low"]),
+                    (px["High"] - c.shift(1)).abs(),
+                    (px["Low"] - c.shift(1)).abs()], axis=1).max(axis=1)
+    atr = float(tr.rolling(14).mean().iloc[-1])
+    trail = round(close - 2 * atr, 1)
+    low20 = round(float(c.rolling(20).min().iloc[-1]), 1)
+    out = {"移動(收盤-2ATR)": trail, "20日低": low20, "現價": close}
+    if buy_price:
+        init = round(buy_price - 1.5 * atr, 1)
+        out["初始(買價-1.5ATR)"] = init
+        if close >= buy_price + 1.5 * atr:          # 已賺 ≥1R
+            out["建議"] = round(max(buy_price, trail), 1)
+            out["說明"] = "已賺1R→保本+移動停利(只升不降)"
+        else:
+            out["建議"] = init
+            out["說明"] = f"未賺1R→守初始停損(風險{(init/buy_price-1)*100:.1f}%)"
+    else:
+        out["建議"] = trail
+        out["說明"] = "未填買入價→暫用移動煞車;填入買入價可算精確停損"
+    return out
 
 
 def close_trade(code: str, note: str) -> None:
@@ -166,13 +197,18 @@ def run_review() -> str:
         if not ctx:
             L.append(f"- {r['code']} {r['name']}:無價格資料")
             continue
-        ret = (ctx["close"] / r["ref_close"] - 1) * 100 if r["ref_close"] else None
+        bp = r.get("buy_price")
+        bp = float(bp) if pd.notna(bp) and bp else None
+        base = bp or r["ref_close"]
+        ret = (ctx["close"] / base - 1) * 100 if base else None
+        sug = stop_suggestion(r["code"], bp)
         from theme_groups import THEME_GROUPS
         grp = next((g for g, cs in THEME_GROUPS.items() if r["code"] in cs), "其他")
         secs[grp] = secs.get(grp, 0) + 1
-        L.append(f"- **{r['code']} {r['name']}**(記錄 {r['date']} @{r['ref_close']}):"
+        L.append(f"- **{r['code']} {r['name']}**({'買入' if bp else '參考'} @{base}):"
                  f"現價 {ctx['close']:.1f}({f'{ret:+.1f}%' if ret is not None else '?'}),"
-                 f"本週 {ctx.get('wk_ret', 0):+.1f}%;**煞車 {ctx['brake']}({ctx['brake_pct']}%)**"
+                 f"本週 {ctx.get('wk_ret', 0):+.1f}%;"
+                 f"**停損建議 {sug.get('建議', ctx['brake'])}**({sug.get('說明', '')})"
                  f"——跌破=紀律出場,不討論")
     if len(opens) > 1:
         conc = "、".join(f"{g}×{n}" for g, n in secs.items())
@@ -226,7 +262,8 @@ if __name__ == "__main__":
     if "--buy" in args:
         code = args[args.index("--buy") + 1]
         thesis = args[args.index("--thesis") + 1] if "--thesis" in args else "(論點待補)"
-        add_trade(code, thesis)
+        price = float(args[args.index("--price") + 1]) if "--price" in args else None
+        add_trade(code, thesis, price)
     elif "--close" in args:
         code = args[args.index("--close") + 1]
         note = args[args.index("--note") + 1] if "--note" in args else ""
