@@ -109,10 +109,55 @@ def build_table(gname: str, codes: tuple) -> pd.DataFrame:
 
 
 df = build_table(gname, tuple(codes))
-st.markdown(f"### 📋 {gname} 個股總表")
+
+
+def _verdict(r) -> tuple[int, str]:
+    """綜合判讀:營收動能×法人籌碼×相對強弱×倒貨率 → (分數, 一句話結論)。"""
+    rev_imp = r.get("營收改善pp") or 0
+    yoy = r.get("7月YoY%") or 0
+    rs = r.get("RS60") or 1.0
+    fi5 = r.get("法人5日(億)") or 0
+    dump = r.get("倒貨率%")
+    hot = dump is not None and dump >= 40
+
+    s_rev = 2 if (rev_imp >= 10 and yoy > 0) else (1 if rev_imp > 0 else 0)
+    s_px = 1 if rs >= 1.05 else (-1 if rs < 0.95 else 0)
+    s_fi = (1 if hot else 2) if fi5 > 0 else (-1 if fi5 < 0 else 0)
+    score = s_rev + s_px + s_fi
+
+    if s_rev == 2 and s_fi >= 1:
+        v = "✅ 雙確認:營收轉強+法人買" + ("(⚠️熱區,等續買)" if hot else "")
+    elif s_rev >= 1 and s_fi <= 0:
+        v = "🟡 營收轉強,法人還沒進——等籌碼確認"
+    elif s_rev == 0 and s_fi >= 1:
+        v = "🔍 法人先行,營收未跟上——查在買什麼"
+    elif s_rev == 0 and s_fi < 0 and s_px < 0:
+        v = "🌑 三弱:先跳過"
+    else:
+        v = "— 觀望"
+    pe = r.get("本益比")
+    if pe is not None and pe < 12 and s_rev >= 1:
+        v += "|低估值"
+    return score, v
+
+
+_sv = df.apply(_verdict, axis=1, result_type="expand")
+df["綜合分"], df["判讀"] = _sv[0], _sv[1]
+df = df.sort_values("綜合分", ascending=False)
+
+n2 = (df["判讀"].str.startswith("✅")).sum()
+n1 = (df["判讀"].str.startswith("🟡")).sum()
+top = "、".join(df.head(3)["名稱"].astype(str))
+st.info(f"🧭 **{gname} 總結**:{len(df)} 檔中 **{n2} 檔雙確認**(營收+法人)、{n1} 檔營收轉強待籌碼。"
+        f"優先順序:**{top}**。下一步:✅檔丟「個股研究中心」跑報告+看法說筆記;"
+        f"🟡檔進觀察,等潮汐圖法人翻買;進場點交給策略訊號(翻多/腰斬打底/運價動能)。")
+
+st.markdown(f"### 📋 {gname} 個股總表(按綜合分排序)")
 st.dataframe(df, width="stretch", hide_index=True,
              column_config={"倒貨率%": st.column_config.NumberColumn(
-                 help="外資大買後隔日倒貨機率;≥40%=隔日沖熱區,買超訊號要打折")})
+                 help="外資大買後隔日倒貨機率;≥40%=隔日沖熱區,買超訊號要打折"),
+                 "綜合分": st.column_config.NumberColumn(
+                 help="營收動能(0-2)+相對強弱(±1)+法人籌碼(±2,熱區折半)")})
 st.caption("EPS/毛利=FinMind 季報(近4季);本益比=收盤÷近4季EPS;"
            "法人5日=外資+投信買賣超估算;RS60>1=近60日強於大盤。"
            "⚠️ 營收YoY分不出量增vs漲價轉嫁,重要判讀配法說筆記。")
