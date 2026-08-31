@@ -455,6 +455,31 @@ if tc[4].button("➕ 存預測", key="mt_add"):
         st.success("已存,公布後自動對答案")
         st.rerun()
 
+# ── 損益表級 預測 vs 實際(整張 P&L 對照)──
+with st.expander("📑 損益表級 預測 vs 實際(輸入預測,財報公布自動整表對照)", expanded=False):
+    from model_track import set_pl_forecast, get_pl_forecasts, pl_compare
+    pc = st.columns([1, 1, 1, 1, 1, 1.4, 1])
+    pl_period = pc[0].text_input("期間", placeholder="2026-Q3", key="pl_period")
+    pl_rev = pc[1].number_input("營收(百萬)", value=0.0, step=10.0, key="pl_rev")
+    pl_gm = pc[2].number_input("毛利率%", value=0.0, step=0.5, key="pl_gm")
+    pl_opex = pc[3].number_input("營業費用(百萬)", value=0.0, step=5.0, key="pl_opex")
+    pl_nonop = pc[4].number_input("業外(百萬)", value=0.0, step=1.0, key="pl_nonop")
+    pl_note = pc[5].text_input("來源備註", placeholder="本模型/群益…", key="pl_note")
+    if pc[6].button("💾 存", key="pl_save") and pl_period.strip() and pl_rev:
+        set_pl_forecast(code, pl_period.strip(), pl_rev, pl_gm, pl_opex,
+                        pl_nonop, 20.0, pl_note)
+        st.success("已存;該季財報公布後下方自動出整表對照")
+        st.rerun()
+    st.caption("成本/營益/稅前/淨利由 營收×毛利率−費用+業外×(1−稅率20%) 自動推導;"
+               "誤差=實際−預測(毛利率為 pp)。")
+    for per, fc in sorted(get_pl_forecasts(code).items(), reverse=True):
+        cmp_df = pl_compare(code, per)
+        st.markdown(f"**{per}**(預測來源:{fc.get('note') or '未註明'})")
+        if cmp_df is not None:
+            st.dataframe(cmp_df, width="stretch", hide_index=True)
+        else:
+            st.caption("⏳ 實際財報未公布(季報:5/15、8/14、11/14、3/31)")
+
 trk = check_all(code)
 if not trk.empty:
     st.dataframe(trk, width="stretch", hide_index=True)

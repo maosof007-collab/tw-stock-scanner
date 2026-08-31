@@ -105,3 +105,91 @@ def check_all(code: str | None = None) -> pd.DataFrame:
                              if err is not None else "—"),
                     "燈號": lamp, "備註": r.get("note", "")})
     return pd.DataFrame(out)
+
+
+# ════════════════════════════════════════
+# 損益表級 預測 vs 實際(整張 P&L 對照,仿投顧預實表)
+# ════════════════════════════════════════
+PL_PATH = Path("data/pl_forecast.json")
+
+
+def set_pl_forecast(code: str, period: str, rev: float, gm_pct: float, opex: float,
+                    nonop: float = 0.0, tax_pct: float = 20.0, note: str = "") -> None:
+    """存一份季度損益預測(營收百萬/毛利率%/營業費用百萬/業外/稅率),其餘科目自動推導。"""
+    import json
+    d = {}
+    try:
+        d = json.loads(PL_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    d.setdefault(code, {})[period] = {"rev": rev, "gm_pct": gm_pct, "opex": opex,
+                                      "nonop": nonop, "tax_pct": tax_pct, "note": note}
+    PL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PL_PATH.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def get_pl_forecasts(code: str) -> dict:
+    import json
+    try:
+        return json.loads(PL_PATH.read_text(encoding="utf-8")).get(code, {})
+    except Exception:
+        return {}
+
+
+def _pl_actual(code: str, period: str) -> dict:
+    """從 FinMind 財報原始檔取單季實際損益(百萬)。period: 2026-Q2。"""
+    import json as _json
+    y, q = period.split("-Q")
+    date = {"1": f"{y}-03-31", "2": f"{y}-06-30",
+            "3": f"{y}-09-30", "4": f"{y}-12-31"}[q]
+    p = Path(f"data/fundamentals/{code}_TaiwanStockFinancialStatements.json")
+    if not p.exists():
+        from fundamentals import _fm
+        _fm("TaiwanStockFinancialStatements", code, f"{int(y)-1}-01-01")
+    try:
+        rows = _json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for r in rows:
+        if r.get("date") == date:
+            out[r["type"]] = float(r["value"]) / 1e6
+    return out
+
+
+def pl_compare(code: str, period: str):
+    """整張損益表 預測vs實際 對照(DataFrame);實際未公布回 None。"""
+    f = get_pl_forecasts(code).get(period)
+    if not f:
+        return None
+    a = _pl_actual(code, period)
+    if not a.get("Revenue"):
+        return None
+    # 預測推導
+    p_rev = f["rev"]; p_gp = p_rev * f["gm_pct"] / 100
+    p_cost = p_rev - p_gp; p_op = p_gp - f["opex"]
+    p_pre = p_op + f.get("nonop", 0.0)
+    p_net = p_pre * (1 - f.get("tax_pct", 20.0) / 100)
+    a_gm = a["GrossProfit"] / a["Revenue"] * 100 if a.get("GrossProfit") else None
+    rows = [
+        ("營業收入", p_rev, a.get("Revenue")),
+        ("毛利率%", f["gm_pct"], a_gm),
+        ("營業成本合計", p_cost, a.get("CostOfGoodsSold")),
+        ("營業費用合計", f["opex"], a.get("OperatingExpenses")),
+        ("營業利益", p_op, a.get("OperatingIncome")),
+        ("業外損益", f.get("nonop", 0.0), a.get("TotalNonoperatingIncomeAndExpense")),
+        ("稅前淨利", p_pre, a.get("PreTaxIncome")),
+        ("本期淨利", p_net, a.get("IncomeAfterTaxes")),
+    ]
+    import pandas as _pd
+    out = []
+    for name, pv, av in rows:
+        err = (av - pv) if (av is not None and pv is not None) else None
+        pct = (err / abs(pv) * 100) if (err is not None and pv) else None
+        unit = "pp" if name == "毛利率%" else ""
+        out.append({"損益項目": name,
+                    "預測": round(pv, 1) if pv is not None else None,
+                    "實際": round(av, 1) if av is not None else None,
+                    "誤差": (f"{err:+.1f}{unit}" if err is not None else "—"),
+                    "誤差%": (f"{pct:+.1f}%" if pct is not None else "—")})
+    return _pd.DataFrame(out)
