@@ -456,8 +456,21 @@ if tc[4].button("➕ 存預測", key="mt_add"):
         st.rerun()
 
 # ── 損益表級 預測 vs 實際(整張 P&L 對照)──
-with st.expander("📑 損益表級 預測 vs 實際(輸入預測,財報公布自動整表對照)", expanded=False):
-    from model_track import set_pl_forecast, get_pl_forecasts, pl_compare
+with st.expander("📑 損益表級 預測 vs 實際(系統自動預測,財報公布自動對照)", expanded=False):
+    from model_track import set_pl_forecast, get_pl_forecasts, pl_compare, auto_pl_forecast
+    ac1, ac2 = st.columns([1.2, 3])
+    auto_period = ac1.text_input("自動預測期間", placeholder="2026-Q3", key="pl_auto_period")
+    if ac2.button("🤖 系統自動產生預測(免手填;財報公布後自動吸收新資訊修正下一季)",
+                  key="pl_auto_go") and auto_period.strip():
+        f = auto_pl_forecast(code, auto_period.strip())
+        if f:
+            st.success(f"已產生:{f['note']}")
+            st.rerun()
+        else:
+            st.warning("資料不足(需月營收+至少3季財報)或該期已公布(凍結)")
+    st.caption("修正機制:①營收混用已公布月份實際 ②毛利率錨定最新實際季+趨勢(±2pp截幅)"
+               "③費用率/稅率滾動近4季——每次財報對完答案,下一季自動重算;已開獎期間凍結不改。"
+               "手動預測(如券商版)可與系統版並存對照:")
     pc = st.columns([1, 1, 1, 1, 1, 1.4, 1])
     pl_period = pc[0].text_input("期間", placeholder="2026-Q3", key="pl_period")
     pl_rev = pc[1].number_input("營收(百萬)", value=0.0, step=10.0, key="pl_rev")

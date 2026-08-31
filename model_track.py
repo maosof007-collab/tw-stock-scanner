@@ -193,3 +193,55 @@ def pl_compare(code: str, period: str):
                     "誤差": (f"{err:+.1f}{unit}" if err is not None else "—"),
                     "誤差%": (f"{pct:+.1f}%" if pct is not None else "—")})
     return _pd.DataFrame(out)
+
+
+def auto_pl_forecast(code: str, period: str) -> dict | None:
+    """系統自動產生季度損益預測(免手填),並內建自我修正:
+      營收   = 已公布月份用實際 + 未公布月份用「去年同月×(1+近3月YoY中位)」
+      毛利率 = 最新實際季 + 近兩季QoQ趨勢(截幅±2pp)←每次財報對答案後自動重新錨定
+      費用率/稅率 = 近4季滾動;業外 = 近4季中位
+    財報已公布的期間 → 凍結不覆寫(對答案的考卷不能改)。"""
+    if _pl_actual(code, period).get("Revenue"):
+        return get_pl_forecasts(code).get(period)          # 已開獎:凍結
+
+    from fundamentals import monthly_revenue, quarterly_fin
+    import pandas as _pd
+    y, q = int(period.split("-Q")[0]), int(period.split("-Q")[1])
+    months = [(y, (q - 1) * 3 + i) for i in (1, 2, 3)]
+
+    mon = monthly_revenue(code, years=3)
+    if mon.empty:
+        return None
+    mon = mon.set_index("ym")
+    yoy_med = float(_pd.to_numeric(mon["yoy%"], errors="coerce").tail(3).median()) / 100
+    rev = 0.0
+    used_actual = 0
+    for yy, mm in months:
+        ym = f"{yy}-{mm:02d}"
+        if ym in mon.index:                                # 已公布月份用實際(混合=修正機制①)
+            rev += float(mon.loc[ym, "revenue"]); used_actual += 1
+        else:
+            base_ym = f"{yy-1}-{mm:02d}"
+            if base_ym in mon.index:
+                rev += float(mon.loc[base_ym, "revenue"]) * (1 + yoy_med)
+
+    qf = quarterly_fin(code, years=2)
+    if qf.empty or len(qf) < 3:
+        return None
+    gms = _pd.to_numeric(qf["毛利率%"], errors="coerce").dropna()
+    trend = float((gms.diff().tail(2)).mean())
+    gm = float(gms.iloc[-1]) + max(-2.0, min(2.0, trend))  # 修正機制②:錨定最新+趨勢截幅
+    rev_hist = _pd.to_numeric(qf["營收(億)"], errors="coerce") * 100
+    op_hist = _pd.to_numeric(qf["營益率%"], errors="coerce")
+    opex_rate = float((gms.tail(4) - op_hist.tail(4)).mean())      # 費用率=毛利率-營益率
+    opex = rev * opex_rate / 100
+    net_hist = _pd.to_numeric(qf["淨利率%"], errors="coerce")
+    # 稅率+業外合併效果:近4季 (營益率-淨利率) 均值當摩擦成本
+    friction = float((op_hist.tail(4) - net_hist.tail(4)).mean())
+    tax_pct = max(10.0, min(30.0, friction / max(op_hist.tail(4).mean(), 1e-6) * 100))
+    note = (f"系統模型(自動@{__import__('twtime').now_tw():%m/%d};"
+            f"營收含{used_actual}個實際月+YoY中位{yoy_med*100:+.0f}%;"
+            f"GM錨定{gms.iloc[-1]:.1f}+趨勢{trend:+.1f}截幅)")
+    set_pl_forecast(code, period, round(rev, 1), round(gm, 1), round(opex, 1),
+                    0.0, round(tax_pct, 1), note)
+    return get_pl_forecasts(code).get(period)
