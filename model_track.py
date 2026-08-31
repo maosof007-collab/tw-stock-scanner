@@ -195,6 +195,16 @@ def pl_compare(code: str, period: str):
     return _pd.DataFrame(out)
 
 
+SECTOR_FIT = {
+    # 模型=月營收YoY連續外推;lumpy/非月營收驅動的產業要標警語
+    "建材營造業": "⚠️低適用:交屋認列跳動,YoY模型結構性失準(群益對照已驗證)",
+    "金融保險業": "⚠️不適用:無毛利率概念,勿用本模型",
+    "航運業": "⚠️慎用:運價驅動,YoY中位落後轉折,配BDRY/SCFI判讀",
+    "通信網路業": "⚠️慎用:記憶體漲價轉嫁虛胖(中磊法說),配毛利率驗證",
+    "生技醫療業": "⚠️慎用:授權金/里程碑收入跳動",
+}
+
+
 def auto_pl_forecast(code: str, period: str) -> dict | None:
     """系統自動產生季度損益預測(免手填),並內建自我修正:
       營收   = 已公布月份用實際 + 未公布月份用「去年同月×(1+近3月YoY中位)」
@@ -236,12 +246,32 @@ def auto_pl_forecast(code: str, period: str) -> dict | None:
     opex_rate = float((gms.tail(4) - op_hist.tail(4)).mean())      # 費用率=毛利率-營益率
     opex = rev * opex_rate / 100
     net_hist = _pd.to_numeric(qf["淨利率%"], errors="coerce")
+    # 業外(匯損益等):近4季中位——出口商(如3042)單季匯損益可達營益±25%,不可設0
+    nonop_med = 0.0
+    try:
+        import json as _json
+        from pathlib import Path as _P
+        _raw = _json.loads(_P(f"data/fundamentals/{code}_TaiwanStockFinancialStatements.json")
+                           .read_text(encoding="utf-8"))
+        _no = [r["value"] / 1e6 for r in _raw
+               if r["type"] == "TotalNonoperatingIncomeAndExpense"]
+        if len(_no) >= 4:
+            nonop_med = float(_pd.Series(_no[-4:]).median())
+    except Exception:
+        pass
     # 稅率+業外合併效果:近4季 (營益率-淨利率) 均值當摩擦成本
     friction = float((op_hist.tail(4) - net_hist.tail(4)).mean())
     tax_pct = max(10.0, min(30.0, friction / max(op_hist.tail(4).mean(), 1e-6) * 100))
-    note = (f"系統模型(自動@{__import__('twtime').now_tw():%m/%d};"
+    _fit = ""
+    try:
+        _sl = _pd.read_csv("data/stock_list.csv", encoding="utf-8-sig", dtype=str)
+        _sec = dict(zip(_sl["code"], _sl["sector"])).get(code, "")
+        _fit = SECTOR_FIT.get(_sec, "")
+    except Exception:
+        pass
+    note = ((_fit + ";" if _fit else "") + f"系統模型(自動@{__import__('twtime').now_tw():%m/%d};"
             f"營收含{used_actual}個實際月+YoY中位{yoy_med*100:+.0f}%;"
             f"GM錨定{gms.iloc[-1]:.1f}+趨勢{trend:+.1f}截幅)")
     set_pl_forecast(code, period, round(rev, 1), round(gm, 1), round(opex, 1),
-                    0.0, round(tax_pct, 1), note)
+                    round(nonop_med, 1), round(tax_pct, 1), note)
     return get_pl_forecasts(code).get(period)

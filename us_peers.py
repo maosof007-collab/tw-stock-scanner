@@ -26,6 +26,7 @@ US_PEERS = {
     "散熱":      ["VRT"],
     "貨櫃航運":  ["ZIM", "MATX"],          # 以星航運/美森——貨櫃運價景氣溫度計
     "散裝航運":  ["BDRY", "GOGL", "SBLK"], # BDRY=乾散裝運價期貨ETF(≈BDI代理)
+    "石英元件":  ["6779.T", "SITM"],      # NDK(日本電波,剛上修AI需求)/SiTime(MEMS timing對手)
     "鋼鐵":      ["600019.SS", "NUE", "STLD", "VALE"],
     # 寶鋼=中國鋼價溫度計/紐柯+SDI=美國鋼(232關稅牆內)/VALE=鐵礦砂成本端
 }
