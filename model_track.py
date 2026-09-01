@@ -38,10 +38,14 @@ def _save(rows: list[dict]):
 
 def add_prediction(code: str, metric: str, period: str, predicted: float,
                    note: str = "") -> bool:
-    """period: 月營收用 '2026-07';季用 '2026-Q3'。同key覆蓋。"""
+    """period: 月營收用 '2026-07';季用 '2026-Q3'。
+    去重鍵含「來源」(note 第一段)——同一期間可存多來源(本模型/富邦/群益)同場對答案;
+    同來源重存才覆蓋。曾因鍵不含來源,富邦預測被群益蓋掉、原版被修正版蓋掉(2026-09-01修)。"""
+    src = (note or "").split(";")[0].split("(")[0][:12]
     rows = _load()
     rows = [r for r in rows if not (r["code"] == code and r["metric"] == metric
-                                    and r["period"] == period)]
+                                    and r["period"] == period
+                                    and (r.get("note") or "").split(";")[0].split("(")[0][:12] == src)]
     rows.append({"code": code, "metric": metric, "period": period,
                  "predicted": float(predicted), "note": note})
     _save(rows)
@@ -98,8 +102,9 @@ def check_all(code: str | None = None) -> pd.DataFrame:
                 err = (act / r["predicted"] - 1) * 100
                 lamp = "🟢" if abs(err) <= 5 else ("🟡" if abs(err) <= 10 else "🔴")
                 err = round(err, 1)
+        _src = (r.get("note") or "").split(";")[0].split("(")[0][:12] or "—"
         out.append({"代碼": r["code"], "指標": _METRIC_NAME.get(r["metric"], r["metric"]),
-                    "期間": r["period"], "預測": r["predicted"],
+                    "期間": r["period"], "來源": _src, "預測": r["predicted"],
                     "實際": round(act, 1) if act is not None else "—",
                     "誤差": (f"{err:+.1f}{'pp' if r['metric']=='quarterly_gm' else '%'}"
                              if err is not None else "—"),
