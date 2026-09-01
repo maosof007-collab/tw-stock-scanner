@@ -1,0 +1,93 @@
+[
+ {
+  "code": "4764",
+  "metric": "monthly_rev",
+  "period": "2026-07",
+  "predicted": 399.0,
+  "note": "本模型Q3月均(對方408)"
+ },
+ {
+  "code": "4764",
+  "metric": "monthly_rev",
+  "period": "2026-09",
+  "predicted": 399.0,
+  "note": "本模型Q3月均"
+ },
+ {
+  "code": "4764",
+  "metric": "quarterly_rev",
+  "period": "2026-Q4",
+  "predicted": 1653.0,
+  "note": "本模型(對方1684)"
+ },
+ {
+  "code": "4764",
+  "metric": "quarterly_gm",
+  "period": "2026-Q2",
+  "predicted": 25.9,
+  "note": "對方模型預測,8/14前季報公布"
+ },
+ {
+  "code": "4764",
+  "metric": "quarterly_gm",
+  "period": "2026-Q3",
+  "predicted": 30.0,
+  "note": "本模型"
+ },
+ {
+  "code": "4764",
+  "metric": "quarterly_rev",
+  "period": "2026-Q3",
+  "predicted": 980.0,
+  "note": "8/26修正版:7月實際294→爬坡延後一季,月均320×3(原1196保留對答案)"
+ },
+ {
+  "code": "4764",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 320.0,
+  "note": "8/26修正版(原399保留)"
+ },
+ {
+  "code": "3042",
+  "metric": "quarterly_rev",
+  "period": "2026-Q3",
+  "predicted": 4201.0,
+  "note": "群益0820(TP190,Trading Buy,FY27=9.0)"
+ },
+ {
+  "code": "3042",
+  "metric": "quarterly_gm",
+  "period": "2026-Q3",
+  "predicted": 36.06,
+  "note": "群益0820"
+ },
+ {
+  "code": "3042",
+  "metric": "quarterly_rev",
+  "period": "2026-Q3",
+  "predicted": 4065.0,
+  "note": "富邦0820(TP300,26×FY27=11.51)"
+ },
+ {
+  "code": "4764",
+  "metric": "quarterly_rev",
+  "period": "2026-Q3",
+  "predicted": 1196.0,
+  "note": "本模型原版(對方1223)——曾被修正版誤蓋,已還原"
+ },
+ {
+  "code": "4764",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 399.0,
+  "note": "本模型原版Q3月均——曾被修正版誤蓋,已還原"
+ },
+ {
+  "code": "3042",
+  "metric": "quarterly_gm",
+  "period": "2026-Q3",
+  "predicted": 35.7,
+  "note": "系統修正版(含7月自結GM36;自動版33.6錨定跟不上月自結)"
+ }
+]

@@ -15,7 +15,7 @@ import pandas as pd
 
 from fundamentals import monthly_revenue, quarterly_fin
 
-TRACK = Path(__file__).parent / "data" / "fundamentals" / "model_track.json"
+TRACK = Path(__file__).parent / "data" / "model_track.json"
 
 # metric: monthly_rev(百萬) / quarterly_rev(百萬) / quarterly_gm(%)
 _METRIC_NAME = {"monthly_rev": "月營收(百萬)", "quarterly_rev": "季營收(百萬)",
