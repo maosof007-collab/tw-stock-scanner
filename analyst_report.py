@@ -497,10 +497,18 @@ def _conf_extra(codes) -> str:
     for c in codes:
         for n in get_conf_notes(c)[:3]:
             lines.append(f"- {c}({n['date']}):{n['note']}")
-    if not lines:
-        return ""
-    return ("\n【法說/質性筆記(使用者記錄——量化數據要用這些修正,"
-            "例如營收成長若為漲價轉嫁則屬虛胖,需以毛利率驗證)】\n" + "\n".join(lines))
+    out = ""
+    if lines:
+        out = ("\n【法說/質性筆記(使用者記錄——量化數據要用這些修正,"
+               "例如營收成長若為漲價轉嫁則屬虛胖,需以毛利率驗證)】\n" + "\n".join(lines))
+    # 產品組合(法說結構化層):報告推論必須基於實際產品結構
+    try:
+        from product_mix import mix_digest
+        for c in codes:
+            out += mix_digest(c)
+    except Exception:
+        pass
+    return out
 
 
 def save_article(code: str, name: str, mode: str, content: str) -> str:

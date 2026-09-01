@@ -97,6 +97,43 @@ with st.expander("🎤 法說筆記(存下來,之後這檔與其族群的報告�
     else:
         st.caption("先輸入股票代碼")
 
+with st.expander("🧩 產品組合佔比(法說結構化——存了之後報告不再寫「產品結構待查」)", expanded=False):
+    import product_mix as _pm
+    if not hasattr(_pm, "mix_digest"):
+        _pm = importlib.reload(_pm)
+    if code:
+        for v in _pm.get_mix(code)[::-1][:3]:
+            st.markdown(f"**{v['as_of']}**(來源:{v['source']})　" +
+                        "　".join(f"`{i.get('產品')}` {i.get('佔比%')}%"
+                                  + (f"({i.get('毛利註記')})" if i.get("毛利註記") else "")
+                                  for i in v["items"]))
+        mc1, mc2 = st.columns([1, 2])
+        _as_of = mc1.text_input("資料期間", placeholder="2026-Q2", key=f"mix_asof_{code}")
+        _src = mc2.text_input("來源", placeholder="8/19法說簡報 p.5", key=f"mix_src_{code}")
+        _tmpl = pd.DataFrame([{"產品": "", "佔比%": None, "毛利註記": ""} for _ in range(4)])
+        _items = st.data_editor(_tmpl, num_rows="dynamic", hide_index=True,
+                                key=f"mix_edit_{code}", width="stretch")
+        if st.button("💾 存產品組合", key=f"mix_save_{code}") and _as_of.strip():
+            rows = [r for r in _items.to_dict("records")
+                    if str(r.get("產品") or "").strip() and r.get("佔比%")]
+            if rows:
+                warn = _pm.set_mix(code, _as_of.strip(), _src.strip() or "手動", rows)
+                try:
+                    import subprocess as _sp
+                    _root = str(Path(__file__).parent.parent)
+                    _sp.run(["git", "add", "data/product_mix.json"], cwd=_root, timeout=30)
+                    _sp.run(["git", "commit", "-q", "-m", f"docs: 產品組合 {code} {_as_of}"],
+                            cwd=_root, timeout=30)
+                    _sp.run(["git", "push", "-q", "origin", "main"], cwd=_root, timeout=60)
+                except Exception:
+                    pass
+                st.success(("已存並同步;之後報告自動基於此結構推論。" + warn).strip())
+                st.rerun()
+        st.caption("版本化:同期間覆蓋、不同期間並存(可看組合遷移軌跡);"
+                   "同業比較報告會帶上主角+同業全部的組合。")
+    else:
+        st.caption("先輸入股票代碼")
+
 if not code.isdigit():
     st.info("輸入代碼後自動載入:出貨動能、財報結構、月營收推估;再一鍵產生法人報告。")
     st.stop()
