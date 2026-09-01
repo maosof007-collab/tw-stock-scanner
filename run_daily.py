@@ -253,6 +253,13 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️  失敗: {e}")
 
+    # ── Step 4.55:大戶籌碼 panel(TDCC 有新週時重建)──
+    try:
+        from big_holder import build_panel
+        build_panel()
+    except Exception as e:
+        log.warning(f"  ⚠️ 大戶panel: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
