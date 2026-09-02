@@ -23,7 +23,7 @@ page_header("月營收預測", "MONTHLY REVENUE FORECAST", "🔮")
 
 import importlib
 import monthly_forecast as _mf
-if not hasattr(_mf, "forecast_month"):
+if not hasattr(_mf, "score_month"):      # 熱更新守門:檢查「最新」函式名
     _mf = importlib.reload(_mf)
 
 from twtime import now_tw
@@ -57,6 +57,25 @@ st.caption(f"樣本 {len(df)} 檔(均量≥500張)。模型A=去年同月×(1+�
            f"模型B=上月實際×歷年同月季節比(2019-2025中位);預測=兩法平均,"
            f"「兩法一致✅」=差距<10%。⚠️ 動能外推看不見產能爬坡與一次性事件;"
            f"YoY>300%多為併購/基期事件另行查證。")
+
+# ── 個股搜尋 ──
+_q = st.text_input("🔎 股票搜尋(代碼或名稱,逗號可多檔)", placeholder="3324 或 雙鴻, 8103",
+                   key="mf_search")
+if _q.strip():
+    _terms = [t.strip() for t in _q.replace(",", ",").split(",") if t.strip()]
+    _hit = df[df.apply(lambda r: any(t in str(r["代碼"]) or t in str(r["名稱"])
+                                     for t in _terms), axis=1)]
+    if _hit.empty:
+        st.warning("找不到——可能均量<500張被流動性濾掉,或目標月前不足3個月營收資料")
+    else:
+        for _, r in _hit.iterrows():
+            _rank = int((df["預測YoY%"] > r["預測YoY%"]).sum()) + 1
+            st.markdown(f"**{r['代碼']} {r['名稱']}**({r['產業']})　"
+                        f"預測 {r['預測(百萬)']:,.0f} 百萬(YoY **{r['預測YoY%']:+.1f}%**,"
+                        f"全市場第 {_rank}/{len(df)} 名)　加速度 {r['加速度pp']}pp　"
+                        f"兩法一致 {r['兩法一致']}　大戶週Δ {r.get('大戶週Δpp','—')}pp　"
+                        f"法人5日 {r.get('法人5日(張)','—')} 張")
+        st.dataframe(_hit, width="stretch", hide_index=True)
 
 t1, t2, t3 = st.tabs(["🏆 看好榜", "🕵️ 籌碼偷跑榜", "📊 模型戰績"])
 
