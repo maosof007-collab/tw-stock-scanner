@@ -140,6 +140,9 @@ if _q.strip():
 
             # ── 自動點評(規則式,數據可稽) ──
             notes = []
+            if str(r.get("基期註記") or ""):
+                notes.append("⚠️ **基期換檔月**:過去一年高YoY來自低基期,本月起基期跳升,"
+                             "YoY將機械性失速——別把失速當衰退,也別把過去的YoY當動能")
             if last is not None:
                 if last["新高"]:
                     notes.append(f"🏆 上月營收**創歷史新高**({last['rev_m']:,.0f} 百萬)")
