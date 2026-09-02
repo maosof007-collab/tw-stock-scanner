@@ -90,11 +90,27 @@ def forecast_month(target: str = "2026-08", min_vol_lots: int = 500) -> pd.DataF
         yoys_prev = [months[k][1] for k in sorted(months)[-6:-3] if k in months]
         accel = yoy_med3 - float(pd.Series(yoys_prev).median()) if len(yoys_prev) >= 2 else None
         pred_a = float(base_ly[c]) * (1 + yoy_med3 / 100) if c in base_ly.index else None
+        # 基期換檔防呆:去年「同月」相對去年「前月」若跳升>50%或崩跌>40%,
+        # 表示目標月正是結構跳變的週年——過去12個月的YoY是低/高基期假象,
+        # 乘上新基期=重複計算跳升(台特化2026-08教案:模型曾生出+210% MoM鬼數字)
+        base_step = None
+        try:
+            base_prev = _bulk(roc - 1, m - 1 if m > 1 else 12)                .set_index("code")["rev"].astype(float)
+            if c in base_prev.index and base_prev[c] > 0 and c in base_ly.index:
+                base_step = float(base_ly[c]) / float(base_prev[c])
+        except Exception:
+            pass
+        base_shift = base_step is not None and (base_step > 1.5 or base_step < 0.6)
+        if base_shift:
+            pred_a = None                # 動能法失效,只用季節法/上月錨
         srat = float(pd.Series(season.get(c, [])).median()) if len(season.get(c, [])) >= 4 else None
         pred_b = float(prev[c]) * srat if srat else None
         preds = [p for p in (pred_a, pred_b) if p]
         if not preds:
-            continue
+            if base_shift:
+                preds = [float(prev[c])]     # 換檔月無季節樣本→上月持平保守估
+            else:
+                continue
         pred = sum(preds) / len(preds)
         pred_yoy = (pred / float(base_ly[c]) - 1) * 100 if c in base_ly.index and base_ly[c] else None
         agree = (abs(pred_a - pred_b) / pred < 0.10) if (pred_a and pred_b) else None
@@ -110,7 +126,8 @@ def forecast_month(target: str = "2026-08", min_vol_lots: int = 500) -> pd.DataF
                      "預測YoY%": round(pred_yoy, 1) if pred_yoy is not None else None,
                      "近3月YoY中位": round(yoy_med3, 1),
                      "加速度pp": round(accel, 1) if accel is not None else None,
-                     "兩法一致": "✅" if agree else ("—" if agree is None else "❌")})
+                     "兩法一致": "✅" if agree else ("—" if agree is None else "❌"),
+                     "基期註記": "⚠️換檔(YoY將失速)" if base_shift else ""})
     df = pd.DataFrame(rows)
 
     # 籌碼偷跑層:法人5日 + 大戶週Δ

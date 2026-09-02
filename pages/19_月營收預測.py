@@ -177,6 +177,14 @@ with t1:
     show = df[(df["兩法一致"] != "❌") & (df["預測YoY%"] < 300)].head(30)
     st.dataframe(show, width="stretch", hide_index=True, height=560)
     st.caption("預測YoY 高+兩法一致=開得不錯機率高;「加速度」負值=動能在降溫,開獎日易失望。")
+    _shift = df[df["基期註記"] != ""] if "基期註記" in df.columns else None
+    if _shift is not None and len(_shift):
+        with st.expander(f"⚠️ 基期換檔警示({len(_shift)} 檔)——高YoY即將失速的地雷清單", expanded=False):
+            st.dataframe(_shift[["代碼", "名稱", "產業", "近3月YoY中位", "預測YoY%", "基期註記"]],
+                         width="stretch", hide_index=True)
+            st.caption("這些股過去一年的高YoY來自「低基期」;本月正是跳升週年,YoY將機械性失速"
+                       "(如台特化 +269%→+19%)。追YoY動能的資金若沒看基期,開獎日容易踩雷;"
+                       "反之若失速後股價不跌=市場早就看懂,體質反而扎實。")
 
 with t2:
     hot = df[(df["預測YoY%"] > 30) & (df["預測YoY%"] < 300)]
