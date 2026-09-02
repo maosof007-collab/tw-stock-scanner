@@ -68,14 +68,95 @@ if _q.strip():
     if _hit.empty:
         st.warning("找不到——可能均量<500張被流動性濾掉,或目標月前不足3個月營收資料")
     else:
+        import plotly.graph_objects as go
         for _, r in _hit.iterrows():
             _rank = int((df["預測YoY%"] > r["預測YoY%"]).sum()) + 1
-            st.markdown(f"**{r['代碼']} {r['名稱']}**({r['產業']})　"
-                        f"預測 {r['預測(百萬)']:,.0f} 百萬(YoY **{r['預測YoY%']:+.1f}%**,"
-                        f"全市場第 {_rank}/{len(df)} 名)　加速度 {r['加速度pp']}pp　"
-                        f"兩法一致 {r['兩法一致']}　大戶週Δ {r.get('大戶週Δpp','—')}pp　"
-                        f"法人5日 {r.get('法人5日(張)','—')} 張")
-        st.dataframe(_hit, width="stretch", hide_index=True)
+            h = _mf.monthly_history(str(r["代碼"]))
+            last = h.iloc[-1] if not h.empty else None
+            st.markdown(f"### {r['代碼']} {r['名稱']}({r['產業']})"
+                        + ("　🏆 **上月創歷史新高**" if last is not None and last["新高"] else ""))
+            mcols = st.columns(6)
+            if last is not None:
+                mcols[0].metric(f"上月營收({last['ym'][5:]}月)", f"{last['rev_m']:,.0f} 百萬")
+                mcols[1].metric("月增率 MoM", f"{last['mom%']:+.1f}%")
+                mcols[2].metric("年增率 YoY", f"{last['yoy']:+.1f}%")
+            mcols[3].metric("本月預測", f"{r['預測(百萬)']:,.0f} 百萬",
+                            f"預測MoM {((r['預測(百萬)']/last['rev_m'])-1)*100:+.1f}%"
+                            if last is not None and last["rev_m"] else None)
+            mcols[4].metric("預測YoY", f"{r['預測YoY%']:+.1f}%",
+                            f"全市場第 {_rank} 名")
+            mcols[5].metric("大戶週Δ / 法人5日",
+                            f"{r.get('大戶週Δpp', '—')}pp / {r.get('法人5日(張)', '—')}張")
+
+            if not h.empty:
+                hh = h.tail(42)
+                figm = go.Figure()
+                figm.add_trace(go.Bar(x=hh["ym"], y=hh["rev_m"], name="月營收(百萬)",
+                                      marker_color="#F2A93B", opacity=0.75))
+                for col, cname, cc in (("ma3", "近3期均", "#FFD166"),
+                                       ("ma6", "近6期均", "#FF4D6D"),
+                                       ("ma12", "近12期均", "#00B4D8")):
+                    figm.add_trace(go.Scatter(x=hh["ym"], y=hh[col], name=cname,
+                                              line=dict(width=1.6, color=cc)))
+                try:
+                    _pp = None
+                    for _suf in (".TW.csv", ".TWO.csv"):
+                        _fp = Path(__file__).parent.parent / "data" / f"{r['代碼']}{_suf}"
+                        if _fp.exists():
+                            _px = pd.read_csv(_fp, index_col=0, parse_dates=True,
+                                              usecols=[0, 4]).iloc[:, 0].dropna()
+                            _pm = _px.resample("ME").last()
+                            _pm.index = _pm.index.strftime("%Y-%m")
+                            _pp = _pm.reindex(hh["ym"])
+                            break
+                    if _pp is not None:
+                        figm.add_trace(go.Scatter(x=hh["ym"], y=_pp.values, name="股價",
+                                                  yaxis="y2",
+                                                  line=dict(width=1.8, color="#E8E8E8")))
+                except Exception:
+                    pass
+                figm.update_layout(height=360, template="plotly_dark",
+                                   paper_bgcolor=THEME["bg"], plot_bgcolor=THEME["panel"],
+                                   font=dict(color=THEME["text"], size=11),
+                                   margin=dict(l=10, r=10, t=10, b=10),
+                                   yaxis=dict(title="百萬", gridcolor=THEME["grid"]),
+                                   yaxis2=dict(overlaying="y", side="right",
+                                               showgrid=False, title="股價"),
+                                   legend=dict(orientation="h", y=1.12))
+                st.plotly_chart(figm, width="stretch")
+
+            # ── 自動點評(規則式,數據可稽) ──
+            notes = []
+            if last is not None:
+                if last["新高"]:
+                    notes.append(f"🏆 上月營收**創歷史新高**({last['rev_m']:,.0f} 百萬)")
+                sea = h[h["ym"].str[5:] == last["ym"][5:]]["mom%"].iloc[:-1].median()
+                if pd.notna(sea):
+                    d = last["mom%"] - sea
+                    notes.append(f"{'🔥 超越' if d > 5 else ('❄️ 落後' if d < -5 else '➖ 貼近')}季節性:"
+                                 f"上月 MoM {last['mom%']:+.1f}% vs 歷年同月中位 {sea:+.1f}%")
+                m3, m6, m12 = last["ma3"], last["ma6"], last["ma12"]
+                if pd.notna(m12):
+                    if m3 > m6 > m12:
+                        notes.append("📈 營收趨勢**多頭排列**(3期均>6期均>12期均)")
+                    elif m3 < m6 < m12:
+                        notes.append("📉 營收趨勢空頭排列(動能退坡)")
+            ac = r.get("加速度pp")
+            if pd.notna(ac):
+                notes.append(f"{'⚡ YoY 仍在加速' if ac > 5 else ('🔻 YoY 動能降溫' if ac < -5 else '➡️ YoY 動能持平')}"
+                             f"(近3月 vs 前3月 {ac:+.1f}pp)")
+            bh_d = r.get("大戶週Δpp"); f5 = r.get("法人5日(張)")
+            if pd.notna(bh_d) and pd.notna(f5):
+                if bh_d >= 0.5 and f5 >= 500:
+                    notes.append(f"🕵️ **籌碼偷跑雙訊號**:大戶週 +{bh_d}pp、法人5日 +{f5:,.0f} 張")
+                elif bh_d <= -0.5 and f5 <= -500:
+                    notes.append(f"⚠️ 籌碼撤退:大戶週 {bh_d}pp、法人5日 {f5:,.0f} 張——開好也提防出貨")
+            if r["預測YoY%"] and r["預測YoY%"] > 300:
+                notes.append("⚠️ 預測YoY>300%:多為併購/基期事件,查證後再用")
+            if r["兩法一致"] == "❌":
+                notes.append("⚠️ 動能法與季節法分歧>10%,本月預測不確定性高")
+            st.markdown("**🗒️ 點評**\n" + "\n".join(f"- {n}" for n in notes))
+            st.markdown("---")
 
 t1, t2, t3 = st.tabs(["🏆 看好榜", "🕵️ 籌碼偷跑榜", "📊 模型戰績"])
 

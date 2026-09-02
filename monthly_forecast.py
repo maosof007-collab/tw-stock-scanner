@@ -224,3 +224,44 @@ def score_month(target: str) -> dict | None:
                           if len(sk) else "無樣本")}
     out["detail"] = j
     return out
+
+
+REV_HIST = ROOT / "data" / "_rev_history.csv"
+
+
+def build_rev_history(force: bool = False) -> pd.DataFrame:
+    """全市場月營收長表(code, ym, rev千元, yoy)——由歷年 bulk 快取拼裝,查個股歷史用。"""
+    files = glob.glob(str(CACHE / "bulk_rev_*_*.csv"))
+    if REV_HIST.exists() and not force:
+        newest = max((Path(f).stat().st_mtime for f in files), default=0)
+        if REV_HIST.stat().st_mtime >= newest:
+            return pd.read_csv(REV_HIST, dtype={"code": str})
+    frames = []
+    import re
+    for f in files:
+        mm = re.search(r"bulk_rev_(\d+)_(\d+)_", Path(f).name)
+        if not mm:
+            continue
+        roc, m = int(mm.group(1)), int(mm.group(2))
+        d = pd.read_csv(f, dtype={"code": str})
+        d["ym"] = f"{roc + 1911}-{m:02d}"
+        frames.append(d[["code", "ym", "rev", "yoy"]])
+    out = (pd.concat(frames, ignore_index=True)
+           .drop_duplicates(subset=["code", "ym"]).sort_values(["code", "ym"]))
+    out.to_csv(REV_HIST, index=False, encoding="utf-8-sig")
+    return out
+
+
+def monthly_history(code: str) -> pd.DataFrame:
+    """個股月營收史:ym/rev(百萬)/yoy%/mom%/近3、6、12期均線/是否歷史新高。"""
+    h = build_rev_history()
+    s = h[h["code"] == code].sort_values("ym").copy()
+    if s.empty:
+        return s
+    s["rev_m"] = s["rev"].astype(float) / 1000
+    s["mom%"] = (s["rev_m"] / s["rev_m"].shift(1) - 1) * 100
+    s["ma3"] = s["rev_m"].rolling(3).mean()
+    s["ma6"] = s["rev_m"].rolling(6).mean()
+    s["ma12"] = s["rev_m"].rolling(12).mean()
+    s["新高"] = s["rev_m"] >= s["rev_m"].cummax()
+    return s[["ym", "rev_m", "yoy", "mom%", "ma3", "ma6", "ma12", "新高"]]
