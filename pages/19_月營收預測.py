@@ -92,6 +92,20 @@ if _q.strip():
                 figm = go.Figure()
                 figm.add_trace(go.Bar(x=hh["ym"], y=hh["rev_m"], name="月營收(百萬)",
                                       marker_color="#F2A93B", opacity=0.75))
+                # 預測月:斜紋幽靈柱 + 虛線連接(和實際柱一眼區分)
+                _tgt_ym = target.strip()
+                figm.add_trace(go.Bar(
+                    x=[_tgt_ym], y=[r["預測(百萬)"]], name=f"預測({_tgt_ym})",
+                    marker=dict(color="#FFD166", opacity=0.35,
+                                pattern=dict(shape="/", fgcolor="#FFD166", solidity=0.25),
+                                line=dict(color="#FFD166", width=1.5)),
+                    text=[f"{r['預測(百萬)']:,.0f}"], textposition="outside",
+                    textfont=dict(color="#FFD166", size=11)))
+                figm.add_trace(go.Scatter(
+                    x=[hh["ym"].iloc[-1], _tgt_ym],
+                    y=[hh["rev_m"].iloc[-1], r["預測(百萬)"]],
+                    mode="lines", name="預測路徑",
+                    line=dict(dash="dash", width=2, color="#FFD166")))
                 for col, cname, cc in (("ma3", "近3期均", "#FFD166"),
                                        ("ma6", "近6期均", "#FF4D6D"),
                                        ("ma12", "近12期均", "#00B4D8")):
