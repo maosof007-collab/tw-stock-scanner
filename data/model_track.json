@@ -89,5 +89,145 @@
   "period": "2026-Q3",
   "predicted": 35.7,
   "note": "系統修正版(含7月自結GM36;自動版33.6錨定跟不上月自結)"
+ },
+ {
+  "code": "1808",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 1330.5,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+70672%)"
+ },
+ {
+  "code": "4416",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 275.2,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+2864%)"
+ },
+ {
+  "code": "8926",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 8042.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+1459%)"
+ },
+ {
+  "code": "6265",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 913.4,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+894%)"
+ },
+ {
+  "code": "2408",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 50362.6,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+645%)"
+ },
+ {
+  "code": "5386",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 1652.2,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+607%)"
+ },
+ {
+  "code": "5289",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 8849.1,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+590%)"
+ },
+ {
+  "code": "5351",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 2348.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+550%)"
+ },
+ {
+  "code": "3535",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 128.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+544%)"
+ },
+ {
+  "code": "3006",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 5926.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+429%)"
+ },
+ {
+  "code": "8096",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 10258.6,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+422%)"
+ },
+ {
+  "code": "3708",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 90.9,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+363%)"
+ },
+ {
+  "code": "8299",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 26040.5,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+339%)"
+ },
+ {
+  "code": "2451",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 5646.9,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+338%)"
+ },
+ {
+  "code": "8112",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 68718.9,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+330%)"
+ },
+ {
+  "code": "6199",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 127.3,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+317%)"
+ },
+ {
+  "code": "2465",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 995.9,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+308%)"
+ },
+ {
+  "code": "6179",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 973.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+289%)"
+ },
+ {
+  "code": "2059",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 5575.8,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+283%)"
+ },
+ {
+  "code": "3147",
+  "metric": "monthly_rev",
+  "period": "2026-08",
+  "predicted": 1728.7,
+  "note": "月營收預測模型(2026-08榜前20,預YoY+275%)"
  }
 ]
