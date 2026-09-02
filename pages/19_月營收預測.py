@@ -36,7 +36,7 @@ target = st.text_input("預測月份", value=f"{_y}-{_m:02d}", key="mf_target")
 
 
 @st.cache_data(ttl=6 * 3600, show_spinner="全市場雙模型預測中(首次約60秒)…")
-def _run(t):
+def _run(t, ver=2):                      # ver:欄位改版時+1 破舊快取
     df = _mf.forecast_month(t)
     try:                                 # 全表存檔=開獎後三層評比的原料
         df.to_csv(Path(__file__).parent.parent / "data" /

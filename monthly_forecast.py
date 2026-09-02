@@ -98,9 +98,15 @@ def forecast_month(target: str = "2026-08", min_vol_lots: int = 500) -> pd.DataF
         pred = sum(preds) / len(preds)
         pred_yoy = (pred / float(base_ly[c]) - 1) * 100 if c in base_ly.index and base_ly[c] else None
         agree = (abs(pred_a - pred_b) / pred < 0.10) if (pred_a and pred_b) else None
+        pred_mom = (pred / float(prev[c]) - 1) * 100
+        mkeys = sorted(months)
+        last_mom = ((months[mkeys[-1]][0] / months[mkeys[-2]][0] - 1) * 100
+                    if len(mkeys) >= 2 and months[mkeys[-2]][0] else None)
         rows.append({"代碼": c, "名稱": nm.get(c, ""), "產業": sec.get(c, ""),
                      "上月實際(百萬)": round(float(prev[c]) / 1000, 1),
+                     "上月MoM%": round(last_mom, 1) if last_mom is not None else None,
                      "預測(百萬)": round(pred / 1000, 1),
+                     "預測MoM%": round(pred_mom, 1),
                      "預測YoY%": round(pred_yoy, 1) if pred_yoy is not None else None,
                      "近3月YoY中位": round(yoy_med3, 1),
                      "加速度pp": round(accel, 1) if accel is not None else None,
