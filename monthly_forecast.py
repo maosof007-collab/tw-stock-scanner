@@ -149,3 +149,78 @@ if __name__ == "__main__":
     print(show.to_string(index=False))
     n = record_top(df, target)
     print(f"\n已寫入預實追蹤 {n} 筆(開獎自動對答案)")
+
+
+def score_month(target: str) -> dict | None:
+    """開獎後三層評比(需 forecast 時存的全市場預測檔 + 實際 bulk):
+      ①數字層:誤差分佈/偏誤/兩法各自準度
+      ②排序層:預測YoY vs 實際YoY 的 Spearman IC + 看好榜抓到前20%強股的比例
+      ③報酬層:看好榜/偷跑榜 開獎窗(1~12日)報酬 vs 全市場中位
+    對照基準:naive=「上月YoY延續」——模型沒贏 naive 就是白做。"""
+    y, m = int(target[:4]), int(target[5:7])
+    fpath = ROOT / "data" / f"_monthly_forecast_{y}{m:02d}.csv"
+    if not fpath.exists():
+        return None
+    pred = pd.read_csv(fpath, dtype={"代碼": str})
+    act = _bulk(y - 1911, m)
+    if act.empty:
+        return None
+    act = act.set_index("code")
+    j = pred.set_index("代碼").join(act[["rev", "yoy"]], how="inner").dropna(subset=["rev"])
+    if len(j) < 50:
+        return None
+    j["實際(百萬)"] = j["rev"].astype(float) / 1000
+    j["實際YoY%"] = j["yoy"].astype(float)
+    j["誤差%"] = (j["實際(百萬)"] / j["預測(百萬)"] - 1) * 100
+
+    out = {"n": len(j)}
+    e = j["誤差%"]
+    out["數字層"] = {"命中±5%": f"{(e.abs()<=5).mean()*100:.0f}%",
+                  "命中±10%": f"{(e.abs()<=10).mean()*100:.0f}%",
+                  "中位絕對誤差": f"{e.abs().median():.1f}%",
+                  "偏誤(實際-預測)": f"{e.median():+.1f}%(正=系統性低估)"}
+    # 排序層:IC + 前20%捕捉率;naive基準=用「近3月YoY中位」以外的最後一個月YoY
+    ic = j["預測YoY%"].rank().corr(j["實際YoY%"].rank())
+    naive_ic = j["近3月YoY中位"].rank().corr(j["實際YoY%"].rank())
+    top_actual = j["實際YoY%"] >= j["實際YoY%"].quantile(0.8)
+    top_pred = j.sort_values("預測YoY%", ascending=False).head(30).index
+    capture = top_actual.loc[top_pred].mean() * 100
+    out["排序層"] = {"IC(預測vs實際排名)": f"{ic:.2f}",
+                  "naive基準IC": f"{naive_ic:.2f}",
+                  "判定": "模型贏" if ic > naive_ic else "沒贏naive,模型無增量",
+                  "看好榜30抓到實際前20%強股": f"{capture:.0f}%(亂猜=20%)"}
+    # 報酬層:開獎窗 1日~12日 報酬
+    px = {}
+    import glob as _g
+    codes_need = set(j.index)
+    for f in _g.glob(str(ROOT / "data" / "*.TW.csv")) + _g.glob(str(ROOT / "data" / "*.TWO.csv")):
+        c = Path(f).stem.split(".")[0]
+        if c in codes_need:
+            s = pd.read_csv(f, index_col=0, parse_dates=True, usecols=[0, 4]).iloc[:, 0]
+            px[c] = pd.to_numeric(s, errors="coerce").dropna()
+    ny, nm = (y, m + 1) if m < 12 else (y + 1, 1)
+    d0, d1 = pd.Timestamp(ny, nm, 1), pd.Timestamp(ny, nm, 12)
+
+    def wret(c):
+        s = px.get(c)
+        if s is None:
+            return None
+        try:
+            a, b = float(s.asof(d0)), float(s.asof(d1))
+            return (b / a - 1) * 100 if a else None
+        except Exception:
+            return None
+    j["開獎窗報酬%"] = [wret(c) for c in j.index]
+    mkt_med = j["開獎窗報酬%"].median()
+    fav = j.sort_values("預測YoY%", ascending=False).head(30)["開獎窗報酬%"].dropna()
+    sneak = j[(j["預測YoY%"] > 30)]
+    if "大戶週Δpp" in j.columns:
+        sneak = sneak[(sneak["大戶週Δpp"].fillna(0) >= 0.5) |
+                      (sneak["法人5日(張)"].fillna(0) >= 500)]
+    sk = sneak["開獎窗報酬%"].dropna()
+    out["報酬層"] = {"全市場中位": f"{mkt_med:+.1f}%",
+                  "看好榜30": f"{fav.mean():+.1f}%(超額 {fav.mean()-mkt_med:+.1f})",
+                  "偷跑榜": (f"{sk.mean():+.1f}%(超額 {sk.mean()-mkt_med:+.1f},n={len(sk)})"
+                          if len(sk) else "無樣本")}
+    out["detail"] = j
+    return out

@@ -38,7 +38,14 @@ target = st.text_input("預測月份", value=f"{_y}-{_m:02d}", key="mf_target")
 
 @st.cache_data(ttl=6 * 3600, show_spinner="全市場雙模型預測中(首次約60秒)…")
 def _run(t):
-    return _mf.forecast_month(t)
+    df = _mf.forecast_month(t)
+    try:                                 # 全表存檔=開獎後三層評比的原料
+        df.to_csv(Path(__file__).parent.parent / "data" /
+                  f"_monthly_forecast_{t.replace('-','')}.csv",
+                  index=False, encoding="utf-8-sig")
+    except Exception:
+        pass
+    return df
 
 
 df = _run(target.strip())
@@ -67,6 +74,31 @@ with t2:
                "不只模型說會開好,而且**已經有人先卡位**。開獎行情可信度較高。")
 
 with t3:
+    # 三層評比:上一個「已開獎」的預測月成績單
+    import glob as _g
+    _saved = sorted(_g.glob(str(Path(__file__).parent.parent / "data" / "_monthly_forecast_*.csv")))
+    for _f in _saved[::-1]:
+        _t = Path(_f).stem.replace("_monthly_forecast_", "")
+        _tgt = f"{_t[:4]}-{_t[4:6]}"
+        _sc = _mf.score_month(_tgt)
+        if _sc:
+            st.markdown(f"#### 🎯 {_tgt} 三層評比(n={_sc['n']})")
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown("**① 數字層(猜得準嗎)**")
+                for k, v in _sc["數字層"].items():
+                    st.caption(f"{k}:{v}")
+            with c2:
+                st.markdown("**② 排序層(挑對股了嗎)**")
+                for k, v in _sc["排序層"].items():
+                    st.caption(f"{k}:{v}")
+            with c3:
+                st.markdown("**③ 報酬層(有錢賺嗎)**")
+                for k, v in _sc["報酬層"].items():
+                    st.caption(f"{k}:{v}")
+            st.caption("三層可以不同調:數字準但排序沒用=大家都猜得到;"
+                       "排序對但報酬層輸=利多早已 price in——**報酬層才是最終裁判**。")
+            break
     from model_track import check_all
     tr = check_all()
     mine = tr[tr["備註"].astype(str).str.startswith("月營收預測模型")]
