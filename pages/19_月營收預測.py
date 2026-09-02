@@ -23,8 +23,7 @@ page_header("月營收預測", "MONTHLY REVENUE FORECAST", "🔮")
 
 import importlib
 import monthly_forecast as _mf
-if not hasattr(_mf, "score_month"):      # 熱更新守門:檢查「最新」函式名
-    _mf = importlib.reload(_mf)
+_mf = importlib.reload(_mf)   # 無條件reload:守門函式名追不上新增速度,模組輕直接重載一勞永逸
 
 from twtime import now_tw
 _now = now_tw()
