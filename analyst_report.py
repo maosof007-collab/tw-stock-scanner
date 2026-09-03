@@ -520,6 +520,10 @@ def save_article(code: str, name: str, mode: str, content: str) -> str:
     header = (f"<!--meta\ntitle: {first[:80]}\ncode: {code}\nname: {name}\n"
               f"mode: {mode}\ndate: {now_tw():%Y-%m-%d %H:%M}\n-->\n\n")
     p = ART_DIR / f"art_{ts}_{code}.md"
+    n = 2
+    while p.exists():                      # 同分鐘同代號防覆蓋
+        p = ART_DIR / f"art_{ts}_{code}_{n}.md"
+        n += 1
     p.write_text(header + content, encoding="utf-8")
     return p.name
 
