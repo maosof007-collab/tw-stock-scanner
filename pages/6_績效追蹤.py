@@ -747,7 +747,7 @@ else:
     # 停損建議表(open 持倉)
     st.markdown("#### 🛑 停損建議(家規:未賺1R守初始/賺1R後保本+移動)")
     _rows = []
-    for _, r in _jn[_jn["status"] == "open"].iterrows():
+    for _, r in _edit[_edit["status"] == "open"].iterrows():   # 用編輯中的表 → 改買入價立即連動
         bp = float(r["buy_price"]) if pd.notna(r.get("buy_price")) and r.get("buy_price") else None
         s = _wr.stop_suggestion(r["code"], bp)
         if not s:
