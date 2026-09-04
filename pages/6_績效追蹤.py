@@ -682,6 +682,33 @@ st.markdown(
 )
 
 # ════════════════════════════════════════
+# 🩺 買前體檢卡(下單前 10 秒看四個燈)
+# ════════════════════════════════════════
+st.markdown("---")
+st.markdown("### 🩺 買前體檢卡")
+st.caption("下單前輸入代號:倒貨率/外資倒貨窗/投信/大戶/融資擁擠/爆量追高窗/位置 一次亮燈。"
+           "教訓來源:2449 追高案+七月三層評比(開獎日進場沒有超額)。")
+import importlib as _il
+import pretrade as _pt
+_pt = _il.reload(_pt)                     # 迭代中模組:無條件重載
+_c1, _c2 = st.columns([1, 1])
+_hc_code = _c1.text_input("股票代號", key="hc_code")
+_hc_bp = _c2.number_input("預計買價(0=用現價)", min_value=0.0, value=0.0, step=0.5, key="hc_bp")
+if _hc_code.strip():
+    _hc = _pt.health_check(_hc_code.strip(), _hc_bp or None)
+    if _hc["verdict"].startswith("🔴"):
+        st.error(_hc["verdict"])
+    elif _hc["verdict"].startswith("🟡"):
+        st.warning(_hc["verdict"])
+    else:
+        st.success(_hc["verdict"])
+    st.dataframe(pd.DataFrame(_hc["rows"]), use_container_width=True, hide_index=True)
+    if _hc["stops"]:
+        _s = _hc["stops"]
+        st.caption(f"🛑 初始停損 **{_s['初始停損(買價-1.5ATR)']}**(1.5×ATR {_s['ATR14']})"
+                   f"|MA20 參考 {_s['MA20參考']}|現價 {_s['現價']:.1f} — 買了就到下方日誌 --buy 記一筆")
+
+# ════════════════════════════════════════
 # 📓 決策日誌(週檢視 SOP)— 填買入價/論點,自動算停損建議
 # ════════════════════════════════════════
 st.markdown("---")
