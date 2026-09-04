@@ -96,12 +96,19 @@ def stop_suggestion(code: str, buy_price: float | None = None) -> dict:
     return out
 
 
-def close_trade(code: str, note: str) -> None:
+def close_trade(code: str, note: str, buy_price: float | None = None) -> None:
+    """平倉。buy_price 給定時只平該筆(分批持倉各自進出);未給則平該代號全部 open。"""
     df = _load()
     m = (df["code"] == code) & (df["status"] == "open")
+    if buy_price is not None:
+        bp = pd.to_numeric(df["buy_price"], errors="coerce")
+        m = m & (bp.sub(float(buy_price)).abs() < 0.01)
+        if not m.any():
+            print(f"[journal] 找不到 {code} 買價 {buy_price} 的 open 筆,未動作")
+            return
     df.loc[m, ["status", "close_date", "close_note"]] = ["closed", f"{now_tw():%Y-%m-%d}", note]
     _save(df)
-    print(f"[journal] 平倉 {code}:{note}")
+    print(f"[journal] 平倉 {code}({int(m.sum())}筆):{note}")
 
 
 # ────────────────────────────────────────
