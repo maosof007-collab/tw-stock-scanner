@@ -720,49 +720,132 @@ if not hasattr(_wr, "stop_suggestion"):
     _wr = importlib.reload(_wr)
 
 _jn = _wr._load()
-for _col in ("buy_price", "close_price"):
+for _col in ("buy_price", "close_price", "shares"):
     if _col not in _jn.columns:
         _jn[_col] = None
+_jn["shares"] = pd.to_numeric(_jn["shares"], errors="coerce").fillna(1)
+
+
+def _jlast2(code):
+    """(現價, 前收) 供市值/今日損益;無資料回 (None, None)。"""
+    d = _pt._price_df(code)
+    if d is None or len(d) < 2:
+        return None, None
+    return float(d["Close"].iloc[-1]), float(d["Close"].iloc[-2])
+
 
 if _jn.empty:
     st.info("尚無記錄。新增:本機執行 python weekly_review.py --buy 代碼 --price 買入價 --thesis \"論點\"")
 else:
-    st.caption("直接在表格填/改 **買入價** 與論點(status 改 closed=平倉),按儲存。"
-               "買入價填入後,停損建議會照家規計算:未賺1R守初始停損(買價-1.5ATR)、賺1R後保本+移動。")
-    _edit = st.data_editor(
-        _jn, width="stretch", hide_index=True, key="journal_editor",
-        column_config={
-            "buy_price": st.column_config.NumberColumn("買入價(可填)", format="%.2f"),
-            "close_price": st.column_config.NumberColumn("出場價(平倉時填)", format="%.2f"),
-            "thesis": st.column_config.TextColumn("論點", width="large"),
-            "status": st.column_config.SelectboxColumn("狀態", options=["open", "closed"]),
-            "date": st.column_config.TextColumn("記錄日", disabled=True),
-            "code": st.column_config.TextColumn("代碼", disabled=True),
-            "name": st.column_config.TextColumn("名稱", disabled=True),
-            "ref_close": st.column_config.NumberColumn("記錄日收盤", disabled=True),
-        })
-    if st.button("💾 儲存日誌", key="journal_save"):
-        _wr._save(_edit)
-        st.success("已儲存;週六的週檢視會用新買入價計算")
-        st.rerun()
+    _tab_hold, _tab_hist = st.tabs(["📊 我的持股", "🧾 交易紀錄"])
 
-    # 停損建議表(open 持倉)
-    st.markdown("#### 🛑 停損建議(家規:未賺1R守初始/賺1R後保本+移動)")
-    _rows = []
-    for _, r in _edit[_edit["status"] == "open"].iterrows():   # 用編輯中的表 → 改買入價立即連動
-        bp = float(r["buy_price"]) if pd.notna(r.get("buy_price")) and r.get("buy_price") else None
-        s = _wr.stop_suggestion(r["code"], bp)
-        if not s:
-            continue
-        _rows.append({"代碼": r["code"], "名稱": r["name"], "買入價": bp,
-                      "現價": s.get("現價"),
-                      "報酬%": round((s["現價"] / bp - 1) * 100, 1) if bp else None,
-                      "建議停損": s.get("建議"),
-                      "距停損%": round((s["建議"] / s["現價"] - 1) * 100, 1),
-                      "初始(買價-1.5ATR)": s.get("初始(買價-1.5ATR)"),
-                      "移動(收盤-2ATR)": s.get("移動(收盤-2ATR)"),
-                      "20日低": s.get("20日低"),
-                      "說明": s.get("說明")})
-    if _rows:
-        st.dataframe(pd.DataFrame(_rows), width="stretch", hide_index=True)
-        st.caption("「建議停損」只升不降;跌破=紀律出場,不討論。未填買入價的先用移動煞車代替。")
+    # ── 我的持股 ──
+    with _tab_hold:
+        _open = _jn[_jn["status"] == "open"].copy()
+        # 總覽卡
+        _mv = _upl = _day = _cost = 0.0
+        for _, r in _open.iterrows():
+            px, prev = _jlast2(r["code"])
+            bp = pd.to_numeric(r["buy_price"], errors="coerce")
+            sh = float(r["shares"])
+            if px is None:
+                continue
+            _mv += px * sh * 1000
+            _day += (px - prev) * sh * 1000
+            if pd.notna(bp):
+                _upl += (px - bp) * sh * 1000
+                _cost += bp * sh * 1000
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("總市值", f"{_mv/1e4:,.1f} 萬", f"{len(_open)} 筆持股", delta_color="off")
+        m2.metric("未實現損益", f"{_upl/1e4:+,.1f} 萬",
+                  f"{(_upl/_cost*100):+.1f}%" if _cost else "填入成本後顯示")
+        m3.metric("今日損益", f"{_day/1e4:+,.1f} 萬")
+        m4.metric("持股檔數", f"{_open['code'].nunique()}")
+
+        st.caption("填/改 **買入價/張數/論點**;要平倉→狀態改 closed 並填出場價,按下方儲存後移入交易紀錄。")
+        _eo = st.data_editor(
+            _open, width="stretch", hide_index=True, key="journal_open_editor",
+            column_config={
+                "buy_price": st.column_config.NumberColumn("買入價", format="%.2f"),
+                "close_price": st.column_config.NumberColumn("出場價(平倉填)", format="%.2f"),
+                "shares": st.column_config.NumberColumn("張數", format="%.0f"),
+                "thesis": st.column_config.TextColumn("論點", width="large"),
+                "status": st.column_config.SelectboxColumn("狀態", options=["open", "closed"]),
+                "date": st.column_config.TextColumn("記錄日", disabled=True),
+                "code": st.column_config.TextColumn("代碼", disabled=True),
+                "name": st.column_config.TextColumn("名稱", disabled=True),
+                "ref_close": st.column_config.NumberColumn("記錄日收盤", disabled=True),
+                "close_date": None, "close_note": None,
+            })
+
+        # 停損建議(用編輯中的值,即改即連動)
+        st.markdown("#### 🛑 停損建議(家規:未賺1R守初始/賺1R後保本+移動)")
+        _rows = []
+        for _, r in _eo[_eo["status"] == "open"].iterrows():
+            bp = float(r["buy_price"]) if pd.notna(r.get("buy_price")) and r.get("buy_price") else None
+            s = _wr.stop_suggestion(r["code"], bp)
+            if not s:
+                continue
+            _rows.append({"代碼": r["code"], "名稱": r["name"], "買入價": bp,
+                          "現價": s.get("現價"),
+                          "報酬%": round((s["現價"] / bp - 1) * 100, 1) if bp else None,
+                          "建議停損": s.get("建議"),
+                          "距停損%": round((s["建議"] / s["現價"] - 1) * 100, 1),
+                          "初始(買價-1.5ATR)": s.get("初始(買價-1.5ATR)"),
+                          "移動(收盤-2ATR)": s.get("移動(收盤-2ATR)"),
+                          "20日低": s.get("20日低"), "說明": s.get("說明")})
+        if _rows:
+            st.dataframe(pd.DataFrame(_rows), width="stretch", hide_index=True)
+            st.caption("「建議停損」只升不降;跌破=紀律出場,不討論。")
+
+        # 組合健檢(體檢卡燈號總覽)
+        with st.expander("🛡️ 組合健檢(每檔體檢卡總評)", expanded=True):
+            for c in _eo[_eo["status"] == "open"]["code"].unique():
+                try:
+                    _v = _pt.health_check(c)["verdict"]
+                    st.markdown(f"- **{c}**:{_v}")
+                except Exception:
+                    st.markdown(f"- **{c}**:⚪ 無法體檢")
+
+    # ── 交易紀錄 ──
+    with _tab_hist:
+        _closed = _jn[_jn["status"] == "closed"].copy()
+        if _closed.empty:
+            st.info("尚無平倉紀錄。")
+            _ec = _closed
+        else:
+            _bpn = pd.to_numeric(_closed["buy_price"], errors="coerce")
+            _cpn = pd.to_numeric(_closed["close_price"], errors="coerce")
+            _closed["報酬%"] = ((_cpn / _bpn - 1) * 100).round(1)
+            _pl = ((_cpn - _bpn) * _closed["shares"] * 1000)
+            _win = (_closed["報酬%"] > 0).sum()
+            _tot = _closed["報酬%"].notna().sum()
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("已實現損益", f"{_pl.sum()/1e4:+,.1f} 萬")
+            c2.metric("勝率", f"{_win}/{_tot}" + (f"({_win/_tot*100:.0f}%)" if _tot else ""))
+            c3.metric("平均報酬", f"{_closed['報酬%'].mean():+.1f}%" if _tot else "—")
+            c4.metric("筆數", f"{len(_closed)}")
+            _ec = st.data_editor(
+                _closed.drop(columns=["報酬%"]), width="stretch", hide_index=True,
+                key="journal_closed_editor",
+                column_config={
+                    "buy_price": st.column_config.NumberColumn("買入價", format="%.2f"),
+                    "close_price": st.column_config.NumberColumn("出場價", format="%.2f"),
+                    "shares": st.column_config.NumberColumn("張數", format="%.0f"),
+                    "thesis": st.column_config.TextColumn("論點", width="large"),
+                    "close_note": st.column_config.TextColumn("出場備註", width="large"),
+                    "status": st.column_config.SelectboxColumn("狀態", options=["open", "closed"]),
+                    "date": st.column_config.TextColumn("記錄日", disabled=True),
+                    "code": st.column_config.TextColumn("代碼", disabled=True),
+                    "name": st.column_config.TextColumn("名稱", disabled=True),
+                    "ref_close": st.column_config.NumberColumn("記錄日收盤", disabled=True),
+                })
+            st.dataframe(_closed[["code", "name", "buy_price", "close_price", "報酬%"]]
+                         .rename(columns={"code": "代碼", "name": "名稱",
+                                          "buy_price": "買入價", "close_price": "出場價"}),
+                         width="stretch", hide_index=True)
+
+    if st.button("💾 儲存日誌", key="journal_save"):
+        _wr._save(pd.concat([_eo, _ec]).sort_index())
+        st.success("已儲存;週六的週檢視會用新資料計算")
+        st.rerun()
