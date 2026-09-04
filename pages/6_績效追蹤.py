@@ -720,8 +720,9 @@ if not hasattr(_wr, "stop_suggestion"):
     _wr = importlib.reload(_wr)
 
 _jn = _wr._load()
-if "buy_price" not in _jn.columns:
-    _jn["buy_price"] = None
+for _col in ("buy_price", "close_price"):
+    if _col not in _jn.columns:
+        _jn[_col] = None
 
 if _jn.empty:
     st.info("尚無記錄。新增:本機執行 python weekly_review.py --buy 代碼 --price 買入價 --thesis \"論點\"")
@@ -732,6 +733,7 @@ else:
         _jn, width="stretch", hide_index=True, key="journal_editor",
         column_config={
             "buy_price": st.column_config.NumberColumn("買入價(可填)", format="%.2f"),
+            "close_price": st.column_config.NumberColumn("出場價(平倉時填)", format="%.2f"),
             "thesis": st.column_config.TextColumn("論點", width="large"),
             "status": st.column_config.SelectboxColumn("狀態", options=["open", "closed"]),
             "date": st.column_config.TextColumn("記錄日", disabled=True),
