@@ -762,6 +762,21 @@ else:
         m3.metric("今日損益", f"{_day/1e4:+,.1f} 萬")
         m4.metric("持股檔數", f"{_open['code'].nunique()}")
 
+        with st.expander("➕ 新增持股(買了就記)", expanded=False):
+            n1, n2, n3, n4 = st.columns([1, 1, 1, 2])
+            _nc = n1.text_input("代號", key="jn_code")
+            _np = n2.number_input("買入價", min_value=0.0, value=0.0, step=0.5, key="jn_price")
+            _ns = n3.number_input("張數", min_value=1, value=1, step=1, key="jn_shares")
+            _nt = n4.text_input("論點(一句話,為什麼買)", key="jn_thesis")
+            if st.button("記一筆", type="primary", key="jn_add") and _nc.strip() and _np > 0:
+                _wr.add_trade(_nc.strip(), _nt.strip() or "(論點待補)", float(_np))
+                if int(_ns) != 1:
+                    _j2 = _wr._load()
+                    _j2.loc[_j2.index[-1], "shares"] = int(_ns)
+                    _wr._save(_j2)
+                st.success(f"已記 {_nc} @ {_np}({_ns}張)")
+                st.rerun()
+
         st.caption("填/改 **買入價/張數/論點**;要平倉→**填出場價後按儲存即可**(自動改 closed 移入交易紀錄)。")
         _eo = st.data_editor(
             _open, width="stretch", hide_index=True, key="journal_open_editor",
