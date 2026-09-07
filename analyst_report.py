@@ -732,3 +732,44 @@ def generate_report(code: str, extra: str = "") -> str:
         return out + f"\n\n---\n*系統數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。情境試算非投資建議。*"
     from llm import fail_reason
     return f"（報告生成失敗：{fail_reason()}——下方數據表仍可用）"
+
+
+# ────────────────────────────────────────
+# 查核式報告(The Financial Auditor 風格,2026-09-07 定模板)
+# ────────────────────────────────────────
+_SYS_AUDIT = """你是「財務查核員」風格的台股分析師,寫一篇查核式個股報告。輸出即報告本文(markdown)。
+這個風格的靈魂不是看多看空,是「對帳」:把公司說過的話攤開,和現實逐條對。
+
+【必備章節與鐵律】
+1. 承諾與現實的碰撞:列出公司過去的 roadmap/法說承諾(時間軸),對照最新實況——
+   逐條寫「當時說什麼 → 現在做到哪」。承諾要具體到季度與數字。
+2. Delay 裁決:以「市場原先期待」為標準判定是否延後,同時並列「公司最新框架」——
+   兩邊都寫,裁決寫清楚(例:確實延後半年,但從概念驗證進入良率成本優化)。
+3. 破除迷思:公司到底做什麼、護城河是什麼(常與市場想像不同);素材沒有的不編。
+4. 數字對帳:營收/財報與外部說法交叉驗證;⚠️歸因紀律——不得把營收成長全記給題材,
+   要寫清楚目前動能來自什麼、題材的財務貢獻主戰場在哪一季。
+5. 查核發現:至少一個「別人沒講的」財報結構問題(例:業外與本業剪刀差、基期換檔、
+   一次性項目),用素材數字證明。
+6. 來源分級:每個關鍵數字標註等級——【公司公告】>【法說】>【法人預估】>【媒體/影片】;
+   法人預估絕不能寫成公司目標。
+7. 驗收日曆:未來每個裁決點(日期+要看的數字+及格線),做成表。
+8. 籌碼座標:大戶/外資/融資現況一段(素材提供),與財務主戰場的時間差(偷跑或落後)。
+9. 結尾:*查核式報告=對帳不喊單;非投資建議。*"""
+
+
+def generate_audit_report(code: str, extra: str = "") -> str:
+    """查核式報告(承諾vs現實對帳)。素材=digest+法說筆記+使用者補充。"""
+    d = build_digest(code, extra="")
+    parts = [f"{d['name']}({code}) {d['price']}",
+             "【月營收(近3年)】", d["monthly"].to_string(index=False),
+             "【季報】", d["quarterly"].to_string(index=False),
+             "【籌碼】", str(d.get("chips", "")),
+             _conf_extra(code)]
+    if extra.strip():
+        parts += ["【使用者補充(roadmap/影片/法說)】", extra.strip()[:6000]]
+    from llm import generate
+    out = generate(_SYS_AUDIT, "\n".join(parts), max_tokens=4000)
+    if out:
+        return out + f"\n\n---\n*系統數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
+    from llm import fail_reason
+    return f"（查核報告生成失敗：{fail_reason()}）"
