@@ -224,10 +224,18 @@ def run_review() -> str:
     L.append("\n## ② 產業輪動(本週)")
     L.append(_week_rotation())
 
-    L.append("\n## ③ 決策回顧(本週新單的系統背書)")
+    L.append("\n## ③ 決策回顧(本週新單的系統背書+體檢卡家規)")
     wk_ago = f"{now_tw() - pd.Timedelta(days=7):%Y-%m-%d}"
     for _, r in df[df["date"] >= wk_ago].iterrows():
         L.append(f"- {r['code']} {r['name']}:{_signal_backing(r['code'])}")
+        try:
+            import pretrade
+            hc = pretrade.health_check(r["code"])
+            reds = sum(1 for x in hc["rows"] if x["燈"] == "🔴")
+            L.append(f"  體檢卡(檢視時):{hc['verdict']}"
+                     + ("|**⚠️ 家規:紅燈≥2 的進場應減半倉——本筆倉位要對照檢查**" if reds >= 2 else ""))
+        except Exception:
+            pass
 
     L.append("\n## ④ 論點盤點(THESIS 還成立嗎)")
     for _, r in opens.iterrows():
@@ -241,7 +249,9 @@ def run_review() -> str:
             facts.append(f"RS60 {ctx['rs60']}")
         L.append(f"- **{r['code']} {r['name']}** 論點:「{r['thesis']}」")
         L.append(f"  當前事實:{';'.join(facts) if facts else '無資料'}")
-    L.append("\n*煞車=收盤-2×ATR(每週上移不下移);週檢視是紀律儀式,不是重新說服自己的機會。非投資建議。*")
+    L.append("\n*家規(2026-09-07 新增):買前過體檢卡,🔴紅燈≥2 → 減半倉或不進場;"
+             "天量後統計=78%會再創高但中位先洗-11%,停損掛在統計常態之外。*")
+    L.append("*煞車=收盤-2×ATR(每週上移不下移);週檢視是紀律儀式,不是重新說服自己的機會。非投資建議。*")
 
     content = "\n".join(L)
     # LLM 總評(有引擎才附)

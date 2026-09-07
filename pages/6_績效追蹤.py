@@ -687,7 +687,7 @@ st.markdown(
 st.markdown("---")
 st.markdown("### 🩺 買前體檢卡")
 st.caption("下單前輸入代號:倒貨率/外資倒貨窗/投信/大戶/融資擁擠/爆量追高窗/位置 一次亮燈。"
-           "教訓來源:2449 追高案+七月三層評比(開獎日進場沒有超額)。")
+           "**家規(2026-09-07):🔴紅燈≥2 → 減半倉或不進場**;週六週檢視會對每筆新單覆核這條。")
 import importlib as _il
 import pretrade as _pt
 _pt = _il.reload(_pt)                     # 迭代中模組:無條件重載
