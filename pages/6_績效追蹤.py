@@ -762,7 +762,7 @@ else:
         m3.metric("今日損益", f"{_day/1e4:+,.1f} 萬")
         m4.metric("持股檔數", f"{_open['code'].nunique()}")
 
-        st.caption("填/改 **買入價/張數/論點**;要平倉→狀態改 closed 並填出場價,按下方儲存後移入交易紀錄。")
+        st.caption("填/改 **買入價/張數/論點**;要平倉→**填出場價後按儲存即可**(自動改 closed 移入交易紀錄)。")
         _eo = st.data_editor(
             _open, width="stretch", hide_index=True, key="journal_open_editor",
             column_config={
@@ -846,6 +846,15 @@ else:
                          width="stretch", hide_index=True)
 
     if st.button("💾 儲存日誌", key="journal_save"):
-        _wr._save(pd.concat([_eo, _ec]).sort_index())
-        st.success("已儲存;週六的週檢視會用新資料計算")
+        _all = pd.concat([_eo, _ec]).sort_index()
+        # 填了出場價=要平倉:自動補 status/close_date,不必手動改狀態
+        _cpn = pd.to_numeric(_all["close_price"], errors="coerce")
+        _auto = (_all["status"] == "open") & _cpn.notna()
+        if _auto.any():
+            _all.loc[_auto, "status"] = "closed"
+            _all.loc[_auto, "close_date"] = f"{_wr.now_tw():%Y-%m-%d}"
+        _wr._save(_all)
+        _n = int(_auto.sum())
+        st.success(("已儲存" + (f";{_n} 筆填了出場價 → 自動平倉移入交易紀錄" if _n else "")) +
+                   ";週六的週檢視會用新資料計算")
         st.rerun()
