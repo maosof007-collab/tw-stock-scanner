@@ -232,6 +232,56 @@ def sustained_flow(code: str) -> dict:
             "近40日價格%": px_chg, "verdict": verdict}
 
 
+def market_scan(min_med: float = 3.0) -> pd.DataFrame:
+    """全市場佈局持續度掃描(日中位≥min_med百萬的標的)。
+    回傳 [ucode, 日中位, 近20日日均, 倍數, 連續天數, CP比, 近5日日均, 前20日日均, 動向]。"""
+    panel = build_panel()
+    if panel.empty:
+        return panel
+    rows = []
+    for c, g in panel.groupby("ucode"):
+        g = g.sort_values("date").reset_index(drop=True)
+        if len(g) < 40:
+            continue
+        med = float(g["call_val"].median())
+        if med < min_med:
+            continue
+        last20 = g.tail(20)
+        streak = 0
+        for v in g["call_val"][::-1]:
+            if v > med:
+                streak += 1
+            else:
+                break
+        d5 = float(g["call_val"].tail(5).mean())
+        d20p = float(g["call_val"].iloc[-25:-5].mean())
+        mult = round(float(last20["call_val"].mean()) / med, 2)
+        cp = round(float(last20["call_val"].sum()) / max(float(last20["put_val"].sum()), 0.1), 1)
+        if streak >= 15 and mult >= 1.5:
+            move = "🔵 佈局中"
+        elif d5 >= 2 * max(d20p, 0.1):
+            move = "🔥 近5日湧入"
+        elif mult <= 0.7 and d5 <= 0.6 * max(d20p, 0.1):
+            move = "⚫ 退潮"
+        elif mult <= 0.8:
+            move = "🌫️ 降溫"
+        else:
+            move = ""
+        rows.append({"ucode": c, "日中位": round(med, 1),
+                     "近20日日均": round(float(last20["call_val"].mean()), 1),
+                     "倍數": mult, "連續天數": streak, "CP比": cp,
+                     "近5日日均": round(d5, 1), "前20日日均": round(d20p, 1),
+                     "動向": move})
+    df = pd.DataFrame(rows)
+    try:
+        sl = pd.read_csv(ROOT / "data" / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        df = df.merge(sl[["code", "name"]], left_on="ucode", right_on="code",
+                      how="left").drop(columns=["code"])
+    except Exception:
+        pass
+    return df
+
+
 def today_board(top: int = 20) -> pd.DataFrame:
     """最新一日的權證資金流榜(call爆量倍數排序,含現股名)。"""
     panel = build_panel()
