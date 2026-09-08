@@ -37,7 +37,8 @@ sc = _scan()
 st.caption(f"資料至 **{last_day}**|樣本 {panel['ucode'].nunique()} 檔標的(僅上市權證)|"
            f"單位:百萬元|run_daily 每日自動更新。**權證錢的三種狀態:🔵天天買(佈局)、🔥突然買(事件)、⚫不買了(收割完)**。")
 
-t_in, t_hot, t_out, t_one = st.tabs(["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)", "🔎 個股資金流"])
+t_in, t_hot, t_out, t_one, t_ca = st.tabs(
+    ["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)", "🔎 個股資金流", "📜 分割/減資雷達"])
 
 _cols = ["ucode", "name", "日中位", "近20日日均", "倍數", "連續天數", "CP比", "動向"]
 _ren = {"ucode": "代號", "name": "名稱"}
@@ -49,11 +50,24 @@ with t_in:
     st.caption("配現股看:錢進價未動=吸籌形(最優先);錢進價已噴=行情中段。點名後→頁6體檢卡覆核。")
 
 with t_hot:
+    st.markdown("#### 🐋 鯨魚訊號(已驗證策略:5日中位+3.19%/勝率60%,18個月126筆)")
+    try:
+        wh = _wf.whale_today()
+        if len(wh):
+            st.dataframe(wh[[c for c in ["ucode", "name", "date", "call_val", "倍數", "put_val"] if c in wh.columns]]
+                         .rename(columns={"ucode": "代號", "name": "名稱", "call_val": "call金額(百萬)"}),
+                         hide_index=True, width="stretch")
+            st.caption("條件:當日認購權證金額 ≥5×前20日中位 且 ≥5,000萬。**持有窗5日**;一樣先過現股體檢卡。訊號自動記入 forward-test。")
+        else:
+            st.info("今日無鯨魚訊號(≥5倍且≥5,000萬)。")
+    except Exception as _e:
+        st.warning(f"鯨魚訊號讀取失敗:{_e}")
+    st.markdown("---")
     d = sc[sc["動向"] == "🔥 近5日湧入"].sort_values("近5日日均", ascending=False)
-    st.markdown(f"**{len(d)} 檔**:近 5 日日均 ≥2× 前 20 日——短期事件錢(法說/新聞/開獎前卡位)。")
+    st.markdown(f"**一般湧入 {len(d)} 檔**:近 5 日日均 ≥2× 前 20 日——短期事件錢。")
     st.dataframe(d[[c for c in _cols + ["近5日日均", "前20日日均"] if c in d.columns]]
                  .rename(columns=_ren), hide_index=True, width="stretch")
-    st.caption("⚠️ 事件研究:一般爆量隔日中位 -0.22%(偏隔日沖)——湧入榜是觀察名單,不是買單。")
+    st.caption("⚠️ 事件研究:一般爆量隔日中位 -0.29%(偏隔日沖)——湧入榜是觀察名單,只有鯨魚級有統計背書。")
 
 with t_out:
     d = sc[sc["動向"].isin(["⚫ 退潮", "🌫️ 降溫"])].sort_values("倍數")
@@ -101,3 +115,24 @@ with t_one:
             st.plotly_chart(fig, width="stretch")
             st.dataframe(sf["monthly"], width="stretch")
             st.caption("看圖重點:綠柱持續墊高+黃線還在低檔=佈局;綠柱消失+黃線在高檔=收割完(川湖型)。")
+
+with t_ca:
+    import corp_actions as _ca
+    _ca = importlib.reload(_ca)
+    st.markdown("#### 公告雷達(每日掃全市場重大訊息:股票分割/面額變更/減資)")
+    st.caption("「提前布局」的合法時點=**公告日**。公告→股東會→停止買賣→恢復買賣,中間通常有數週到數月——雷達命中後把恢復買賣日記進行事曆。")
+    rec = _ca.recent()
+    if rec.empty:
+        st.info("尚無記錄(run_daily 每日自動掃;可先手動執行 python corp_actions.py)。")
+    else:
+        st.dataframe(rec.iloc[::-1], hide_index=True, width="stretch")
+    st.markdown("#### 2025-2026 分割恢復買賣案例實測(恢復日進場)")
+    st.dataframe(_ca.SPLIT_CASES, hide_index=True, width="stretch")
+    st.markdown("""
+**規則(從案例歸納,樣本仍小,持續累積)**:
+1. **恢復買賣日才是主戰場**——不必真的搶「提前」:世紀* 分割前 60 日還跌 20%,錢全在恢復後(+116.6%);
+2. **比例要大**(≥1拆4):1拆2 的強生只有 +1.3%,「變便宜」的錯覺不夠強;
+3. **預跑是反指標**:分割前已暴漲(沛爾 +105%)=利多出盡,恢復日 -10% 教訓;預跑低或負的才有行情;
+4. **首日量價定調**:恢復日漲停鎖死=跟(照天量統計掛 -15% 統計停損);開高走低=沛爾型,跳過;
+5. 疊加題材(世紀*=AI 無人機)才有連續漲停的燃料——分割只是火柴,題材才是柴堆。
+""")
