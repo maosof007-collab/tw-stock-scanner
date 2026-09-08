@@ -64,11 +64,13 @@ def fetch_warrant_day(ymd: str, sleep: float = 2.0) -> pd.DataFrame | None:
         if tbl is None:
             return None                                    # 非交易日
         f = tbl["fields"]
-        i_code, i_vol, i_val = f.index("證券代號"), f.index("成交股數"), f.index("成交金額")
+        i_code, i_name = f.index("證券代號"), f.index("證券名稱")
+        i_vol, i_val = f.index("成交股數"), f.index("成交金額")
         rows = []
         for d in tbl["data"]:
             try:
                 rows.append({"wcode": str(d[i_code]).strip(),
+                             "wname": str(d[i_name]).strip(),
                              "vol": float(str(d[i_vol]).replace(",", "")),
                              "val": float(str(d[i_val]).replace(",", ""))})
             except Exception:
@@ -78,7 +80,20 @@ def fetch_warrant_day(ymd: str, sleep: float = 2.0) -> pd.DataFrame | None:
         frames.append(df)
     raw = pd.concat(frames, ignore_index=True)
     wm = warrant_map()
-    m = raw.merge(wm[["wcode", "ucode", "kind"]], on=["wcode", "kind"], how="inner")
+    m = raw.merge(wm[["wcode", "ucode", "kind"]], on=["wcode", "kind"], how="left")
+    # 已到期權證不在現行基本資料 → 用「權證簡稱前綴=標的名」補歸戶(長名優先)
+    miss = m["ucode"].isna()
+    if miss.any():
+        sl = pd.read_csv(ROOT / "data" / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        names = sorted(zip(sl["name"].str.strip(), sl["code"]),
+                       key=lambda x: -len(x[0]))
+        def _pfx(w):
+            for nm_, cd_ in names:
+                if len(nm_) >= 2 and w.startswith(nm_):
+                    return cd_
+            return None
+        m.loc[miss, "ucode"] = m.loc[miss, "wname"].map(_pfx)
+    m = m.dropna(subset=["ucode"])
     g = (m.groupby(["ucode", "kind"])
          .agg(val=("val", "sum"), vol=("vol", "sum")).reset_index())
     p = g.pivot(index="ucode", columns="kind", values="val").fillna(0)
@@ -95,10 +110,13 @@ def fetch_warrant_day(ymd: str, sleep: float = 2.0) -> pd.DataFrame | None:
     return out
 
 
-def backfill(days: int = 120) -> int:
+def backfill(days: int = 120, skip_last: int = 0) -> int:
     """從 benchmark 交易日清單回補近 N 個交易日(已有快取自動跳過)。回傳新抓天數。"""
     b = pd.read_csv(ROOT / "data" / "benchmark_TWII.csv", usecols=["Date"])
-    dates = [d.replace("-", "") for d in b["Date"].dropna().astype(str).tail(days)]
+    seq = b["Date"].dropna().astype(str)
+    if skip_last:
+        seq = seq.iloc[:-skip_last]
+    dates = [d.replace("-", "") for d in seq.tail(days)]
     n = 0
     for ymd in dates:
         if (WDIR / f"wflow_{ymd}.csv").exists():
@@ -167,6 +185,51 @@ def event_study(ev: pd.DataFrame) -> pd.DataFrame:
                          "f5": round((px["Close"].iloc[i + 5] / c0 - 1) * 100, 2),
                          "f10": round((px["Close"].iloc[i + 10] / c0 - 1) * 100, 2)})
     return pd.DataFrame(rows)
+
+
+def sustained_flow(code: str) -> dict:
+    """佈局持續度指紋:月額序列/連續高於中位天數/近20日vs中位倍數/CP比/價格對照。"""
+    panel = build_panel()
+    g = panel[panel["ucode"] == code].sort_values("date").reset_index(drop=True)
+    if len(g) < 40:
+        return {}
+    g["ym"] = g["date"].str[:7]
+    mo = (g.groupby("ym").agg(call月額=("call_val", "sum"),
+                              天數=("call_val", "count")).round(0))
+    mo["日均call"] = (mo["call月額"] / mo["天數"]).round(1)
+    med = float(g["call_val"].median())
+    last20 = g.tail(20)
+    streak = 0
+    for v in g["call_val"][::-1]:
+        if v > med:
+            streak += 1
+        else:
+            break
+    # 價格對照(佈局=錢持續進、價還沒噴)
+    px_chg = None
+    for suf in (".TW", ".TWO"):
+        p = ROOT / "data" / f"{code}{suf}.csv"
+        if p.exists():
+            d = pd.read_csv(p, usecols=["Date", "Close"]).dropna().sort_values("Date")
+            cl = pd.to_numeric(d["Close"], errors="coerce").dropna()
+            if len(cl) > 40:
+                px_chg = round(float(cl.iloc[-1] / cl.iloc[-40] - 1) * 100, 1)
+            break
+    mult20 = round(float(last20["call_val"].mean()) / med, 2) if med else None
+    cp = round(float(last20["call_val"].sum()) / max(float(last20["put_val"].sum()), 0.1), 1)
+    if streak >= 15 and (mult20 or 0) >= 1.5:
+        verdict = "🔵 佈局進行中(錢持續高檔)"
+    elif (mult20 or 0) >= 1.5:
+        verdict = "🟡 近期加溫(尚未形成持續)"
+    elif (mult20 or 0) <= 0.8:
+        verdict = "⚫ 權證錢退潮"
+    else:
+        verdict = "⚪ 常態水位"
+    if px_chg is not None and verdict.startswith("🔵") and px_chg < 5:
+        verdict += "|⭐ 錢進價未動=典型吸籌形"
+    return {"monthly": mo, "日中位": round(med, 1), "近20日倍數": mult20,
+            "連續高於中位天數": streak, "近20日CP比": cp,
+            "近40日價格%": px_chg, "verdict": verdict}
 
 
 def today_board(top: int = 20) -> pd.DataFrame:

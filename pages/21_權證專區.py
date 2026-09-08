@@ -169,12 +169,22 @@ with tab_flow:
         st.dataframe(_show, hide_index=True, width="stretch")
         st.caption("⚠️ 兩面解讀:爆量可能是主力卡位,也可能是隔日沖(昨買今賣)——"
                    "配合事件研究統計與現股體檢卡使用,單看榜單不進場。")
-        _pick = st.text_input("覆核現股體檢卡(輸入代號)", key="wf_hc")
+        _pick = st.text_input("查個股:佈局持續度+體檢卡(輸入代號)", key="wf_hc")
         if _pick.strip():
+            _sf = _wf.sustained_flow(_pick.strip())
+            if _sf:
+                st.markdown(f"#### 佈局持續度:{_sf['verdict']}")
+                s1, s2, s3, s4 = st.columns(4)
+                s1.metric("近20日/中位倍數", f"{_sf['近20日倍數']}x", f"日中位 {_sf['日中位']}百萬", delta_color="off")
+                s2.metric("連續高於中位", f"{_sf['連續高於中位天數']} 天")
+                s3.metric("近20日 call/put", f"{_sf['近20日CP比']}")
+                s4.metric("近40日股價", f"{_sf['近40日價格%']:+.1f}%" if _sf['近40日價格%'] is not None else "—")
+                st.dataframe(_sf["monthly"], width="stretch")
+                st.caption("判讀:🔵連續≥15天高於中位且≥1.5倍=佈局進行中;錢進價未動=吸籌;⚫退潮=權證錢已離場。")
             import pretrade as _wpt
             _wpt = importlib.reload(_wpt)
             _r = _wpt.health_check(_pick.strip())
-            st.markdown(f"**{_pick} 體檢**:{_r['verdict']}")
+            st.markdown(f"**現股體檢**:{_r['verdict']}")
             st.dataframe(pd.DataFrame(_r["rows"]), hide_index=True, width="stretch")
 
 # ════════════════ 隨堂考 ════════════════
