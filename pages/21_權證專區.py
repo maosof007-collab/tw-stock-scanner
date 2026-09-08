@@ -16,8 +16,8 @@ _wt = importlib.reload(_wt)          # 迭代中模組:無條件重載
 st.title("🎫 權證專區")
 st.caption("定位鐵律:權證是**放大既有訊號**的執行工具,不是選股工具——先有現股級的理由(體檢卡綠燈+裁決點),才考慮用權證表達。")
 
-tab_learn, tab_calc, tab_sop, tab_whale, tab_quiz = st.tabs(
-    ["📖 權證是什麼", "🧮 計算器", "✅ 挑選SOP", "🐳 大戶心法", "📝 隨堂考"])
+tab_learn, tab_calc, tab_sop, tab_whale, tab_flow, tab_quiz = st.tabs(
+    ["📖 權證是什麼", "🧮 計算器", "✅ 挑選SOP", "🐳 大戶心法", "📡 權證資金流", "📝 隨堂考"])
 
 # ════════════════ 教學 ════════════════
 with tab_learn:
@@ -147,6 +147,35 @@ with tab_whale:
 
 *來源:ETtoday 權證小哥六原則專訪、理財寶主力收購權證評估表、豐雲學堂訪談;方法歸原作者,本頁為研究整理。*
 """)
+
+# ════════════════ 權證資金流 ════════════════
+with tab_flow:
+    st.caption("權證小哥方法論的數據化:某標的**認購權證成交金額異常放大**=有人用槓桿卡位。"
+               "榜單=當日 call 權證金額 ≥2×前20日中位 且 ≥2,000萬;點名後用體檢卡覆核現股。")
+    import warrant_flow as _wf
+    _wf = importlib.reload(_wf)
+    try:
+        _bd = _wf.today_board(top=20)
+    except Exception as _e:
+        _bd = pd.DataFrame()
+        st.error(f"讀取失敗:{_e}")
+    if _bd.empty:
+        st.info("尚無快取資料——本機執行 `python warrant_flow.py --backfill 120` 建立底倉,之後每日自動更新。")
+    else:
+        st.markdown(f"#### {_bd['date'].iloc[0]} 認購權證爆量榜")
+        _show = _bd[[c for c in ["ucode", "name", "call_val", "倍數", "put_val"] if c in _bd.columns]]
+        _show = _show.rename(columns={"ucode": "代號", "name": "名稱",
+                                      "call_val": "call金額(百萬)", "put_val": "put金額(百萬)"})
+        st.dataframe(_show, hide_index=True, width="stretch")
+        st.caption("⚠️ 兩面解讀:爆量可能是主力卡位,也可能是隔日沖(昨買今賣)——"
+                   "配合事件研究統計與現股體檢卡使用,單看榜單不進場。")
+        _pick = st.text_input("覆核現股體檢卡(輸入代號)", key="wf_hc")
+        if _pick.strip():
+            import pretrade as _wpt
+            _wpt = importlib.reload(_wpt)
+            _r = _wpt.health_check(_pick.strip())
+            st.markdown(f"**{_pick} 體檢**:{_r['verdict']}")
+            st.dataframe(pd.DataFrame(_r["rows"]), hide_index=True, width="stretch")
 
 # ════════════════ 隨堂考 ════════════════
 with tab_quiz:

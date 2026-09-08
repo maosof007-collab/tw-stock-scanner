@@ -260,6 +260,15 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 大戶panel: {e}")
 
+    # ── Step 4.58:權證資金流(當日 call/put 聚合;非交易日自動跳過)──
+    try:
+        from warrant_flow import fetch_warrant_day
+        from twtime import now_tw as _nt
+        _r = fetch_warrant_day(f"{_nt():%Y%m%d}")
+        log.info(f"  ✅ 權證資金流:{'非交易日跳過' if _r is None else f'{len(_r)} 檔標的'}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 權證資金流: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
