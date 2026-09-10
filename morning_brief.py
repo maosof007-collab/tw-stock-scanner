@@ -258,12 +258,44 @@ def already_done_today() -> bool:
     return False
 
 
+def _fix_codes(text: str) -> str:
+    """代號查核器(2026-09-10,晨報四連錯教訓):掃「名稱(四碼)」配對,
+    名稱在股票清單但代號對不上 → 用名稱反查訂正;名稱查無 → 只留名稱刪代號。"""
+    import re
+    try:
+        import pandas as pd
+        from pathlib import Path
+        sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        name2code = dict(zip(sl["name"].str.strip(), sl["code"]))
+        code2name = dict(zip(sl["code"], sl["name"].str.strip()))
+    except Exception:
+        return text
+    fixed = []
+
+    def _sub(m):
+        nm, code = m.group(1), m.group(2)
+        nm_clean = nm.strip()
+        right = name2code.get(nm_clean) or name2code.get(nm_clean + "*")
+        if right and right != code:
+            fixed.append(f"{nm_clean}({code}→{right})")
+            return f"{nm_clean}({right})"
+        if not right and code not in code2name:
+            fixed.append(f"{nm_clean}(刪除幻覺代號{code})")
+            return nm_clean
+        return m.group(0)
+    out = re.sub(r"([一-鿿][一-鿿A-Za-z\-\*]{0,7})\((\d{4})\)", _sub, text)
+    if fixed:
+        print(f"[morning_brief] 代號訂正:{'、'.join(fixed)}")
+    return out
+
+
 def run(force: bool = False) -> str:
     if not force and already_done_today():
         print(f"[morning_brief] 今日晨報已存在,跳過({now_tw():%H:%M})")
         return ""
     print(f"[morning_brief] 開始產生 {now_tw():%Y-%m-%d %H:%M}")
-    content = build_brief()
+    content = _fix_codes(build_brief())
     from analyst_report import save_article, git_publish
     fname = save_article("MKT", "台股", "晨報", content)
     msg = git_publish(fname)
