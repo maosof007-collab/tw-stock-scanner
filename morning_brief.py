@@ -275,14 +275,20 @@ def _fix_codes(text: str) -> str:
 
     def _sub(m):
         nm, code = m.group(1), m.group(2)
-        nm_clean = nm.strip()
-        right = name2code.get(nm_clean) or name2code.get(nm_clean + "*")
+        # 名稱可能吞進前綴字(如「觀察台塑化」)→ 取能對上清單的最長後綴
+        right, hit = None, None
+        for i in range(len(nm)):
+            cand = nm[i:].strip()
+            right = name2code.get(cand) or name2code.get(cand + "*")
+            if right:
+                hit = cand
+                break
         if right and right != code:
-            fixed.append(f"{nm_clean}({code}→{right})")
-            return f"{nm_clean}({right})"
+            fixed.append(f"{hit}({code}→{right})")
+            return f"{nm[:i]}{hit}({right})"
         if not right and code not in code2name:
-            fixed.append(f"{nm_clean}(刪除幻覺代號{code})")
-            return nm_clean
+            fixed.append(f"{nm}(刪除幻覺代號{code})")
+            return nm
         return m.group(0)
     out = re.sub(r"([一-鿿][一-鿿A-Za-z\-\*]{0,7})\((\d{4})\)", _sub, text)
     if fixed:
