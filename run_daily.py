@@ -278,7 +278,8 @@ def main():
         from etf_holdings import save_daily as _ehs, ETFS as _ETFS
         for _e in _ETFS:
             log.info(f"  📦 {_ehs(_e)}")
-        from my_etf import daily_review
+        from my_etf import daily_review, refresh_00981a
+        refresh_00981a()
         _fn = daily_review()
         if _fn:
             log.info(f"  ✅ 我的ETF日檢:{_fn}")

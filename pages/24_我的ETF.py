@@ -18,6 +18,15 @@ st.title("🧺 我的 ETF")
 st.caption("對標 00981A 的選股指紋(前300大×營收YoY>30%×題材集中×動能,top10佔67%)——"
            "但用**你系統的訊號**選:偷跑榜/權證佈局/體檢卡。改組全記錄,淨值天天對大盤。")
 
+with st.expander("❓ 怎麼用(三步)", expanded=False):
+    st.markdown("""
+1. **改持股**:在下方成分股表直接改——換股=把某列的代號/名稱/理由改掉;加股=最下面空白列輸入;
+   刪股=選該列按 Delete。權重隨便填相對大小,儲存時會自動換算成合計 100%;
+2. **按「💾 儲存持股變更」**:所有修改此刻才生效,並自動記一筆「改組日誌」(誰進誰出、哪天、為什麼)
+   ——這就是「改組」的意思:像基金經理人調整持股,留下紀錄供日後檢討;
+3. **每天只看兩個地方**:最上面的 🔔 換股提醒 + 績效對決圖。要不要動手,留到週六週檢視或每月10日再決定(系統憲法 L1)。
+""")
+
 d = _me.load()
 cons = pd.DataFrame(d["constituents"]) if d["constituents"] else pd.DataFrame(
     columns=["code", "name", "weight", "thesis"])
@@ -44,14 +53,21 @@ with tab_hold:
         c2.metric("同期大盤", f"{s['大盤%']:+.1f}%")
         c3.metric("超額", f"{s['超額pp']:+.1f}pp")
         c4.metric("最大回撤", f"{s['最大回撤%']:.1f}%")
+        st.markdown("#### 🏁 績效對決(基期 100,每天自動疊上)")
         fig = go.Figure()
-        fig.add_scatter(x=nav["date"], y=nav["我的ETF"], name="我的ETF",
-                        line=dict(color="#00C2A8", width=2.5))
-        fig.add_scatter(x=nav["date"], y=nav["大盤"], name="大盤",
-                        line=dict(color="#888", width=1.5, dash="dot"))
-        fig.update_layout(height=380, legend=dict(orientation="h", y=1.08),
+        _styles = {"我的ETF": dict(color="#00C2A8", width=3),
+                   "大盤": dict(color="#888", width=1.5, dash="dot"),
+                   "0050": dict(color="#3B82F6", width=1.5),
+                   "00981A": dict(color="#F59E0B", width=2)}
+        for _ln, _st_ in _styles.items():
+            if _ln in nav.columns:
+                fig.add_scatter(x=nav["date"], y=nav[_ln], name=_ln, line=_st_)
+        fig.update_layout(height=400, legend=dict(orientation="h", y=1.1),
                           margin=dict(l=10, r=10, t=30, b=10))
         st.plotly_chart(fig, width="stretch")
+        _last = nav.iloc[-1]
+        _race = "|".join(f"{k} {_last[k]-100:+.1f}%" for k in _styles if k in nav.columns)
+        st.caption(f"對決現況:{_race}(自 {nav['date'].iloc[0]} 起)")
     else:
         st.info("尚未建倉——用下方表格或「候選池」加入成分股。")
 
@@ -112,7 +128,7 @@ with tab_hold:
                        f"零股以收盤價估,盤中市價會有小差;高價股(光聖/大立光類)整張買不起就照零股欄下單。")
 
     note = st.text_input("改組備註(寫進日誌)", key="etf_note")
-    if st.button("💾 儲存/改組", type="primary"):
+    if st.button("💾 儲存持股變更(=改組生效並寫日誌)", type="primary"):
         rows = [r for r in edit.to_dict("records")
                 if str(r.get("code", "")).strip() and float(r.get("weight") or 0) > 0]
         for r in rows:

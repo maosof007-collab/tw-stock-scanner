@@ -55,8 +55,27 @@ def _px(code: str) -> pd.Series | None:
     return None
 
 
+def refresh_00981a() -> None:
+    """抓 00981A 收盤(yfinance)併入快取 data/00981A.TW.csv(日更)。"""
+    p = ROOT / "data" / "00981A.TW.csv"
+    try:
+        import yfinance as yf
+        h = yf.Ticker("00981A.TW").history(period="6mo").reset_index()
+        if h.empty:
+            return
+        h["Date"] = pd.to_datetime(h["Date"]).dt.strftime("%Y-%m-%d")
+        new = h[["Date", "Close"]]
+        if p.exists():
+            old = pd.read_csv(p)
+            new = (pd.concat([old, new]).drop_duplicates("Date", keep="last")
+                   .sort_values("Date"))
+        new.to_csv(p, index=False, encoding="utf-8-sig")
+    except Exception:
+        pass
+
+
 def nav_series(since: str | None = None) -> pd.DataFrame:
-    """淨值(基期100)vs 大盤。固定權重(每日再平衡近似)。"""
+    """淨值(基期100)vs 大盤/0050/00981A。固定權重(每日再平衡近似)。"""
     d = load()
     cons = d["constituents"]
     if not cons:
@@ -80,8 +99,24 @@ def nav_series(since: str | None = None) -> pd.DataFrame:
         "date": bench.index,
         "我的ETF": (1 + port_ret).cumprod() * 100,
         "大盤": bench / bench.iloc[0] * 100,
-    }).reset_index(drop=True)
-    return out
+    })
+    # 基準對照:0050 與 00981A(基期同樣正規化到 100)
+    for label, code in [("0050", "0050"), ("00981A", "00981A")]:
+        s = _px(code)
+        if s is None:
+            p = ROOT / "data" / f"{code}.TW.csv"
+            if p.exists():
+                df_ = pd.read_csv(p, usecols=["Date", "Close"]).dropna()
+                s = pd.Series(pd.to_numeric(df_["Close"], errors="coerce").values,
+                              index=df_["Date"].astype(str)).sort_index()
+        if s is None or s.empty:
+            continue
+        s = s.reindex(bench.index).ffill()
+        base = s.dropna()
+        if base.empty:
+            continue
+        out[label] = s / base.iloc[0] * 100
+    return out.reset_index(drop=True)
 
 
 def stats(nav: pd.DataFrame) -> dict:
