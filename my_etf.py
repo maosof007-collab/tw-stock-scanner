@@ -127,3 +127,66 @@ def candidates() -> pd.DataFrame:
     except Exception as e:
         rows.append({"代號": f"(候選池計算失敗:{e})"})
     return pd.DataFrame(rows)
+
+
+def daily_review() -> str:
+    """每日 ETF 檢討(規則式):淨值/每檔動態/家規警示/00981A 對照。存進文章庫。"""
+    import pretrade
+    d = load()
+    if not d["constituents"]:
+        return ""
+    nav = nav_series()
+    s = stats(nav) if not nav.empty else {}
+    L = [f"# 我的ETF 日檢 {now_tw():%Y-%m-%d}", ""]
+    if s:
+        L.append(f"**淨值**:{100 + s['報酬%']:.1f}(報酬 {s['報酬%']:+.1f}% vs 大盤 "
+                 f"{s['大盤%']:+.1f}%,超額 {s['超額pp']:+.1f}pp;最大回撤 {s['最大回撤%']}%)")
+    L.append("")
+    L.append("## 成分股檢視")
+    alerts = []
+    for c in d["constituents"]:
+        code = c["code"]
+        if code == "CASH":
+            L.append(f"- 現金 {c['weight']}%:乾火藥待命")
+            continue
+        px = _px(code)
+        day = None
+        if px is not None and len(px) > 1:
+            day = round(float(px.iloc[-1] / px.iloc[-2] - 1) * 100, 1)
+        reds = None
+        try:
+            hc = pretrade.health_check(code)
+            reds = sum(1 for x in hc["rows"] if x["燈"] == "🔴")
+        except Exception:
+            pass
+        line = (f"- **{code} {c['name']}**({c['weight']}%):日{day:+.1f}%"
+                if day is not None else f"- **{code} {c['name']}**({c['weight']}%)")
+        if reds is not None:
+            line += f"|體檢紅燈 {reds}"
+        L.append(line)
+        if day is not None and day <= -5:
+            alerts.append(f"{code} 單日 {day:+.1f}%——查原因;論點未破則屬統計常態洗盤")
+        if reds is not None and reds >= 2:
+            alerts.append(f"{code} 體檢紅燈 {reds}——列入改組檢視")
+    if alerts:
+        L.append("")
+        L.append("## ⚠️ 家規警示")
+        L += [f"- {a}" for a in alerts]
+    try:
+        import etf_holdings as eh
+        diff = eh.diff_latest("00981A")
+        moves = diff[diff["動作"] != ""] if not diff.empty else diff
+        if not moves.empty:
+            L.append("")
+            L.append("## 🆚 00981A 今日動作(對照)")
+            for _, r in moves.iterrows():
+                L.append(f"- {r['code']} {r['name']}:{r['動作']}({r['張數增減']:+,.0f}張)")
+    except Exception:
+        pass
+    L.append("")
+    L.append("*每日自動產生;改組請上頁24並寫備註。非投資建議。*")
+    content = "\n".join(L)
+    from analyst_report import save_article
+    fn = save_article("ETF", "我的ETF", "ETF日檢", content)
+    print(f"[my_etf] 日檢 {fn}")
+    return fn

@@ -273,6 +273,18 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 權證資金流: {e}")
 
+    # ── Step 4.585:ETF 持倉快照 + 我的ETF日檢 ──
+    try:
+        from etf_holdings import save_daily as _ehs, ETFS as _ETFS
+        for _e in _ETFS:
+            log.info(f"  📦 {_ehs(_e)}")
+        from my_etf import daily_review
+        _fn = daily_review()
+        if _fn:
+            log.info(f"  ✅ 我的ETF日檢:{_fn}")
+    except Exception as e:
+        log.warning(f"  ⚠️ ETF追蹤: {e}")
+
     # ── Step 4.59:公司行為雷達(分割/面額/減資公告)──
     try:
         from corp_actions import scan_and_log
