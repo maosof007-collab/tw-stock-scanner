@@ -26,8 +26,12 @@ tab_hold, tab_pick, tab_log = st.tabs(["📊 淨值與持股", "🎯 候選池(�
 
 with tab_hold:
     nav = _me.nav_series()
+    s = _me.stats(nav) if not nav.empty else {}
+    if not s:
+        if d["constituents"]:
+            st.info("已建倉——淨值從明個交易日開始累積(今天是基期 100)。")
+        nav = pd.DataFrame()
     if not nav.empty:
-        s = _me.stats(nav)
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("我的ETF報酬", f"{s['報酬%']:+.1f}%", f"{s['天數']}天", delta_color="off")
         c2.metric("同期大盤", f"{s['大盤%']:+.1f}%")
