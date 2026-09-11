@@ -41,18 +41,24 @@ with tab_hold:
             st.error("**🔔 換股提醒**\n\n" + "\n".join(f"- {a}" for a in _alerts))
     except Exception:
         pass
-    nav = _me.nav_series()
-    s = _me.stats(nav) if not nav.empty else {}
-    if not s:
-        if d["constituents"]:
-            st.info("已建倉——淨值從明個交易日開始累積(今天是基期 100)。")
-        nav = pd.DataFrame()
-    if not nav.empty:
+    # 圖永遠畫:比賽計分從建倉日起,但可切較長區間看四條線的歷史對照
+    _rng = st.segmented_control("圖表區間", options=["建倉起(正式計分)", "近1月", "近3月"],
+                                default="近1月", key="etf_rng")
+    import pandas as _pd
+    _since_map = {"建倉起(正式計分)": None,
+                  "近1月": f"{_me.now_tw() - _pd.Timedelta(days=30):%Y-%m-%d}",
+                  "近3月": f"{_me.now_tw() - _pd.Timedelta(days=90):%Y-%m-%d}"}
+    nav = _me.nav_series(since=_since_map.get(_rng))
+    s_official = _me.stats(_me.nav_series())        # 計分永遠用建倉起
+    if s_official:
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("我的ETF報酬", f"{s['報酬%']:+.1f}%", f"{s['天數']}天", delta_color="off")
-        c2.metric("同期大盤", f"{s['大盤%']:+.1f}%")
-        c3.metric("超額", f"{s['超額pp']:+.1f}pp")
-        c4.metric("最大回撤", f"{s['最大回撤%']:.1f}%")
+        c1.metric("我的ETF報酬(建倉起)", f"{s_official['報酬%']:+.1f}%",
+                  f"{s_official['天數']}天", delta_color="off")
+        c2.metric("同期大盤", f"{s_official['大盤%']:+.1f}%")
+        c3.metric("超額", f"{s_official['超額pp']:+.1f}pp")
+        c4.metric("最大回撤", f"{s_official['最大回撤%']:.1f}%")
+    else:
+        st.info("正式計分自建倉日(基期100)起,明個交易日出現第一筆;下圖先用較長區間看四條線對照。")
         st.markdown("#### 🏁 績效對決(基期 100,每天自動疊上)")
         fig = go.Figure()
         _styles = {"我的ETF": dict(color="#00C2A8", width=3),
