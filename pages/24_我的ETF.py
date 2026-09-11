@@ -59,6 +59,8 @@ with tab_hold:
         c4.metric("最大回撤", f"{s_official['最大回撤%']:.1f}%")
     else:
         st.info("正式計分自建倉日(基期100)起,明個交易日出現第一筆;下圖先用較長區間看四條線對照。")
+
+    if not nav.empty:
         st.markdown("#### 🏁 績效對決(基期 100,每天自動疊上)")
         fig = go.Figure()
         _styles = {"我的ETF": dict(color="#00C2A8", width=3),
@@ -73,7 +75,7 @@ with tab_hold:
         st.plotly_chart(fig, width="stretch")
         _last = nav.iloc[-1]
         _race = "|".join(f"{k} {_last[k]-100:+.1f}%" for k in _styles if k in nav.columns)
-        st.caption(f"對決現況:{_race}(自 {nav['date'].iloc[0]} 起)")
+        st.caption(f"對決現況:{_race}(圖示區間自 {nav['date'].iloc[0]} 起;正式計分固定從建倉日)")
     else:
         st.info("尚未建倉——用下方表格或「候選池」加入成分股。")
 
