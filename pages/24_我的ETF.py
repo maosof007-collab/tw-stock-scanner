@@ -25,6 +25,13 @@ cons = pd.DataFrame(d["constituents"]) if d["constituents"] else pd.DataFrame(
 tab_hold, tab_pick, tab_log = st.tabs(["📊 淨值與持股", "🎯 候選池(系統訊號)", "📓 改組日誌"])
 
 with tab_hold:
+    # ── 🔔 換股提醒(表現不好在最上面直接說)──
+    try:
+        _alerts = _me.swap_alerts()
+        if _alerts:
+            st.error("**🔔 換股提醒**\n\n" + "\n".join(f"- {a}" for a in _alerts))
+    except Exception:
+        pass
     nav = _me.nav_series()
     s = _me.stats(nav) if not nav.empty else {}
     if not s:
@@ -58,6 +65,52 @@ with tab_hold:
             "weight": st.column_config.NumberColumn("權重", format="%.1f"),
             "thesis": st.column_config.TextColumn("入選理由(像經理人一樣寫)", width="large"),
         })
+    # ── 💰 資金換算器:填總資金 → 權重換算成張/零股 ──
+    with st.expander("💰 資金換算器(填多少錢,算每檔買幾張/幾股)", expanded=True):
+        _cap_wan = st.number_input("總資金(萬元)", min_value=1.0, value=100.0, step=10.0,
+                                   key="etf_capital")
+        _cap = _cap_wan * 10000
+        _rows = []
+        _invested = 0.0
+        for _r in edit.to_dict("records"):
+            _code = str(_r.get("code", "")).strip()
+            _w = float(_r.get("weight") or 0)
+            if not _code or _w <= 0:
+                continue
+            _target = _cap * _w / 100
+            if _code.upper() == "CASH":
+                _rows.append({"代號": "CASH", "名稱": _r.get("name", "現金"),
+                              "權重%": _w, "目標金額": round(_target),
+                              "現價": None, "整張": None, "零股": None,
+                              "實際投入": round(_target)})
+                _invested += _target
+                continue
+            _px_ = _me._px(_code)
+            if _px_ is None or _px_.empty:
+                _rows.append({"代號": _code, "名稱": _r.get("name", ""),
+                              "權重%": _w, "目標金額": round(_target),
+                              "現價": None, "整張": None, "零股": None, "實際投入": 0})
+                continue
+            _p = float(_px_.iloc[-1])
+            _lots = int(_target // (_p * 1000))
+            _odd = int((_target - _lots * _p * 1000) // _p)
+            _act = _lots * _p * 1000 + _odd * _p
+            _invested += _act
+            _rows.append({"代號": _code, "名稱": _r.get("name", ""),
+                          "權重%": _w, "目標金額": round(_target),
+                          "現價": round(_p, 1), "整張": _lots, "零股": _odd,
+                          "實際投入": round(_act)})
+        if _rows:
+            _adf = pd.DataFrame(_rows)
+            st.dataframe(_adf, hide_index=True, width="stretch",
+                         column_config={
+                             "目標金額": st.column_config.NumberColumn(format="%,d"),
+                             "實際投入": st.column_config.NumberColumn(format="%,d")})
+            _rest = _cap - _invested
+            st.caption(f"總資金 {_cap:,.0f}|實際投入 {_invested:,.0f}"
+                       f"|零頭餘額 {_rest:,.0f}(併入現金)。"
+                       f"零股以收盤價估,盤中市價會有小差;高價股(光聖/大立光類)整張買不起就照零股欄下單。")
+
     note = st.text_input("改組備註(寫進日誌)", key="etf_note")
     if st.button("💾 儲存/改組", type="primary"):
         rows = [r for r in edit.to_dict("records")

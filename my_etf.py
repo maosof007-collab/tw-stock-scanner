@@ -129,6 +129,54 @@ def candidates() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def swap_alerts() -> list[str]:
+    """換股提醒(頁面頂部橫幅用):①自建倉落後大盤≥10pp ②體檢紅燈≥2
+    ③權證轉⚫退潮 ④距20日高≤-15%(超出天量統計常態洗盤)。"""
+    d = load()
+    if not d["constituents"]:
+        return []
+    since = d.get("inception")
+    b = pd.read_csv(ROOT / "data" / "benchmark_TWII.csv", usecols=["Date", "Close"]).dropna()
+    tw = pd.Series(pd.to_numeric(b["Close"], errors="coerce").values,
+                   index=b["Date"].astype(str)).sort_index()
+    tw = tw[tw.index >= since]
+    tw_ret = float(tw.iloc[-1] / tw.iloc[0] - 1) * 100 if len(tw) > 1 else 0.0
+    alerts = []
+    for c in d["constituents"]:
+        code = c["code"]
+        if code == "CASH":
+            continue
+        s = _px(code)
+        if s is None or s.empty:
+            continue
+        win = s[s.index >= since]
+        if len(win) > 1:
+            ret = float(win.iloc[-1] / win.iloc[0] - 1) * 100
+            if ret - tw_ret <= -10:
+                alerts.append(f"🔻 {code} {c['name']}:建倉以來 {ret:+.1f}% 落後大盤 "
+                              f"{ret - tw_ret:.1f}pp——**該檢討換股**")
+        hi20 = float(s.tail(20).max())
+        off = float(s.iloc[-1] / hi20 - 1) * 100
+        if off <= -15:
+            alerts.append(f"🔻 {code} {c['name']}:距20日高 {off:.1f}%,超出常態洗盤(-11%)——查論點")
+        try:
+            import pretrade
+            hc = pretrade.health_check(code)
+            reds = sum(1 for x in hc["rows"] if x["燈"] == "🔴")
+            if reds >= 2:
+                alerts.append(f"🟥 {code} {c['name']}:體檢紅燈 {reds}——列入換股檢視")
+        except Exception:
+            pass
+        try:
+            import warrant_flow as wf
+            sf = wf.sustained_flow(code)
+            if sf and str(sf.get("verdict", "")).startswith("⚫"):
+                alerts.append(f"⚫ {code} {c['name']}:權證錢退潮——抬轎資金離場中")
+        except Exception:
+            pass
+    return alerts
+
+
 def daily_review() -> str:
     """每日 ETF 檢討(規則式):淨值/每檔動態/家規警示/00981A 對照。存進文章庫。"""
     import pretrade
