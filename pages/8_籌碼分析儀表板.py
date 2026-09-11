@@ -19,6 +19,29 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("籌碼分析儀表板", "CHIP ANALYTICS", "📊")
 
+# ── 🗺️ 籌碼總覽分軌圖(仿 aistockmap:K線/大戶%/外資/投信/融資 一屏五軌)──
+with st.expander("🗺️ 籌碼總覽分軌圖(輸入代號一屏看五軌)", expanded=True):
+    import importlib as _il
+    import chip_chart as _cc
+    _cc = _il.reload(_cc)
+    _c1, _c2 = st.columns([2, 1])
+    _ov_code = _c1.text_input("代號", value=st.session_state.get("sel_ticker", "2330"),
+                              key="chip_ov_code")
+    _ov_m = _c2.segmented_control("區間", options=[1, 3, 6], default=6,
+                                  format_func=lambda x: f"{x}M", key="chip_ov_m")
+    if _ov_code.strip():
+        _fig, _meta = _cc.chip_overview(_ov_code.strip(), int(_ov_m or 6))
+        if _fig is None:
+            st.warning(_meta)
+        else:
+            if _meta:
+                _cols = st.columns(len(_meta))
+                for _i, (_k, _v) in enumerate(_meta.items()):
+                    _cols[_i].metric(_k, _v)
+            st.plotly_chart(_fig, width="stretch")
+            st.caption("外資/投信=**區間內累積買賣超**(非持股存量,系統暫無存量源);"
+                       "大戶%=TDCC週資料(>400張,含人數);借券賣出軌待接資料源。")
+
 # ---------------- 左側欄：股號輸入（秒開）+ 排行（點按才算）----------------
 if "sel_ticker" not in st.session_state:
     st.session_state.sel_ticker = "2330"
