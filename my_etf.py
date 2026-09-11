@@ -1,0 +1,129 @@
+"""
+my_etf.py — 我的 ETF(自組模擬基金,對標 00981A 概念)
+=================================================================
+00981A 選股指紋(2026-09-11 逆向工程):前300大 × 營收YoY>30% × AI題材集中
+× 波段動能;50檔、top10佔67%。本模組=用系統訊號自組一籃,每日算淨值
+對比大盤,持股進出全記錄(像經理人一樣寫決策)。
+存檔:data/my_etf.json;淨值=固定權重日報酬加權(改組=再平衡)。
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+from twtime import now_tw
+
+ROOT = Path(__file__).parent
+STORE = ROOT / "data" / "my_etf.json"
+
+
+def load() -> dict:
+    if STORE.exists():
+        return json.loads(STORE.read_text(encoding="utf-8"))
+    return {"name": "我的ETF", "inception": f"{now_tw():%Y-%m-%d}",
+            "constituents": [], "log": []}
+
+
+def save(d: dict) -> None:
+    STORE.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def set_constituents(rows: list[dict], note: str = "") -> dict:
+    """rows=[{code,name,weight,thesis}];權重自動正規化;變動寫進 log。"""
+    d = load()
+    tot = sum(float(r.get("weight", 0)) for r in rows) or 1.0
+    for r in rows:
+        r["weight"] = round(float(r.get("weight", 0)) / tot * 100, 2)
+    d["log"].append({"date": f"{now_tw():%Y-%m-%d}",
+                     "note": note or "改組",
+                     "constituents": [f"{r['code']}×{r['weight']}%" for r in rows]})
+    d["constituents"] = rows
+    save(d)
+    return d
+
+
+def _px(code: str) -> pd.Series | None:
+    for suf in (".TW", ".TWO"):
+        p = ROOT / "data" / f"{code}{suf}.csv"
+        if p.exists():
+            df = pd.read_csv(p, usecols=["Date", "Close"]).dropna()
+            s = pd.Series(pd.to_numeric(df["Close"], errors="coerce").values,
+                          index=df["Date"].astype(str))
+            return s[~s.index.duplicated()].sort_index()
+    return None
+
+
+def nav_series(since: str | None = None) -> pd.DataFrame:
+    """淨值(基期100)vs 大盤。固定權重(每日再平衡近似)。"""
+    d = load()
+    cons = d["constituents"]
+    if not cons:
+        return pd.DataFrame()
+    since = since or d.get("inception")
+    b = pd.read_csv(ROOT / "data" / "benchmark_TWII.csv", usecols=["Date", "Close"]).dropna()
+    bench = pd.Series(pd.to_numeric(b["Close"], errors="coerce").values,
+                      index=b["Date"].astype(str)).sort_index()
+    bench = bench[bench.index >= since]
+    if bench.empty:
+        return pd.DataFrame()
+    rets = pd.DataFrame(index=bench.index)
+    for c in cons:
+        s = _px(c["code"])
+        if s is None:
+            continue
+        s = s.reindex(bench.index).ffill()
+        rets[c["code"]] = s.pct_change().fillna(0) * (c["weight"] / 100)
+    port_ret = rets.sum(axis=1)
+    out = pd.DataFrame({
+        "date": bench.index,
+        "我的ETF": (1 + port_ret).cumprod() * 100,
+        "大盤": bench / bench.iloc[0] * 100,
+    }).reset_index(drop=True)
+    return out
+
+
+def stats(nav: pd.DataFrame) -> dict:
+    if nav.empty or len(nav) < 2:
+        return {}
+    me, bm = nav["我的ETF"], nav["大盤"]
+    dd = (me / me.cummax() - 1).min() * 100
+    return {"報酬%": round(float(me.iloc[-1]) - 100, 1),
+            "大盤%": round(float(bm.iloc[-1]) - 100, 1),
+            "超額pp": round(float(me.iloc[-1] - bm.iloc[-1]), 1),
+            "最大回撤%": round(float(dd), 1),
+            "天數": len(nav)}
+
+
+# 00981A top10(2026-09-11 口袋證券)— 對照用
+ETF_00981A_TOP10 = [("2330", "台積電", 10.24), ("2383", "台光電", 8.99),
+                    ("2454", "聯發科", 8.62), ("3017", "奇鋐", 7.25),
+                    ("3037", "欣興", 7.11), ("6669", "緯穎", 5.36),
+                    ("3653", "健策", 5.05), ("6223", "旺矽", 5.04),
+                    ("2327", "國巨", 5.03), ("2303", "聯電", 4.47)]
+
+
+def candidates() -> pd.DataFrame:
+    """建倉候選池=系統三訊號交集:①營收YoY>30%(00981A指紋)②權證佈局中/體檢卡不紅。"""
+    rows = []
+    try:
+        h = pd.read_csv(ROOT / "data" / "_rev_history.csv", dtype={"code": str})
+        last = h.sort_values("ym").groupby("code").tail(1)
+        strong = last[last["yoy"] > 30]
+        import warrant_flow as wf
+        sc = wf.market_scan(min_med=3.0)
+        blue = set(sc[sc["動向"].isin(["🔵 佈局中", "🔥 近5日湧入"])]["ucode"])
+        import pretrade
+        sl = pd.read_csv(ROOT / "data" / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        nm = dict(zip(sl["code"], sl["name"]))
+        for c in strong[strong["code"].isin(blue)]["code"].head(15):
+            hc = pretrade.health_check(c)
+            reds = sum(1 for x in hc["rows"] if x["燈"] == "🔴")
+            yoy = float(strong[strong["code"] == c]["yoy"].iloc[0])
+            rows.append({"代號": c, "名稱": nm.get(c, ""), "最新YoY%": round(yoy, 1),
+                         "權證資金": "🔵/🔥", "體檢": hc["verdict"].split("(")[0],
+                         "紅燈": reds})
+    except Exception as e:
+        rows.append({"代號": f"(候選池計算失敗:{e})"})
+    return pd.DataFrame(rows)
