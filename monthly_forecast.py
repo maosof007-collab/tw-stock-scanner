@@ -24,7 +24,7 @@ except Exception:
 import pandas as pd
 
 ROOT = Path(__file__).parent
-CACHE = ROOT / "data" / "fundamentals"
+CACHE = ROOT / "data" / "bulk_rev"      # bulk月營收快取(2026-09-14 搬進git供雲端)
 
 
 def _bulk(roc: int, m: int) -> pd.DataFrame:

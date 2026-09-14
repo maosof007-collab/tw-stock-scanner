@@ -120,10 +120,14 @@ with tab_hold:
             _odd = int((_target - _lots * _p * 1000) // _p)
             _act = _lots * _p * 1000 + _odd * _p
             _invested += _act
+            _bz = _me.buy_zone(_code)
             _rows.append({"代號": _code, "名稱": _r.get("name", ""),
                           "權重%": _w, "目標金額": round(_target),
                           "現價": round(_p, 1), "整張": _lots, "零股": _odd,
-                          "實際投入": round(_act)})
+                          "實際投入": round(_act),
+                          "建議買區": f"{_bz['lo']}~{_bz['hi']}" if _bz else "",
+                          "位置": _bz.get("位置", "") if _bz else "",
+                          "停損": _bz.get("停損", "") if _bz else ""})
         if _rows:
             _adf = pd.DataFrame(_rows)
             st.dataframe(_adf, hide_index=True, width="stretch",

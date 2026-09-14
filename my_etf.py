@@ -164,6 +164,25 @@ def candidates() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def buy_zone(code: str) -> dict:
+    """建議買區(南亞科476實戰同款框架):天量統計洗盤帶 = 20日高×0.87~0.92;
+    停損 = 買區下緣×0.97 或 現價-1.5ATR 取高。回傳 {lo,hi,現價,位置,停損}。"""
+    s = _px(code)
+    if s is None or len(s) < 25:
+        return {}
+    hi20 = float(s.tail(20).max())
+    px = float(s.iloc[-1])
+    lo, hi = round(hi20 * 0.87, 1), round(hi20 * 0.92, 1)
+    if px < lo:
+        pos = "🟢 已低於買區(超跌,分批或等止穩)"
+    elif px <= hi:
+        pos = "🟡 在買區內(分批進)"
+    else:
+        pos = f"⚪ 高於買區(等回檔至 {hi} 以下)"
+    return {"lo": lo, "hi": hi, "現價": round(px, 1), "位置": pos,
+            "停損": round(lo * 0.97, 1)}
+
+
 def swap_alerts() -> list[str]:
     """換股提醒(頁面頂部橫幅用):①自建倉落後大盤≥10pp ②體檢紅燈≥2
     ③權證轉⚫退潮 ④距20日高≤-15%(超出天量統計常態洗盤)。"""
