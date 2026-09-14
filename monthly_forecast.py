@@ -129,6 +129,9 @@ def forecast_month(target: str = "2026-08", min_vol_lots: int = 500) -> pd.DataF
                      "兩法一致": "✅" if agree else ("—" if agree is None else "❌"),
                      "基期註記": "⚠️換檔(YoY將失速)" if base_shift else ""})
     df = pd.DataFrame(rows)
+    if df.empty:                          # 雲端缺 bulk 快取/資料未到 → 空表防呆,不炸頁
+        return pd.DataFrame(columns=["代碼", "名稱", "產業", "上月實際(百萬)", "預測(百萬)",
+                                     "預測YoY%", "基期註記"])
 
     # 籌碼偷跑層:法人5日 + 大戶週Δ
     try:

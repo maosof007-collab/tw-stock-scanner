@@ -26,6 +26,7 @@ import requests
 
 ROOT = Path(__file__).parent
 CACHE = ROOT / "data" / "fundamentals"
+BULK = ROOT / "data" / "bulk_rev"          # bulk月營收快取(進git,雲端直接讀)
 OUT = ROOT / "data" / "revenue_trend.csv"
 from twtime import now_tw
 
@@ -33,7 +34,8 @@ from twtime import now_tw
 def fetch_bulk_month(mkt: str, roc_year: int, m: int, kind: int = 0) -> pd.DataFrame:
     """單月全市場營收(mkt: sii/otc;kind 0=國內、1=KY外國企業);快取永存。"""
     suffix = f"_{mkt}" if kind == 0 else f"_{mkt}_ky"      # kind=0 沿用舊快取檔名
-    p = CACHE / f"bulk_rev_{roc_year}_{m}{suffix}.csv"
+    BULK.mkdir(parents=True, exist_ok=True)
+    p = BULK / f"bulk_rev_{roc_year}_{m}{suffix}.csv"
     if p.exists():
         return pd.read_csv(p, dtype={"code": str})
     url = f"https://mopsov.twse.com.tw/nas/t21/{mkt}/t21sc03_{roc_year}_{m}_{kind}.html"
@@ -61,7 +63,7 @@ def fetch_bulk_month(mkt: str, roc_year: int, m: int, kind: int = 0) -> pd.DataF
                 continue
     df = pd.DataFrame(rows)
     if not df.empty:
-        CACHE.mkdir(parents=True, exist_ok=True)
+        BULK.mkdir(parents=True, exist_ok=True)
         df.to_csv(p, index=False)
     time.sleep(1)
     return df
