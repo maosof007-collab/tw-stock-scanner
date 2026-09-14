@@ -22,6 +22,19 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("資料更新 / 掃描進度", "PIPELINE MONITOR", "⏱️")
 
+# ── 🩺 全系統資料體檢(每日自動;壞資料在誤導你之前先抓出來)──
+import pandas as _pd_hd
+from pathlib import Path as _P_hd
+_hp = _P_hd(__file__).parent.parent / "data" / "_health_report.csv"
+if _hp.exists():
+    _hd = _pd_hd.read_csv(_hp)
+    _n_red = (_hd["狀態"] == "🔴").sum()
+    _n_yel = (_hd["狀態"] == "⚠️").sum()
+    with st.expander(f"🩺 資料體檢報告:🔴{_n_red} ⚠️{_n_yel}(檢於 {_hd['體檢時間'].iloc[0]})",
+                     expanded=bool(_n_red)):
+        st.dataframe(_hd[["領域", "狀態", "最新", "說明"]], hide_index=True, width="stretch")
+        st.caption("⚠️=時滯(盤後資料未到屬正常);🔴=真缺損,run_daily log 同步警示。手動重掃:python audit_data.py")
+
 
 # ── 啟動管線（背景子行程，不阻塞 UI）─────────────
 def launch(cmd: list[str], label: str):

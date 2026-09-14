@@ -52,7 +52,14 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
         try:
             c = pd.read_csv(CACHE, parse_dates=["date"])
             if not c.empty:
-                return c.tail(window_days).reset_index(drop=True)
+                # 自癒式新鮮度檢查:個股融資參考檔已有更新日 → 快取過期,自動重建
+                ref = DATA / "margin" / "2330_margin.csv"
+                fresh = True
+                if ref.exists():
+                    last_ref = pd.read_csv(ref, usecols=["date"])["date"].max()
+                    fresh = str(c["date"].max().date()) >= str(last_ref)[:10]
+                if fresh:
+                    return c.tail(window_days).reset_index(drop=True)
         except Exception:
             pass
 
@@ -89,6 +96,10 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
         return pd.DataFrame(columns=["date", "ratio", "margin_lots", "twii"])
 
     allm = pd.concat(parts, ignore_index=True)
+    # 覆蓋率防呆:某日檔數 <80% 中位=抓漏日(如2026-09-03只有57%),總額會假崩,剔除
+    cnt = allm.groupby("date").size()
+    ok_dates = cnt[cnt >= cnt.tail(60).median() * 0.8].index
+    allm = allm[allm["date"].isin(ok_dates)]
     g = allm.groupby("date", as_index=False).sum()
     g["ratio"] = 100 * g["numer"] / (MARGIN_RATE * g["cost"])
     s = g[["date", "ratio", "margin_balance", "short_balance"]].rename(

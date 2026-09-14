@@ -349,6 +349,19 @@ def main():
         log.error(f"  訊號掃描失敗: {e}")
         import traceback; traceback.print_exc()
 
+    # ── Step 5.9:全系統資料體檢(🔴 進 log,報告上雲供頁7)──
+    try:
+        from audit_data import run_audit
+        _hd = run_audit()
+        _bad = _hd[_hd["狀態"] == "🔴"]
+        if len(_bad):
+            for _, r in _bad.iterrows():
+                log.warning(f"  🔴 體檢:{r['領域']} — {r['說明']}")
+        else:
+            log.info(f"  ✅ 資料體檢:{len(_hd)} 項全過")
+    except Exception as e:
+        log.warning(f"  ⚠️ 資料體檢: {e}")
+
     # ── Step 6：推播通知 ──────────────────
     log.info("\n[Step 6/6] 推播通知...")
     try:
