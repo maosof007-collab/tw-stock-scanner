@@ -306,8 +306,9 @@ def main():
     # ── Step 4.7：新聞情緒+信心分數(本機 Claude 引擎;雲端顯示靠 git 同步)──
     log.info("\n[Step 4.7/6] 新聞情緒分析...")
     try:
-        from llm import engine_status
-        if engine_status()["engine"] != "none":
+        import llm as _llm
+        from apikey import get_key as _gk
+        if _llm._cli_path() or _gk():          # 便宜檢查(engine_status 探測會間歇逾時誤判)
             from analyze_news import run_daily as sentiment_daily
             sentiment_daily(max_items=45)
             run_step("confidence_score.py")
