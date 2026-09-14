@@ -217,6 +217,8 @@ def scan_supertrend_flips(period: int = 10, mult: float = 4.0, cont_window: int 
         ohlc = dp.get_ohlcv(code, period_days=days)
         if ohlc is None or len(ohlc) < period + 20:
             continue
+        if not {"high", "low", "close"}.issubset(ohlc.columns):
+            continue                     # 非OHLC檔(如ETF淨值快取)防禦跳過
         st_line, direction = _supertrend(ohlc, period=period, mult=mult)
         valid = ~np.isnan(st_line)
         if valid.sum() < 10:

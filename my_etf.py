@@ -57,7 +57,7 @@ def _px(code: str) -> pd.Series | None:
 
 def refresh_00981a() -> None:
     """抓 00981A 收盤(yfinance)併入快取 data/00981A.TW.csv(日更)。"""
-    p = ROOT / "data" / "00981A.TW.csv"
+    p = ROOT / "data" / "etf_holdings" / "00981A_px.csv"
     try:
         import yfinance as yf
         h = yf.Ticker("00981A.TW").history(period="6mo").reset_index()
@@ -104,7 +104,7 @@ def nav_series(since: str | None = None) -> pd.DataFrame:
     for label, code in [("0050", "0050"), ("00981A", "00981A")]:
         s = _px(code)
         if s is None:
-            p = ROOT / "data" / f"{code}.TW.csv"
+            p = ROOT / "data" / "etf_holdings" / f"{code}_px.csv"
             if p.exists():
                 df_ = pd.read_csv(p, usecols=["Date", "Close"]).dropna()
                 s = pd.Series(pd.to_numeric(df_["Close"], errors="coerce").values,
