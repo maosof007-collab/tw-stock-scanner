@@ -121,9 +121,23 @@ def scan_today(min_lots: int = 200) -> dict:
         pool = pool.sort_values(["狀態", "距60日高%"], ascending=[True, False])
         pool.insert(0, "掃描日", f"{now_tw():%Y-%m-%d}")
         pool.to_csv(POOL, index=False, encoding="utf-8-sig")
-    return {"funnel": {"全市場(流動性過)": n_all, "A 長多位階": n_a,
-                       "B1 大戶不減": n_b1, "B2/④ 量縮不跌或突破": n_b2},
-            "pool": pool}
+    funnel = {"全市場(流動性過)": n_all, "A 長多位階": n_a,
+              "B1 大戶不減": n_b1, "B2/④ 量縮不跌或突破": n_b2}
+    try:
+        import json
+        (ROOT / "data" / "_mmap_funnel.json").write_text(
+            json.dumps(funnel, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+    return {"funnel": funnel, "pool": pool}
+
+
+def load_funnel() -> dict:
+    try:
+        import json
+        return json.loads((ROOT / "data" / "_mmap_funnel.json").read_text(encoding="utf-8"))
+    except Exception:
+        return {}
 
 
 def load_pool() -> pd.DataFrame:
