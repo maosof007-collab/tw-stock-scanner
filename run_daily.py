@@ -349,6 +349,14 @@ def main():
         log.error(f"  訊號掃描失敗: {e}")
         import traceback; traceback.print_exc()
 
+    # ── Step 5.85:M哥地圖五關漏斗(少而精候選池)──
+    try:
+        from mmap_funnel import scan_today
+        _mr = scan_today()
+        log.info(f"  ✅ M哥地圖:{_mr['funnel']} → 候選 {len(_mr['pool'])} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ M哥地圖: {e}")
+
     # ── Step 5.9:全系統資料體檢(🔴 進 log,報告上雲供頁7)──
     try:
         from audit_data import run_audit
