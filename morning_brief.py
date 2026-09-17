@@ -193,6 +193,12 @@ _SYS_MORNING = """你是台股盤前晨報主筆,讀者是早上開盤前 10 分
 從新聞標題挑 6-10 則最重要的,分【國際】【國內】兩組;每則一行:
 「**標題重點** — 一句評論(影響哪個族群/個股,偏多或偏空)」。
 大盤行情類標題(台股漲X點)不要挑,挑有資訊量的事件。
+## ②.5 🔥 題材攻防(最熱的一條敘事)
+從新聞標題+重挫/強勢榜,歸納**當日市場最熱的一條敘事**(優先挑「替代關係」:誰吃掉誰,
+例:CPO 取代傳統光模組/銅連接 → 受害 CCL·光模組 vs 受益封裝·光引擎)。寫清楚:
+敘事一句話 → 受害指標股(引用重挫榜的實際跌幅) → 受益指標股 → 敘事等級標註
+【訂單證據/法說口徑/媒體推測】。若重挫榜個股與敘事無關,用新聞寫出它實際被殺的原因;
+新聞裡找不到原因就誠實寫「重挫原因新聞未見,勿腦補」。
 ## ③ 今日主流預判
 2-4 個族群,每個:族群名+理由(隔夜盤面/昨日動能/新聞催化,至少引用其一)+
 觀察點(開盤看哪些指標股確認)。開頭必須明寫:「以下為盤前假設,開盤後需驗證」。
@@ -200,6 +206,45 @@ _SYS_MORNING = """你是台股盤前晨報主筆,讀者是早上開盤前 10 分
 行事曆條列照抄。
 結尾一句:「本晨報由系統自動彙整,非投資建議。」
 全文 700-1100 字。"""
+
+
+def hot_movers(asof: str, top_val: int = 100, n: int = 5) -> str:
+    """前一交易日:成交值前100中的重挫/強勢各前5(題材攻防的原料,盤前已知事實)。"""
+    import glob
+    import os
+    rows = []
+    sl = None
+    try:
+        sl = pd.read_csv(Path(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        nm = dict(zip(sl["code"], sl["name"]))
+    except Exception:
+        nm = {}
+    for f in glob.glob(str(Path(__file__).parent / "data" / "*.TW.csv")) + \
+             glob.glob(str(Path(__file__).parent / "data" / "*.TWO.csv")):
+        code = os.path.basename(f).split(".")[0]
+        if not code.isdigit():
+            continue
+        try:
+            d = pd.read_csv(f, usecols=["Date", "Close", "Volume"]).dropna().tail(3)
+            if str(d["Date"].iloc[-1])[:10] != asof or len(d) < 2:
+                continue
+            c1, c0 = float(d["Close"].iloc[-1]), float(d["Close"].iloc[-2])
+            val = c1 * float(d["Volume"].iloc[-1]) / 1e8
+            rows.append((code, nm.get(code, ""), (c1 / c0 - 1) * 100, val))
+        except Exception:
+            continue
+    if not rows:
+        return "（無資料）"
+    df = pd.DataFrame(rows, columns=["code", "name", "chg", "val"])
+    df = df.nlargest(top_val, "val")
+    lose = df.nsmallest(n, "chg")
+    win = df.nlargest(n, "chg")
+    out = ["重挫(成交值前100內):"] + \
+          [f"- {r.code} {r.name} {r.chg:+.1f}%(成交{r.val:.0f}億)" for r in lose.itertuples()] + \
+          ["強勢:"] + \
+          [f"- {r.code} {r.name} {r.chg:+.1f}%(成交{r.val:.0f}億)" for r in win.itertuples()]
+    return "\n".join(out)
 
 
 def build_brief() -> str:
@@ -220,6 +265,9 @@ def build_brief() -> str:
         mkt.to_string(index=False) if not mkt.empty else "（yfinance 全數抓取失敗——盤面段寫「無資料」）",
         f"【前一交易日({asof})台股產業動能】",
         sect,
+        f"【前一交易日({asof})熱門股重挫/強勢榜(題材攻防原料)】",
+        hot_movers(asof) if not (late_run and asof == date_s) else
+        "（盤後補跑且當日資料已入庫,避免事後之明,不提供)",
         "【隔夜新聞標題(近20小時)】",
         "\n".join(f"[{n['stamp']}|{n['source']}] {n['title']}" for n in news)
         if news else "（新聞抓取失敗）",
