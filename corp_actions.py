@@ -39,6 +39,9 @@ def fetch_market_announcements() -> pd.DataFrame:
             if isinstance(j, list) and j:
                 df = pd.DataFrame(j)
                 df.columns = [c.strip() for c in df.columns]
+                # TPEX 用英文欄名 → 統一成上市欄名
+                df = df.rename(columns={"SecuritiesCompanyCode": "公司代號",
+                                        "CompanyName": "公司名稱"})
                 df["market"] = "上櫃"
                 frames.append(df)
                 break
