@@ -226,11 +226,14 @@ def hot_movers(asof: str, top_val: int = 100, n: int = 5) -> str:
         if not code.isdigit():
             continue
         try:
-            d = pd.read_csv(f, usecols=["Date", "Close", "Volume"]).dropna().tail(3)
-            if str(d["Date"].iloc[-1])[:10] != asof or len(d) < 2:
+            d = pd.read_csv(f, usecols=["Date", "Close", "Volume"]).dropna().tail(6)
+            d = d.reset_index(drop=True)
+            hits = d.index[d["Date"].astype(str).str[:10] == asof]
+            if len(hits) == 0 or hits[0] < 1:
                 continue
-            c1, c0 = float(d["Close"].iloc[-1]), float(d["Close"].iloc[-2])
-            val = c1 * float(d["Volume"].iloc[-1]) / 1e8
+            i = hits[0]
+            c1, c0 = float(d["Close"].iloc[i]), float(d["Close"].iloc[i - 1])
+            val = c1 * float(d["Volume"].iloc[i]) / 1e8
             rows.append((code, nm.get(code, ""), (c1 / c0 - 1) * 100, val))
         except Exception:
             continue
