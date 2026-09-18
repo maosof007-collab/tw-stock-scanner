@@ -189,6 +189,60 @@ def _signal_backing(code: str) -> str:
     return f"近10日系統背書 {len(hits)} 次({hits[-1]})" if hits else "近10日無系統訊號背書(獨立判斷單)"
 
 
+def exit_quality() -> tuple[pd.DataFrame, dict]:
+    """出場品質(早跑統計):每筆平倉算「出場後最高 vs 出場價」與家規移動停利假想。
+    回傳 (明細df, 摘要dict)。2026-09-18 起入週檢視——出場行為用統計對帳,不靠感覺自責。"""
+    import numpy as np
+    j = _load()
+    cl = j[(j["status"] == "closed") & j["close_price"].notna()].copy()
+    rows = []
+    for _, r in cl.iterrows():
+        d = _px(r["code"])
+        if d is None:
+            continue
+        d = d.reset_index().rename(columns={d.index.name or "index": "date",
+                                            "Date": "date", "High": "high",
+                                            "Low": "low", "Close": "close"})
+        d["date"] = pd.to_datetime(d["date"]).dt.strftime("%Y-%m-%d")
+        d = d.sort_values("date").reset_index(drop=True)
+        ex, bp, xd = float(r["close_price"]), float(r["buy_price"]), str(r["close_date"])
+        after = d[d["date"].astype(str) > xd]
+        if len(after) < 2:
+            continue                     # 事後窗未滿,下週自動納入
+        post_max = float(after["close"].max())
+        left = (post_max / ex - 1) * 100
+        # 家規假想:出場日起改用移動停利(收盤-2ATR只上移)
+        tr = pd.concat([d["high"] - d["low"],
+                        (d["high"] - d["close"].shift()).abs(),
+                        (d["low"] - d["close"].shift()).abs()], axis=1).max(axis=1)
+        d["atr"] = tr.rolling(14).mean()
+        seg = d[d["date"].astype(str) >= xd].reset_index(drop=True)
+        trail, rule_px = -1e9, float(d["close"].iloc[-1])
+        for i in range(len(seg)):
+            c_, a_ = seg["close"].iloc[i], seg["atr"].iloc[i]
+            if pd.isna(a_):
+                continue
+            trail = max(trail, c_ - 2 * a_)
+            if c_ < trail:
+                rule_px = float(c_)
+                break
+        rows.append({"代碼": r["code"], "名稱": r["name"],
+                     "出場價": ex, "出場日": xd,
+                     "實際%": round((ex / bp - 1) * 100, 1),
+                     "出後最高": round(post_max, 1),
+                     "少賺%": round(left, 1),
+                     "家規假想%": round((rule_px / bp - 1) * 100, 1)})
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df, {}
+    summ = {"筆數": len(df),
+            "太早跑比率%": round((df["少賺%"] > 3).mean() * 100),
+            "平均少賺%": round(df["少賺%"].mean(), 1),
+            "實際平均%": round(df["實際%"].mean(), 1),
+            "家規假想平均%": round(df["家規假想%"].mean(), 1)}
+    return df, summ
+
+
 def run_review() -> str:
     df = _load()
     opens = df[df["status"] == "open"]
@@ -249,6 +303,24 @@ def run_review() -> str:
             facts.append(f"RS60 {ctx['rs60']}")
         L.append(f"- **{r['code']} {r['name']}** 論點:「{r['thesis']}」")
         L.append(f"  當前事實:{';'.join(facts) if facts else '無資料'}")
+    L.append("\n## ⑤ 出場品質(早跑統計——用數據對帳,不靠感覺自責)")
+    try:
+        eq, summ = exit_quality()
+        if summ:
+            L.append(f"平倉 {summ['筆數']} 筆|太早跑比率 {summ['太早跑比率%']}%"
+                     f"|平均少賺 {summ['平均少賺%']:+.1f}%"
+                     f"|實際平均 {summ['實際平均%']:+.1f}% vs 家規移動停利假想 {summ['家規假想平均%']:+.1f}%")
+            worst = eq.sort_values("少賺%", ascending=False).head(3)
+            for _, r in worst.iterrows():
+                tag = "❌ 早跑" if r["少賺%"] > 3 else "✅"
+                L.append(f"- {tag} {r['代碼']} {r['名稱']}:出 {r['出場價']}(實際{r['實際%']:+.1f}%),"
+                         f"出後最高 {r['出後最高']}(少賺 {r['少賺%']:+.1f}%)")
+            L.append("判讀:震盪市快出場佔優、趨勢段鬆出場佔優——短打/波段要分艙,別用同一雙手。")
+        else:
+            L.append("(平倉樣本不足或事後窗未滿)")
+    except Exception as e:
+        L.append(f"(統計失敗:{e})")
+
     L.append("\n*家規(2026-09-07 新增):買前過體檢卡,🔴紅燈≥2 → 減半倉或不進場;"
              "天量後統計=78%會再創高但中位先洗-11%,停損掛在統計常態之外。*")
     L.append("*煞車=收盤-2×ATR(每週上移不下移);週檢視是紀律儀式,不是重新說服自己的機會。非投資建議。*")
