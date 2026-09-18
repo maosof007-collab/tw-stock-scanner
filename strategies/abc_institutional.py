@@ -1,6 +1,6 @@
 """
 strategies/abc_institutional.py
-M哥 A+B+C 策略插件 v4.0
+A+B+C 籌碼策略插件 v4.0
 
 整合五篇文章：
   文章1  A+B+C 核心架構
@@ -26,7 +26,7 @@ TDCC_DIR = Path("data/tdcc")
 
 
 class ABCInstitutionalStrategy(BaseStrategy):
-    name        = "A+B+C 籌碼趨勢（M哥完整版）"
+    name        = "A+B+C 籌碼趨勢（完整版）"
     description = (
         "趨勢(MA240扣抵預測)+籌碼(外資斜率+股東質變)+賣壓消失(量縮ATR小平台)。"
         "含 X 型態預警、慣性改變、240日扣抵超前指標。"

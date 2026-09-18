@@ -1,4 +1,4 @@
-"""頁25 — M哥選股地圖:五關串聯漏斗(長多位階→大錢進場→量縮不跌→突破確認)。"""
+"""頁25 — 籌碼選股地圖:五關串聯漏斗(長多位階→大錢進場→量縮不跌→突破確認)。"""
 import importlib
 import sys
 from pathlib import Path
@@ -8,12 +8,12 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-st.set_page_config(page_title="M哥選股地圖", page_icon="🗺️", layout="wide")
+st.set_page_config(page_title="籌碼選股地圖", page_icon="🗺️", layout="wide")
 
 import mmap_funnel as _mm
 _mm = importlib.reload(_mm)          # 迭代中模組:無條件重載
 
-st.title("🗺️ M哥選股地圖(五關漏斗)")
+st.title("🗺️ 籌碼選股地圖(五關漏斗)")
 st.caption("**不是找現在最強的,而是找「即將進入長期多頭」的**:①A 位階(240MA翻揚站上)→ "
            "②B1 大錢進場(大戶連升不減)→ ③B2 量縮不跌(賣壓消失)→ ④量增突破確認 → ⑤D/E/F 強化欄。"
            "回測 2016-2026(2,617筆):**60日賺>30%比率 12.6%(基準7.6%),2026年 34.8%;虧>20%僅8.2%**——右尾不對稱,配「出場越鬆越賺」家規使用。")
