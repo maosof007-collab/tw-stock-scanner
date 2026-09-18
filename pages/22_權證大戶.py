@@ -37,8 +37,9 @@ sc = _scan()
 st.caption(f"資料至 **{last_day}**|樣本 {panel['ucode'].nunique()} 檔標的(僅上市權證)|"
            f"單位:百萬元|run_daily 每日自動更新。**權證錢的三種狀態:🔵天天買(佈局)、🔥突然買(事件)、⚫不買了(收割完)**。")
 
-t_in, t_hot, t_out, t_one, t_ca = st.tabs(
-    ["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)", "🔎 個股資金流", "📜 分割/減資雷達"])
+t_in, t_hot, t_out, t_fi, t_one, t_ca = st.tabs(
+    ["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)",
+     "🌊 外資悄悄買(小型股)", "🔎 個股資金流", "📜 分割/減資雷達"])
 
 _cols = ["ucode", "name", "日中位", "近20日日均", "倍數", "連續天數", "CP比", "動向"]
 _ren = {"ucode": "代號", "name": "名稱"}
@@ -74,6 +75,27 @@ with t_out:
     st.markdown(f"**{len(d)} 檔**:近20日 ≤0.7× 中位——曾經的權證熱點,錢在離場(川湖 2059 型)。")
     st.dataframe(d[_cols].rename(columns=_ren), hide_index=True, width="stretch")
     st.caption("你持有的股票出現在這裡=幫你抬轎的槓桿資金在退場,對照大戶週報決定去留。")
+
+with t_fi:
+    st.caption("**權證佈局榜的姐妹榜(外資版)**:外資「週淨買超」連續 ≥N 週為正的小型股"
+               "(20日均量 200~8,000 張)——東捷/久元/天品那種「外資持股悄悄爬升」的指紋,量化版。"
+               "誠實標註:用日買賣超累積計算,非持股存量;吸籌強度=12週累積相當於幾天的日均量。")
+    _nw = st.slider("最少連續週數", 4, 12, 5, key="fi_nw")
+
+    @st.cache_data(ttl=3600, show_spinner="掃描外資連續累積…")
+    def _fi_scan(nw: int, ver: int = 1):
+        import fi_accum
+        return fi_accum.fi_accum_scan(min_weeks=nw)
+
+    _fd = _fi_scan(_nw)
+    if _fd.empty:
+        st.info("目前無符合條件的標的。")
+    else:
+        st.markdown(f"**{len(_fd)} 檔**(連續週數×吸籌強度排序)")
+        st.dataframe(_fd, hide_index=True, width="stretch", height=520)
+        st.caption("判讀:距年高% 貼近 0 且吸籌強度高=錢進價穩(吸籌形,最優先);"
+                   "距年高深負=外資接刀或攤平,配大戶Δ與投信欄交叉;"
+                   "點名後 → 頁6 體檢卡覆核+個股資金流看權證面。")
 
 with t_one:
     code = st.text_input("代號", key="wb_code")
