@@ -75,6 +75,26 @@ def render():
         v = b.get(key)
         return tpl.format(v) if v else ""
 
+    # ── 直覺層:四張大數字(今天一眼) ──
+    m1, m2, m3, m4 = st.columns(4)
+    try:
+        bm = pd.read_csv(D / "benchmark_TWII.csv", usecols=["Date", "Close"]).dropna().tail(2)
+        _twii = float(bm["Close"].iloc[-1])
+        _tchg = (_twii / float(bm["Close"].iloc[-2]) - 1) * 100
+        m1.metric("大盤", f"{_twii:,.0f}", f"{_tchg:+.2f}%")
+    except Exception:
+        m1.metric("大盤", "—")
+    try:
+        import my_etf as _me
+        _s = _me.stats(_me.nav_series())
+        m2.metric("我的ETF", f"{_s['報酬%']:+.1f}%" if _s else "—",
+                  f"超額 {_s['超額pp']:+.1f}pp" if _s else None)
+    except Exception:
+        m2.metric("我的ETF", "—")
+    m3.metric("持倉筆數", b.get("open", "—"))
+    _todo = sum(1 for k in ("breakout", "whale", "conf", "corp", "red") if b.get(k))
+    m4.metric("今日紅點", _todo, "先看有紅點的卡" if _todo else "無待辦", delta_color="off")
+
     st.markdown("### 🎛️ 駕駛艙(有紅點的先看)")
     c1, c2, c3 = st.columns(3)
     _card(c1, "🌅", "開盤前",
