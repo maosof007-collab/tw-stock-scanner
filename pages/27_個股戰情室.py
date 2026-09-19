@@ -193,6 +193,7 @@ with r2b:
         fig.add_bar(x=ins["date"], y=ins["投信"], name="投信", marker_color="#8B5CF6")
         fig.update_layout(height=240, barmode="group", margin=dict(l=8, r=8, t=8, b=8),
                           legend=dict(orientation="h", y=1.15))
+        fig.update_xaxes(type="category")     # 「09-18」別被當成2009年
         st.plotly_chart(fig, width="stretch")
 with r2c:
     st.markdown("#### 🗣️ 主力語意")
