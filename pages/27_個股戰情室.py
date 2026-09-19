@@ -237,13 +237,30 @@ with t_chip:
     if _f is not None:
         st.plotly_chart(_f, width="stretch")
 with t_rep:
-    from analyst_report import list_articles
-    arts = [a for a in list_articles() if a.get("code") == code][:8]
+    from analyst_report import list_articles, read_article
+    arts = [a for a in list_articles() if a.get("code") == code][:10]
+    # 深度潛力股報告也一起收進來
+    try:
+        import deep_report as _dr
+        arts += [dict(a, mode="深度潛力股", file=None, deep=a["fname"])
+                 for a in _dr.list_deep() if a.get("code") == code][:3]
+    except Exception:
+        pass
     if arts:
         for a in arts:
-            st.markdown(f"- **{a.get('mode','')}**|{a['title']}({str(a.get('date',''))[:10]})")
-        st.caption("全文到「研究文章庫」頁看;要產新報告 → 個股研究中心。")
+            _label = f"📄 {a.get('mode','')}|{a['title'][:60]}({str(a.get('date',''))[:10]})"
+            with st.expander(_label):
+                try:
+                    if a.get("deep"):
+                        import deep_report as _dr2
+                        st.markdown(_dr2.read_deep(a["deep"]))
+                    else:
+                        st.markdown(read_article(a["file"]))
+                except Exception as _e:
+                    st.warning(f"讀取失敗:{_e}")
+        st.page_link("pages/13_個股法人報告.py", label="➕ 產生新報告(個股研究中心)")
     else:
-        st.info("此股尚無報告——到個股研究中心一鍵產生(六層/查核/潛力股/快評)。")
+        st.info("此股尚無報告。")
+        st.page_link("pages/13_個股法人報告.py", label="➕ 到個股研究中心一鍵產生(六層/查核/潛力股/快評)")
 
 st.caption("戰情室=規則式拼裝系統既有引擎(體檢卡/權證資金/買區/停損/評分),無黑箱;非投資建議。")
