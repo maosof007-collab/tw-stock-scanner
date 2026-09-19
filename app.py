@@ -25,6 +25,7 @@ def _p(fname: str, title: str, icon: str) -> st.Page:
 nav = st.navigation({
     "": [
         st.Page("views/home.py", title="今日總覽", icon="📈", default=True),
+        _p("26_晨報.py", "每日晨報", "🌅"),
         _p("0_總經.py", "總經(大盤溫度計)", "🌡️"),
     ],
     "選股與持倉": [
