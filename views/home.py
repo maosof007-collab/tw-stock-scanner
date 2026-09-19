@@ -598,7 +598,7 @@ def main():
 
         with col_side:
             st.markdown("### ⚙️ 系統")
-            st.info("👈 左側選擇策略與股票後，點「執行回測 + 稽核」")
+            st.info("⚙️ 到頁面上方「回測策略參數」摺疊區設定後,點「執行回測 + 稽核」")
 
             st.markdown("**已載入策略**")
             for name, s in strategies_map.items():
