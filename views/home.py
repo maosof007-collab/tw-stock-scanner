@@ -593,8 +593,8 @@ def main():
         col_main, col_side = st.columns([3.2, 1], gap="large")
 
         with col_main:
-            st.markdown("### 🌡️ 今日族群趨勢")
-            render_sector_section(key_prefix="home_sec")
+            with st.expander("🌡️ 今日族群趨勢(強弱日報/熱力圖)", expanded=False):
+                render_sector_section(key_prefix="home_sec")
 
         with col_side:
             st.markdown("### ⚙️ 系統")

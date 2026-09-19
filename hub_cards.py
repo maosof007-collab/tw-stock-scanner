@@ -17,6 +17,71 @@ D = ROOT / "data"
 
 
 @st.cache_data(ttl=600)
+def _todo_list() -> list[str]:
+    """今日待辦:具體行動句(直覺層核心——告訴你做什麼,不是給你連結)。"""
+    from twtime import now_tw
+    today = f"{now_tw():%Y-%m-%d}"
+    todo = []
+    # ① 晨報
+    try:
+        arts = list((D / "research_articles").glob(f"art_{today.replace('-','')}*_MKT.md"))
+        if arts:
+            todo.append("📰 讀今日晨報(題材攻防段先看)")
+        elif now_tw().weekday() < 5 and now_tw().hour >= 8:
+            todo.append("⚠️ 今日晨報未產生——查排程/引擎")
+    except Exception:
+        pass
+    # ② 持倉距停損
+    try:
+        import weekly_review as wr
+        j = pd.read_csv(D / "decision_journal.csv", dtype=str)
+        for _, r in j[j["status"] == "open"].iterrows():
+            bp = pd.to_numeric(r.get("buy_price"), errors="coerce")
+            s = wr.stop_suggestion(r["code"], float(bp) if pd.notna(bp) else None)
+            if s and s.get("建議") and s.get("現價"):
+                gap = (s["現價"] / s["建議"] - 1) * 100
+                if gap <= 3:
+                    todo.append(f"🛑 {r['code']} {r['name']} 距停損只剩 {gap:.1f}%——跌破就走,不討論")
+    except Exception:
+        pass
+    # ③ 法說
+    try:
+        c = pd.read_csv(D / "_conf_calendar.csv", dtype=str)
+        td = c[c["date"] == today]
+        if len(td):
+            names = "、".join((td["code"] + td["name"]).head(4))
+            todo.append(f"🎤 今天 {len(td)} 場法說:{names}——持倉相關的聽完存筆記")
+    except Exception:
+        pass
+    # ④ 突破/鯨魚
+    try:
+        p = pd.read_csv(D / "_mmap_pool.csv", dtype=str)
+        nbr = int(p["狀態"].str.contains("突破").sum())
+        if nbr:
+            todo.append(f"🗺️ 地圖 {nbr} 檔剛突破——只看不追第一根,等回測不破")
+    except Exception:
+        pass
+    try:
+        w = pd.read_csv(D / "warrants" / "whale_signals.csv", dtype=str)
+        tw_ = w[w["date"] == today]
+        if len(tw_):
+            todo.append(f"🐋 鯨魚訊號 {len(tw_)} 檔:{'、'.join(tw_['ucode'].head(5))}(5日窗,先過體檢卡)")
+    except Exception:
+        pass
+    # ⑤ 資料體檢
+    try:
+        h = pd.read_csv(D / "_health_report.csv", dtype=str)
+        nred = int((h["狀態"] == "🔴").sum())
+        if nred:
+            todo.append(f"🔧 資料體檢 {nred} 項紅——看數字前先修資料(頁7)")
+    except Exception:
+        pass
+    if now_tw().weekday() == 5:
+        todo.append("📋 今天週六:讀週檢視報告(五關+出場品質)")
+    return todo
+
+
+@st.cache_data(ttl=600)
 def _badges() -> dict:
     """輕量徽章:全部小檔讀取。"""
     from twtime import now_tw
@@ -95,6 +160,14 @@ def render():
     _todo = sum(1 for k in ("breakout", "whale", "conf", "corp", "red") if b.get(k))
     m4.metric("今日紅點", _todo, "先看有紅點的卡" if _todo else "無待辦", delta_color="off")
 
+    # ── ✅ 今日待辦(具體行動句) ──
+    todo = _todo_list()
+    if todo:
+        st.markdown("#### ✅ 今天做這幾件事")
+        st.markdown("\n".join(f"{i+1}. {t}" for i, t in enumerate(todo)))
+    else:
+        st.success("今天沒有待辦——市場沒事就是好事,別手癢。")
+
     st.markdown("### 🎛️ 駕駛艙(有紅點的先看)")
     c1, c2, c3 = st.columns(3)
     _card(c1, "🌅", "開盤前",
@@ -117,7 +190,8 @@ def render():
            ("pages/22_權證大戶.py", f"📜 分割/減資雷達{n('corp', ' 🔴今日{}筆')}"),
            ("pages/17_族群儀表板.py", "🗂️ 族群儀表板")])
     _card(c5, "🔬", "研究室",
-          [("pages/13_個股法人報告.py", "🔬 個股研究中心"),
+          [("pages/27_個股戰情室.py", "🎯 個股戰情室(一屏看透一檔)"),
+           ("pages/13_個股法人報告.py", "🔬 個股研究中心(產報告)"),
            ("pages/12_研究文章.py", "📄 研究文章庫"),
            ("pages/20_深度潛力股.py", "💎 深度潛力股")])
     _card(c6, "⚙️", "系統",

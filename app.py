@@ -71,8 +71,8 @@ for _i, (_pg, _lb) in enumerate([
         ("pages/25_籌碼地圖.py", "🗺️ 地圖"),
         ("pages/6_績效追蹤.py", "🩺 體檢·日誌"),
         ("pages/22_權證大戶.py", "🐳 權證大戶"),
+        ("pages/27_個股戰情室.py", "🎯 戰情室"),
         ("pages/19_月營收預測.py", "🔮 月營收"),
-        ("pages/12_研究文章.py", "📄 文章"),
         ("pages/7_更新進度.py", "⏱️ 系統")]):
     with _top[_i]:
         st.page_link(_pg, label=_lb)
