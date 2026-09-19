@@ -362,67 +362,69 @@ def plot_monthly(eq):
 # 側欄
 # ════════════════════════════════════════
 def render_sidebar(strategies_map, stocks_map):
+    # 2026-09-19 介面改造:側欄拿掉,參數收進頁面摺疊區
     cfg={}
-    st.sidebar.markdown("## 📈 多策略回測系統")
-    st.sidebar.divider()
+    sb = st.expander("⚙️ 回測策略參數與執行(原側欄,點開設定)", expanded=False)
+    sb.markdown("## 📈 多策略回測系統")
+    sb.divider()
 
     upd=get_update_status(str(DATA_DIR))
-    st.sidebar.markdown("**資料狀態**")
-    st.sidebar.caption(f"最後更新：{upd['last_run']}")
-    col1,col2=st.sidebar.columns(2)
+    sb.markdown("**資料狀態**")
+    sb.caption(f"最後更新：{upd['last_run']}")
+    col1,col2=sb.columns(2)
     col1.metric("成功",upd["ok"]); col2.metric("失敗",upd["err"])
 
-    if st.sidebar.button("🔄 立即更新資料",width="stretch"):
+    if sb.button("🔄 立即更新資料",width="stretch"):
         with st.spinner("更新中..."):
             load_csv.clear(); load_benchmark.clear()
             update_all(DATA_DIR)
-        st.sidebar.success("更新完成！"); st.rerun()
+        sb.success("更新完成！"); st.rerun()
 
-    st.sidebar.divider()
+    sb.divider()
 
     # 策略選擇（自動偵測）
-    st.sidebar.markdown("**策略選擇**")
+    sb.markdown("**策略選擇**")
     if not strategies_map:
-        st.sidebar.error("找不到任何策略！請確認 strategies/ 資料夾"); st.stop()
-    strategy_name=st.sidebar.selectbox("選擇策略",list(strategies_map.keys()),
+        sb.error("找不到任何策略！請確認 strategies/ 資料夾"); st.stop()
+    strategy_name=sb.selectbox("選擇策略",list(strategies_map.keys()),
                                         label_visibility="collapsed")
     strategy=strategies_map[strategy_name]
-    st.sidebar.caption(strategy.description)
+    sb.caption(strategy.description)
     cfg["strategy"]=strategy; cfg["strategy_name"]=strategy_name
 
     # 動態參數（由策略 get_params() 自動生成 UI）
-    st.sidebar.markdown("**策略參數**")
+    sb.markdown("**策略參數**")
     param_defs=strategy.get_params(); user_params={}
     for pname,pdef in param_defs.items():
         label=pdef.get("label",pname); default=pdef.get("default")
         if pdef["type"]=="int":
-            user_params[pname]=st.sidebar.slider(label,pdef["min"],pdef["max"],
+            user_params[pname]=sb.slider(label,pdef["min"],pdef["max"],
                                                   default,pdef.get("step",1))
         elif pdef["type"]=="float":
-            user_params[pname]=st.sidebar.slider(label,float(pdef["min"]),
+            user_params[pname]=sb.slider(label,float(pdef["min"]),
                 float(pdef["max"]),float(default),float(pdef.get("step",0.1)))
         elif pdef["type"]=="select":
-            user_params[pname]=st.sidebar.selectbox(label,pdef["options"],
+            user_params[pname]=sb.selectbox(label,pdef["options"],
                 index=pdef["options"].index(default) if default in pdef["options"] else 0)
     cfg["params"]=user_params
 
-    st.sidebar.divider()
+    sb.divider()
 
     # 股票選擇
-    st.sidebar.markdown("**選股**")
+    sb.markdown("**選股**")
     all_tickers=list(stocks_map.keys())
     if not all_tickers:
-        st.sidebar.error("找不到 CSV！先執行 download_tw_stocks.py"); st.stop()
-    cfg["selected"]=st.sidebar.multiselect("股票代碼",all_tickers,
+        sb.error("找不到 CSV！先執行 download_tw_stocks.py"); st.stop()
+    cfg["selected"]=sb.multiselect("股票代碼",all_tickers,
         default=all_tickers[:5] if len(all_tickers)>=5 else all_tickers,
         label_visibility="collapsed")
 
-    st.sidebar.markdown("**回測設定**")
-    cfg["fee"] =st.sidebar.slider("手續費 (%)",0.0,0.5,0.1,0.05)/100
-    cfg["slip"]=st.sidebar.slider("滑點 (%)",0.0,0.5,0.1,0.05)/100
+    sb.markdown("**回測設定**")
+    cfg["fee"] =sb.slider("手續費 (%)",0.0,0.5,0.1,0.05)/100
+    cfg["slip"]=sb.slider("滑點 (%)",0.0,0.5,0.1,0.05)/100
 
-    st.sidebar.divider()
-    cfg["run"]=st.sidebar.button("🚀 執行回測 + 稽核",type="primary",width="stretch")
+    sb.divider()
+    cfg["run"]=sb.button("🚀 執行回測 + 稽核",type="primary",width="stretch")
     return cfg
 
 # ════════════════════════════════════════

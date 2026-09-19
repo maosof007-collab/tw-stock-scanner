@@ -12,7 +12,7 @@ import streamlit as st
 sys.path.insert(0, str(Path(__file__).parent))
 
 st.set_page_config(page_title="台股決策系統", page_icon="📈",
-                   layout="wide", initial_sidebar_state="expanded")
+                   layout="wide", initial_sidebar_state="collapsed")
 
 
 def _p(fname: str, title: str, icon: str) -> st.Page:
@@ -60,5 +60,18 @@ nav = st.navigation({
         _p("7_更新進度.py", "更新進度", "⏱️"),
         _p("15_使用說明.py", "使用說明", "❓"),
     ],
-}, expanded=False)      # 2026-09-19 側欄瘦身:分組預設收合(抽屜),導航主力改首頁駕駛艙區塊卡
+}, position="hidden")   # 2026-09-19 介面改造:側欄導航整個拿掉,改首頁駕駛艙區塊卡+全域頂列
+
+# 全域頂列(每一頁都有,回得了家)
+_top = st.columns(7)
+for _i, (_pg, _lb) in enumerate([
+        ("views/home.py", "📈 駕駛艙"),
+        ("pages/25_籌碼地圖.py", "🗺️ 地圖"),
+        ("pages/6_績效追蹤.py", "🩺 體檢·日誌"),
+        ("pages/22_權證大戶.py", "🐳 權證大戶"),
+        ("pages/19_月營收預測.py", "🔮 月營收"),
+        ("pages/12_研究文章.py", "📄 文章"),
+        ("pages/7_更新進度.py", "⏱️ 系統")]):
+    with _top[_i]:
+        st.page_link(_pg, label=_lb)
 nav.run()
