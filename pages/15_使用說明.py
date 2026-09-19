@@ -38,6 +38,43 @@ st.info("""**三層架構——任何頁面看到再心動,下單只能走 L0:**
 **入層規則**:新想法先 forward test 兩個月有超額才進 L0;記分卡是唯一升降機。
 完整版與封存名單:研究文章 →「系統憲法」。""")
 
+# ── 🐟 系統魚骨圖(認知地圖:25頁怎麼長在一條交易日主軸上)──
+st.markdown("### 🐟 系統地圖(魚骨圖)")
+st.graphviz_chart('''
+digraph G {
+  rankdir=LR; bgcolor="transparent";
+  node [shape=box, style="rounded,filled", fillcolor="#141a24", color="#3B82F6",
+        fontcolor="#dce6f2", fontname="Microsoft JhengHei", fontsize=11];
+  edge [color="#55637a"];
+  DAY [label="你的交易日", fillcolor="#1b2536", color="#00C2A8", fontsize=14];
+
+  PRE [label="🌅 開盤前", color="#E5484D"];
+  DAY -> PRE;
+  PRE -> {p1 [label="晨報(首頁)"]; p2 [label="月營收預測"]; p3 [label="法說行事曆"]; p4 [label="籌碼地圖·五關漏斗"];}
+
+  TRADE [label="💼 下單與部位", color="#E8873A"];
+  DAY -> TRADE;
+  TRADE -> {t1 [label="體檢卡+決策日誌"]; t2 [label="我的ETF"]; t3 [label="權證專區"]; t4 [label="訊號回查"];}
+
+  POST [label="🌇 盤後資金流", color="#D6B60A"];
+  DAY -> POST;
+  POST -> {o1 [label="權證大戶(鯨魚/佈局/外資悄悄買)"]; o2 [label="資金流向日誌"]; o3 [label="籌碼分軌圖"]; o4 [label="新聞情緒·信心分數"];}
+
+  CYCLE [label="📅 週期與事件", color="#2E9E5B"];
+  DAY -> CYCLE;
+  CYCLE -> {c1 [label="大戶週報(週五)"]; c2 [label="週檢視五關(週六)"]; c3 [label="記分卡(每月10日)"]; c4 [label="分割/減資雷達"];}
+
+  RES [label="🔬 研究室", color="#3B82F6"];
+  DAY -> RES;
+  RES -> {r1 [label="個股研究中心·四式報告"]; r2 [label="研究文章庫"]; r3 [label="族群儀表板"]; r4 [label="RRG·總經"];}
+
+  SYS [label="⚙️ 系統", color="#8B5CF6"];
+  DAY -> SYS;
+  SYS -> {s1 [label="更新進度+資料體檢"]; s2 [label="憲法(L0/L1/L2)"];}
+}
+''')
+st.caption("讀法:一切掛在「交易日」主軸上——先看有紅點的骨。導航主力在首頁駕駛艙區塊卡;側欄分組已改抽屜(點組名展開)。")
+
 # ── 功能導覽 ──────────────────────────────
 st.markdown("### 📂 功能導覽")
 

@@ -569,6 +569,15 @@ def main():
     st.caption(f"當前策略：**{strategy_name}**  v{strategy.version}  |  "
                f"手續費 {fee*100:.2f}%  滑點 {slip*100:.2f}%")
 
+    # ── 🎛️ 駕駛艙(區塊卡導航+徽章;2026-09-19 側欄瘦身改造)──
+    try:
+        import importlib as _il_hub
+        import hub_cards as _hub
+        _hub = _il_hub.reload(_hub)
+        _hub.render()
+    except Exception as _e_hub:
+        st.caption(f"(駕駛艙載入失敗:{_e_hub})")
+
     if not cfg["run"]:
         # ════════════════════════════════
         # 首頁：今日族群趨勢熱力圖（主） + 策略資訊（側）
