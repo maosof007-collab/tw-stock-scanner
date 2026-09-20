@@ -357,6 +357,17 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 籌碼地圖: {e}")
 
+    # ── Step 5.88:策略衰減儀表(週六重算;免疫系統) ──
+    if today.weekday() == 5:
+        try:
+            from strategy_decay import compute as _sd_compute
+            _sdd = _sd_compute()
+            _dead = _sdd[_sdd["狀態"].astype(str).str.contains("失效")]["策略"].tolist()
+            log.info(f"  ✅ 策略衰減:{len(_sdd)} 策略"
+                     + (f";🔴失效中:{'、'.join(_dead)}" if _dead else ";全綠"))
+        except Exception as e:
+            log.warning(f"  ⚠️ 策略衰減: {e}")
+
     # ── Step 5.9:全系統資料體檢(🔴 進 log,報告上雲供頁7)──
     try:
         from audit_data import run_audit

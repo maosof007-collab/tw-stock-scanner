@@ -238,8 +238,18 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
 # ════════════════════════════════════════
 # 強弱日報（自動成文；引擎見 daily_report.py）
 # ════════════════════════════════════════
-@st.cache_data(ttl=1800, show_spinner="彙整今日強弱並撰寫日報中（約 10-30 秒）…")
-def _daily_brief(polish: bool) -> str:
+def _brief_bucket() -> str:
+    """快取分桶:盤中(09:00-14:00)每30分鐘一桶;盤後/假日整天一桶。
+    2026-09-20 修:原 ttl=1800 導致收盤後每30分鐘白白重寫(含引擎潤稿)。"""
+    from twtime import now_tw
+    t = now_tw()
+    if t.weekday() < 5 and 9 <= t.hour < 14:
+        return f"{t:%Y-%m-%d}#{t.hour}:{t.minute // 30}"
+    return f"{t:%Y-%m-%d}#盤後"
+
+
+@st.cache_data(ttl=24 * 3600, show_spinner="彙整今日強弱並撰寫日報中（約 10-30 秒）…")
+def _daily_brief(polish: bool, bucket: str = "") -> str:
     import daily_report
     return daily_report.generate(polish=polish)
 
@@ -252,7 +262,7 @@ def _render_daily_brief(key_prefix: str = "sec"):
     if c[1].button("🔄 重新生成", key=f"{key_prefix}_brief_regen"):
         _daily_brief.clear()
     try:
-        art = _daily_brief(polish)
+        art = _daily_brief(polish, _brief_bucket())
     except Exception as e:                      # 日報壞了不能拖垮整個主頁
         import traceback
         st.error(f"日報生成失敗：{type(e).__name__}: {e}")
@@ -264,4 +274,4 @@ def _render_daily_brief(key_prefix: str = "sec"):
         "⬇️ 下載 Markdown", art.encode("utf-8"),
         file_name="daily_brief.md", mime="text/markdown",
         key=f"{key_prefix}_brief_dl")
-    st.caption("每 30 分鐘自動更新；強弱=族群成分等權漲跌，輪動=JdK RRG 近似，消息=產業新聞熱度。")
+    st.caption("盤中每 30 分鐘更新、收盤後凍結至隔日;強弱=族群成分等權漲跌,輪動=JdK RRG 近似,消息=產業新聞熱度。")

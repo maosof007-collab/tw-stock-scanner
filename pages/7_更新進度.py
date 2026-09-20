@@ -35,6 +35,18 @@ if _hp.exists():
         st.dataframe(_hd[["領域", "狀態", "最新", "說明"]], hide_index=True, width="stretch")
         st.caption("⚠️=時滯(盤後資料未到屬正常);🔴=真缺損,run_daily log 同步警示。手動重掃:python audit_data.py")
 
+# ── 📉 策略衰減儀表(每週六重算;連兩月🔴→照憲法降級) ──
+_dp = _P_hd(__file__).parent.parent / "data" / "_strategy_decay.csv"
+if _dp.exists():
+    _dd = _pd_hd.read_csv(_dp)
+    _n_dead = int(_dd["狀態"].astype(str).str.contains("失效").sum())
+    with st.expander(f"📉 策略衰減儀表:🔴失效中 {_n_dead} 檔(計於 {_dd['計算日'].iloc[0]})",
+                     expanded=bool(_n_dead)):
+        st.dataframe(_dd.drop(columns=["計算日"]), hide_index=True, width="stretch")
+        st.caption("近60日BUY訊號的實際fwd20報酬 vs 歷史回測EV。🔴=此環境失效(非永久判死):"
+                   "突破/動能家族在震盪市天生逆風——連續兩個月🔴才照憲法降級;"
+                   "⚪無基準=待補歷史回測。手動重算:python strategy_decay.py")
+
 
 # ── 啟動管線（背景子行程，不阻塞 UI）─────────────
 def launch(cmd: list[str], label: str):
