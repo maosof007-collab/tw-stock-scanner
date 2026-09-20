@@ -16,7 +16,11 @@ st.set_page_config(page_title="個股戰情室", page_icon="🎯", layout="wide"
 ROOT = Path(__file__).parent.parent
 
 st.title("🎯 個股戰情室")
-code = st.text_input("代號", value=st.session_state.get("war_code", "2330"), key="war_code_in")
+_tc, _tl = st.columns([3, 1])
+with _tc:
+    code = st.text_input("代號", value=st.session_state.get("war_code", "2330"), key="war_code_in")
+with _tl:
+    st.page_link("pages/28_公司快照.py", label="🏢 公司快照(基本面第一頁)")
 if not code.strip():
     st.stop()
 code = code.strip()
