@@ -163,6 +163,15 @@ with r1b:
              ("隔日沖風險", f"{A['dump']:.0f}%" if A["dump"] is not None else "無樣本"),
              ("支撐(買區)", f"{A['bz']['lo']}~{A['bz']['hi']}" if A["bz"] else "—"),
              ("停損建議", A["stop"].get("建議", "—") if A["stop"] else "—")]
+    try:
+        from tp_radar import latest_for as _tp_latest
+        _tp = _tp_latest(code)
+        if _tp and _tp.get("目標價") == _tp.get("目標價"):   # 非NaN
+            _gap = (_tp["目標價"] / A["close"] - 1) * 100
+            _rows.append(("分析師目標價",
+                          f"{_tp['方向']}{_tp['目標價']:g} 距現價{_gap:+.0f}%({_tp['日期'][5:]})"))
+    except Exception:
+        pass
     for k_, v_ in _rows:
         st.markdown(f"<div style='display:flex;justify-content:space-between;"
                     f"border-bottom:1px solid #26303f;padding:4px 2px'>"

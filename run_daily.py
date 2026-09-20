@@ -294,6 +294,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 公司行為雷達: {e}")
 
+    # ── Step 4.595:目標價雷達(鉅亨Factset共識速報;feed只留~40篇須天天抓)──
+    try:
+        from tp_radar import fetch as _tp_fetch
+        _tpn = _tp_fetch()
+        log.info(f"  ✅ 目標價雷達:本次 {len(_tpn)} 筆(累積於 data/tp_radar.csv)")
+    except Exception as e:
+        log.warning(f"  ⚠️ 目標價雷達: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:

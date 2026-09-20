@@ -53,6 +53,25 @@ def _todo_list() -> list[str]:
             todo.append(f"🎤 今天 {len(td)} 場法說:{names}——持倉相關的聽完存筆記")
     except Exception:
         pass
+    # ③.5 持股/ETF 分析師目標價異動(近3天)
+    try:
+        import tp_radar
+        codes = set()
+        j = pd.read_csv(D / "decision_journal.csv", dtype=str)
+        codes |= set(j[j["status"] == "open"]["code"])
+        try:
+            import my_etf
+            codes |= {c["code"] for c in my_etf.load().get("constituents", [])
+                      if c.get("code", "").isdigit()}
+        except Exception:
+            pass
+        al = tp_radar.alerts(list(codes), days=3)
+        for _, r in al.drop_duplicates(subset=["code", "類型"]).iterrows():
+            v = r["目標價"] if r["類型"] == "目標價" else r["EPS預估"]
+            todo.append(f"📊 {r['名稱']}{r['code']} 分析師{r['類型']}{r['方向']}至 {v:g}"
+                        f"({r['日期'][5:]})——共識在動,對照自己的論點")
+    except Exception:
+        pass
     # ④ 突破/鯨魚
     try:
         p = pd.read_csv(D / "_mmap_pool.csv", dtype=str)
