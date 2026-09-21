@@ -241,10 +241,12 @@ with p2:
     st.dataframe(tbl, width="stretch")
 
 st.markdown("---")
-n1, n2, n3 = st.columns(3)
+n1, n2, n3, n4 = st.columns(4)
 with n1:
-    st.page_link("pages/19_月營收預測.py", label="🔮 下一步:月營收模型(開獎前瞻)")
+    st.page_link("pages/29_財務九宮格.py", label="🔲 財務九宮格(體質總覽)")
 with n2:
-    st.page_link("pages/27_個股戰情室.py", label="🎯 個股戰情室(籌碼技術一屏)")
+    st.page_link("pages/19_月營收預測.py", label="🔮 下一步:月營收模型(開獎前瞻)")
 with n3:
+    st.page_link("pages/27_個股戰情室.py", label="🎯 個股戰情室(籌碼技術一屏)")
+with n4:
     st.page_link("pages/13_個股法人報告.py", label="🔬 產完整研究報告")
