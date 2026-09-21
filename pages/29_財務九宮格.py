@@ -2,7 +2,8 @@
 pages/29_財務九宮格.py — 一屏九圖財務體質總覽(仿經典財報九宮格)
 =================================================================
 九格:①營收+利潤率 ②EPS本業/業外 ③月營收今昔 ④存貨/收現天數
-     ⑤資本支出 ⑥負債比+現金流 ⑦營業現金流今昔 ⑧累計營收今昔 ⑨估值卡
+     ⑤資本支出 ⑥負債比+現金流 ⑦營業現金流今昔 ⑧累計營收今昔 ⑨體質速評
+標題用圖外 markdown(不與圖例相疊);看完 → 頁13 寫季度預估。
 資料:fin9.py(FinMind 三大報表)。
 """
 import sys
@@ -41,12 +42,16 @@ def _name(code):
         return code
 
 
-def _fig(height=225):
+def _fig(height=215):
     f = go.Figure()
-    f.update_layout(height=height, margin=dict(l=6, r=6, t=26, b=4),
-                    legend=dict(orientation="h", y=1.18, font=dict(size=10)))
+    f.update_layout(height=height, margin=dict(l=6, r=6, t=22, b=4),
+                    legend=dict(orientation="h", y=1.16, font=dict(size=10)))
     f.update_xaxes(type="category")
     return f
+
+
+def _title(t: str):
+    st.markdown(f"**{t}**")
 
 
 c_in, c_lnk = st.columns([2, 2])
@@ -80,55 +85,58 @@ if "core_ratio%" in A:
 r1 = st.columns(3)
 # ① 營收 + 毛利率/淨利率
 with r1[0]:
+    _title("① 營收與利潤率")
     g = q.tail(N_Q)
     f = _fig()
     f.add_bar(x=lab, y=g["營收(億)"], name="營收(億)", marker_color="#3B82F6")
     f.add_scatter(x=lab, y=g["毛利率%"], name="毛利率", yaxis="y2", line=dict(color="#E5484D"))
     f.add_scatter(x=lab, y=g["淨利率%"], name="淨利率", yaxis="y2", line=dict(color="#8B5CF6"))
-    f.update_layout(title=dict(text="營收與利潤率", font=dict(size=13)),
-                    yaxis2=dict(overlaying="y", side="right", showgrid=False))
+    f.update_layout(yaxis2=dict(overlaying="y", side="right", showgrid=False))
     st.plotly_chart(f, width="stretch")
 # ② EPS 本業/業外
 with r1[1]:
+    _title("② EPS 本業/業外分解")
     if "eps_core" in A:
         f = _fig()
         f.add_bar(x=lab, y=A["eps_core"].tail(N_Q), name="本業EPS", marker_color="#2E9E5B")
         f.add_bar(x=lab, y=A["eps_other"].tail(N_Q), name="業外", marker_color="#A16207")
         f.add_scatter(x=lab, y=A["core_ratio%"].tail(N_Q), name="本業比%", yaxis="y2",
                       line=dict(color="#3B82F6", dash="dot"))
-        f.update_layout(barmode="relative", title=dict(text="EPS 本業/業外分解", font=dict(size=13)),
+        f.update_layout(barmode="relative",
                         yaxis2=dict(overlaying="y", side="right", range=[0, 130], showgrid=False))
         st.plotly_chart(f, width="stretch")
 # ③ 月營收 今年 vs 去年
 with r1[2]:
+    _title("③ 月營收(百萬):今年 vs 去年")
     mc = A.get("mon_cmp")
     if mc:
         f = _fig()
         f.add_scatter(x=mc["月"], y=mc["去年"], name=f"{mc['this_y']-1}", line=dict(color="#3B82F6"))
         f.add_scatter(x=mc["月"], y=mc["今年"], name=f"{mc['this_y']}", line=dict(color="#E5484D"))
-        f.update_layout(title=dict(text="月營收(百萬):今年 vs 去年", font=dict(size=13)))
         st.plotly_chart(f, width="stretch")
 
 r2 = st.columns(3)
 # ④ 存貨/收現天數
 with r2[0]:
+    _title("④ 存貨/收現天數(愈低愈健康)")
     if "存貨天數" in A or "收現天數" in A:
         f = _fig()
         if "存貨天數" in A:
             f.add_scatter(x=lab, y=A["存貨天數"].tail(N_Q), name="存貨天數", line=dict(color="#E5484D"))
         if "收現天數" in A:
             f.add_scatter(x=lab, y=A["收現天數"].tail(N_Q), name="收現天數", line=dict(color="#3B82F6"))
-        f.update_layout(title=dict(text="存貨/收現天數(愈低愈健康)", font=dict(size=13)))
         st.plotly_chart(f, width="stretch")
 # ⑤ 資本支出
 with r2[1]:
+    _title("⑤ 資本支出(擴產強度,億)")
     if "資本支出" in A:
         f = _fig()
         f.add_bar(x=lab, y=A["資本支出"].tail(N_Q), name="資本支出(億)", marker_color="#3B82F6")
-        f.update_layout(title=dict(text="資本支出(擴產強度)", font=dict(size=13)), showlegend=False)
+        f.update_layout(showlegend=False)
         st.plotly_chart(f, width="stretch")
 # ⑥ 負債比 + 營業/自由現金流
 with r2[2]:
+    _title("⑥ 現金流與負債比")
     if "營業現金流" in A:
         f = _fig()
         f.add_bar(x=lab, y=A["營業現金流"].tail(N_Q), name="營業現金(億)", marker_color="#E5484D")
@@ -137,13 +145,14 @@ with r2[2]:
         if "負債比%" in A:
             f.add_scatter(x=lab, y=A["負債比%"].tail(N_Q), name="負債比%", yaxis="y2",
                           line=dict(color="#A16207"))
-        f.update_layout(barmode="group", title=dict(text="現金流與負債比", font=dict(size=13)),
+        f.update_layout(barmode="group",
                         yaxis2=dict(overlaying="y", side="right", range=[0, 100], showgrid=False))
         st.plotly_chart(f, width="stretch")
 
 r3 = st.columns(3)
 # ⑦ 營業現金流 今年 vs 去年(同季對比)
 with r3[0]:
+    _title("⑦ 營業現金流(億):今年 vs 去年")
     if "營業現金流" in A:
         ocf = A["營業現金流"]
         qt = [s[-2:] for s in A["季別"]]
@@ -155,29 +164,29 @@ with r3[0]:
             xs = [qt[i] for i in range(len(yrs)) if yrs[i] == y_]
             ys = [ocf.iloc[i] for i in range(len(yrs)) if yrs[i] == y_]
             f.add_bar(x=xs, y=ys, name=nm, marker_color=color)
-        f.update_layout(barmode="group",
-                        title=dict(text="營業現金流(億):今年 vs 去年", font=dict(size=13)))
+        f.update_layout(barmode="group")
         st.plotly_chart(f, width="stretch")
 # ⑧ 累計營收 今年 vs 去年
 with r3[1]:
+    _title("⑧ 累計營收(百萬):追趕進度")
     mc = A.get("mon_cmp")
     if mc:
         cum_t, cum_l, s_t, s_l = [], [], 0.0, 0.0
         for i in range(12):
-            s_t += mc["今年"][i] or 0; s_l += mc["去年"][i] or 0
+            s_t += mc["今年"][i] or 0
+            s_l += mc["去年"][i] or 0
             cum_t.append(s_t if mc["今年"][i] else None)
             cum_l.append(s_l if mc["去年"][i] else None)
         f = _fig()
         f.add_scatter(x=mc["月"], y=cum_l, name=f"{mc['this_y']-1}累計", line=dict(color="#3B82F6"))
         f.add_scatter(x=mc["月"], y=cum_t, name=f"{mc['this_y']}累計", line=dict(color="#E5484D"))
-        f.update_layout(title=dict(text="累計營收(百萬):追趕進度", font=dict(size=13)))
         st.plotly_chart(f, width="stretch")
         t_last = max(i for i in range(12) if cum_t[i]) if any(cum_t) else None
         if t_last is not None and cum_l[t_last]:
             st.caption(f"至 {t_last+1} 月:累計 YoY {cum_t[t_last]/cum_l[t_last]-1:+.1%}")
 # ⑨ 體質速評卡
 with r3[2]:
-    st.markdown("##### 🩺 體質速評(規則式)")
+    _title("⑨ 🩺 體質速評(規則式)")
     checks = []
     try:
         if "自由現金流" in A:
@@ -205,13 +214,19 @@ with r3[2]:
         st.markdown(f"{lamp} {txt}")
     st.caption("速評=體質面(現金流/本業比/負債/存貨/毛利),與買前體檢卡(籌碼面)互補。")
 
+# ── 看完體質 → 動手寫預估 ──
 st.markdown("---")
-n1, n2, n3 = st.columns(3)
+st.markdown("#### ✍️ 看完體質,下一步:寫下你的預估(之後財報自動對答案)")
+n1, n2, n3, n4 = st.columns(4)
 with n1:
-    st.page_link("pages/28_公司快照.py", label="🏢 公司快照(估值第一頁)")
+    st.page_link("pages/13_個股法人報告.py",
+                 label="✍️ 寫季度預估(模型預實追蹤)")
 with n2:
-    st.page_link("pages/19_月營收預測.py", label="🔮 月營收模型")
+    st.page_link("pages/19_月營收預測.py", label="🔮 月營收模型(系統預測)")
 with n3:
-    st.page_link("pages/27_個股戰情室.py", label="🎯 個股戰情室(籌碼)")
-st.caption(f"資料:FinMind 三大報表(快取20h)· <span style='color:{MUTED}'>財報為落後指標,"
-           "體質看長期趨勢,別拿單季嚇自己</span>", unsafe_allow_html=True)
+    st.page_link("pages/28_公司快照.py", label="🏢 公司快照(估值)")
+with n4:
+    st.page_link("pages/27_個股戰情室.py", label="🎯 戰情室(籌碼)")
+st.caption(f"研究動線:快照(估值)→ 九宮格(體質)→ **寫預估** → 財報公布自動對答案(頁13 模型預實追蹤)· "
+           f"<span style='color:{MUTED}'>資料:FinMind 三大報表,快取20h</span>",
+           unsafe_allow_html=True)
