@@ -323,6 +323,55 @@ def today_board(top: int = 20) -> pd.DataFrame:
     return ev
 
 
+BOARD_LOG = ROOT / "data" / "warrants" / "board_history.csv"
+
+
+def board_log(scan: pd.DataFrame | None = None) -> int:
+    """記錄今日榜單快照(date, ucode, 動向)→ 追蹤誰新進榜/在榜幾天。冪等。"""
+    from twtime import now_tw
+    if scan is None:
+        scan = market_scan(min_med=3.0)
+    if scan.empty or "動向" not in scan.columns:
+        return 0
+    today = f"{now_tw():%Y-%m-%d}"
+    snap = scan[["ucode", "動向"]].copy()
+    snap.insert(0, "date", today)
+    if BOARD_LOG.exists():
+        old = pd.read_csv(BOARD_LOG, dtype=str)
+        merged = pd.concat([old, snap], ignore_index=True)
+    else:
+        merged = snap
+    merged = merged.drop_duplicates(subset=["date", "ucode"], keep="last")
+    merged.to_csv(BOARD_LOG, index=False, encoding="utf-8-sig")
+    return len(snap)
+
+
+def board_meta() -> pd.DataFrame:
+    """由榜單歷史算每檔:在榜天數(同動向連續)、是否今日新進。
+    回傳 columns: ucode, 在榜天數, 新進(bool)。歷史只有1天時全部視為新進(誠實)。"""
+    if not BOARD_LOG.exists():
+        return pd.DataFrame(columns=["ucode", "在榜天數", "新進"])
+    h = pd.read_csv(BOARD_LOG, dtype=str)
+    dates = sorted(h["date"].unique())
+    if not dates:
+        return pd.DataFrame(columns=["ucode", "在榜天數", "新進"])
+    last = dates[-1]
+    prev_set = set(h[h["date"] == dates[-2]]["ucode"]) if len(dates) >= 2 else set()
+    rows = []
+    cur = h[h["date"] == last]
+    for _, r in cur.iterrows():
+        u, mv = r["ucode"], r["動向"]
+        streak = 0
+        for d in reversed(dates):
+            hit = h[(h["date"] == d) & (h["ucode"] == u) & (h["動向"] == mv)]
+            if hit.empty:
+                break
+            streak += 1
+        rows.append({"ucode": u, "在榜天數": streak,
+                     "新進": u not in prev_set if len(dates) >= 2 else True})
+    return pd.DataFrame(rows)
+
+
 if __name__ == "__main__":
     import sys
     n = int(sys.argv[sys.argv.index("--backfill") + 1]) if "--backfill" in sys.argv else 120

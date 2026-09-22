@@ -34,6 +34,24 @@ if panel.empty:
 
 last_day = panel["date"].max()
 sc = _scan()
+try:                                  # 榜單快照(冪等,一天一筆)→ 新進榜/在榜天數
+    _wf.board_log(sc)
+    _meta = _wf.board_meta()
+except Exception:
+    _meta = pd.DataFrame(columns=["ucode", "在榜天數", "新進"])
+
+
+def _decorate(d: pd.DataFrame) -> pd.DataFrame:
+    """加 🆕新進 與 在榜天數欄(新進排最前)。"""
+    if d.empty or _meta.empty:
+        return d.assign(新進="", 在榜="—") if not d.empty else d
+    out = d.merge(_meta, on="ucode", how="left")
+    out["新進"] = out["新進"].map({True: "🆕", False: ""}).fillna("")
+    out["在榜"] = out["在榜天數"].fillna(0).astype(int).astype(str) + "天"
+    return out.sort_values(["新進", "連續天數"] if "連續天數" in out else ["新進"],
+                           ascending=[False, False] if "連續天數" in out else [False])
+
+
 st.caption(f"資料至 **{last_day}**|樣本 {panel['ucode'].nunique()} 檔標的(僅上市權證)|"
            f"單位:百萬元|run_daily 每日自動更新。**權證錢的三種狀態:🔵天天買(佈局)、🔥突然買(事件)、⚫不買了(收割完)**。")
 
@@ -41,14 +59,18 @@ t_in, t_hot, t_out, t_fi, t_one, t_ca = st.tabs(
     ["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)",
      "🌊 外資悄悄買(小型股)", "🔎 個股資金流", "📜 分割/減資雷達"])
 
-_cols = ["ucode", "name", "日中位", "近20日日均", "倍數", "連續天數", "CP比", "動向"]
+_cols = ["新進", "在榜", "ucode", "name", "日中位", "近20日日均", "倍數", "連續天數", "CP比", "動向"]
 _ren = {"ucode": "代號", "name": "名稱"}
 
 with t_in:
-    d = sc[sc["動向"] == "🔵 佈局中"].sort_values("連續天數", ascending=False)
-    st.markdown(f"**{len(d)} 檔**:認購權證金額連續 ≥15 天高於自身中位、近20日 ≥1.5 倍——有人天天在買。")
-    st.dataframe(d[_cols].rename(columns=_ren), hide_index=True, width="stretch")
-    st.caption("配現股看:錢進價未動=吸籌形(最優先);錢進價已噴=行情中段。點名後→頁6體檢卡覆核。")
+    d = _decorate(sc[sc["動向"] == "🔵 佈局中"])
+    _new_n = int((d["新進"] == "🆕").sum()) if "新進" in d else 0
+    st.markdown(f"**{len(d)} 檔**(🆕今日新進 {_new_n}):認購權證金額連續 ≥15 天高於自身中位、"
+                f"近20日 ≥1.5 倍——有人天天在買。")
+    st.dataframe(d[[c for c in _cols if c in d.columns]].rename(columns=_ren),
+                 hide_index=True, width="stretch")
+    st.caption("配現股看:錢進價未動=吸籌形(最優先);錢進價已噴=行情中段。點名後→頁6體檢卡覆核。"
+               "**在榜=連續出現在本榜幾天(榜單歷史今天起算)**。")
 
 with t_hot:
     st.markdown("#### 🐋 鯨魚訊號(已驗證策略:5日中位+3.19%/勝率60%,18個月126筆)")
@@ -64,16 +86,27 @@ with t_hot:
     except Exception as _e:
         st.warning(f"鯨魚訊號讀取失敗:{_e}")
     st.markdown("---")
-    d = sc[sc["動向"] == "🔥 近5日湧入"].sort_values("近5日日均", ascending=False)
-    st.markdown(f"**一般湧入 {len(d)} 檔**:近 5 日日均 ≥2× 前 20 日——短期事件錢。")
-    st.dataframe(d[[c for c in _cols + ["近5日日均", "前20日日均"] if c in d.columns]]
-                 .rename(columns=_ren), hide_index=True, width="stretch")
-    st.caption("⚠️ 事件研究:一般爆量隔日中位 -0.29%(偏隔日沖)——湧入榜是觀察名單,只有鯨魚級有統計背書。")
+    d = _decorate(sc[sc["動向"] == "🔥 近5日湧入"]).sort_values("近5日日均", ascending=False)
+    _new_n = int((d["新進"] == "🆕").sum()) if "新進" in d else 0
+    st.markdown(f"**一般湧入 {len(d)} 檔**(🆕今日新進 {_new_n}):近 5 日日均 ≥2× 前 20 日——短期事件錢。")
+    if "連續天數" in d.columns:
+        d["佈局進度"] = pd.to_numeric(d["連續天數"], errors="coerce").fillna(0).clip(0, 15) / 15
+    st.dataframe(
+        d[[c for c in _cols + ["近5日日均", "前20日日均", "佈局進度"] if c in d.columns]]
+        .rename(columns=_ren), hide_index=True, width="stretch",
+        column_config={"佈局進度": st.column_config.ProgressColumn(
+            "距🔵佈局門檻", help="連續高於中位天數/15天;滿格=升級佈局榜",
+            min_value=0.0, max_value=1.0, format=" ")})
+    st.caption("⚠️ 事件研究:一般爆量隔日中位 -0.29%(偏隔日沖)——湧入榜是觀察名單,只有鯨魚級有統計背書。"
+               "**進度條=連續高於中位天數/15:滿格就升級佈局榜(湧入→蓄勢→佈局的管線)**。")
 
 with t_out:
-    d = sc[sc["動向"].isin(["⚫ 退潮", "🌫️ 降溫"])].sort_values("倍數")
-    st.markdown(f"**{len(d)} 檔**:近20日 ≤0.7× 中位——曾經的權證熱點,錢在離場(川湖 2059 型)。")
-    st.dataframe(d[_cols].rename(columns=_ren), hide_index=True, width="stretch")
+    d = _decorate(sc[sc["動向"].isin(["⚫ 退潮", "🌫️ 降溫"])]).sort_values("倍數")
+    _new_n = int((d["新進"] == "🆕").sum()) if "新進" in d else 0
+    st.markdown(f"**{len(d)} 檔**(🆕今日新進 {_new_n}=剛開始退):近20日 ≤0.7× 中位"
+                f"——曾經的權證熱點,錢在離場(川湖 2059 型)。")
+    st.dataframe(d[[c for c in _cols if c in d.columns]].rename(columns=_ren),
+                 hide_index=True, width="stretch")
     st.caption("你持有的股票出現在這裡=幫你抬轎的槓桿資金在退場,對照大戶週報決定去留。")
 
 with t_fi:

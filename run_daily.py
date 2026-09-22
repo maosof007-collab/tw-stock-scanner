@@ -270,6 +270,8 @@ def main():
             _w = whale_today()
             if len(_w):
                 log.info(f"  🐋 鯨魚訊號:{'、'.join(_w['ucode'].head(8))}")
+            from warrant_flow import board_log
+            log.info(f"  📋 榜單快照:{board_log()} 檔(新進榜追蹤)")
     except Exception as e:
         log.warning(f"  ⚠️ 權證資金流: {e}")
 
