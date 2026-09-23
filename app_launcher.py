@@ -40,9 +40,45 @@ def _wait_health(port: int, timeout: int = 90) -> bool:
     return False
 
 
+PORT_FILE = HERE / "data" / "_app_port.txt"
+
+
+def _alive(port: int) -> bool:
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/_stcore/health", timeout=2) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
 def main():
+    # 防重複啟動:已有一份在跑 → 直接開視窗/瀏覽器連過去,不再起第二個伺服器搶資料庫
+    if PORT_FILE.exists():
+        try:
+            old = int(PORT_FILE.read_text().strip())
+            if _alive(old):
+                url = f"http://127.0.0.1:{old}"
+                try:
+                    import webview
+                    webview.create_window(TITLE, url, width=1440, height=900)
+                    webview.start()
+                except Exception:
+                    import webbrowser
+                    webbrowser.open(url)
+                return
+        except Exception:
+            pass
+
     port = _free_port()
-    py = str(PYEXE if PYEXE.exists() else sys.executable)
+    try:
+        PORT_FILE.write_text(str(port))
+    except Exception:
+        pass
+    if PYEXE.exists():
+        py = str(PYEXE)
+    else:                              # pythonw 啟動時,子行程改用同目錄 python.exe
+        cand = Path(sys.executable).with_name("python.exe")
+        py = str(cand if cand.exists() else sys.executable)
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     proc = subprocess.Popen(
         [py, "-m", "streamlit", "run", str(APPPY),
@@ -66,6 +102,10 @@ def main():
     finally:
         try:
             proc.terminate()
+        except Exception:
+            pass
+        try:
+            PORT_FILE.unlink(missing_ok=True)
         except Exception:
             pass
 
