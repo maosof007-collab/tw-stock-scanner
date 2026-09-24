@@ -21,6 +21,21 @@ with _tc:
     code = st.text_input("代號", value=st.session_state.get("war_code", "2330"), key="war_code_in")
 with _tl:
     st.page_link("pages/28_公司快照.py", label="🏢 公司快照(基本面第一頁)")
+    if st.button("⚡ 一鍵快分析(引擎寫報告,約1分鐘)", key="war_quick"):
+        with st.spinner("價量+體檢+權證+財報+新聞 → 引擎撰寫中…"):
+            try:
+                import analyst_report as _ar
+                import importlib as _il
+                _ar = _il.reload(_ar)
+                _txt = _ar.generate_quick_analysis(code.strip())
+                if _txt.startswith("（"):
+                    st.warning(_txt)
+                else:
+                    _fn = _ar.save_article(code.strip(), "", "快分析", _txt)
+                    st.success(f"已存入文章庫:{_fn}(下方「相關報告」頁籤可看)")
+                    st.markdown(_txt)
+            except Exception as _e:
+                st.error(f"快分析失敗:{_e}")
 if not code.strip():
     st.stop()
 code = code.strip()

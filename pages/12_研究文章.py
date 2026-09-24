@@ -81,6 +81,53 @@ if _sel and _sel != "全部":
         st.info("此分類目前沒有文章")
         st.stop()
 
+# ── 🗂️ 個股封面牆(卡片式:一檔一卡,點開看該股全部報告)──
+with st.expander("🗂️ 個股封面牆", expanded=True):
+    _q = st.text_input("🔍 搜尋個股名稱或代號…", key="wall_q").strip()
+    _name_fix = {}
+    try:
+        import pandas as _pdw
+        _slw = _pdw.read_csv(Path(__file__).parent.parent / "data" / "stock_list.csv",
+                             encoding="utf-8-sig", dtype=str)
+        _name_fix = dict(zip(_slw["code"], _slw["name"]))
+    except Exception:
+        pass
+    _by_code: dict[str, list[dict]] = {}
+    for a in arts:
+        c = str(a.get("code", ""))
+        key = c if c.isdigit() else "SYS"
+        _by_code.setdefault(key, []).append(a)
+    _cards = []
+    for c, items in _by_code.items():
+        nm = (items[0].get("name") or _name_fix.get(c)
+              or ("專題/系統" if c == "SYS" else c))
+        _cards.append({"code": c, "name": nm, "n": len(items),
+                       "latest": max(x["date"] for x in items)[:10]})
+    _cards.sort(key=lambda x: x["latest"], reverse=True)
+    if _q:
+        _cards = [x for x in _cards if _q in x["code"] or _q in str(x["name"])]
+    st.caption(f"共 {len(_cards)} 檔")
+    _NC = 4
+    for _ri in range(0, min(len(_cards), 40), _NC):
+        _row = st.columns(_NC)
+        for _ci, card in enumerate(_cards[_ri:_ri + _NC]):
+            with _row[_ci]:
+                if st.button(f"**{card['name']}**\n\n`{card['code']}`|"
+                             f"📄{card['n']}份·{card['latest'][5:]}",
+                             key=f"wall_{card['code']}", width="stretch"):
+                    st.session_state["wall_code"] = card["code"]
+    _wc = st.session_state.get("wall_code")
+    if _wc:
+        _items = _by_code.get(_wc, [])
+        if _items:
+            st.markdown(f"##### 📄 {_items[0].get('name') or _name_fix.get(_wc, _wc)}"
+                        f" `{_wc}` 的 {len(_items)} 份報告")
+            for a in _items:
+                if st.button(f"{a['date'][:10]}|{a['mode']}|{a['title'][:42]}",
+                             key=f"wallart_{a['file']}", width="stretch"):
+                    st.session_state["lib_file"] = a["file"]
+            st.caption("點報告後往下捲——右側閱讀版面已切換到該篇。")
+
 # 閱讀版面 CSS(文章寬度/字距,像網站)
 st.markdown("""<style>
 .article-body {max-width: 860px; margin: 0 auto; line-height: 1.9; font-size: 16px;}

@@ -776,3 +776,118 @@ def generate_audit_report(code: str, extra: str = "") -> str:
         return out + f"\n\n---\n*系統數據:FinMind/TWSE;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
     from llm import fail_reason
     return f"（查核報告生成失敗：{fail_reason()}）"
+
+
+# ════════════════ ⚡ 一鍵快分析(六段模板+家規裁決) ════════════════
+_SYS_QUICK = """你是個人投資系統的首席研究員,寫一篇「快分析」。讀者是系統主人,已懂家規術語。
+【資料邊界鐵律】只能使用數據包內的數字與新聞標題;沒給的事實不寫、不推測財測;
+新聞標題只用來辨識題材,不得把標題內容當已驗證事實。家規裁決區塊已由規則算好,照抄,不得軟化。
+【輸出格式】直接開始,無前言。六段,標題用 ##:
+# {名稱} {代碼} 快分析|一句話:{30字內定性}
+## 題材與新聞(近況一段;標註哪些只是題材、哪些有數字支撐)
+## 基本面品質(必查:淨利率 vs 營益率 → 業外占比;月營收動能與顛簸度;有虧轉盈要指出)
+## 籌碼兩面(好的一面/壞的一面,各自點名數據:大戶Δ、外資、融資、權證、量能)
+## 家規裁決(照抄給你的裁決區塊,可加一句白話解釋)
+## 下一步驗證點(2-3條,具體到日期或數據源)
+500-800字,數字照抄勿改單位。結尾一句免責。"""
+
+
+def _cnyes_headlines(name: str, n: int = 8) -> str:
+    """近期新聞標題(僅供題材辨識)。"""
+    import html as _html
+    import json as _json
+    import re as _re
+    import urllib.request as _rq
+    try:
+        url = ("https://ess.api.cnyes.com/ess/api/v1/news/keyword?q="
+               + _rq.quote(name) + f"&limit={n}")
+        req = _rq.Request(url, headers={"User-Agent": "Mozilla/5.0",
+                                        "Origin": "https://news.cnyes.com"})
+        d = _json.load(_rq.urlopen(req, timeout=15))
+        out = []
+        for it in (d.get("data") or {}).get("items", [])[:n]:
+            import datetime as _dt
+            ts = it.get("publishAt")
+            dtxt = _dt.datetime.fromtimestamp(ts).strftime("%m-%d") if ts else "?"
+            t = _re.sub(r"</?mark>", "", _html.unescape(it.get("title", "")))
+            out.append(f"{dtxt}|{t[:60]}")
+        return "\n".join(out) or "(無)"
+    except Exception:
+        return "(新聞抓取失敗)"
+
+
+def generate_quick_analysis(code: str) -> str:
+    """⚡ 一鍵快分析:價量+體檢卡+權證+財報+新聞 → 引擎照模板寫;家規裁決規則算。"""
+    import fundamentals as F
+    import pretrade
+    import warrant_flow as wf
+    name = ""
+    try:
+        _D = ART_DIR.parent
+        sl = pd.read_csv(_D / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        h = sl[sl["code"] == code]
+        name = h["name"].iloc[0] if len(h) else code
+    except Exception:
+        pass
+    px = None
+    for suf in (".TW", ".TWO"):
+        p = ART_DIR.parent / f"{code}{suf}.csv"
+        if p.exists():
+            px = pd.read_csv(p).dropna(subset=["Close"])
+            break
+    if px is None or len(px) < 61:
+        return f"（{code} 無價格資料——興櫃/新股請用手動分析）"
+    c, v = px["Close"], px["Volume"]
+    tr = pd.concat([px["High"] - px["Low"], (px["High"] - c.shift()).abs(),
+                    (px["Low"] - c.shift()).abs()], axis=1).max(axis=1)
+    atr = float(tr.tail(14).mean())
+    vmed = float(v.tail(20).median())
+    burst_days = [i for i in range(max(0, len(px) - 4), len(px))
+                  if v.iloc[i] >= 3 * vmed]
+    yr_hi = float(c.tail(240).max())
+    hc = pretrade.health_check(code)
+    n_red = sum(1 for r in hc["rows"] if r["燈"] == "🔴")
+    # 家規裁決(規則算好,引擎照抄)
+    rule = [f"體檢卡:{hc['verdict']}"]
+    if burst_days:
+        rule.append(f"🛑 爆量窗內(近4日有{len(burst_days)}天量≥3×中位)——家規:爆量日+2~3天不進場")
+    if n_red >= 2:
+        rule.append("🛑 紅燈≥2 → 家規:不進場(或已持有者減半倉)")
+    elif n_red == 1:
+        rule.append("⚠️ 1紅 → 要買只准半倉+緊停損")
+    wash = yr_hi * 0.89
+    rule.append(f"天量統計參考:78%中期再創高、中位先洗-11% → 洗盤參考位≈{wash:.1f}")
+    rule.append(f"若規則內進場:停損=進場價-1.5×ATR(ATR14={atr:.1f},約-{atr*1.5:.1f}元);"
+                f"日振幅{atr/float(c.iloc[-1])*100:.1f}%"
+                + ("→倉位再打對折" if atr / float(c.iloc[-1]) >= 0.04 else ""))
+    sf = wf.sustained_flow(code)
+    mon = F.monthly_revenue(code, 2)
+    q = F.quarterly_fin(code, years=3)
+    parts = [
+        f"個股:{code} {name}|現價 {float(c.iloc[-1]):.1f}",
+        f"動能:20日{float(c.iloc[-1]/c.iloc[-21]-1)*100:+.1f}% / "
+        f"60日{float(c.iloc[-1]/c.iloc[-61]-1)*100:+.1f}% / 距年高{float(c.iloc[-1]/yr_hi-1)*100:+.1f}%",
+        f"量能:今日{float(v.iloc[-1])/1000:.0f}張 vs 20日中位{vmed/1000:.0f}張",
+        "【近8日價量】", px[["Date", "Open", "High", "Low", "Close", "Volume"]]
+        .tail(8).round(1).to_string(index=False),
+        "【體檢卡】" + hc["verdict"],
+        "\n".join(f"{r['燈']} {r['項目']}|{r['讀數']}" for r in hc["rows"]),
+        "【權證資金流】" + str({k: v_ for k, v_ in sf.items() if k != "monthly"} if sf else "無權證"),
+        "【月營收近10月】", mon.tail(10).round(1).to_string(index=False) if not mon.empty else "(FinMind無資料)",
+        "【季度損益近8季】", q.tail(8).to_string(index=False) if not q.empty else "(FinMind無資料)",
+        "【近期新聞標題(僅題材辨識,勿當事實)】", _cnyes_headlines(name or code),
+        "【家規裁決(照抄)】", "\n".join(rule),
+    ]
+    try:
+        from tp_radar import latest_for
+        tp = latest_for(code)
+        if tp:
+            parts.append(f"【分析師共識】{tp['方向']}{tp.get('目標價')}({tp['日期']})")
+    except Exception:
+        pass
+    from llm import generate
+    out = generate(_SYS_QUICK, "\n".join(parts), max_tokens=2500)
+    if out:
+        return out + f"\n\n---\n*⚡快分析:系統數據+規則裁決;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
+    from llm import fail_reason
+    return f"（快分析生成失敗:{fail_reason()}）"
