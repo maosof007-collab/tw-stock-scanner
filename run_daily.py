@@ -314,6 +314,20 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 中國連動: {e}")
 
+    # ── Step 4.599:選擇權模擬倉(期交所結算價洗損益+停損停利警示)──
+    try:
+        from op_paper import fetch_txo, mark as _op_mark, alerts as _op_alerts
+        fetch_txo()
+        _op_mark()
+        _oa = _op_alerts()
+        if len(_oa):
+            log.warning("  🚨 模擬倉觸發:" + "、".join(
+                f"{r['組合']}{r['腿']}{r['履約價']}{r['警示']}" for _, r in _oa.iterrows()))
+        else:
+            log.info("  ✅ 選擇權模擬倉:已洗價,無觸發")
+    except Exception as e:
+        log.warning(f"  ⚠️ 選擇權模擬倉: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
