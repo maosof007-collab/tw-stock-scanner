@@ -304,6 +304,16 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 目標價雷達: {e}")
 
+    # ── Step 4.598:中國連動雷達(A股龍頭日K + 對照掃描)──
+    try:
+        from cn_link import fetch_cn, scan as _cn_scan
+        _n = fetch_cn()
+        _cd = _cn_scan()
+        _hot = _cd[_cd.get("燈號", "").astype(str).str.contains("🔥", na=False)] if len(_cd) else _cd
+        log.info(f"  ✅ 中國連動:{_n} 檔A股更新;🔥補漲觀察 {len(_hot)} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 中國連動: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
