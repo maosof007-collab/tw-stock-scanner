@@ -780,16 +780,22 @@ def generate_audit_report(code: str, extra: str = "") -> str:
 
 # ════════════════ ⚡ 一鍵快分析(六段模板+家規裁決) ════════════════
 _SYS_QUICK = """你是個人投資系統的首席研究員,寫一篇「快分析」。讀者是系統主人,已懂家規術語。
-【資料邊界鐵律】只能使用數據包內的數字與新聞標題;沒給的事實不寫、不推測財測;
-新聞標題只用來辨識題材,不得把標題內容當已驗證事實。家規裁決區塊已由規則算好,照抄,不得軟化。
-【輸出格式】直接開始,無前言。六段,標題用 ##:
+【資料邊界鐵律】只能使用數據包內的數字/新聞標題/重大訊息/使用者補充;沒給的事實不寫、
+不自創財測;新聞標題只用來辨識題材,不得把標題內容當已驗證事實;
+「使用者補充(法說等)」屬已驗證事實,優先引用且要具體到數字。
+家規裁決區塊已由規則算好,照抄,不得軟化。
+【輸出格式】直接開始,無前言。標題用 ##,依序:
 # {名稱} {代碼} 快分析|一句話:{30字內定性}
-## 題材與新聞(近況一段;標註哪些只是題材、哪些有數字支撐)
-## 基本面品質(必查:淨利率 vs 營益率 → 業外占比;月營收動能與顛簸度;有虧轉盈要指出)
-## 籌碼兩面(好的一面/壞的一面,各自點名數據:大戶Δ、外資、融資、權證、量能)
-## 家規裁決(照抄給你的裁決區塊,可加一句白話解釋)
-## 下一步驗證點(2-3條,具體到日期或數據源)
-500-800字,數字照抄勿改單位。結尾一句免責。"""
+## 題材與新聞(這檔為什麼會動;標註哪些只是題材、哪些有數字支撐)
+## 基本面品質(必查:淨利率 vs 營益率 → 業外占比;月營收動能/顛簸度/趨勢轉折;
+   毛利率逐季軌跡;有虧轉盈或轉虧要明確指出季度)
+## 轉機與題材評估(若為虧損股/轉機股/題材股必寫,健康成長股可精簡:
+   轉機的證據鏈=公司說法 vs 已見數字的落差、兌現時間表、若證偽會怎樣)
+## 籌碼兩面(好的一面/壞的一面,各自點名數據:大戶Δ、外資、投信、融資、權證、量能倍數)
+## 估值錨(有獲利:現價隱含PE與合理性;虧損:每股淨值/營收規模當錨,並明說估值不可依賴)
+## 家規裁決(照抄給你的裁決區塊,再用2-3句白話講「所以現在具體做什麼/等什麼」)
+## 下一步驗證點(3條,具體到日期或數據源)
+900-1500字,數字照抄勿改單位。結尾一句免責。"""
 
 
 def _cnyes_headlines(name: str, n: int = 8) -> str:
@@ -816,8 +822,9 @@ def _cnyes_headlines(name: str, n: int = 8) -> str:
         return "(新聞抓取失敗)"
 
 
-def generate_quick_analysis(code: str) -> str:
-    """⚡ 一鍵快分析:價量+體檢卡+權證+財報+新聞 → 引擎照模板寫;家規裁決規則算。"""
+def generate_quick_analysis(code: str, extra: str = "") -> str:
+    """⚡ 一鍵快分析:價量+體檢卡+權證+財報+新聞+重大訊息(+使用者貼的法說) →
+    引擎照模板寫;家規裁決規則算。extra=法說重點/補充資料(視為已驗證事實)。"""
     import fundamentals as F
     import pretrade
     import warrant_flow as wf
@@ -875,9 +882,18 @@ def generate_quick_analysis(code: str) -> str:
         "【權證資金流】" + str({k: v_ for k, v_ in sf.items() if k != "monthly"} if sf else "無權證"),
         "【月營收近10月】", mon.tail(10).round(1).to_string(index=False) if not mon.empty else "(FinMind無資料)",
         "【季度損益近8季】", q.tail(8).to_string(index=False) if not q.empty else "(FinMind無資料)",
-        "【近期新聞標題(僅題材辨識,勿當事實)】", _cnyes_headlines(name or code),
+        "【近期新聞標題(僅題材辨識,勿當事實)】", _cnyes_headlines(name or code, 15),
         "【家規裁決(照抄)】", "\n".join(rule),
     ]
+    try:                                  # MOPS 重大訊息(法說/公告線索)
+        ann = fetch_announcements(code)
+        if not ann.empty:
+            parts.append("【MOPS 重大訊息(近12則主旨)】\n" + "\n".join(
+                f"{r['日期']}|{r['主旨'][:50]}" for _, r in ann.head(12).iterrows()))
+    except Exception:
+        pass
+    if extra.strip():
+        parts.append("【使用者補充(法說/筆記——已驗證事實,優先引用)】\n" + extra.strip()[:4000])
     try:
         from tp_radar import latest_for
         tp = latest_for(code)
@@ -886,7 +902,7 @@ def generate_quick_analysis(code: str) -> str:
     except Exception:
         pass
     from llm import generate
-    out = generate(_SYS_QUICK, "\n".join(parts), max_tokens=2500)
+    out = generate(_SYS_QUICK, "\n".join(parts), max_tokens=4500)
     if out:
         return out + f"\n\n---\n*⚡快分析:系統數據+規則裁決;產生於 {now_tw():%Y-%m-%d %H:%M}。非投資建議。*"
     from llm import fail_reason

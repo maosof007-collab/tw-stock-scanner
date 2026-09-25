@@ -21,13 +21,15 @@ with _tc:
     code = st.text_input("代號", value=st.session_state.get("war_code", "2330"), key="war_code_in")
 with _tl:
     st.page_link("pages/28_公司快照.py", label="🏢 公司快照(基本面第一頁)")
+    _qx = st.text_area("選填:貼法說重點/公告內容(視為已驗證事實,會寫進報告)",
+                       key="war_quick_extra", height=68)
     if st.button("⚡ 一鍵快分析(引擎寫報告,約1分鐘)", key="war_quick"):
-        with st.spinner("價量+體檢+權證+財報+新聞 → 引擎撰寫中…"):
+        with st.spinner("價量+體檢+權證+財報+新聞+重大訊息 → 引擎撰寫中…"):
             try:
                 import analyst_report as _ar
                 import importlib as _il
                 _ar = _il.reload(_ar)
-                _txt = _ar.generate_quick_analysis(code.strip())
+                _txt = _ar.generate_quick_analysis(code.strip(), extra=_qx or "")
                 if _txt.startswith("（"):
                     st.warning(_txt)
                 else:

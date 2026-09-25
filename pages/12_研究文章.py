@@ -95,12 +95,14 @@ with st.expander("🗂️ 個股封面牆", expanded=True):
     _by_code: dict[str, list[dict]] = {}
     for a in arts:
         c = str(a.get("code", ""))
-        key = c if c.isdigit() else "SYS"
+        key = c if c.isdigit() else f"M:{a.get('mode') or '其他'}"
         _by_code.setdefault(key, []).append(a)
     _cards = []
     for c, items in _by_code.items():
-        nm = (items[0].get("name") or _name_fix.get(c)
-              or ("專題/系統" if c == "SYS" else c))
+        if c.startswith("M:"):
+            nm = f"📚 {c[2:]}"
+        else:
+            nm = items[0].get("name") or _name_fix.get(c) or c
         _cards.append({"code": c, "name": nm, "n": len(items),
                        "latest": max(x["date"] for x in items)[:10]})
     _cards.sort(key=lambda x: x["latest"], reverse=True)
@@ -112,7 +114,8 @@ with st.expander("🗂️ 個股封面牆", expanded=True):
         _row = st.columns(_NC)
         for _ci, card in enumerate(_cards[_ri:_ri + _NC]):
             with _row[_ci]:
-                if st.button(f"**{card['name']}**\n\n`{card['code']}`|"
+                _cd = "" if card["code"].startswith("M:") else f"`{card['code']}`|"
+                if st.button(f"**{card['name']}**\n\n{_cd}"
                              f"📄{card['n']}份·{card['latest'][5:]}",
                              key=f"wall_{card['code']}", width="stretch"):
                     st.session_state["wall_code"] = card["code"]
@@ -138,56 +141,24 @@ st.markdown("""<style>
 .article-meta {max-width: 860px; margin: 0 auto; color: #8b949e; font-size: 13px;}
 </style>""", unsafe_allow_html=True)
 
-left, right = st.columns([1.1, 3])
+# ── 閱讀版面(全寬;導航=上方封面牆) ──
+valid_files = {a["file"] for a in arts}
+if st.session_state.get("lib_file") not in valid_files:
+    st.session_state["lib_file"] = arts[0]["file"]
+meta = next(a for a in arts if a["file"] == st.session_state["lib_file"])
 
-with left:
-    st.markdown("**文章列表**")
-    # 三層樹:族群 → 成分股 → 文章(晨報/非族群個股各自成節點)
-    code2grp = {}
-    try:
-        from theme_groups import THEME_GROUPS as _TGM
-        for g, cs in _TGM.items():
-            for c in cs:
-                code2grp.setdefault(c, g)     # 一檔多族群時取第一個
-    except Exception:
-        pass
-
-    tree: dict[str, dict[str, list[dict]]] = {}
-    for a in arts:
-        if a.get("name") in _tg:
-            node, sub = f"🧩 {a['name']}", "📊 族群總覽"
-        elif a.get("code") in code2grp:
-            node, sub = f"🧩 {code2grp[a['code']]}", f"{a['code']} {a['name']}"
-        else:
-            node, sub = "🔬 其他個股", f"{a['code']} {a['name']}"
-        tree.setdefault(node, {}).setdefault(sub, []).append(a)
-
-    valid_files = {a["file"] for a in arts}
-    if st.session_state.get("lib_file") not in valid_files:
-        st.session_state["lib_file"] = arts[0]["file"]
-
-    for node, subs in tree.items():
-        n_arts = sum(len(v) for v in subs.values())
-        cur_in = any(a["file"] == st.session_state["lib_file"]
-                     for v in subs.values() for a in v)
-        with st.expander(f"{node}（{n_arts}）", expanded=cur_in or len(tree) <= 2):
-            for sub, items in subs.items():
-                if sub:
-                    st.markdown(f"<div style='color:#8b949e;font-size:12px;"
-                                f"margin:6px 0 2px 2px'>▾ {sub}</div>",
-                                unsafe_allow_html=True)
-                for a in items:
-                    cur = a["file"] == st.session_state["lib_file"]
-                    _md = (f"{_flash_month(a)}營收快評" if a.get("mode") == "月營收快評"
-                           and _flash_month(a) else a["mode"])
-                    lbl = f"{'▸ ' if cur else ''}{a['date'][:10]}｜{_md}"
-                    if st.button(lbl, key=f"lib_{a['file']}",
-                                 type="primary" if cur else "secondary",
-                                 width="stretch"):
-                        st.session_state["lib_file"] = a["file"]
-                        st.rerun()
-    meta = next(a for a in arts if a["file"] == st.session_state["lib_file"])
-    st.caption(f"共 {len(arts)} 篇")
+body = _ar.read_article(meta["file"])
+st.markdown(f"<div class='article-meta'>📅 {meta['date']}　·　{meta['code']} "
+            f"{meta['name']}　·　{meta['mode']}模式　·　共 {len(arts)} 篇</div>",
+            unsafe_allow_html=True)
+st.markdown("<div class='article-body'>", unsafe_allow_html=True)
+st.markdown(body)
+st.markdown("</div>", unsafe_allow_html=True)
+b1, b2, _ = st.columns([1, 1, 4])
+with b1:
+    st.download_button("⬇️ 下載 Markdown", body.encode("utf-8"),
+                       file_name=meta["file"], mime="text/markdown", key="lib_dl")
+with b2:
     if st.button("🗑 刪除這篇", key="lib_del"):
         try:
             (_ar.ART_DIR / meta["file"]).unlink()
@@ -195,13 +166,3 @@ with left:
             st.rerun()
         except Exception:
             st.error("刪除失敗")
-
-with right:
-    body = _ar.read_article(meta["file"])
-    st.markdown(f"<div class='article-meta'>📅 {meta['date']}　·　{meta['code']} "
-                f"{meta['name']}　·　{meta['mode']}模式</div>", unsafe_allow_html=True)
-    st.markdown("<div class='article-body'>", unsafe_allow_html=True)
-    st.markdown(body)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.download_button("⬇️ 下載 Markdown", body.encode("utf-8"),
-                       file_name=meta["file"], mime="text/markdown", key="lib_dl")
