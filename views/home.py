@@ -571,6 +571,11 @@ def main():
     st.caption(f"當前策略：**{strategy_name}**  v{strategy.version}  |  "
                f"手續費 {fee*100:.2f}%  滑點 {slip*100:.2f}%")
 
+    # ── 🌡️ 今日族群趨勢(置頂:先看大局)──
+    from sector_view import render_sector_section
+    with st.expander("🌡️ 今日族群趨勢(強弱日報/熱力圖/多空戰況表)", expanded=True):
+        render_sector_section(key_prefix="home_sec")
+
     # ── 🎛️ 駕駛艙(區塊卡導航+徽章;2026-09-19 側欄瘦身改造)──
     try:
         import importlib as _il_hub
@@ -593,8 +598,7 @@ def main():
         col_main, col_side = st.columns([3.2, 1], gap="large")
 
         with col_main:
-            with st.expander("🌡️ 今日族群趨勢(強弱日報/熱力圖)", expanded=False):
-                render_sector_section(key_prefix="home_sec")
+            st.caption("🌡️ 族群趨勢已移至頁面頂部(駕駛艙上方)。")
 
         with col_side:
             st.markdown("### ⚙️ 系統")
