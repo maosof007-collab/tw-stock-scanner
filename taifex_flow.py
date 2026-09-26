@@ -22,27 +22,41 @@ _HDR = {"User-Agent": "Mozilla/5.0"}
 
 
 def fetch_fi_futures(days: int = 10) -> pd.DataFrame:
-    """外資台指期(TXF)近 N 日淨未平倉。快取 6h。"""
-    if CACHE.exists() and (time.time() - CACHE.stat().st_mtime) < 6 * 3600:
-        c = pd.read_csv(CACHE)
-        if not c.empty:
-            return c.tail(days)
-    end = now_tw()
-    start = end - pd.Timedelta(days=days + 8)
-    r = requests.post("https://www.taifex.com.tw/cht/3/futContractsDateDown",
-                      data={"queryStartDate": f"{start:%Y/%m/%d}",
-                            "queryEndDate": f"{end:%Y/%m/%d}",
-                            "commodityId": "TXF"},
-                      timeout=40, headers=_HDR)
-    d = pd.read_csv(io.BytesIO(r.content), encoding="big5")
-    fi = d[d["身份別"].astype(str).str.contains("外資")].copy()
-    out = pd.DataFrame({
-        "date": fi["日期"].str.replace("/", "-"),
-        "淨未平倉口數": pd.to_numeric(fi["多空未平倉口數淨額"], errors="coerce"),
-    }).dropna()
-    out["日增減"] = out["淨未平倉口數"].diff()
-    out.to_csv(CACHE, index=False, encoding="utf-8-sig")
-    return out.tail(days)
+    """外資台指期(TXF)淨未平倉。
+    2026-09:舊 CSV 下載端點被期交所擋掉(回HTML) → 改走 OpenAPI(僅回最新一日),
+    每日抓一次併入快取累積歷史;快取 6h。"""
+    old = pd.read_csv(CACHE) if CACHE.exists() else pd.DataFrame()
+    if CACHE.exists() and (time.time() - CACHE.stat().st_mtime) < 6 * 3600 and len(old):
+        return old.tail(days)
+    try:
+        import json
+        import urllib.request
+        req = urllib.request.Request(
+            "https://openapi.taifex.com.tw/v1/"
+            "MarketDataOfMajorInstitutionalTradersDetailsOfFuturesContractsBytheDate",
+            headers=_HDR)
+        rows = json.load(urllib.request.urlopen(req, timeout=30))
+        fi = [r for r in rows if r.get("ContractCode") == "臺股期貨"
+              and "外資" in str(r.get("Item"))]
+        if fi:
+            r0 = fi[0]
+            ymd = str(r0["Date"])
+            new = pd.DataFrame([{
+                "date": f"{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}",
+                "淨未平倉口數": float(r0["OpenInterest(Net)"]),
+            }])
+            merged = pd.concat([old[["date", "淨未平倉口數"]] if len(old) else old, new],
+                               ignore_index=True)
+            merged = (merged.drop_duplicates(subset=["date"], keep="last")
+                            .sort_values("date").reset_index(drop=True))
+            merged["日增減"] = merged["淨未平倉口數"].diff()
+            merged.to_csv(CACHE, index=False, encoding="utf-8-sig")
+            return merged.tail(days)
+    except Exception:
+        pass
+    if len(old):                          # 抓不到就用舊快取(不論多舊)
+        return old.tail(days)
+    raise RuntimeError("期交所 OpenAPI 無回應且無快取")
 
 
 def fi_verdict() -> str:

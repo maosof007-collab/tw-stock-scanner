@@ -52,8 +52,27 @@ def _decorate(d: pd.DataFrame) -> pd.DataFrame:
                            ascending=[False, False] if "連續天數" in out else [False])
 
 
-st.caption(f"資料至 **{last_day}**|樣本 {panel['ucode'].nunique()} 檔標的(僅上市權證)|"
-           f"單位:百萬元|run_daily 每日自動更新。**權證錢的三種狀態:🔵天天買(佈局)、🔥突然買(事件)、⚫不買了(收割完)**。")
+_u1, _u2 = st.columns([1.6, 4])
+with _u1:
+    if st.button("🔄 抓最新權證資料", key="wf_refresh"):
+        with st.spinner("抓當日權證資金流(TWSE)+鯨魚+榜單快照…"):
+            try:
+                from twtime import now_tw as _nt2
+                _r2 = _wf.fetch_warrant_day(f"{_nt2():%Y%m%d}")
+                if _r2 is None:
+                    st.info("今日非交易日或資料未出(盤後約18:00後才有)。")
+                else:
+                    _wf.whale_today()
+                    _wf.board_log()
+                    st.cache_data.clear()
+                    st.success(f"已更新 {len(_r2)} 檔,重新載入…")
+                    st.rerun()
+            except Exception as _e:
+                st.error(f"更新失敗:{_e}")
+with _u2:
+    st.caption(f"資料至 **{last_day}**|樣本 {panel['ucode'].nunique()} 檔標的(僅上市權證)|"
+               f"單位:百萬元|run_daily 每日自動更新;落後時按左鈕手動補。"
+               f"**權證錢的三種狀態:🔵天天買(佈局)、🔥突然買(事件)、⚫不買了(收割完)**。")
 
 t_in, t_hot, t_out, t_fi, t_one, t_ca = st.tabs(
     ["🔵 佈局榜(天天買)", "🔥 湧入榜(近5日)", "⚫ 退潮榜(錢走了)",

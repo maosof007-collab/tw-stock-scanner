@@ -18,7 +18,17 @@ ROOT = Path(__file__).parent.parent
 st.title("🎯 個股戰情室")
 _tc, _tl = st.columns([3, 1])
 with _tc:
-    code = st.text_input("代號", value=st.session_state.get("war_code", "2330"), key="war_code_in")
+    code = st.text_input("代號或名稱(如 2330 或 台積電)",
+                         value=st.session_state.get("war_code", "2330"), key="war_code_in")
+    from symbols import resolve as _sym_resolve
+    _rc, _rn = _sym_resolve(code)
+    if _rc and _rc != code.strip():
+        st.caption(f"→ {_rn} `{_rc}`")
+    if _rc:
+        code = _rc
+    elif code.strip():
+        st.warning("查無此代號/名稱")
+        st.stop()
 with _tl:
     st.page_link("pages/28_公司快照.py", label="🏢 公司快照(基本面第一頁)")
     _qx = st.text_area("選填:貼法說重點/公告內容(視為已驗證事實,會寫進報告)",

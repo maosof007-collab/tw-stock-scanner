@@ -33,6 +33,20 @@ def _data():
     return _bh.weekly_lists()
 
 
+_c1, _c2 = st.columns([1.6, 4])
+with _c1:
+    if st.button("🔄 抓最新集保資料並重算", key="bh_refresh"):
+        with st.spinner("下載集保股權分散表(TDCC)+重建面板…"):
+            try:
+                _bh.build_panel(force=True)
+                st.cache_data.clear()
+                st.success("已更新,重新載入…")
+                st.rerun()
+            except Exception as _e:
+                st.error(f"更新失敗:{_e}")
+with _c2:
+    st.caption("雲端版資料包落後或本機想立刻補資料時按這裡;集保每週更新,平日按了也不會有新週。")
+
 r = _data()
 if "error" in r:
     st.info(r["error"])

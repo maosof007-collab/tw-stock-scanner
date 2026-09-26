@@ -105,8 +105,10 @@ def _assemble(code: str) -> dict:
 
 # ── 選股 ──
 codes_hint = st.query_params.get("code", "3042")
-code = st.text_input("個股代碼", value=codes_hint, max_chars=6).strip()
-if not code.isdigit():
+code = st.text_input("個股代碼或名稱", value=codes_hint, max_chars=12).strip()
+from symbols import resolve as _sym_resolve
+code, _rn0 = _sym_resolve(code)
+if not code:
     st.stop()
 name, sector = _name_sector(code)
 A = _assemble(code)
