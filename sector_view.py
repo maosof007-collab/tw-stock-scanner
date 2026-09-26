@@ -51,13 +51,15 @@ def compute_stock_returns(info_df: pd.DataFrame) -> pd.DataFrame:
             df = df.dropna(subset=["Close"])
             if len(df) < 2:
                 continue
+            _v = df["Volume"].iloc[-1]
             rows.append({
                 "ticker": ticker,
                 "name":   name_map.get(ticker, ""),
                 "sector": sector,
                 "chg":    round((df["Close"].iloc[-1] / df["Close"].iloc[-2] - 1) * 100, 2),
                 "close":  round(df["Close"].iloc[-1], 1),
-                "volume": int(df["Volume"].iloc[-1] / 1000) if df["Volume"].iloc[-1] else 0,
+                "volume": int(_v / 1000) if _v else 0,
+                "value":  round(float(df["Close"].iloc[-1]) * float(_v or 0) / 1e8, 2),  # 成交額(億)
             })
         except Exception:
             pass
@@ -163,6 +165,85 @@ def _sector_drill_dialog(sector_name: str, stock_ret_df: pd.DataFrame):
     )
 
 
+def battle_table(stock_df: pd.DataFrame) -> pd.DataFrame:
+    """產業多空戰況(日級,仿盤中多空雷達):
+    紅額=上漲股成交額、綠額=下跌股、淨額=紅-綠、戰況分數=(紅-綠)/(紅+綠)×100。"""
+    if stock_df.empty or "value" not in stock_df.columns:
+        return pd.DataFrame()
+    rows = []
+    for sec, g in stock_df.groupby("sector"):
+        red = float(g.loc[g["chg"] > 0, "value"].sum())
+        grn = float(g.loc[g["chg"] < 0, "value"].sum())
+        tot = float(g["value"].sum())
+        if tot <= 0:
+            continue
+        rows.append({
+            "產業": sec, "家數": len(g),
+            "上漲": int((g["chg"] > 0).sum()), "下跌": int((g["chg"] < 0).sum()),
+            "總額(億)": round(tot, 1),
+            "紅額(億)": round(red, 1), "綠額(億)": round(grn, 1),
+            "淨額(億)": round(red - grn, 1),
+            "額加權漲跌%": round(float((g["chg"] * g["value"]).sum() / tot), 2),
+            "戰況分數": round((red - grn) / (red + grn) * 100) if (red + grn) > 0 else 0,
+        })
+    return pd.DataFrame(rows).sort_values("淨額(億)", ascending=False)
+
+
+def _render_battle(stock_df: pd.DataFrame, key_prefix: str):
+    import plotly.graph_objects as go
+    bt = battle_table(stock_df)
+    if bt.empty:
+        st.info("無法計算(缺成交額資料——更新股價後再試)。")
+        return
+    st.caption("**日級多空戰況**(收盤資料,非盤中tick):紅額=流向上漲股的成交額、綠額=下跌股;"
+               "淨額=紅-綠 → **錢今天集中打哪個族群**。戰況分數=(紅-綠)/(紅+綠)×100,±100=一面倒。")
+    s1, s2 = st.columns(2)
+    with s1:
+        st.markdown("##### 🔥 最強 10(淨額)")
+        st.dataframe(bt.head(10)[["產業", "淨額(億)", "戰況分數", "額加權漲跌%", "上漲", "下跌"]],
+                     hide_index=True, width="stretch")
+    with s2:
+        st.markdown("##### 🧊 最弱 10(淨額)")
+        st.dataframe(bt.tail(10).iloc[::-1][["產業", "淨額(億)", "戰況分數", "額加權漲跌%", "上漲", "下跌"]],
+                     hide_index=True, width="stretch")
+    st.markdown("---")
+    sec = st.selectbox("⚔️ 戰況詳情", bt["產業"].tolist(), key=f"{key_prefix}_battle_sec")
+    r = bt[bt["產業"] == sec].iloc[0]
+    g1, g2 = st.columns([1, 1.4])
+    with g1:
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number", value=float(r["戰況分數"]),
+            number=dict(suffix=" 分"),
+            gauge=dict(axis=dict(range=[-100, 100]),
+                       bar=dict(color="#E5484D" if r["戰況分數"] >= 0 else "#3B82F6"),
+                       steps=[dict(range=[-100, 0], color="rgba(59,130,246,.25)"),
+                              dict(range=[0, 100], color="rgba(229,72,77,.25)")]),
+            title=dict(text=f"{sec}|多方 vs 空方")))
+        fig.update_layout(height=260, margin=dict(l=20, r=20, t=50, b=8))
+        st.plotly_chart(fig, width="stretch")
+        _verdict = ("🔴 多方壓倒" if r["戰況分數"] >= 60 else
+                    "🔴 多方占上風" if r["戰況分數"] >= 20 else
+                    "🔵 空方壓倒" if r["戰況分數"] <= -60 else
+                    "🔵 空方占上風" if r["戰況分數"] <= -20 else "⚪ 拉鋸")
+        st.markdown(f"<div style='text-align:center;font-size:1.1rem;font-weight:700'>"
+                    f"{_verdict}|淨額 {r['淨額(億)']:+.1f} 億</div>", unsafe_allow_html=True)
+        _rp = r["紅額(億)"] / max(r["紅額(億)"] + r["綠額(億)"], 0.01) * 100
+        st.markdown(f"<div style='display:flex;height:20px;border-radius:10px;overflow:hidden;"
+                    f"margin-top:8px'><div style='width:{100-_rp:.0f}%;background:#3B82F6;"
+                    f"color:#fff;font-size:11px;text-align:center'>{100-_rp:.0f}</div>"
+                    f"<div style='width:{_rp:.0f}%;background:#E5484D;color:#fff;font-size:11px;"
+                    f"text-align:center'>{_rp:.0f}</div></div>", unsafe_allow_html=True)
+    with g2:
+        mem = (stock_df[stock_df["sector"] == sec]
+               .sort_values("value", ascending=False).head(12)
+               [["ticker", "name", "chg", "close", "value"]]
+               .rename(columns={"ticker": "代號", "name": "名稱", "chg": "漲跌%",
+                                "close": "收盤", "value": "成交額(億)"}))
+        mem["代號"] = mem["代號"].str.split(".").str[0]
+        st.markdown("##### 💰 金額前 12 成員(誰在扛旗)")
+        st.dataframe(mem, hide_index=True, width="stretch")
+
+
 def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
     """完整族群熱點區塊：熱力色塊網格 + 族群明細表 + 點擊下鑽個股"""
     info_df = load_stock_info()
@@ -178,7 +259,7 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
 
     stock_ret_df = compute_stock_returns(info_df)
 
-    ht3, ht1, ht2 = st.tabs(["📝 強弱日報", "🌡️ 熱力地圖", "📋 族群明細"])
+    ht3, ht1, htb, ht2 = st.tabs(["📝 強弱日報", "🌡️ 熱力地圖", "⚔️ 多空戰況表", "📋 族群明細"])
 
     with ht1:
         st.caption("紅＝強勢族群　綠＝弱勢族群　·　點色塊看族群個股排行")
@@ -209,6 +290,9 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
                                  width="stretch"):
                         if not stock_ret_df.empty:
                             _sector_drill_dialog(sec["sector"], stock_ret_df)
+
+    with htb:
+        _render_battle(stock_ret_df, key_prefix)
 
     with ht2:
         disp = sector_df[["sector", "avg_chg", "up", "down", "total", "top_gainers"]].copy()
