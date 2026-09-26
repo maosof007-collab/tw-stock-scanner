@@ -1,0 +1,354 @@
+=== 頁1 ===
+Spirox Confidential
+蔚華科技
+半導體設備專業品牌
+Professional Semiconductor Equipment Provider
+
+=== 頁2 ===
+Spirox Confidential
+聲明
+⚫ 本簡報及同時發佈之相關訊息內含有從公司內部與外部來源所取得的預
+測資訊。本公司未來實際所可能發生的營運結果、財務狀況以及業務展
+望，可能與這些預測性資訊所明示或暗示的預估有所差異，其原因可能
+來自於各種本公司無法掌控之風險因素。
+⚫ 本簡報中對未來的展望，反應本公司截至目前為止對於未來的看法。對
+於這些看法，未來若有任何變更或調整時，本公司並不負責隨時提醒或
+更新。
+⚫ 本公司並未作任何明示或暗示聲明或保證，請勿仰賴本資料中所呈現或
+所包含之資訊之正確性、公正性或完整性。本資料不構成證券發行邀約。
+2
+
+=== 頁3 ===
+Spirox Confidential
+議程
+3
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁4 ===
+Spirox Confidential
+議程
+4
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁5 ===
+Spirox Confidential
+Overview
+5
+• 成立時間：1987年
+• 台灣股票代碼：3055 (2002年上市 )
+• 資本額：38.5百萬美元
+• 市值：3.93億美元 (2026/5/19)
+• 員工人數：130人  (2026/05)
+• 業務範疇：半導體測試／封裝／檢測設備
+蔚華集團 經銷全球領導設備品牌蔚華科技產品
+• 自有品牌設備
+• 半導體封裝測試設備經銷
+• 光學技術研發中心
+• 功率半導體動態可靠度驗證實驗室
+• 板卡維修服務
+子公司
+新竹, 台灣 │ 集團總部
+• SP8000G 非破壞性TGV雷射改質檢測
+• SP8000S 非破壞性TSV檢測系統
+• SP8000A 雷射掃描共焦量測開發平台
+• MA6503D 微觀晶圓檢測系統
+思衛科技
+• 系統整合服務
+• 客製化半導體測試
+解決方案
+蔚華電子科技(上海)
+• 半導體封測設備經銷
+• 板卡維修服務
+南方科技
+• 先進數位光學技術
+• 化合物半導體檢測系統
+• 共焦量測開發平台
+
+
+=== 頁6 ===
+Spirox Confidential
+玻璃通孔 (TGV) 主要製程流程
+6
+利用超快雷射於玻璃內
+部誘導物理化學變化，
+定義通孔位置。
+雷射改質
+Laser Modification
+1
+利用化學蝕刻液選擇性
+移除改質區域，形成高
+縱橫比通孔。
+蝕刻穿孔
+Etching
+2
+電鍍填孔或種子層沉
+積，建立垂直導通電
+氣連接。
+金屬化
+Metallization
+3
+整合 ABF 增層薄膜與
+後續線路加工，完成基
+板製作。
+增層 / 封裝
+Build-Up
+4
+
+
+=== 頁7 ===
+Spirox Confidential
+玻璃基板／TGV 製程主要挑戰
+7
+蔚華雷射斷層掃描
+主要製程挑戰
+玻璃透明易碎，在改質、蝕刻、電鍍、增層
+過程中產生：
+• 微裂痕 (Cracks / Micro-Cracks)
+• 孔洞 (Voids)
+• 縫隙 (Gaps)
+導致產品無法通過可靠度測試。
+現有工具限制
+• 傳統AOI： 採反射入射光成像，受透明材
+料散射干擾，影像失真。
+• X光檢測： 速度慢、精準度低，無法觀測
+玻璃內部品質細節。
+過往市場無有效工具檢測玻璃「內部缺陷」
+解方
+ 
+Solution
+
+
+=== 頁8 ===
+Spirox Confidential
+議程
+8
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁9 ===
+Spirox Confidential
+蔚華雷射斷層掃描
+9
+以非線性光學技術，不破壞檢測物，檢測出材質內部的折射率(RI)變化介面
+斷層掃描
+A材料
+(RI = X)
+B材料
+(RI = Y)
+激發光雷射
+非線性光學訊號
+(K1)
+A材料與B材料介面
+折射率變化
+非線性光
+線性光
+入射光 
+反射光
+Spirox Laser Tomography Scan 
+
+
+=== 頁10 ===
+Spirox Confidential
+TGV製程最佳化：製程參數最佳化的關鍵角色
+10
+雷射改質 蝕刻成孔 金屬化
+改質光斑及均勻性檢驗 形貌尺寸檢驗+粗糙度 金屬化及CMP後玻璃裂痕檢驗
+• 多模式自動化量測
+➢ ROI (Region of Interest) 設定量測模式
+➢ 自定義掃描程序流程
+➢ 座標值量測模式
+➢ 隨機量測模式
+• 斷層圖動態觀測 (Dynamic Tomogram)
+• 直覺式操作介面
+• 手動上下料
+➢標準承載基板尺寸 : 310 × 310 mm
+➢最大承載基板尺寸 : 510 × 515 mm
+Spirox Laser Tomography Scan 
+SP8000G  Non-Destructive Laser  
+Modification Inspection
+System
+SP8002G Dual-Head 
+Non-Destructive TGV                    
+Inspection System 
+SP8004G Qual-Head 
+Non-Destructive TGV
+Inspection System
+
+=== 頁11 ===
+Spirox Confidential
+TGV應用：立體雷射改質斷層圖觀測均勻度與連貫性
+11
+完整均勻
+底部改質形貌
+差異小
+局部不連貫
+上寬下窄
+底部改質形貌
+差異大
+
+
+=== 頁12 ===
+Spirox Confidential
+TGV應用：斷層動態圖
+12
+It’s able to observe Laser modification variations along the vertical depth changes.
+
+
+=== 頁13 ===
+Spirox Confidential
+TGV應用：蝕刻成孔後形貌量測
+13
+非破壞性垂直剖面圖3D成像觀測TGV形貌
+沿著垂直深度觀察孔徑變化
+定位腰身深度位置
+TCD
+BCD
+Waist CD
+
+
+=== 頁14 ===
+Spirox Confidential
+TGV應用：金屬化及CMP後玻璃裂痕檢驗
+14
+Abnormal
+Crack on OM
+Cu
+Glass
+Voids
+
+=== 頁15 ===
+Spirox Confidential
+TSV應用：孔深量測及孔底殘留檢測
+15
+SiO2層殘留覆蓋
+SiO2
+Metal
+
+
+=== 頁16 ===
+Spirox Confidential
+玻璃耦合(Glass Coupler)／玻璃橋接器(Glass Bridge)量測
+16
+玻璃材質的光纖連接器：在玻璃內部加工光波導，以連接晶片與光纖，實現CPO技術
+光波導
+Source: Fiber Mall (Intel’s Pluggable Optical Connectors by Catherine, 2023)
+Source: Corning
+Planar Waveguide
+30μm
+300μm
+Channel 
+Waveguide
+345μm
+30μm
+Source: Corning
+
+=== 頁17 ===
+Spirox Confidential
+產品
+17
+SP8000G SP8000S
+適用製程 TGV TSV
+應用 Glass Core
+光纖連接器(Glass Coupler/Bridge) TSV, HBM, 記憶體
+檢測能力
+• 雷射改質：改質光斑及均勻性檢驗
+• 蝕刻成孔：形貌尺寸檢驗+粗糙度
+• 金屬化及CMP後玻璃裂痕檢驗
+• TSV 形貌與 CD 檢測
+• 高深寬比結構之快速深度取樣 
+AWU 評估
+• 孔深量測及孔底殘留檢測
+• WoW Trimming檢測
+
+
+=== 頁18 ===
+Spirox Confidential
+議程
+18
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁19 ===
+Spirox Confidential
+專利與認證
+• 近50項，涵蓋美國、歐洲、日本、韓國、台灣、中國多項發明專利申
+請中
+• 已取得台灣、美國、歐洲SpiroxLTS®商標註冊
+• SP8000G已取得歐盟CE認證及SEMI / S2認證
+19
+
+
+=== 頁20 ===
+Spirox Confidential
+13 項專利 | 涵蓋 6 國 | 54張專利申請
+20
+項次 類型 已領證 申請中 申請案數
+1 發明專利 台灣、日本、中國 3
+2 發明專利 台灣 1
+3 & 4 發明專利 台灣 日本、美國、中國 8
+5 發明專利 台灣、日本、美國、中國 4
+6 & 8 發明專利 台灣 (#6) 台灣(#8) 、日本、韓國、美國、德國、中國 12
+7 & 9 發明專利 台灣、日本、韓國、美國、中國 10
+10
+發明專利 台灣、日本、韓國 3
+新型專利 台灣 日本 2
+11 發明專利 台灣、日本、韓國、美國 4
+12 新型專利 台灣、日本 2
+13
+發明專利 台灣、日本、韓國、美國 4
+新型專利 台灣 1
+
+=== 頁21 ===
+Spirox Confidential
+議程
+21
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁22 ===
+Spirox Confidential
+合併財務資訊摘要(YoY)
+22
+●115年上半年度毛利率31.77%高於去年同  
+期接近11個百分點，主係4月份營業收入包
+括具獨家專利的SpiroxLTS®雷射斷層掃描
+技術的SP8000S非破壞性TSV檢測系統。
+●115年上半年度營業外淨收入高於去年同期，
+   主係透過損益按公允價值衡量之金融資產利
+益78萬元(年增61百萬元)、外幣兌換淨利益 
+11百萬元(年增58百萬元)及去年同期預期信
+用減損損失提列損失44百萬元。
+●115年上半年度負債占資產比16%及
+流動比519%，公司財務結構尚屬穏健。
+
+
+=== 頁23 ===
+Spirox Confidential
+議程
+23
+01 公司簡介與產業趨勢 
+02 核心技術與應用
+03 專利與認證
+04 財務數據
+05 問與答
+
+=== 頁24 ===
+Spirox Confidential
+Thank you.

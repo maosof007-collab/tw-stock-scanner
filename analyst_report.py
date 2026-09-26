@@ -425,6 +425,36 @@ def attribute_errors(code: str, bc: pd.DataFrame, extra: str = "") -> str:
 # ────────────────────────────────────────
 # 數據包
 # ────────────────────────────────────────
+def theme_context(code: str) -> str:
+    """個股所屬題材族群+同族對照動能(所有報告模式共用,避免拿錯對照組)。"""
+    try:
+        from pathlib import Path as _P
+        from theme_groups import THEME_GROUPS
+        sl = pd.read_csv(_P(__file__).parent / "data" / "stock_list.csv",
+                         encoding="utf-8-sig", dtype=str)
+        nm = dict(zip(sl["code"], sl["name"]))
+        lines = []
+        for g, members in THEME_GROUPS.items():
+            if code not in members:
+                continue
+            rows = []
+            for m in members:
+                for suf in (".TW", ".TWO"):
+                    p = _P(__file__).parent / "data" / f"{m}{suf}.csv"
+                    if p.exists():
+                        c = pd.read_csv(p, usecols=["Close"])["Close"].dropna()
+                        if len(c) > 61:
+                            rows.append(f"{nm.get(m, m)}{m}"
+                                        f" 20日{(c.iloc[-1]/c.iloc[-21]-1)*100:+.0f}%"
+                                        f"/60日{(c.iloc[-1]/c.iloc[-61]-1)*100:+.0f}%"
+                                        + ("←本檔" if m == code else ""))
+                        break
+            lines.append(f"族群「{g}」成員動能:" + ";".join(rows))
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
 def build_digest(code: str, extra: str = "") -> dict:
     name = ""
     try:
@@ -455,9 +485,14 @@ def build_digest(code: str, extra: str = "") -> dict:
                 break
     except Exception:
         pass
+    chips = _chip_context(code)
+    tc = theme_context(code)
+    if tc:
+        chips = (chips + "\n" if chips else "") + tc + \
+            "\n(同族群成員是正確對照組;官方產業別太粗勿用它比較)"
     return {"code": code, "name": name, "monthly": mon, "quarterly": q,
             "forecast": fc, "assume": assume, "eps_sc": eps_sc,
-            "chips": _chip_context(code), "price": price_txt, "extra": extra}
+            "chips": chips, "price": price_txt, "extra": extra}
 
 
 # ────────────────────────────────────────
@@ -883,6 +918,7 @@ def generate_quick_analysis(code: str, extra: str = "") -> str:
         "【月營收近10月】", mon.tail(10).round(1).to_string(index=False) if not mon.empty else "(FinMind無資料)",
         "【季度損益近8季】", q.tail(8).to_string(index=False) if not q.empty else "(FinMind無資料)",
         "【近期新聞標題(僅題材辨識,勿當事實)】", _cnyes_headlines(name or code, 15),
+        "【題材族群對照(正確的比較組)】", theme_context(code) or "(未定義族群)",
         "【家規裁決(照抄)】", "\n".join(rule),
     ]
     try:                                  # MOPS 重大訊息(法說/公告線索)
