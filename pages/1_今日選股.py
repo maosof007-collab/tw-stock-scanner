@@ -445,6 +445,11 @@ def render_kline_buttons(source_df, info, key_prefix):
 # ═════════════════════════════════════════
 page_header("今日選股訊號", "TODAY SIGNALS", "📡")
 
+# ── 🌡️ 今日族群熱點分布(置頂:先看大局再看個股訊號)──
+st.markdown("### 🌡️ 今日族群熱點分布")
+render_sector_section(key_prefix="scan_sec")
+st.markdown("---")
+
 # ── 自動刷新邏輯 ──────────────────────────
 def _is_trading_day() -> bool:
     return now_tw().weekday() < 5
@@ -907,11 +912,8 @@ with tab_watch:
         render_kline_buttons(other_df, info_map, "watch")
 
 # ─────────────────────────────────────────
-# ③ 每日族群熱點分布（共用元件 sector_view）
+# ③ 族群熱點已移至頁面頂部(先大局後個股)
 # ─────────────────────────────────────────
-st.markdown("---")
-st.markdown("### 🌡️ 今日族群熱點分布")
-render_sector_section(key_prefix="scan_sec")
 
 
 # ─────────────────────────────────────────
