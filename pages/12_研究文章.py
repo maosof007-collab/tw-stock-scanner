@@ -159,7 +159,16 @@ st.markdown(f"<div class='article-meta'>📅 {meta['date']}　·　{meta['code']
             f"{meta['name']}　·　{meta['mode']}模式　·　共 {len(arts)} 篇</div>",
             unsafe_allow_html=True)
 st.markdown("<div class='article-body'>", unsafe_allow_html=True)
-st.markdown(body)
+import re as _re_img
+_segs = _re_img.split(r"!\[[^\]]*\]\((img/[^)]+)\)", body)
+for _i, _seg in enumerate(_segs):
+    if _i % 2 == 0:
+        if _seg.strip():
+            st.markdown(_seg)
+    else:
+        _ip = _ar.ART_DIR / _seg
+        if _ip.exists():
+            st.image(str(_ip), width="stretch")
 st.markdown("</div>", unsafe_allow_html=True)
 b1, b2, _ = st.columns([1, 1, 4])
 with b1:
