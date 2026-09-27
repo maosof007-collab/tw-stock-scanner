@@ -82,7 +82,12 @@ if _sel and _sel != "全部":
         st.stop()
 
 # ── 🗂️ 個股封面牆(卡片式:一檔一卡,點開看該股全部報告)──
-with st.expander("🗂️ 個股封面牆", expanded=True):
+_wall_open = st.session_state.get("wall_open", True)
+if not _wall_open:
+    if st.button("🗂️ 回封面牆(選其他報告)", key="wall_back"):
+        st.session_state["wall_open"] = True
+        st.rerun()
+with st.expander("🗂️ 個股封面牆", expanded=_wall_open):
     _q = st.text_input("🔍 搜尋個股名稱或代號…", key="wall_q").strip()
     _name_fix = {}
     try:
@@ -129,7 +134,9 @@ with st.expander("🗂️ 個股封面牆", expanded=True):
                 if st.button(f"{a['date'][:10]}|{a['mode']}|{a['title'][:42]}",
                              key=f"wallart_{a['file']}", width="stretch"):
                     st.session_state["lib_file"] = a["file"]
-            st.caption("點報告後往下捲——右側閱讀版面已切換到該篇。")
+                    st.session_state["wall_open"] = False   # 收牆,文章直達眼前
+                    st.rerun()
+            st.caption("點報告 → 封面牆自動收合,文章直接顯示。")
 
 # 閱讀版面 CSS(文章寬度/字距,像網站)
 st.markdown("""<style>
