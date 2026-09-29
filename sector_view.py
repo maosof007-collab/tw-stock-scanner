@@ -29,8 +29,16 @@ def load_stock_info() -> pd.DataFrame:
     return pd.read_csv(p, encoding="utf-8-sig", dtype=str)
 
 
-@st.cache_data(ttl=600)
-def compute_stock_returns(info_df: pd.DataFrame) -> pd.DataFrame:
+def _data_ver() -> str:
+    """資料版本戳:價格檔沒更新就沿用快取(避免熱力圖每10分鐘重掃2000檔)。"""
+    try:
+        return str(int((DATA_DIR / "2330.TW.csv").stat().st_mtime))
+    except Exception:
+        return "0"
+
+
+@st.cache_data(ttl=24 * 3600, show_spinner="計算全市場漲跌(資料更新後才重算)…")
+def compute_stock_returns(info_df: pd.DataFrame, ver: str = "") -> pd.DataFrame:
     """全市場個股今日漲跌幅：ticker, name, sector, chg, close, volume"""
     rows = []
     csvs = (sorted(glob.glob(str(DATA_DIR / "*.TW.csv"))) +
@@ -67,10 +75,10 @@ def compute_stock_returns(info_df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-@st.cache_data(ttl=600)
-def compute_sector_heatmap(info_df: pd.DataFrame) -> pd.DataFrame:
+@st.cache_data(ttl=24 * 3600)
+def compute_sector_heatmap(info_df: pd.DataFrame, ver: str = "") -> pd.DataFrame:
     """每個產業今日平均漲跌：sector, avg_chg, up, down, total, top_gainers"""
-    stock_df = compute_stock_returns(info_df)
+    stock_df = compute_stock_returns(info_df, ver)
     if stock_df.empty:
         return pd.DataFrame()
 
@@ -251,13 +259,13 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
         st.warning("找不到 data/stock_list.csv，無法計算族群資料")
         return
 
-    with st.spinner("計算族群熱點中..."):
-        sector_df = compute_sector_heatmap(info_df)
+    _ver = _data_ver()
+    sector_df = compute_sector_heatmap(info_df, _ver)
     if sector_df.empty:
         st.warning("無法計算族群資料")
         return
 
-    stock_ret_df = compute_stock_returns(info_df)
+    stock_ret_df = compute_stock_returns(info_df, _ver)
 
     ht3, ht1, htb, ht2 = st.tabs(["📝 強弱日報", "🌡️ 熱力地圖", "⚔️ 多空戰況表", "📋 族群明細"])
 
