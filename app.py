@@ -69,9 +69,10 @@ nav = st.navigation({
 }, position="hidden")   # 2026-09-19 介面改造:側欄導航整個拿掉,改首頁駕駛艙區塊卡+全域頂列
 
 # 全域頂列(每一頁都有,回得了家)
-_top = st.columns(7)
+_top = st.columns(8)
 for _i, (_pg, _lb) in enumerate([
         ("views/home.py", "📈 駕駛艙"),
+        ("pages/1_今日選股.py", "📡 選股"),
         ("pages/25_籌碼地圖.py", "🗺️ 地圖"),
         ("pages/6_績效追蹤.py", "🩺 體檢·日誌"),
         ("pages/22_權證大戶.py", "🐳 權證大戶"),
