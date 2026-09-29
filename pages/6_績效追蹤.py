@@ -779,6 +779,44 @@ else:
 
         st.caption("填/改 **買入價/張數/論點**;要平倉→**填出場價後按儲存即可**(自動改 closed 移入交易紀錄);"
                    "**多記/記錯→張數改 0 按儲存=刪除該筆**。")
+
+        # ── 同檔多筆 → 一鍵合併(加權均價) ──
+        _dupc = _open[_open["code"].duplicated(keep=False)]["code"].unique().tolist() \
+            if not _open.empty else []
+        if _dupc:
+            _agg_rows = []
+            for _c in _dupc:
+                _g = _open[_open["code"] == _c]
+                _sh = pd.to_numeric(_g["shares"], errors="coerce").fillna(1)
+                _bp = pd.to_numeric(_g["buy_price"], errors="coerce")
+                _agg_rows.append({"代碼": _c, "名稱": _g["name"].iloc[0], "筆數": len(_g),
+                                  "張數合計": int(_sh.sum()),
+                                  "加權均價": round(float((_bp * _sh).sum() / _sh.sum()), 2)})
+            _m1, _m2 = st.columns([2.6, 1.4])
+            _m1.dataframe(pd.DataFrame(_agg_rows), hide_index=True, width="stretch")
+            with _m2:
+                if st.button("🧬 合併同檔多筆\n(加權均價,日期取最早)", key="jn_merge"):
+                    _j = _wr._load()
+                    for _c in _dupc:
+                        _mask = (_j["status"] == "open") & (_j["code"].astype(str) == str(_c))
+                        _rows = _j[_mask]
+                        _sh = pd.to_numeric(_rows["shares"], errors="coerce").fillna(1)
+                        _bp = pd.to_numeric(_rows["buy_price"], errors="coerce")
+                        _keep = _rows.index[0]
+                        _j.loc[_keep, "buy_price"] = round(float((_bp * _sh).sum() / _sh.sum()), 2)
+                        _j.loc[_keep, "shares"] = float(_sh.sum())
+                        _j.loc[_keep, "date"] = _rows["date"].min()
+                        _th = "、".join(dict.fromkeys(
+                            t for t in _rows["thesis"].astype(str)
+                            if t and t not in ("nan", "(論點待補)")))
+                        if _th:
+                            _j.loc[_keep, "thesis"] = _th
+                        _j = _j.drop(_rows.index[1:])
+                    _wr._save(_j)
+                    st.success("已合併,重新載入…")
+                    st.rerun()
+                st.caption("合併後停損以加權均價為基準;想分批各設停損就別合併。")
+
         _eo = st.data_editor(
             _open, width="stretch", hide_index=True, key="journal_open_editor",
             column_config={
