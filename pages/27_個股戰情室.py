@@ -248,6 +248,34 @@ with r2c:
     if A["yoy"] is not None:
         st.metric("最新月營收 YoY", f"{A['yoy']:+.1f}%")
 
+# ── 線型十問 + 供應鏈接力 ──
+_lx1, _lx2 = st.columns(2)
+with _lx1:
+    with st.expander("📐 線型十問(M哥檢核,自動作答)", expanded=False):
+        try:
+            import lines_check as _lc
+            import importlib as _il_lc
+            _lc = _il_lc.reload(_lc)
+            for _q in _lc.ten_questions(code):
+                st.markdown(f"{_q['燈']} **{_q['問']}**  \n{_q['答']}")
+            st.caption("⑤⑧為規則近似(原版靠讀圖);⑦與⑤同源併答。這是檢核卡,不是買訊。")
+        except Exception as _e:
+            st.warning(f"十問計算失敗:{_e}")
+with _lx2:
+    with st.expander("⛓️ 供應鏈接力(誰是它的上下游)", expanded=False):
+        try:
+            import supply_chain as _sc
+            _rv = _sc.relay_view(code)
+            if _rv.empty:
+                st.info("此股尚未在鏈譜——data/supply_chain.json 可自行增修"
+                        "(教案:大甲噴→上游彰源/允強比獲利純度→彰源+92%)。")
+            else:
+                st.dataframe(_rv, hide_index=True, width="stretch")
+                st.caption("鏈上有人先噴=同鏈落後者的發令槍;比較誰接棒看「獲利純度」"
+                           "(該業務占獲利比重,用九宮格/快照查)。")
+        except Exception as _e:
+            st.warning(f"鏈譜讀取失敗:{_e}")
+
 # ── Row3:圖表頁籤 ──
 t_kd, t_macd, t_chip, t_rep = st.tabs(["📈 KD+MA", "📉 MACD", "🗺️ 五軌分軌圖", "📄 相關報告"])
 with t_kd:
