@@ -264,3 +264,50 @@ INFO_6672 = BASE_CSS + """
 
 def make_6672():
     return render_html(INFO_6672, IMG / "6672_infographic.png")
+
+
+# ── 萬泰科 6190:雙引擎懶人包 ──
+INFO_6190 = BASE_CSS + """
+<div class="title">萬泰科(6190)懶人包:AI 高速線+低軌衛星的雙引擎線材廠</div>
+<div class="row">
+
+<div class="panel"><div class="phead blue">一、引擎A:AI 高速線(泰國廠)</div>
+  <div class="bars" style="height:195px;margin-top:22px">
+    <div class="bar"><div class="stick" style="height:34px;background:linear-gradient(#f9a825,#fbd06a)"><div class="pct">200</div></div>
+      <div class="bname">一期(萬米/月)</div><div class="bsub">已滿載</div></div>
+    <div class="bar"><div class="stick" style="height:86px;background:linear-gradient(#d84315,#ef8a65)"><div class="pct">1,000</div></div>
+      <div class="bname">二期</div><div class="bsub">擴產中</div></div>
+    <div class="bar"><div class="stick" style="height:150px;background:linear-gradient(#b3261e,#e57368)"><div class="pct">2,000</div></div>
+      <div class="bname">三期 1,800~2,000</div><div class="bsub">2027/03 落成<br>投資2.5億</div></div>
+  </div>
+  <div class="card">💰 <b>毛利率 20~35%</b> vs 公司平均 16-17%——<b>產品組合升級引擎</b><br>
+    <span class="badge">佔營收 1%→5-6%→2027 7-8%</span></div>
+</div>
+
+<div class="panel"><div class="phead purple">二、引擎B:低軌衛星套組</div>
+  <div class="bars" style="height:185px;margin-top:22px">
+    <div class="bar"><div class="stick" style="height:40px;background:linear-gradient(#f9a825,#fbd06a)"><div class="pct">200</div></div>
+      <div class="bname">2025全年(萬套)</div></div>
+    <div class="bar"><div class="stick" style="height:46px;background:linear-gradient(#d84315,#ef8a65)"><div class="pct">150→220</div></div>
+      <div class="bname">26Q1→Q2</div><div class="bsub">逐季放大</div></div>
+    <div class="bar"><div class="stick" style="height:150px;background:linear-gradient(#b3261e,#e57368)"><div class="pct">1,000+</div></div>
+      <div class="bname">2026全年目標</div><div class="bsub"><b>出貨衝 5 倍</b></div></div>
+  </div>
+  <div class="card">📡 佔營收 3%→Q1 5%→全年 6-7%|🎯 公司口徑:<b>2026 營收「一定可突破百億」</b>(H1 54億 +21.4%,7月 10.6億創高)</div>
+  <div class="card">📈 毛利率落底回升:Q1 15.2% → Q2 15.27% → <b>7月自結 ~17%</b></div>
+</div>
+
+<div class="panel"><div class="phead orange">三、鏈上位置與下一棒訊號</div>
+  <div class="flow"><div class="fbox">華新 1605<br>銅纜原料(?)<br>20日 -2%</div><div class="arrow">➜</div>
+    <div class="fbox hot">萬泰科 6190<br><b>線材本尊</b><br>20日 -0.3%</div><div class="arrow">➜</div>
+    <div class="fbox ok">貿聯-KY 3665<br>線束組裝<br><b>20日 +19.6%</b></div></div>
+  <div class="card" style="background:#fff7e8">🔔 <b>接力訊號</b>:下游貿聯已先跑 +19.6%,線材本尊還在原地——「還沒動的下一棒」的標準形狀(非買訊,先過體檢卡)</div>
+  <div class="card">🧪 檢核三問:①AI線+衛星合計佔比才 12-15%,<b>84% 仍是均值 16% 毛利的傳統線材</b>——故事佔比夠大了嗎?②三期 2.5 億資本支出 vs 全年 3-4 億——擴產強度③百億目標=Q4 月均需 11.5 億,10/10 起逐月對答案</div>
+</div>
+</div>
+<div class="note">資料:優分析 2026/09/30 報導(公司口徑為源,?=待查證)+系統動能|研究筆記非投資建議 · TW-BACKTEST</div>
+"""
+
+
+def make_6190():
+    return render_html(INFO_6190, IMG / "6190_infographic.png")
