@@ -40,7 +40,17 @@ else:
         st.caption("↑ 即時座標(每日更新);內文數字為成文時點。")
 
     st.markdown("---")
-    st.markdown(_dr.read_deep(a["fname"]))
+    _body = _dr.read_deep(a["fname"])
+    import re as _re_img
+    from analyst_report import ART_DIR as _ARTD
+    for _i, _seg in enumerate(_re_img.split(r"!\[[^\]]*\]\((img/[^)]+)\)", _body)):
+        if _i % 2 == 0:
+            if _seg.strip():
+                st.markdown(_seg)
+        else:
+            _ip = _ARTD / _seg
+            if _ip.exists():
+                st.image(str(_ip), width="stretch")
 
 st.markdown("---")
 with st.expander("✍️ 產生新報告(引擎)"):

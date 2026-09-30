@@ -166,10 +166,24 @@ def list_deep() -> list[dict]:
         except Exception:
             pass
         out.append(meta)
+    # 併入文章庫 mode=深度潛力股(手寫長文也算深度文——單一入口,不再兩套各自為政)
+    try:
+        from analyst_report import list_articles
+        for a in list_articles():
+            if a.get("mode") == "深度潛力股":
+                out.append({"fname": "ART::" + a["file"], "title": a.get("title", ""),
+                            "code": a.get("code", ""), "name": a.get("name", ""),
+                            "date": a.get("date", "")})
+    except Exception:
+        pass
+    out.sort(key=lambda x: x.get("date", ""), reverse=True)
     return out
 
 
 def read_deep(fname: str) -> str:
+    if fname.startswith("ART::"):        # 文章庫的深度文
+        from analyst_report import read_article
+        return read_article(fname[5:])
     p = DEEP_DIR / fname
     if not p.exists():
         return ""
