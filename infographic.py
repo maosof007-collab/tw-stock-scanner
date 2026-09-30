@@ -152,3 +152,68 @@ INFO_3042 = BASE_CSS + """
 
 def make_3042():
     return render_html(INFO_3042, IMG / "3042_infographic.png")
+
+
+# ── 產業鏈魚骨圖(懶人包同款質感,頁32用) ──
+def make_chain_png(chain: dict, moms: dict, out: Path) -> Path:
+    seg_order = {"上游": 0, "原料": 0, "製程": 1, "中游": 1, "設備": 1,
+                 "檢測": 2, "下游": 3, "終端": 3, "外圍": 4, "平行": 4}
+    seg_icon = {"上游": "⛏️", "原料": "⛏️", "製程": "🏭", "中游": "🏭", "設備": "🏭",
+                "檢測": "🔬", "下游": "📦", "終端": "📦", "外圍": "🧱", "平行": "🧱"}
+    segs: dict[str, list] = {}
+    for m, nm, role in chain["members"]:
+        segs.setdefault(str(role).split("|")[0].strip(), []).append((m, nm, role))
+    order = sorted(segs, key=lambda s: seg_order.get(s, 9))
+
+    def node(m, nm, role):
+        mm = moms.get(m)
+        if mm is None:
+            bg, fg, tag = "linear-gradient(150deg,#8b98a8,#6d7a8c)", "#fff", "—"
+        elif mm >= 20:
+            bg, fg, tag = "linear-gradient(150deg,#c62828,#8e1f1a)", "#fff", f"{mm:+.0f}%"
+        elif mm >= 5:
+            bg, fg, tag = "linear-gradient(150deg,#e5544a,#c04036)", "#fff", f"{mm:+.0f}%"
+        elif mm >= -5:
+            bg, fg, tag = "linear-gradient(150deg,#90a0b5,#75859b)", "#fff", f"{mm:+.0f}%"
+        else:
+            bg, fg, tag = "linear-gradient(150deg,#2e8b57,#1f6a41)", "#fff", f"{mm:+.0f}%"
+        return (f'<div class="node" style="background:{bg};color:{fg}">'
+                f'<div class="nname">{nm} <span class="ncode">{m}</span></div>'
+                f'<div class="nrole">{role.split("|")[-1]}</div>'
+                f'<div class="npill">20日 {tag}</div></div>')
+
+    cols = []
+    pal = ["blue", "purple", "orange", "blue", "purple"]
+    for i, s in enumerate(order):
+        cards = "".join(node(*x) for x in segs[s])
+        cols.append(f'<div class="panel seg"><div class="phead {pal[i % 5]}">'
+                    f'{seg_icon.get(s, "🔹")} {s}</div>{cards}</div>')
+        if i < len(order) - 1:
+            cols.append('<div class="bigarrow">➜</div>')
+    width = min(1660, 240 + len(order) * 330 + (len(order) - 1) * 60)
+    html = BASE_CSS + f"""
+<style>
+body{{width:{width}px;padding:30px 28px 24px}}
+.seg{{min-width:290px;max-width:330px;flex:0 1 330px;padding-top:26px}}
+.node{{border-radius:16px;padding:14px 12px;margin:12px 4px;text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.25)}}
+.nname{{font-size:23px;font-weight:900;letter-spacing:1px}}
+.ncode{{opacity:.85;font-size:19px}}
+.nrole{{font-size:16.5px;opacity:.92;margin-top:4px}}
+.npill{{display:inline-block;margin-top:9px;background:rgba(0,0,0,.30);border-radius:999px;
+  padding:3px 16px;font-size:16.5px;font-weight:800}}
+.bigarrow{{display:flex;align-items:center;color:#cfe0f2;font-size:44px;font-weight:900;
+  text-shadow:0 2px 6px rgba(0,0,0,.4)}}
+.row{{justify-content:center}}
+.legend{{text-align:center;color:#9db4cc;font-size:15px;margin-top:14px}}
+.sw{{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin:0 4px 0 14px}}
+</style>
+<div class="title" style="font-size:36px">{chain['chain']}</div>
+<div class="row">{"".join(cols)}</div>
+<div class="legend">{chain.get('note','')}<br>
+<span class="sw" style="background:#c62828"></span>≥+20% 已在跑
+<span class="sw" style="background:#e5544a"></span>≥+5%
+<span class="sw" style="background:#90a0b5"></span>盤整=下一棒候選
+<span class="sw" style="background:#2e8b57"></span>下跌 · 20日動能每日更新</div>
+"""
+    return render_html(html, out, width=width)
