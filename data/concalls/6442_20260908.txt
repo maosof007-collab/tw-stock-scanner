@@ -1,0 +1,315 @@
+=== 頁1 ===
+EZconn
+Overview
+Innovating for a sustainable future
+
+
+=== 頁2 ===
+1
+免責聲明
+本次法說會所提供之簡報內容包括對於未來狀況之預測及評估， 這些關於
+未來狀況之陳述乃基於公司目前可得資料所做的預測， 涉及風險及不確定
+性，並可能發生實際結果與預期狀況有重大差異的情形 ，提醒各位不要過
+度依賴這些資訊， 另除非法律要求， 本公司將不負責更新或公告這些預測
+的結果。
+
+=== 頁3 ===
+公司簡介
+Established in 1977
+2025 revenue US$ 300+ million; 
+2026 revenue expected to continue to grow.
+Listed on Taiwan stock market in 2015 
+(Stock symbol: 6442.TW)
+Headquarters:          Taiwan
+Oversea presence: USA 
+the Philippines, 
+the Czech Republic,    
+the People Republic of China
+1400+ employees
+2
+EZconn Confidential 2
+
+=== 頁4 ===
+3
+ -
+ 5,000,000
+ 10,000,000
+ 15,000,000
+112年度 113年度 114年度
+2,617,385 
+6,410,405 
+10,527,227 
+營業收入
+ -
+ 500,000
+ 1,000,000
+ 1,500,000
+ 2,000,000
+ 2,500,000
+112年度 113年度 114年度
+247,753 
+1,422,286 
+2,378,298 
+稅前利益
+ -
+ 5.00
+ 10.00
+ 15.00
+ 20.00
+ 25.00
+112年度 113年度 114年度
+2.53 
+14.30 
+23.46 
+每股盈餘 新台幣元
+0.00%
+20.00%
+40.00%
+60.00%
+112年度 113年度 114年度
+35.55%
+55.62% 57.74%
+毛利率
+經營績效-營收與獲利
+單位：新台幣仟元；%
+
+=== 頁5 ===
+4
+經營績效-115年上半年度營運狀況
+5,013,497 
+6,386,649 
+737,557 
+1,972,548 
+56.53%
+59.50%
+55.00%
+56.00%
+57.00%
+58.00%
+59.00%
+60.00%
+ -
+ 1,000,000
+ 2,000,000
+ 3,000,000
+ 4,000,000
+ 5,000,000
+ 6,000,000
+ 7,000,000
+114年上半年度 115年上半年度
+營業收入
+稅前利益
+毛利率
+114年上半年度 115年上半年度
+營業收入 5,013,497 6,386,649
+稅前淨利 737,557 1,972,548
+毛利率(%) 56.53% 59.50%
+營業淨利 1,176,246 1,894,217
+每股盈餘(元) 6.85 19.07
+單位：新台幣仟元；%
+
+=== 頁6 ===
+5
+經營績效-財務分析
+項 目 2026.6.30 2025.12.31 2025.6.30
+財務結構 負債占資產比率(%) 31.99 49.04 59.31
+償債能力 流動比率(%) 217.81 268.62 163.45
+獲利能力 權益報酬率(%) 29.31 33.76 28.71
+每股淨值(元) 166.11 87.90 46.37
+
+=== 頁7 ===
+Global  Sites
+EZconn Confidential 6
+Trutnov, Czech Republic
+ New Taipei City, Taiwan
+ Ningbo, China
+ Lipa, Philippines
+* Research and Development
+* ISO 9001, ISO-14001
+* Wafer Level Packaging
+* Research and Development
+* ISO-9001, ISO-14001
+* High-volume Production
+* Research and Development
+* ISO-9001, ISO-14001
+* High-volume Production
+* Headquarters
+* ISO-9001, ISO-14001
+* Low-volume Production
+* Research and Development
+* ISO-9001, ISO-14001
+* High-volume Production
+
+
+=== 頁8 ===
+Product Portfolio
+EZconn Confidential 7
+
+
+=== 頁9 ===
+Patents overview
+EZconn Confidential 8
+2014
+2015
+2016
+2017
+2018
+2019
+2020 20211822
+10
+13
+13
+13
+10
+9
+Total 
+Patents
+179
+201851 2022~2024
+2022
+
+=== 頁10 ===
+Core Competency
+Customized Design
+Customized designs of 
+optical, mechanical, 
+and electronic 
+packaging. 
+Precision Machinery
+Maintaining micro level 
+precision machining 
+capabilities in mass 
+production.
+Miniaturization 
+Experienced in 
+miniaturizing 
+modules/components  
+in various applications.
+Quality Production
+Attained quality 
+recognition from 1st tier 
+customers. 
+Intellectual Property
+With over 180+ active 
+issued patents and 
+thousands of 
+interconnect designs in 
+its library.
+EZconn Confidential 9
+
+=== 頁11 ===
+Market Sectors
+Broadband Networks – Access (Last-Mile) 
+- Optical engines for “Fiber to the Home” (FTTH) for Telcos
+- RF interconnects for cable service providers
+Aerospace & Defense
+-Replacement components for fighter jets 
+-High-frequency RF interconnects
+EZconn Confidential 10
+AI infrastructure – Hyperscalers (large-scale data centers)
+- Scale-out: high-density fiber deployment connecting data centers’ 
+physical structures
+- Scale-up: active silicon photonic CPO-ELS* modules to increase speed 
+and reduce power consumption for GPU’s (expected 2026)
+* CPO-ELS stands for ”co-packaging optics with external laser source” - essential chip packaging for AI processing at server level in data centers. 
+Biomedical & Scientific 
+- Miniaturized optical units for testing and probing instruments using OCT, 
+PCR, Raman technologies, and for quantum-computing testing 
+
+=== 頁12 ===
+Broadband Networks – Access (Last-Mile) 
+EZconn Confidential 11
+FTTH
+Cable Network
+OLT
+
+
+=== 頁13 ===
+Broadband Networks – Access (Last-Mile) 
+5G mmWave  
+40 GHz~
+65 GHz
+SMP SMPM 1.85mm 2.4mm 2.4mm
+16.25mm
+12
+
+=== 頁14 ===
+AI infrastructure: Scale-out
+High density optical fiber 
+interconnects linking data 
+center structures or rooms  
+for AI infrastructure .
+Torpedo cable contains up 
+to 6912 fiber cores.
+Server rooms
+Overhead cable management
+EZconn Confidential 
+Remote extension
+13
+Torpedo: 6912 cores of fiber
+
+=== 頁15 ===
+AI infrastructure: Scale-up
+CPO ELS modules
+expected 2026
+Side view
+Top view
+14
+EZconn Confidential 
+
+=== 頁16 ===
+EZconn Confidential 
+Used as light source module in 
+OCT (Optical Coherence 
+Tomography) products 
+examining under-skin, eyes, 
+teeth, etc. 
+Bio Medical & Scientific:
+OCT and PCR
+EZconn also provides optical 
+components for PCR (Polymerase 
+chain reaction)machines.
+Size: 11x 6 x 4.5 cm
+15
+
+=== 頁17 ===
+Application: Currently mainly used by the law enforcement to detect drugs and medicines
+Bio Medical: Miniaturized Raman Spectrometers
+EZconn Confidential 16
+
+=== 頁18 ===
+EZconn Confidential 17
+Biomedical & Scientific: 
+Quantum-computing testing
+Superconducting Nanowire Single-Photon Detector
+EZconn Confidential 
+Photon counting 
+in detective mode with very 
+low dark count
+Working Temp: 4°K(-269°C)
+
+=== 頁19 ===
+Aerospace & Defense:
+Replacement components for fighter jets
+18EZconn Confidential 
+Item Photo
+High frequency jumper 
+for aerospace
+(BMA SEMI-RIGID)
+RF relays for aerospace
+Micro-D to HDMI
+for aerospace
+
+
+=== 頁20 ===
+Aerospace & Defense: High-frequency RF interconnects
+5G mmWave  
+40 GHz~
+65 GHz
+SMP SMPM 1.85mm 2.4mm 2.4mm
+16.25mm
+19EZconn Confidential 
+
+=== 頁21 ===
+Thank you
+April 2025 20

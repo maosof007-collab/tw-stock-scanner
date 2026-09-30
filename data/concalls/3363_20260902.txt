@@ -1,0 +1,283 @@
+=== 頁1 ===
+上詮光纖通信股份有限公司
+第二季法說會
+Sep. 2026
+
+
+=== 頁2 ===
+2
+本公司對其現況的期待及預測是屬於前瞻性陳述的範疇 ，
+本身具有重大風險及不確定性 ，而致實際結果可能與前瞻
+性陳述內容有明顯差異。
+本公司對於前瞻性陳述不作任何聲明或保證 ，除非法令另
+有要求外 ，本公司亦不因新資訊 、未來事件或其他情事變
+更事由，負有主動更新前瞻性陳述的義務。
+免責聲明
+
+=== 頁3 ===
+3
+1 公司簡介
+3
+4
+Outline
+Key Milestones
+5
+技術產品進展+MCM CPO
+FAU 量產規劃
+2 2026/Q2營運成果
+6 營運進展
+
+=== 頁4 ===
+4
+公司簡介
+FOCI Confidential
+ 運營中心
+ 研發中心
+ 製造生產（高階產品）
+⚫Patch cord 、Optical com
+⚫Siph/CPO packaging-
+ReLFAConTM
+台灣新竹
+上海
+業務行銷
+客戶及技術服務
+製造生產-Patch cord、Optical com
+中山
+製造生產-Patch cord、Optical 
+com
+USA North 
+CA
+業務行銷
+客戶及技術服務
+Thailand
+製造生產(1st stage) 
+⚫Patch cord 、Optical 
+com
+Founded In 1995                         33+ Patents Issued(from 2022)
+Capital：NTD$1,136M                             39  under review patents
+
+=== 頁5 ===
+5
+綜合損益表
+FOCI Confidential
+
+
+=== 頁6 ===
+6
+資產負債表
+FOCI Confidential
+
+
+=== 頁7 ===
+7
+現金流量表
+FOCI Confidential
+
+
+=== 頁8 ===
+8
+產品別(NT$M)
+營收分析- 產品別 & 區域別
+FOCI Confidential
+區域別(NT$M)
+1,892 582 382 429 1,892 582 382 429
+
+
+=== 頁9 ===
+9
+2022-24
+2021 
+CPO FAU開發及轉型
+⚫ 8-64ch SM/PM FA(2022)
+⚫ CPO ELS interconnect (2022)
+⚫ Top Photonics solution – FAU with 
+IP ReLFAConTM (2024)
+(Semiconductor Review APAC)
+⚫ ReLFAConTM FAU (2024)
+⚫ 2D ReLFAConTM FAU (2024)
+⚫ MMC Cable certificate (2024)
+2025
+⚫ Best Fiber Optical Component 
+Manufacturing of Y2025 APAC
+–Standard FAU (Telecom Business    
+Review) 
+⚫ Next Generation ReLFAConTM
+>1.6T FAU、>3.2T FAU、>6.4T FAU
+20、40、80 channels FAU
+⚫ Detachable CPO
+⚫ MCM Optical Co-Packaging (CPO)
+2026 &Beyond(P)
+ Next Generation ReLFAConTM
+⚫ Beyond 6.4 T (100+ Channels)
+⚫ Wavelength Division Multiplexing 
+(WDM)
+ Automatic production line (in progress)
+⚫ High density FAU auto production 
+line ramps up (20~80 channels)
+⚫ 2D FAU Assembling trial production 
+line
+Key Milestones for FOCI advanced Development 
+FOCI Confidential
+IP ReLFAConTM : Reflowable+Lens+Fiber Array +Connectors
+
+=== 頁10 ===
+10
+205
+2026
+SiPh Roadmap for Bandwidth Growth   
+Sourcing：@2025 TSMC Ltd
+FOCI : 1.6T/3.2T/6.4T 12.8T & beyond
+(MP under construction)                      (R&D)
+Advancements for FAU bandwidth support the roadmap and  the growth of AI computing
+ Channels+2D+WDM 
+FOCI Confidential
+
+=== 頁11 ===
+11
+FAU(高密度高精度光學元件 ，矽
+光子中重要連接器)：標準及客製
+1
+2 光學封裝(FAU精準封裝PIC之技術)
+3 Fiber Jump in System(機內FAU 
+to Front Panel光纖)
+4 Patch cord(機外光纖 自動化提升
+品質降低成本)
+FOCI Products Deployment
+3
+1
+4
+Switch
+OE
+FAU
+Optical Co-Packaging2
+圖片來源：ASE
+MT
+LensFA
+1
+>1.6T 、>3.2T 、>6.4T FAU
+20、 36、 40、80 channels
+OE
+2
+Optical Co-Packaging
+ 4
+3 or 1 + 3
+FOCI Confidential
+
+=== 頁12 ===
+12
+ReLFAConTM Packaging on PIC/COUPE
+FAU 1
+3 Fiber Jump in system
+FAU 1
+
+=== 頁13 ===
+13
+2025
+206
+2026
+beyond
+SiPh Ecosystem 及先進技術進展
+挑戰 上詮先進技術
+ 高頻寬高密度光纖陣列(20、 36、 40、80 通道& beyond)
+ 高頻寬FA對Lens之高規格要求
+ 高頻寬FA對MT之高規格要求
+ FAU 精準封裝PIC之技術
+ FAU 在Co-Packing 高溫失效
+ FAU 及精準封裝光檢測之挑戰
+技術
+ 已完成 20 、36 、40、80 通道 FAU 開發
+ 開發測試用 Optical FAU probe
+ 自研黑色高精度接頭，提供低損耗對接
+ 支援 MCM/OOI 共封裝光學
+ ReLFAConTM 專利技術
+ 自動組裝與檢測生產
+資料來源：TSMC、simple_tech_trend
+資料來源：TechNews 科技新報
+MT
+Lens
+FA
+FOCI Confidential
+
+=== 頁14 ===
+14
+2025
+206
+2026
+beyond
+Detachable 80CH/40CH/36CH FAU for MCM/OOI
+FOCI Confidential
+
+
+=== 頁15 ===
+15
+光學共封裝 CPO
+Per FAU 3.2T
+All FAU 3.2T*N
+ Higher FAU bandwidth for higher power efficiency, data rate & smaller form factor
+ >5 different MCM CPO packages delivered
+ > 5 additional Customers to design-in
+Per FAU 6.4/12.8T
+All FAU 6.4/12.8T*N
+Double-Fiber/Mulit-λ
+Channels/WDM
+6.4/12.8T
+FOCI Confidential
+
+=== 頁16 ===
+16
+資本支出及矽光FAU量產規劃
+2025/Q4
+2026/02
+2026/Q2
+2026/Q3 2026/Q4 2027 & Beyond
+現金增資31.6億NTD
+CPO FAU
+高精密自動化生產線
+客戶要求數量交貨
+3.2T(+) FAU
+客戶要求數量交貨
+3.2T 、6.4T(+) FAU
+無塵室 - CPO FAU
+高精密自動化生產線
+FOCI Confidential
+
+
+=== 頁17 ===
+17
+技術壁壘與自動化生產規劃雙軌運作
+MT:MT接頭高規格對位(自研黑色高密度接頭)
+FA:已完成20、 36、 40、80 通道開發(朝100+及WDM
+持續推進)
+Lens:與Lens廠商多年合作開發調校
+FAU:耐260度迴焊(耐半導體封裝及後段系統組裝)
+FOCI Confidential
+產品及技術
+ 關鍵技術及佈局(33+ Patents Issued＋39  under review ) 預計貢獻營收時程
+⚫ 2026/Q3微量
+⚫ 2026/Q4逐季依客戶進
+程 (DFAU 、FAU)
+⚫ 2026/Q4起依客戶進程
+ 支援 MCM/OOI 共封裝光學(ECO System合作開發)
+ 支援Scale out/Scale up(ECO System合作開發)
+ 精準封裝及光學測試(Probe):自動組裝與檢測生產
+ MMC Cable certification(機內光纖)
+ MT連接FAU及機內光纖
+⚫ 2026/Q3微量
+⚫ 2026/Q4逐季依客戶進
+程
+ 成熟及多年累積經驗
+ 多年與國際大廠合作關係
+ 上海、 中山及泰國廠
+⚫ 2026H1主要營收
+⚫ 2026/Q4泰國小量商轉
+
+
+=== 頁18 ===
+Q&A
+
+
+=== 頁19 ===
+19
+https://www.foci.com.tw
+ir@foci-cpo.com
+Thank you

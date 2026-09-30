@@ -1,0 +1,460 @@
+=== 頁1 ===
+KYEC 1Aug-26 KYEC 1Aug-26
+Benchmark of        
+The Testing Industry 
+ Wafer Test Service
+ Assembly Service           
+ Burn-In Service
+ IC Test Service         
+ Backend Support
+ Turnkey Operation
+King Yuan Electronic Co., Ltd.
+京元電子股份有限公司
+[TWSE: 2449]
+2026年8月
+
+=== 頁2 ===
+免責聲明
+2
+ 本簡報及同時發佈之相關訊息所提及之預測性資訊，乃是建立在本公司從內部
+與外部來源所取得的資訊基礎。本公司未來實際所可能發生的營運結果、財務
+狀況以及業務成果，可能與這些明示或暗示的預測性資訊有所差異。其原因可
+能來自於各種本公司無法掌控之風險等因素。
+ 本簡報中對未來的展望，反映本公司截至目前為止對於未來的看法。對於這些
+看法，未來若有任何變更或調整時，本公司並不負責隨時再度提醒或更新。
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+=== 頁3 ===
+京元電子集團簡介
+台灣的生產佈局
+概 述
+註記:  (1) 截至2026年6月30日
+3
+新竹總部
+苗栗竹南廠
+苗栗銅鑼廠
+主要里程碑
+成立時間: 1987 年5月
+總 部 : 台灣新竹
+台灣證券交易所: 2449.TW
+2026年6月30日
+市值: NT$ 412,676 M
+總員工人數(註1): 9 ,184人
+設立大陸蘇州
+震坤子公司
+新竹總部完工
+京元電子成立
+開始晶圓
+切割服務
+成立美國子公司
+在台灣股市掛牌
+加入邏輯及記憶體
+產品晶圓測試服務
+設立大陸蘇州
+京隆子公司
+1987 1990 1993 1996 1998 2000 2002 2004 2006 2008 2010 2012 2014 2016 2018
+竹南㇐廠完工
+竹南二廠完工 銅鑼二廠完工銅鑼㇐廠完工
+竹南三廠、四廠完工
+成立新加坡
+子公司
+成立日本
+子公司
+加入預燒
+(burn-in)服務
+合併
+東琳精密
+2020
+竹南五廠完工
+銅鑼三廠完工
+2022
+2025
+出售京隆科技
+所有股權
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+苗栗頭份廠
+桃園楊梅廠
+
+=== 頁4 ===
+4
+ 管理團隊在半導體製造擁有豐富且深厚的多年經驗
+自製測試設備的開發和製造能力，是京元電子引以為傲的核心競爭力3
+平衡、良好的客戶結構和多樣化的業務佈局，保持公司營運利潤在波動的
+半導體市場中得以強勁增⾧2
+1
+ 京元電子於產線中架設超過5,900套的測試設備，提供測試服務給各種的
+終端電子應用裝置
+京元電子是㇐個專業的測試公司，在台灣和全球半導體供應鏈具有獨特的市場地位，利用
+全球半導體產業持續外包的趨勢，做為公司佈置產能和營收成⾧的驅動力。
+京元電子是半導體測試行業的標竿
+5
+ 良好的財務結構和強大的營運資金流，足以支持公司的產能擴充計畫
+致力於強化股東權益的維護與分享
+4
+6
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+=== 頁5 ===
+5
+Front-End Manufacturing
+Gold / Solder 
+Bump
+IC Design/
+IDM
+IDM
+Wafer 
+Foundry
+CP
+WL 
+CyclingWLBI
+Die 
+Bank
+Wafer
+Grinding
+Dicing
+Laser Repair
+Burn-InCycling
+Backend 
+- Marking/ LS
+- Tape & Reel
+- Dry Pack
+Module Test
+Customer
+Drop Ship
+FT
+Assembly
+註記:藍色部分為京元電子提供之服務
+IC製造流程與京元電子提供之服務
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+=== 頁6 ===
+多元化的產品組合，實現穩定、⾧期的成⾧
+ 測試服務的銷售收入平均約佔公司總收入約98％。
+ 通過京元電子測試的半導體晶片廣泛的應用於各種電子產品，其中包括：HPC、消費性
+電子、通信、汽車電子、數據處理與儲存和工業電子等。
+ 其他收入項下包括：設備和工具銷售、租賃收入和雜項收入等。
+2026年第二季營業收入明細
+以製程區分 以產品應用區分
+6□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+
+=== 頁7 ===
+京元電子為全球半導體公司提供服務
+7
+ 全球前50大半導體公司中，48％使用京元電子的測試服務
+ 在全球前 50 大半導體公司中，排除中國及記憶體公司後 (非京元電子的目標市場)，有
+63%的公司為京元電子的客戶。
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+2025 Company 2024 2025 Change 2025 Company 2024 2025 Change
+1 NVIDIA* 76,765 122,222 59.2% 26 Realtek Semiconductor* 3,524 3,918 11.2%
+2 Samsung Electronics 66,222 76,979 16.2% 27 OMNIVISION* 3,007 3,396 12.9%
+3 SK hynix 44,148 64,633 46.4% 28 Skyworks Solutions* 3,368 3,375 0.2%
+4 Intel* 49,501 47,047 -5.0% 29 Novatek* 3,165 3,205 1.3%
+5 Micron Technology 27,619 42,420 53.6% 30 Bosch* 2,989 3,126 4.6%
+6 Qualcomm 33,014 36,945 11.9% 31 Monolithic Power Systems 2,200 2,780 26.4%
+7 Broadcom* 27,804 36,361 30.8% 32 Rohm 2,547 2,755 8.2%
+8 AMD* 24,915 33,239 33.4% 33 Qorvo 2,712 2,681 -1.1%
+9 Apple 20,510 22,503 9.7% 34 ams OSRAM* 2,412 2,623 8.7%
+10 MediaTek* 15,934 18,437 15.7% 35 Toshiba* 2,318 2,402 3.6%
+11 Texas Instruments 14,718 16,775 14.0% 36 UniSoC Technologies 2,015 2,226 10.5%
+12 Infineon Technologies* 15,495 16,491 6.4% 37 Nanya Technology 1,035 2,095 102.4%
+13 Sony* 11,148 12,877 15.5% 38 Cirrus Logic* 1,843 1,973 7.1%
+14 NXP 12,437 12,136 -2.4% 39 DENSO 1,775 1,891 6.5%
+15 Analog Devices* 9,367 11,511 22.9% 40 Hygon 1,237 1,866 50.8%
+16 STMicroelectronics* 12,587 11,284 -10.4% 41 Nexperia 1,924 1,853 -3.7%
+17 KIOXIA 9,523 9,580 0.6% 42 Nichia 1,842 1,837 -0.3%
+18 Renesas Electronics* 8,732 8,515 -2.5% 43 Winbond Electronics* 1,446 1,834 26.8%
+19 Marvell Technology Group* 5,637 8,060 43.0% 44 Mobileye* 1,553 1,794 15.5%
+20 Sandisk 6,663 7,674 15.2% 45 Hangzhou Silan Microelectronics 1,312 1,545 17.8%
+21 Yangtze Memory Technologies 5,645 6,929 22.7% 46 Sanechips Technology 1,301 1,508 15.9%
+22 CXMT 2,574 6,906 168.3% 47 Coherent 981 1,450 47.8%
+23 HiSilicon 4,785 6,275 31.1% 48 Vishay 1,390 1,436 3.3%
+24 Onsemi* 6,802 5,758 -15.3% 49 Mitsubishi Electric 1,383 1,366 -1.2%
+25 Microchip Technology* 4,646 4,209 -9.4% 50 TDK* 1,178 1,355 15.0%
+註記: 標記*藍色字體的公司為京元電子客戶。 Xilinx併入AMD。 資料來源: Gartner 2026  
+
+=== 頁8 ===
+京元電子提供靈活且具成本效益的測試解決方案
+ 目前的半導體測試服務供應商必須具備產能調配的靈活性，提供高成本效益的測試服務，
+而且必須具備測試少量多樣產品的能力。
+ 京元電子憑藉其多款的測試平台，靈活的產能配置和製造測試設備的能力，在市場上得以
+吸引大量知名半導體公司的業務合作。
+ 京元電子目前於產線中架設超過5,900套的測試設備。
+8□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+Logic / 
+Mixed-Signal CIS/CCD RF / Wireless SOC
+Advantest
+T6575 / T6577
+T2000EPP
+T2000IPSE             
+T2000
+T2000EPP
+T6575/T6577
+T2000
+T2000EPP
+T2000IPSE
+Advantest
+(Verigy)
+HP93K-PS1600
+HP93K-EXA
+HP93K-PS1600
+HP93K-EXA
+HP93K-PS1600
+HP93K-EXA
+Cohu
+D10
+Fusion-MX
+DiamondX
+PAX-RedDragon
+Fusion-MX
+DiamondX
+PAX-RedDragon
+D10
+Fusion-MX
+DiamondX
+PAX-RedDragon
+Teradyne
+J750 / J750EX
+J750EX-HD
+ETS-364
+iFlex
+Ultra Flex
+Ultra Flex Plus
+M1/M2
+IP750EX
+IP750EMP
+Flex-RF
+Ultra Flex
+Ultra Flex Plus
+J750 / J750EX
+J750EX-HD
+ETS-364
+iFlex
+Ultra Flex
+UltraFlex Plus
+M1/M2
+SPEA DOT400 DOT400
+KYEC E-Series I-Series E-Series E-Series
+
+=== 頁9 ===
+自製測試設備廣泛用於不同產品的批量生產
+ 京元電子自行研製的測試設備可提供客制化測試解決方案，包含設備硬體及客制化程式，
+可應用於多種的終端應用產品 。
+ 此外，京元電子亦設計和製造其他測試工具和探針卡。
+自行研製測試設備的應用
+SOC solution
+High Power Solution 
+CIS Tester
+MEMS G-sensor Tester
+MEMS Microphone Tester
+Integration Image 
+Process & Optical
+Integration of Motion & thermal 
+socket
+Integration of 
+Acoustic chamber 
+& kit design
+Integration of Analog 
+module & RF module
+Integration of Hi-voltage 
+module & Hi-current module
+Logic Tester
+LCD Driver Solution
+9
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+=== 頁10 ===
+京元電子自行研製用於預燒的測試設備
+10
+ 自行研製的預燒爐擁有客製化特性，能提供客戶較低成本及高品質的預燒測試。
+ 單㇐預燒爐(Burn-In Oven)就能進行不同瓦數的測試需求，不需更換其他型號的機種。
+ 大功率(~1500W)預燒爐使用氣冷散熱技術，相對於外購的液冷裝置預燒爐，有成本優
+勢及容易維護保養的優點。
+ 大功率3000W液冷預燒爐量產
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+AI Chips
+1000 watts
+2024
+KYE600 
+Oven
+KYE601 
+Oven
+KYE680 
+Oven
+KYE700-32 
+Oven
+HP600-6
+Oven
+HP600-12
+Oven
+HP600-20
+Oven
+HP600-16
+Oven
+HP600-20Z
+Oven
+Memory
+(DRAM / SRAM)
+< 1 watt
+< 1 watt / -40°C
+Logic 
+(Chipset)
+< 1 watt
+Network 
+communication
+10 watts
+GPU
+500 watts
+1996 1998 2000 2002 2006 2010 2012 2016 20192008 2014
+Automotive
+120 watts
+50 watts
+GPU
+300 watts
+20 watts
+HPII600 
+Oven
+Gaming
+700 watts
+HPV600 
+Oven
+1500 watts
+HPII600-20Z
+Oven
+1500 watts
+HP320
+Oven
+2025 2026
+HP600Q 
+Rack(Liquid)
+3000 watts
+
+=== 頁11 ===
+京元電子由具有豐富半導體製造經驗的團隊管理
+ 曾任京元電子副董事⾧及監察人
+ 畢業於台北醫學大學醫學系
+謝其俊 – 董事⾧
+ 超過30年半導體產業經驗
+ 曾任華邦電子公司晶圓代工業務經理
+ 畢業於國立成功大學物理系，並獲得美國塞基諾
+州立大學企管碩士學位
+張高薰 – 總經理暨永續⾧
+11□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+梁炤茂 – 資深副總經理
+ 超過25年半導體產業
+經驗
+ 曾任聯測科技工程設
+備副理
+ 畢業於明新技術學院
+電子工程學系，並獲
+得明新科技大學企業
+管理碩士學位
+韓信輝– 副總經理
+ 超過25年半導體產業
+經驗
+ 曾任華東科技代協理
+ 畢業於台灣科技大學
+電機學系，並獲得台
+灣科技大學電子所碩
+士學位
+ 超過25年半導體產業
+經驗
+ 曾任美商英特爾亞太
+科技處⾧
+ 畢業於國立中央大學
+電機工程學系, 並獲得
+國立中央大學資訊暨
+電子工程研究所碩士, 
+紐約市立大學高階財
+務金融碩士學位.
+張登堯 –副總經理
+ 超過25年半導體產業
+經驗
+ 曾任安侯建業會計師
+事務所審計經理
+ 畢業於中國文化大學
+會計學系，並獲得國
+立清華大學高階經營
+管理碩士學位
+趙敬堯 –副總經理暨會計⾧ 張世寶 – 執行副總暨資安⾧
+ 超過25年半導體產業
+經驗
+ 曾任旺宏電子品保經
+理
+ 畢業於中原大學電機
+工程學系，並獲得中
+央資訊電機研究所碩
+士學位
+周婉芬– 副總經理暨財務⾧
+ 超過25年半導體產業
+經驗
+ 曾任東琳精密(股)公
+司財務⾧
+ 畢業於淡江大學國貿
+系，並獲得國立清華
+大學高階經營管理碩
+士學位
+
+=== 頁12 ===
+12
+京元電子財務資訊
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+
+=== 頁13 ===
+財務概況
+13
+產能利用率
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+(新臺幣百萬元) 2026年第二季 2026 年第㇐季
+營收 11,141.6 10,191.9
+毛利率(%) 39.5% 39.7%
+費用
+行銷及管理 1,257.3 971.3
+研究發展 315.0 307.3
+EBITDA 5,569.6 5,258.4
+每股盈餘(新臺幣元) – 稀釋 $2.04 $1.86
+每股盈餘(新臺幣元) – 基本 $2.04 $1.87
+更正: Q1’26之產能利用
+率為63.2%，非59.2%
+
+=== 頁14 ===
+財務概況
+14
+營收及毛利 (不含前中國蘇州子公司)
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+(新台幣百萬元) (毛利率)
+Q1'22 Q2'22 Q3'22 Q4'22 Q1'23 Q2'23 Q3'23 Q4'23 Q1'24 Q2'24 Q3'24 Q4'24 Q1'25 Q2'25 Q3'25 Q4'25 Q1'26 Q2'26
+營收 7,032 7,428 6,721 6,400 5,542 5,868 6,236 6,346 5,977 6,543 7,039 7,297 7,315 8,362 9,291 9,966 10,192 11,142
+毛利率 35.1% 34.9% 33.1% 35.1% 32.5% 32.5% 33.7% 33.3% 33.0% 35.3% 35.9% 34.8% 33.5% 35.5% 36.0% 37.7% 39.7% 39.5%
+0%
+10%
+20%
+30%
+40%
+50%
+0
+2,000
+4,000
+6,000
+8,000
+10,000
+12,000
+
+=== 頁15 ===
+優化的財務槓桿足以提高股東的利益
+來自營業的現金流量
+ 資本支出
+負債 | 現金
+淨金融負債/股東權益
+15
+新台幣百萬元 新台幣百萬元
+□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL
+(新台幣百
+萬元) 29.0%23.9% 23.2% 27.9% -17.8% 4.0% 18.5% 24.4% 29.7%
+ 32.7%
+
+
+=== 頁16 ===
+京元電子網站
+http://www.kyec.com.tw
+16□極機密/ TOP SECRET    □機密/ SECRET □密/ CONFIDENTIAL ■ 非機密/NON- CONFIDENTIAL

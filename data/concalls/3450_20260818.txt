@@ -1,0 +1,281 @@
+=== 頁1 ===
+1
+
+
+=== 頁2 ===
+2
+
+
+=== 頁3 ===
+3
+Agenda
+• Company Overview : Milestone and Briefing
+• The situation of AI Industry
+• Financial Report : H1-2026
+• Three Platform Driving eLaser Growth
+• Q & A
+
+=== 頁4 ===
+4
+Company Overview : Milestone
+4
+
+=== 頁5 ===
+5
+Company Overview : Briefing  
+Elite Advanced Laser  Corporation 
+( eLaser, 3450)
+Founded : 2000
+Capital :  NTD1.46B
+Employee : 732
+Products : Optical Device and AOC/TRX
+Location : New Taipei City
+GEM services, Inc
+(GEM , 6525)
+eLaser holding : 51%
+Founded : 1998
+Capital :  NTD1.29B
+Employee : 1,828
+Products : Power MOS and Module
+Location : SHA and HF
+CENTERA Photonics Inc. 
+(CENTERA, 7917)
+eLaser holding : 54.23%
+Founded : 2010
+Capital :  NTD0.669B
+Employee : 43
+Products : AOC and TRX
+Location : Hsinchu Science Park
+
+
+=== 頁6 ===
+6
+Agenda
+• Company Overview : Milestone and Briefing
+• The situation of AI Industry
+• Financial Report : H1-2026
+• Three Platform Driving eLaser Growth
+• Q & A
+
+=== 頁7 ===
+7
+The Situation of AI Industry 
+
+
+=== 頁8 ===
+8
+Agenda
+• Company Overview : Milestone and Briefing
+• The situation of AI Industry and Supply Chain
+• Financial Report : H1-2026
+• Three Platform Driving eLaser Growth
+• Q & A
+
+=== 頁9 ===
+9
+Consolidate
+Income Statement
+報表項目 (單位：新台幣千元) 2025年 全年 Q1-2026 Q2-2026 QoQ 變動 %
+營業收入 (Revenue) 8,584,594 2,086,881 2,976,641 +42.6%
+營業毛利 (Gross Profit) 2,555,581 542,464 938,753 +73.1%
+營業毛利率 (Gross Margin) 29% 26% 32% +6.0%
+營業費用 (Operating Expense) 953,335 251,639 307,295 +22.1%
+營業淨利 (Operating Profit) 1,602,246 290,825 631,458 +117.1%
+營業淨利率 (Operating Margin) 18% 14% 21% +7.0%
+營業外損益 (Non-Op Income) 61,992 14,371 27,897 +94.1%
+稅前淨利 (Pre-Tax Income) 1,664,238 305,196 659,355 +116.0%
+本期淨利 (Net Income) 1,233,142 179,441 500,512 +178.9%
+本公司業主權益 729,803 100,301 305,172 +204.3%
+每股盈餘 (EPS, 元) 5.01 0.69 2.09 +202.9%
+
+=== 頁10 ===
+10
+合併資產負債表
+資產項目 (Assets) 2025年 全年 2026年 上半年
+現金及約當現金 (Cash & Equivalents) 2,733,695 3,087,311
+按攤銷後成本衡量之金融資產-流動 890,108 1,252,567
+應收帳款 (Accounts Receivable) 1,606,803 2,265,204
+其他應收帳款 (Other Receivables) 678,311 765,019
+存貨 (Inventories) 1,007,880 1,068,603
+其他流動資產 (Other Current Assets) 642,096 785,572
+流動資產合計 (Total Current Assets) 7,558,893 9,224,276
+不動產、廠房及設備 (PP&E) 4,766,871 5,561,664
+其他非流動資產 (Other Non-Current) 936,141 764,768
+非流動資產合計 (Total Non-Current) 5,703,012 6,326,432
+資產總計 (Total Assets) 13,261,905 15,550,708
+負債及權益項目 (Liabilities & Equity) 2025年 全年 2026年 上半年
+應付帳款 (Accounts Payable) 995,171 1,555,930
+其他應付帳款 (Other Payables) 1,674,842 2,240,462
+其他流動負債 (Other Current Liab.) 1,093,132 1,082,323
+流動負債合計 (Total Current Liab.) 3,763,145 4,878,715
+長期借款 (Long-Term Loans) 841,679 1,268,177
+其他非流動負債 (Other Non-Current) 834,216 818,213
+非流動負債合計 (Total Non-Current) 1,675,895 2,086,390
+負債總計 (Total Liabilities) 5,439,040 6,965,105
+普通股股本 (Common Stock) 1,456,814 1,456,814
+資本公積 (Capital Reserves) 456,222 648,829
+保留盈餘 (Retained Earnings) 3,191,534 3,451,406
+其他權益 (Other Equity) (41,079) 27,764
+本公司業主權益總計 (Parent Equity) 5,063,491 5,584,813
+非控制權益 (Non-Controlling) 2,759,374 3,000,790
+權益總計 (Total Equity) 7,822,865 8,585,603
+負債及權益總計 (Total Liab. & Equity) 13,261,905 15,550,708
+流動比率 (Current Ratio)
+201% → 189%
+流動資金寬裕，短期償債能力強
+流動比率 (Current Ratio)
+201% → 189%
+流動資金寬裕，短期償債能力強
+本公司每股淨值 (Book Value per Share)
+NT$34.76 → NT$38.34
+保留盈餘穩定累積，股東權益成長
+本公司每股淨值 (Book Value per Share)
+NT$34.76 → NT$38.34
+保留盈餘穩定累積，股東權益成長
+
+=== 頁11 ===
+11
+合併現金流量表
+現金流量表項目 (單位：新台幣千元) 2025年 全年 2026年 上半年
+營業活動淨現金流入(出) 1,526,321 1,021,541
+投資活動淨現金流入(出) (2,485,234) (1,054,450)
+籌資活動淨現金流入(出) 673,768 320,676
+匯率變動之影響 (119,554) 65,849
+現金及約當現金淨增(減) (404,699) 353,616
+期初現金及約當現金餘額 3,138,394 2,733,695
+期末現金及約當現金餘額 2,733,695 3,087,311
+
+=== 頁12 ===
+12
+Consolidate Revenue by Application
+2025 vs July 2026
+July 20262025
+
+
+=== 頁13 ===
+13
+Agenda
+• Company Overview : Milestone and Briefing
+• The situation of AI Industry
+• Financial Report : H1-2026
+• Three Platform Driving eLaser Growth
+• Q & A
+
+=== 頁14 ===
+14
+eLaser (Individual)
+Three Platform : COSA, TRX and ELSFP
+COSA Platform
+光學次模組平台
+✔ 產能連年翻倍成長
+產能自 2024 至 2026 年估計每年接近倍增（Double），
+以滿足龍頭客戶對高頻光元件的強勁需求。
+✔ 全球領先地位確立
+eLaser 已躍升為全球領先之 COSA核心供應商，製程良
+率與規模領先對手。
+✔ 持續高階製程升級
+配合先進封裝製程，持續進行高階光次模組之研發，
+拉高技術門檻。
+COSA Platform
+光學次模組平台
+✔ 產能連年翻倍成長
+產能自 2024 至 2026 年估計每年接近倍增（Double），
+以滿足龍頭客戶對高頻光元件的強勁需求。
+✔ 全球領先地位確立
+eLaser 已躍升為全球領先之 COSA核心供應商，製程良
+率與規模領先對手。
+✔ 持續高階製程升級
+配合先進封裝製程，持續進行高階光次模組之研發，
+拉高技術門檻。
+TRX Platform
+光收發模組平台
+✔ 配合客戶產能需求
+依據源傑(Centera)產品路線圖與年度光連結傳輸需求，
+進行產能擴張與技術對接。
+✔ 主動光纜傳輸
+全面覆蓋 AOC等高速數據中心之關鍵傳輸通道。
+✔ 新一代 800G 升級
+結合源傑(Centera)之矽光與電路設計能力，推動 800G 
+等高頻寬收發模組量產。
+TRX Platform
+光收發模組平台
+✔ 配合客戶產能需求
+依據源傑(Centera)產品路線圖與年度光連結傳輸需求，
+進行產能擴張與技術對接。
+✔ 主動光纜傳輸
+全面覆蓋 AOC等高速數據中心之關鍵傳輸通道。
+✔ 新一代 800G 升級
+結合源傑(Centera)之矽光與電路設計能力，推動 800G 
+等高頻寬收發模組量產。
+ELSFP Platform
+外部雷射光源模組
+✔ 滿足 CPO/NPO 架構
+ELSFP為下一代共封裝光學之核心光源。
+✔ 正式進入試產階段
+產品已正式規劃進入 試產階段，為未來高頻寬傳輸
+之爆發式成長預作佈局。
+ELSFP Platform
+外部雷射光源模組
+✔ 滿足 CPO/NPO 架構
+ELSFP為下一代共封裝光學之核心光源。
+✔ 正式進入試產階段
+產品已正式規劃進入 試產階段，為未來高頻寬傳輸
+之爆發式成長預作佈局。
+
+
+=== 頁15 ===
+15
+COSA Platform 
+A Leading Provider in the world
+
+
+=== 頁16 ===
+16
+TRX Platform
+
+
+=== 頁17 ===
+17
+ELSFP Platform
+
+
+=== 頁18 ===
+18
+COSA Capacity ramp up 
+nearly double every year 
+(2024 ~ 2026)
+
+=== 頁19 ===
+19
+Machine and Equipment Capex
+Period 2024 2025 2026 
+estimate
+Amount NTD260MN NTD1,100MN NTD1,600MN
+Machine and Equipment Capex
+in  2024~2026 Period
+
+
+=== 頁20 ===
+20
+Financial Plan : eLaser Individual
+8/13 BOD approved to issue 
+$NTD 3.0B convertible bond for 
+buying machinery and equipment、
+repaying bank loans.
+償還銀行借款、購買機器設備
+
+
+=== 頁21 ===
+21
+E.S.G. 
+With core technology “the Light”, 
+eLaser stand with Customers together
+Lighting the Future of AI Networks
+CONNECTION
+使用光作為連接, 距離就不再是限制
+eLaser Stand with Customers Together
+** TAA Compliance : 100% MIT **
+
+=== 頁22 ===
+22
+Q & A

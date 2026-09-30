@@ -1,0 +1,305 @@
+=== 頁1 ===
+1
+光環科技法說會
+(3234)
+114年12月22日
+
+=== 頁2 ===
+TrueLight’s proprietary 2
+免責聲明
+• 本簡報中提及的預測資訊以及同時發布的相關資訊包括經營前景、財務狀
+況和業務預測等，來自於公司內部和外部資訊來源。 公司未來的實際經
+營成果、財務狀況可能與這些預測資訊有所不同。 原因可能來自多種因
+素，包括但不限於價格波動、競爭、國際經濟狀況、匯率波動、市場需求
+以及其他公司無法控制的風險。
+• 本簡報中提到的未來展望僅反映了公司迄今為止對未來的看法。 若這些
+觀點日後發生變更或調整，本公司不負責隨時提醒或更新， 用戶應該做
+出自己的判斷，並自行承擔使用相關資訊的風險。
+• 未經本公司書面許可，任何第三方不得隨意存取本簡報及其內容。
+
+=== 頁3 ===
+TrueLight’s proprietary 3
+大綱
+1. 公司簡介
+2. 114年前三季營運成果
+3.產業趨勢與營運展望
+4. Q&A時間
+
+=== 頁4 ===
+TrueLight’s proprietary
+公司簡介
+4
+
+=== 頁5 ===
+TrueLight’s proprietary 5
+公司簡介
+成立日期 1997/9/1
+實收資本額 新台幣1,114,746,920
+所在地 新竹科學園區新竹市展業一路21號
+員工人數 326 人
+主要產品及服務
+VCSEL, LD, PD, APD 
+TO-can, OSA, COB, AOC,
+OEM & ODM (SiPh), Wafer Process Foundry service
+
+=== 頁6 ===
+TrueLight’s proprietary
+產品組合
+光通訊
+• SiPh
+• Datacenter
+• 4G/5G 無線通訊基地台互聯
+• PON
+晶圓製程代工與ODM
+• SiPh
+• Lidar
+• Datacenter
+Classification Wavelength Applications
+3mW-10mW 660nm
+(VCSEL) Health Sensing
+3mW-10mW 850nm
+(VCSEL)
+Proximity Sensor
+0.5-4W Flood/Dot 
+Projector/TOF
+3mW-10mW 940nm
+(VCSEL)
+Proximity Sensor
+0.5-4W Flood/Dot 
+Projector/TOF
+3mW-10mW 1130nm
+(VCSEL) 3D Sensing
+Products Wavelength
+(nm)
+Speed 
+(Gbps)
+Tx
+VCSEL (Fiber 
+Optics) 850 1-112
+FP-LD 1310-1550 1-25
+DFB-LD 1270-1550, 
+6l-CWDM 2.5-25
+Rx
+PINTIA 850 1-112
+PINTIA 1270-1550 1-25
+APD 1270-1550 2.5-100
+Classification Applications
+InP
+SiPh
+Lidar
+GaAs Datacenter
+OEM/ODM 100G/400G AOC
+智慧感測
+•智慧型手機用光感測光源
+•移動裝置光感測光源
+•智慧影像光源
+•生物感測/光動力療法
+ 光環為光通主動元件供應商，擁有完整的生產線與垂直整合能力
+ 產品線包含Chip-TO-OSA(M)-COB-AOC主動元件，具25年以上量產經驗
+ 亦提供更多元的服務，提升競爭力。
+6
+
+=== 頁7 ===
+TrueLight’s proprietary
+Wafer Process
+ Wafer Size : 2”, 3” and 4”
+ Product type : 
+ 2”, 3”, 4” FP/DFB/EML/SOA and CW laser for SiPh
+ 2”, 3”, 4” GaAs/InGaAs PD & InGaAs APD
+ 4” VCSEL
+ Verification and Testing: 
+ TO-can package, burn-in and aging test 
+ Reliability test
+Wafer 
+Fab
+Die
+Fab Package Testing
+• E-beam
+• Photolithography
+• Thin film (PECVD)
+• Dry etching (RIE, ICP)
+• Oxidation Furnace
+• Metal deposition and alloy
+• lapping/polishing
+• SEM/EDX
+• Cleaving and dicing
+• Laser saw
+• High quality optical
+facet coating
+(IAD-E beam)
+• Testing and sorting
+• AOI visual inspection
+• TO-CAN package
+• Chip-on-Carrier package
+• Chip-on-Board package
+• Optical assembly
+• Mechanical/Electrical
+integration
+• 3T O/E Characterization
+• Burn-in/aging test
+• Reliability test
+7
+
+=== 頁8 ===
+TrueLight’s proprietary
+模組光機電與軟韌體整合
+高頻電路設計、模擬
+8
+高頻特性模擬
+高精度光機電封裝整合 Firmware&GUI 軟韌體整合
+
+
+=== 頁9 ===
+TrueLight’s proprietary
+114年前三季營運成果
+9
+
+=== 頁10 ===
+TrueLight’s proprietary
+2023 2024 2025Q1~Q3
+Operating revenue 630,266 573,752 510,218
+Gross margin 4% 4% 15%
+4% 4%
+15%
+0%
+2%
+4%
+6%
+8%
+10%
+12%
+14%
+16%
+0
+100,000
+200,000
+300,000
+400,000
+500,000
+600,000
+700,000
+10
+合併營收及毛利率趨勢
+
+=== 頁11 ===
+TrueLight’s proprietary 11
+項目/Item 2025Q1~Q3 2024Q1~Q3 YOY Change ratio%
+營業收入/Operating revenue 510,218 426,461 83,757 20%
+營業毛利/Gross profit (loss) from operations 77,774 11,993 65,781 548%
+毛利率/Gross margin 15% 3% 12% 400%
+營業費用/Total operating expenses 174,611 220,540 (45,929) (21%)
+營業淨利(損)/Net operating income (loss) (96,837) (208,547) 111,710 (54%)
+營業外收入及支出/Total non-operating income and 
+expenses (11,743) 5,184 (16,927) (327%)
+稅前損益/Profit (loss) before tax (108,580) (203,363) 94,783 (47%)
+稅後淨利 (損) /Profit (loss) (108,580) (203,363) 94,783 (47%)
+每股盈餘(虧損)/Earnings(Loss) per share (0.94) (1.78) 0.84 (47%)
+綜合損益表
+Currency: K NTD
+
+=== 頁12 ===
+TrueLight’s proprietary
+智慧感測
+23%
+光通訊
+46%
+代工服務
+19%
+高功率
+2%
+其他
+10%
+2025Q1~Q3
+12
+銷售分析: 應用市場
+智慧感測
+33%
+光通訊
+53%
+代工服務
+3%
+高功率
+3%
+其他
+8%
+2024Q1~Q3
+
+=== 頁13 ===
+TrueLight’s proprietary
+產業趨勢與營運展望
+13
+
+=== 頁14 ===
+TrueLight’s proprietary
+產業趨勢-AI算力驅動光通訊爆發
+根據Yole Group《Optical Transceivers for Datacom and Telecom 
+2024》報告指出
+• 市場規模翻倍：AI 驅動光收發模組市場，預計由 2023 年 109 億美元成長至 2029 年
+224 億美元。
+• 資料中心 (Datacenter) 領航：年複合成長率 (CAGR) 達 14%，強勁需求來自 Google, 
+Amazon, nVIDIA, Microsoft 與 Meta 等科技巨擘。
+• 策略切入：光環憑藉 CW Laser 代工技術，成功切入AI 高速傳輸供應鏈。
+109 億
+224 億
+Source: Yole Report Source: Yole Report 
+14
+
+=== 頁15 ===
+TrueLight’s proprietary 15
+根據TRENDFORCE報告指出
+• 雙引擎高成長：車用 LiDAR 年成長率達 35%，工業
+用 LiDAR 亦高達 36%。
+• 多元市場佈局：光環以核心雷射光源技術，全面搶攻
+機器人、車用光達及非侵入式醫療等智慧感測商機。
+產業趨勢-智能化應用引爆高階感測需求
+車用LiDAR成長率高達35%
+工業用LiDAR成長率高達36%光機電整合
+軟韌體整合
+Source: Yole Report Source: TRENDFORCE Report 
+
+=== 頁16 ===
+TrueLight’s proprietary
+智能化驅動硬體升級：高階感測與高速傳輸的雙重紅利
+ 感測技術演進：由基礎光電開關，升級為視覺、聽覺、觸覺等多模態高階感測系統。
+ 傳輸需求爆發：伺服與控制系統間，亟需高頻寬、低延遲的高速傳輸解決方案。
+Source: https://www.edntaiwan.com/20190627nt71-industrial-robot-sensing/
+產業趨勢-機器人浪潮
+Source: TRENDFORCE Report 
+16
+
+=== 頁17 ===
+TrueLight’s proprietary 17
+ 自有產品
+光通訊
+ 佈局CPO(共同封裝光學)與矽光子技術，開發晶片級封裝與高速零組件。
+ 量產推廣100G VCSEL/ PD Array 
+ 針對車用數據傳輸，開發寬溫運作之特殊波長元件。
+智慧感測
+ 深耕各類波長光感測器(VCSEL/PD)，應用於消費性電子、精密工業檢測及光動
+力療法。
+ 積極推廣新世代手機感測光源。
+ 鎖定機器人與工業自動化之感測傳輸商機。
+ 代工服務
+ 提供GaAs、InP客製化晶片代工平台 (含測試及可靠度驗證)。
+ 提供高速通訊與固態 LiDAR 模組之光機電整合服務 (整合軟、韌體)。
+營運展望與策略佈局
+
+=== 頁18 ===
+TrueLight’s proprietary
+總結
+18
+光環科技
+代工服務
+光通訊
+智慧感測機器人
+18
+
+=== 頁19 ===
+TrueLight’s proprietary
+Thank you
+19
+
+=== 頁20 ===
+TrueLight’s proprietary
+Q&A 時間
+20

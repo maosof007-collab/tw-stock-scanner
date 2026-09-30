@@ -1,0 +1,232 @@
+=== 頁1 ===
+APAC Opto Electronics Inc.
+前鼎光電股份有限公司
+APAC Opto Electronics Inc.
+法人說明會
+股票代號：4908
+
+=== 頁2 ===
+APAC Opto Electronics Inc.
+免責聲明
+•本資料(包含講解與投影片內容)可能涉及對於未來展
+望的表述。該類表述是基於對現況的預期，但同時受限
+於已知或未知風險或不確定性的影響。因此實際結果將
+可能明顯不同於表述內容。
+•如未來有因任何事件或環境變遷，影響實際結果明顯
+不同於表述內容，本公司並不負有更新資料之責任。
+•因此本公司強烈建議讀者以參考公開資訊觀測站的公
+告資訊為依據。
+
+=== 頁3 ===
+APAC Opto Electronics Inc.
+大 綱
+• 公司簡介
+• 營運成果
+• 產業趨勢
+• 最新產品技術進展
+• 增設COC產線計畫
+• 產品介紹
+• Q&A
+
+=== 頁4 ===
+APAC Opto Electronics Inc.
+公司簡介
+公司名稱 前鼎光電股份有限公司
+股票代號 4908
+地址 新竹縣湖口鄉新竹工業區自強路三號
+主要經營業務 設計、研發、生產及銷售雷射二極體、受光二
+極體封裝及光傳接模組之相關光纖通訊產品
+公司成立日期 87/07/20
+實收資本額 782,169,070元
+上櫃日期 91/02/27
+員工人數 約 270人
+
+=== 頁5 ===
+APAC Opto Electronics Inc.
+2025營運狀況
+單位：新台幣佰萬元
+2025
+營業收入 815
+營業毛利 386
+毛利率 47%
+營業淨利 175
+營業淨利率 21%
+本期淨利 155
+淨利率 19%
+每股盈餘(元) 1.98
+每股淨值(元) 22.08
+2025年營運概況：
+1.2026年隨著終端客戶庫存去化， 各國網路基
+礎設施更新布建，客戶的需求逐步回溫。
+2.毛利率區間維持45%以上，2025年47%。
+3.因美元匯率波動影響，產生兌換損失，淨利率
+為19%。
+4.每股盈餘1.98元。
+5.每股淨值22.08元。
+
+=== 頁6 ===
+APAC Opto Electronics Inc.
+季營業收入變化
+1Q-25 2Q-25 3Q-25 4Q-25 1Q-26
+營業收入 212 206 214 183 265
+變動比率 -22.5% -3.0% 3.8% -14.4% 45.1%
+-30.0%
+-20.0%
+-10.0%
+0.0%
+10.0%
+20.0%
+30.0%
+40.0%
+50.0%
+0
+50
+100
+150
+200
+250
+300
+NT:佰萬元
+
+=== 頁7 ===
+APAC Opto Electronics Inc.
+市場資訊: AI/Data center產業發展規模預估
+依調研機構預估，全球AI Server市場規模，到2034年達352.28
+億美元，2025年到2034年CAGR為27.62%，隨著AI大基建發展
+及建置，推動光收發器市場需求爆發。
+
+=== 頁8 ===
+APAC Opto Electronics Inc.
+市場資訊: CPO 市場發展規模預估
+隨著AI 基建與高效能運算需求上升，為縮短訊號傳輸距離，降
+低損耗，帶來CPO的需求，依調研機構預估，到2034年達1.06
+億美元，2025年到2034年CAGR為30.66%。
+
+=== 頁9 ===
+APAC Opto Electronics Inc.
+市場資訊: 光通訊在AI/DC應用的演進
+
+
+=== 頁10 ===
+APAC Opto Electronics Inc.
+ELSFP在CPO架構中的關鍵角色
+ELSFP 是確保CPO 高
+效 能 運 作 的 核 心 元 件
+ELSFP 將雷射源「踢出」晶片
+封裝本體，實現外部化。解決
+了高功耗的雷射發熱導致交換
+機晶片過熱的問題，還保證了
+當雷射源需要更換（維護）時
+，不需要更換整片昂貴的 CPO
+交換機模組，大幅降低維護成
+本。
+
+=== 頁11 ===
+APAC Opto Electronics Inc.
+最新產品- CPO外置光源(ELS)
+CPO外置光源(ELS)
+CPO外置光源次模組
+
+
+=== 頁12 ===
+APAC Opto Electronics Inc.
+ELS 應用範例
+ELSFP在CPO Switch的應用範例(示意圖)客製化ELS 在AI Server的應用範例(示意圖)
+客製化DWDM ELS 
+前鼎OIF標準的ELSFP，可應用於
+CPO Switch
+前鼎客製16 Channel DWDM ELS，可
+應用於Micro-ring Modulator CPO
+(Semicom Taiwan簡報截圖)
+(Lightmatter網站截圖)
+ELSFP
+
+=== 頁13 ===
+APAC Opto Electronics Inc.
+CPO外置光源(ELS)
+產品規格與業務現況
+• 20dBm(100mW) 8ch VHP ELSFP
+→客戶樣品驗證通過， 少量出貨中，可量產
+• 20dBm(100mW) 16ch DWDM客製化ELS
+→客戶樣品驗證通過，少量出貨中，可量產
+• 23dBm(200mW) 8ch UHP ELSFP
+→2026/May送樣，預計Q3完成客戶端驗證及量產
+
+=== 頁14 ===
+APAC Opto Electronics Inc.
+CPO外置光源次模組
+產品
+• 20dBm(100mW) DR4 TOSA
+• 20dBm(100mW) CWDM4 TOSA
+• 20dBm(100mW) DWDM TOSA
+• 23dBm(200mW) DR4 TOSA
+• 23dBm(200mW) CWDM4 TOSA
+• 23dBm(200mW) DWDM TOSA
+服務
+• 客製化DWDM TOSA
+• ELS TOSA OEM/ODM
+
+=== 頁15 ===
+APAC Opto Electronics Inc.
+增設Chip On Carrier/Submount生產線
+• 自用或提供2.0mm ~3.0mm CW high power Laser COC (Chip on 
+Carrier) 代工服務
+• 購置Chip Tester、AOI、Die bonder、Wire bonder、COC Burn-
+In System 及相關配套儀器設備
+• 預計Y2026, End of Q3 建置完成
+Die Bonder Wire Bonder COC Burn-In System
+
+=== 頁16 ===
+APAC Opto Electronics Inc.
+主要產品
+光通訊次模組
+光模塊
+光纖延長器
+CPO外置光源次模組
+CPO外置光源(ELS)
+NEW
+
+=== 頁17 ===
+APAC Opto Electronics Inc.
+產品應用範圍
+Mobile Network Industrial
+AI/Data center
+ FTTX
+• CPO外置光源
+• 100G SR4/LR4/ 
+ER4/ZR4
+• 400G SR8/DR4/FR4
+• 800G SR8/DR8
+• 10G BIDI-SFP LR/ 
+ER/ZR
+• 25G BIDI-SFP LR/ 
+ER/ZR
+• 50G BIDI-SFP LR
+• 1x9, 2x5 TRX
+• Mini-SFF 1G/10G/ 
+25G
+• Ultra-high temp 
+TRX 
+• GEPON/GPON 
+TRX
+• 10GEPON/XGSPO
+N TRX
+• 25GSPONTRX
+
+=== 頁18 ===
+APAC Opto Electronics Inc.
+其他新產品
+自走搬運機器人應用
+Mini-SFF
+光纖無人機應用
+光纖影像傳送模組
+FPGA SFP
+內建FPGA,使用者可自
+行編程應用韌體
+Duplex SFP
+BIDI SFP
+
+=== 頁19 ===
+APAC Opto Electronics Inc.
+Q&A
+Thank you!!

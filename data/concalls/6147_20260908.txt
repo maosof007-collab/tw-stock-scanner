@@ -1,0 +1,65 @@
+=== 頁1 ===
+2026 Q3
+
+=== 頁2 ===
+驅動 IC
+射頻前端
+射頻識別
+矽光子
+指紋辨識
+金凸塊
+
+=== 頁3 ===
+Bumping
+Testing
+Chip on FilmChip on Glass
+ Film
+產品與製程
+
+=== 頁4 ===
+Interconnect between IC and Substrate
+Has to be gold for driver IC
+金凸塊
+
+=== 頁5 ===
+PCB
+PCB board
+Glass
+CHIP ON FILM
+
+=== 頁6 ===
+PCB board
+Glass
+CHIP ON GLASS
+
+=== 頁7 ===
+TV Phone NB/PC RF SiPho
+8” 12” 8” 8” 8”
+v v v v
+v v
+v v
+v v
+Bumping
+Testing
+Chip on Film
+Chip on Glass
+Film
+
+=== 頁8 ===
+DDI
+RFFE
+RFID
+Others
+2025
+
+=== 頁9 ===
+Laser
+Modulator
+FAUCoupler
+PDTIA
+Driver
+DSPASIC
+
+=== 頁10 ===
+TIA PD
+PDTIA

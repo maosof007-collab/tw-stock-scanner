@@ -1,0 +1,335 @@
+=== 頁1 ===
+Proprietary
+2025
+2025
+年法人說明會
+Dec.29, 2025
+1
+
+=== 頁2 ===
+Proprietary
+2025
+© Taiwan Mask Corp. Property 22024/5/27
+• 本簡報資料所提供之資訊，包含產業前景與營運展望。這些前景展望可能因不確定的
+風險與假設等不同狀況而導致實際結果可能與先前預期有重大出入。針對這些風險、
+不確定性與假設等不同狀況，本簡報資料中的營運展望可能不會依預期發生。讀者不
+應完全依賴此展望資訊。
+• 台灣光罩股份有限公司(本公司)已儘可能確保本簡報資料為正確無誤且並無遺漏與過時，
+此外，除法令要求外，本公司並無義務因應新資訊的產生或未來事件的發生，主動更
+新對未來展望的表述，且若投資人對本簡報資料任何內容或因倚賴該等內容所採取行
+動，而直接或間接引致之任何損失概不負責。
+• 未經本公司許可的情況下，不可複製、修改、重新編譯、刪減或傳送本簡報任何內容，
+或將任何該等內容用於商業用途。
+免責聲明
+
+=== 頁3 ===
+Proprietary
+2025
+3
+議程
+⚫ 歡迎致詞 TMC
+⚫ 財務資訊 Eve Yang
+⚫ 營運概況 Lidon Chen 
+⚫ 提問與討論 All
+
+=== 頁4 ===
+Proprietary
+2025
+4©Taiwan Mask Corp. Property
+2024/5/27
+財務資訊
+
+=== 頁5 ===
+Proprietary
+2025
+合併營收
+5
+UNIT:NT$M
+-2% 8% -10% 7% -15% -2% -9%
+-300%
+-250%
+-200%
+-150%
+-100%
+-50%
+0%
+50%
+0
+500
+1,000
+1,500
+2,000
+2,500
+Q1 24 Q2 Q3 Q4 Q1 25 Q2 Q3
+TMC
+MTC
+APTOS
+Xsense
+DCT
+INNOVA
+Pilot
+Moment
+TMC 56% 55% 62% 52% 58% 56% 59%
+MTC 23% 21% 25% 25% 21% 23% 27%
+APTOS 3% 7% 2% 6% 4% 4% 0%
+Xsense 8% 10% 4% 1% 5% 5% 0%
+DCT 1% 0% 0% 5% 1% 0% 1%
+INNOVA 2% 3% 5% 6% 6% 5% 6%
+Pilot 3% 1% 1% 2% 2% 4% 5%
+Moment 4% 3% 2% 3% 3% 2% 3%
+
+=== 頁6 ===
+Proprietary
+2025
+Amount % Amount %
+營業收入 1,450 1,590 1,796 -140 -9% -346 -19%
+營業成本 -1,347 -1,475 -1,438 -128 -9% -91 -6%
+營業毛利 103 115 358 -11 -10% -254 -71%
+毛利率 7.1% 7.2% 19.9%
+營業費用 -259 -227 -265 32 14% -6 -2%
+營業費用率 -17.9% -14.3% -14.8%
+營業利益 -156 -113 93 -43 -38% -248 -268%
+營業利益率 -10.7% -7.1% 5.2%
+營業外收入 (支出 ) -42 -395 -369 353 89% 328 89%
+稅前淨利 -197 -507 -277 310 61% 79 29%
+本期淨利 -158 -396 -205 237 60% 47 23%
+EPS(NT$) -0.62 -1.85 -0.96 1.23 0.34
+-0.1pps -12.8pps
+3.6pps 3.1pps
+-3.7pps -15.9pps
+YoYNT$ M 3Q 114 2Q 114 3Q 113 QoQ
+合併綜合損益表-QoQ
+6
+
+=== 頁7 ===
+Proprietary
+2025
+114 113
+1/1-9/30 1/1-9/30 Amount %
+營業收入 4,668 5,644 -976 -17%
+營業成本 -4,268 -4,576 -307 7%
+營業毛利 400 1,068 -668 -63%
+毛利率 8.6% 18.9%
+營業費用 -805 -845 -39 5%
+營業費用率 -17.3% -15.0%
+營業利益 -406 223 -629 -282%
+營業利益率 -8.7% 4.0%
+營業外收入 (支出) -608 -203 -405 -200%
+稅前淨利 -1,014 21 -1,034 -5043%
+本期淨利 -811 224 -1,036 -462%
+EPS(NT$) -3.56 1.05 -4.61
+2.3pps
+-12.6pps
+NT$ M YoY
+-10.4pps
+合併綜合損益表-YoY
+7
+
+=== 頁8 ===
+Proprietary
+2025
+簡要資產負債表項目及財務指標
+8
+114/09/30 113/12/31 113/09/30
+ 現金及約當現金 1,040                       1,431              1,238                
+ 金融資產  - 流動 1,830                       3,129              4,227                
+ 金融資產  - 非流動及採用權益法之投資 607                          677                 703                   
+ 不動產、廠房及設備 10,208                     10,382            10,122              
+資產總計 18,247                     20,815            22,036              
+ 短期借款 4,558                       6,200              6,338                
+ 一年內到期之長期借款 1,664                       1,242              1,244                
+ 應付公司債 1,997                       3,609              3,605                
+ 長期借款 2,806                       3,073              3,395                
+負債總計 13,598                     16,743            17,235              
+ 股本 3,168                       2,565              2,565                
+權益總計 4,649                       4,072              4,801                
+流動比率 63% 77% 89%
+負債比率 75% 80% 78%
+負債權益比率 292% 411% 359%
+NT$ M
+
+=== 頁9 ===
+Proprietary
+2025
+9©Taiwan Mask Corp. Property
+2024/5/27
+公司營運概況
+
+=== 頁10 ===
+Proprietary
+2025
+台灣光罩公司營運概況更新
+10
+⚫ Semiconductor will be growth for years (+18%, ‘26) 
+⚫ Global mask demand keeps stable growth (+7%, ‘26)
+⚫ Good progress for fundraising 
+⚫ ‘24 revenue: TMC (4.3B$NT) and group (7.6B$NT)
+⚫ ‘25 TMC status: in good shape    
+⚫ Extending mask business to more value node (55nm)
+⚫ Extending business to advanced package application 
+⚫ Re-org/structure subsidiaries to good position
+
+=== 頁11 ===
+Proprietary
+2025
+11
+台灣光罩集團
+TMC 
+Group
+TMC 
+Mask 
+100%
+• Business
+• TMC Share %
+MTC 
+Foundry Services
+100%
+Innova 
+Contact Lens
+53%
+KG 
+Investment
+100%
+Xsense
+Submont
+53%
+Aptos 
+Package
+47%
+DCT 
+3D print
+57%
+Pilot
+Energy
+59%
+Moment
+Branding
+25%
+HEL
+Eco Steel
+100%
+Semiconductor 
+ESG, Sustainable
+Smart Manufacturing 
+Magpie
+H2 Energy
+59%
+
+=== 頁12 ===
+Proprietary
+2025
+12
+Fab 1,2 (@HC) Fab 3/5 (@HC)
+Fab 6 (@ZN) 
+台灣光罩集團廠區位置
+Planning for New Site
+Fab 7 (@HC): Planning 
+
+=== 頁13 ===
+Proprietary
+2025
+13
+全球半導體市場
+Significant Growth on Application Specific 
+Source from: Gartner Q4, 2025
+⚫ Growth on AS
+⚫ Reach 1T by ‘28 
+⚫ Target 1.5T by ‘35
+⚫ Geopolitical
+Revenue (B$USD)
+Growth (YoY)
+
+=== 頁14 ===
+Proprietary
+2025
+14
+全球光罩市場
+Restructuring from Geopolitical 
+Source from: SEMI, Jun, ‘25
+• CN players rising: 
+• Pricing
+• Subsidize
+• Localize policy
+• Merchants:   
+• Relocation 
+• Competition 
+
+=== 頁15 ===
+Proprietary
+2025
+15
+來自中國的新競爭者
+Policy, Subsidize from CN
+⚫ CN: QX, NX, DX
+⚫ Merchants: relocation 
+⚫ New area: SG, US
+⚫ Applications   
+Source from: SEMI, Jun, ‘25
+
+=== 頁16 ===
+Proprietary
+2025
+16
+台灣光罩產品應用領域
+2024 2025
+
+=== 頁17 ===
+Proprietary
+2025
+17
+2024 2025
+台灣光罩營收區域分佈
+
+=== 頁18 ===
+Proprietary
+2025
+18
+提升12吋晶圓光罩服務比重
+
+=== 頁19 ===
+Proprietary
+2025
+19
+台灣光罩業務產能擴展
+More TW, SE. More 65/55nm 
+⚫ Ramp N65/55, 90/80
+⚫ Pilot N40
+⚫ N22/28 preparation
+• Qualify 
+• Tools/facility 
+
+
+=== 頁20 ===
+Proprietary
+2025
+20
+台灣光罩營收
+Good Progress for Engaging Foundries
+⚫ CN competition 
+⚫ TW, SE business 
+⚫ Enlarge 80/55/40nm
+⚫ New application (AI) 
+In B$NTD
+
+=== 頁21 ===
+Proprietary
+2025
+關鍵製程發展
+Technology Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4
+>= 90 nm
+>= 65/55nm
+40nm
+28nm
+202820272025 2026
+
+=== 頁22 ===
+Proprietary
+2025
+Thank You
+22
+
+=== 頁23 ===
+Proprietary
+2025
+Q & A
+2024/5/27 © Taiwan Mask Corp. Property 23

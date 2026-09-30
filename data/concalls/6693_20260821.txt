@@ -1,0 +1,478 @@
+=== 頁1 ===
+廣閎科技股份有限公司
+節能應用IC與系統設計整合方案提供者
+主講人：林明璋博士
+2026/8/21
+
+=== 頁2 ===
+©  2026 inergy Technology Inc. All Rights Reserved.
+免責聲明
+2
+•本簡報及同時發佈之相關訊息內含有從公司內部與外部來源所取
+得的預測性資訊，其中包括營運展望、財務狀況以及業務預測等
+內容。
+•本公司未來實際所發生的營運結果、財務狀況以及業務展望，
+可能與這些預測性資訊所明示或暗示的預估有所差異。其原因
+可能來自於各種因素，包括但不限於市場需求、價格波動、競
+爭情勢、國際經濟狀況、供應鏈、匯率波動以及其他本公司所
+不能掌控的風險等因素。
+•本簡報中對未來的展望，反應本公司截至目前為止對於未來的
+看法。對於這些看法，未來若有任何變更或調整時，本公司並
+不負責隨時提醒或更新。
+
+=== 頁3 ===
+©  2026 inergy Technology Inc. All Rights Reserved.
+簡報大綱
+3
+• 廣閎科技簡介與主要產品
+• 經營績效
+• 2026-2027進程規劃
+
+=== 頁4 ===
+成 立 日 期｜2007年11月
+資 本 額 ｜NTD 457,200仟元
+董事長兼總經理｜林明璋 博士
+企業總部
+新竹縣竹北市台元二街8號8樓之3
+深圳辦公室
+深圳市福田區深南大道6021號A幢1503-1508室
+廣閎科技股份有限公司
+i n e r g y T e c h n o l o g y Inc .
+廣閎科技是專注於節能應用之IC設計公司
+核心產品：Power MOSFET 功率元件、BLDC Motor Driver
+無刷直流馬達驅動系統、SoC 散熱風扇驅動IC，提供低碳、
+低耗能的高能源效率產品，從IC到電機/電池/電源管理創新
+系統設計方案
+成立於2007年， 2022年在財團法人證券櫃檯買賣中心
+(Taipei Exchange, TPEx)正式上櫃交易
+股票代碼 6693.TWO.
+總部與研發中心
+
+=== 頁5 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+主要產品
+5
+Power MOSFET
+功率元件
+低導通電阻RDS(ON)、較高電流載流能力、高效能封裝
+BLDC Motor Driver
+SoC散熱風扇驅動IC 
+高整合度IC 、自有馬達驅動控制技術
+
+
+=== 頁6 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+應用場景
+6
+工控應用
+電動載具
+工控電源
+通訊基站
+BMS
+E-2W 
+Motor Driver Board
+BMS
+家電
+白色家電
+小家電
+Power
+MOSFET Motor
+Driver 
+IC
+消費性電子 PC／NB
+Power
+MOSFET
+Motor
+Driver 
+IC
+Power
+MOSFET
+Power
+MOSFET
+Motor
+Driver 
+IC
+車用
+HVAC空調
+進氣系統、座椅散熱
+車內外照明
+電池、車內充電
+Power
+MOSFET
+Motor
+Driver 
+IC
+儲
+能系統
+Power
+MOSFET
+伺服器
+伺服器
+雲端資料中心
+BBU
+Power
+MOSFET
+Motor
+Driver 
+IC
+
+=== 頁7 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved. 7
+Power MOSFET 功率元件
+◼高效能、高電流、低阻抗、低電容設計，適用於各式電源相關與電機驅動應用
+中壓Power MOSFET
+達到業界同級產品最佳導通阻抗規格
+LFPAK
+PDFN5x6-DS
+sTOLL TOLL
+TOLT
+高效能功率封裝提供極佳散熱效率
+資料中心/伺服器 電動載具
+儲能系統 工控應用
+適用於能效要求嚴格的應用場域
+
+
+=== 頁8 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+MOS
+8
+BLDC Motor Driver 無刷直流馬達驅動系統
+◼ 自有馬達驅動控制技術，採用易於使用的韌體平台，客戶可輕鬆依據不
+    同特性進行參數調整
+◼ 無刷直流馬達驅動控制技術獲得知名大廠認證與量產實績
+伺服器散熱系統 4G/5G 基地台散熱 充電站散熱
+ 家電
+12V: iU639X + MOS
+48V: iU639X + MOS
+12V: iU639X + MOS
+48V: iU631X + IPM
+iU639X + MOS
+iU631X + IPM
+吊扇: iU639X + IPM; iU639X + MOS
+強排熱水器: iU631X + MOS
+掃地機器人: iU639X + MOS
+空氣清淨機: iU631X + MOS
+伺服器散熱
+4028驅動板(48V/1A/FOC)
+iU639X
+
+=== 頁9 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved. 9
+雲端資料中心
+SoC 散熱風扇驅動IC
+◼散熱風扇驅動IC，提供節能高效的散熱方案 
+高階顯卡 電競電腦電源 CPU
+周邊散熱模組: iT13XX
+CPU散熱風扇: iT85XX
+VGA風扇: iT13XX、iT83XX
+ 液冷水泵: iT639X + MOS   
+電源風扇: iT83XX CPU風扇: iT13XX、iT83XX
+All in One 
+✓ 高度集成
+✓ 混和模式架構
+✓ 快速開發
+✓ 多重保護機制
+
+
+=== 頁10 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved. 10
+經營績效
+
+=== 頁11 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+114,919 107,245
+91,257
+110,056
+99,362
+113,179 116,064
+168,011
+153,311
+193,378 
+204,370 213,788 
+234,257 242,458 
+0
+50,000
+100,000
+150,000
+200,000
+250,000
+300,000
+Jan Feb Mar Apr May Jun Jul
+2025營業收入 2026營業收入
+2026經營績效 1~7月營收與年增率(YoY)
+單位：新台幣(千元)
+合計營收：新台幣1,409,573千元
+11
+46% 43% 112% 86% 115%
+已公告
+5月EPS：0.69(元)
+5月稅前淨利：
+37.33(百萬元)
+107% 109%
+YOY%
+
+=== 頁12 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+經營績效
+12
+季度合併綜合損益表 單位：新台幣千元
+重要財務比率 Q2'26 Q1'26 Q2,25 
+毛利率 32% 29% 26%
+營業淨利率 18% 11% 9%
+稅後淨利率 15% 10% -21%
+Q2'26 Q1'26 QoQ H1'26 H1'25 YoY 
+營業收入 652,415 514,700 27% 1,167,115 636,018 84%
+營業毛利 210,833 147,996 42% 358,829 164,619 118%
+營業費用 91,473 93,029 -2% 184,502 164,944 12%
+營業淨利 119,360 54,967 117% 174,327 (325) 535%
+營業外收(支) 4,072 10,673 -62% 14,745 (100,563) 115%
+稅前淨利 123,432 65,640 88% 189,072 (100,888) 287%
+所得稅費用 23,852 13,128 82% 36,980 (21,198) 274%
+歸屬於母公司之淨利 99,580 52,512 90% 152,092 (79,690) 291%
+每股盈餘(NTD) 2.21 1.17 89% 3.38 (1.74) 294%
+
+=== 頁13 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+經營績效
+13
+季度合併資產負債表 單位：新台幣千元
+Q2'26 Q1'26 Q2'25 QoQ YoY 
+資產總額 2,038,366 1,763,226 1,631,510 15.60% 24.94%
+現金及約當現金 470,205 446,763 588,841 5.25% -20%
+應收票據/帳款 457,117 344,380 207,509 32.74% 120%
+存貨 406,184 381,409 286,671 6.50% 42%
+不動產廠房及設備 411,182 325,329 315,231 26.39% 30%
+存出保證金/其他金融資產 154,128 156,147 116,575 0.00% 282%
+負債總額 791,809 626,185 603,045 26.45% 31.30%
+短期借款 60,000 65,000 44,780 -7.69% 34%
+一年內到期長期借款 15,231 15,155 14,929 0.50% 2%
+應付票據/帳款 322,573 280,492 125,472 15.00% 157%
+長期借款 204,949 146,785 158,180 39.63% 30%
+股東權益總額 1,246,557 1,137,041 1,028,465 9.63% 21.21%
+重要財務指標 Q2'26 Q1'26 Q2'25 
+應收帳款週轉天數 63 60 59
+存貨週轉天數 83 94 139
+應付帳款週轉天數 66 69 63
+股東權益報酬率(%) 7.99% 4.78% -6.52%
+資產報酬率(%) 4.89% 3.08% -4.11%
+負債比(%) 38.85% 35.51% 36.96%
+廣閎科技股份有限公司
+國內第一次無擔保轉換公司債（66931）
+1. 發行日：2026/7/24
+2. 發行面額：100,000元
+3. 發行張數：5,000張
+4. 發行價格： 102元
+5. 轉換價：228.1元
+6. 用途：充實營運資金及償還銀行借款
+
+=== 頁14 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+經營績效
+14
+2025年~2026年Q2  營收／EPS／毛利率
+單位：新台幣(千元)
+313,421 322,597
+354,968
+422,781
+514,700
+652,415
+-0.28
+-1.46
+0.62
+1.03 1.17
+2.21
+-2
+-1.5
+-1
+-0.5
+0
+0.5
+1
+1.5
+2
+2.5
+0
+100,000
+200,000
+300,000
+400,000
+500,000
+600,000
+700,000
+2025Q1 2025Q2 2025Q3 2025Q4 2026Q1 2026Q2
+營業收入 EPS
+29%
+32%
+26%
+26%
+23%
+26%
+毛利率%
+
+=== 頁15 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+ Q1'25  Q2'25 Q3'25 Q4'25 Q1'26  Q2'26
+營業收入 313,421 322,597 354,968 422,781 514,700 652,415
+營業毛利 80,151 84,468 82,672 122,643 147,996 210,833
+營業費用 108,311 56,633 60,710 79,819 93,029 91,473
+歸屬於母公司之淨利 (12,684) (67,006) 28,484 47,210 52,512 99,580
+313,421 322,597 
+354,968 
+422,781 
+514,700 
+652,415 
+80,151 84,468 82,672 
+122,643 147,996 
+210,833 
+108,311 56,633 60,710 79,819 93,029 91,473 
+(12,684)
+(67,006)
+28,484 47,210 52,512 
+99,580 
+(200,000)
+(100,000)
+0
+100,000
+200,000
+300,000
+400,000
+500,000
+600,000
+700,000
+營業收入 營業毛利 營業費用 歸屬於母公司之淨利
+經營績效
+15
+2025年~2026年Q2  合併綜合損益表
+單位：新台幣千元
+Q1’25 Q2’25 Q3’25 Q4’25 Q1’26 Q2’26
+
+=== 頁16 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+重點應用-2025至2026Ｑ2出貨占比
+16
+消費性電子
+• 白色家電
+• 小家電
+• 消費性電子
+• PC & NB
+• BBU
+• 電源系統
+• 伺服器散熱
+伺服器相關
+工控車用
+• 電動載具
+• 儲能系統
+• 工控、通信
+• 車用
+25%
+32%
+43%
+2026Q1
+工控車用
+消費性
+電子
+伺服器
+13%
+36%
+51%
+2025
+工控車用 消費性
+電子
+伺服器
+47%
+20%
+33%
+2026Q2
+工控車用
+消費性
+電子
+伺服器
+
+=== 頁17 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved. 17
+2026-2027進程規劃
+
+=== 頁18 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+重點發展 – 伺服器/資料中心-電源應用
+18
+單機櫃功率
+Rack Power 120 kW 250 kW - 440 kW 660 kW - 1 MW
+機櫃供電架構
+Rack Power 
+Architecture
+50 VDC Busbar Hybrid
+(HVDC/ 50 VDC)
+HVDC 
+(HVDC Central 
+Power)
+BBU模組功率
+BBU Power Module 
+Rating
+5.5 kW - 8 kW 15 kW - 30 kW (HV)
+BBU配置
+BBU Placement In-Rack Power Sidecar/
+Central BBU Rack
+Source from public data
+Today 
+ Future
+
+=== 頁19 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+重點發展 – 伺服器/資料中心-電源應用
+19
+Next Gen
+IBV to 0.xV
+Distribution 
+400/480 VAC
+SiC Si
+HVDC to IBVBBU
+SiC
+PSUHVDC  
+Side Rack
+SiC
+50V to 12V 12V to 0.xV
+SiC Si
+Rack Busbar
+Si
+Si Si50V Server
+HVDC Server
+Next Gen
+HVDC fed by SST
+Utility MV Grid
+SST HVDC to IBV IBV to 0.xV
+Rack Busbar
+HVDC
+SiHVDC Server
+Distribution
+HVDC
+SiC
+50V to 12V
+Rack Busbar 
+50 VDC
+PSU 
+Shelf
+Distribution 
+400/480 VAC
+BBU
+Si
+SiSiC
+Today12V to 0.xV
+Si Si
+Source from public data
+SiC Si
+HV to 50V
+
+=== 頁20 ===
+©  2023 inergy Technology Inc. All Rights Reserved.©  2026 inergy Technology Inc. All Rights Reserved.
+重點發展 – 伺服器/資料中心-散熱方案
+20
+BLDC Motor Driver 用於Sidecar
+48V 氣冷散熱
+BLDC Motor Driver 用於伺服器
+12V/48V氣冷散熱
+SoC 散熱風扇驅動IC用於伺服器周邊
+
+
+=== 頁21 ===
+THANK YOU!

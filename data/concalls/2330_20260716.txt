@@ -1,0 +1,138 @@
+=== 頁1 ===
+Unleash Innovation
+© 02026 TSMC, Ltd TSMC Property
+Unleash Innovation
+2026年第二季法人說明會
+2026年7月16日
+
+=== 頁2 ===
+Unleash Innovation
+© 12026 TSMC, Ltd TSMC Property
+會議議程
+• 致歡迎詞 蘇志凱 法人關係處處長
+• 2026年第二季營運成果及第三季業績展望 黃仁昭 財務長
+• Key Messages 黃仁昭 財務長
+魏哲家 董事長暨總裁
+• 問與答
+
+=== 頁3 ===
+Unleash Innovation
+© 22026 TSMC, Ltd TSMC Property
+Safe Harbor Notice
+• TSMC’s statements of its current expectations are forward-looking statements subject to 
+significant risks and uncertainties and actual results may differ materially from those 
+contained in the forward-looking statements. 
+• Information as to those factors that could cause actual results to vary can be found in 
+TSMC’s 2025 Annual Report on Form 20-F filed with the United States Securities and 
+Exchange Commission (the “SEC”) on April 16, 2026 and such other documents as TSMC 
+may file with, or submit to, the SEC from time to time. 
+• Except as required by law, we undertake no obligation to update any forward-looking 
+statement, whether as a result of new information, future events, or otherwise.
+
+=== 頁4 ===
+Unleash Innovation
+© 32026 TSMC, Ltd TSMC Property
+綜合損益表
+綜合損益表項目
+2Q26
+2Q26
+1Q26 2Q25 季變化 年變化(除另予註明者外，金額為新台幣十億元) 業績展望
+營業收入淨額 (美金十億元) 40.20 39.0-40.2 35.90 30.07 +12.0% +33.7%
+營業收入淨額 1,270.38 1,134.10 933.79 +12.0% +36.0%
+營業毛利率 67.7% 65.5%-67.5% 66.2% 58.6% +1.5 ppts +9.1 ppts
+營業費用 (98.98) (94.01) (84.51) +5.3% +17.1%
+營業淨利率 60.3% 56.5%-58.5% 58.1% 49.6% +2.2 ppts +10.7 ppts
+營業外收入及支出 95.83 28.83 29.61 +232.3% +223.6%
+歸屬予母公司業主之本期淨利 706.56 572.48 398.27 +23.4% +77.4%
+純益率 55.6% 50.5% 42.7% +5.1 ppts +12.9 ppts
+每股盈餘 (新台幣元) 27.25 22.08 15.36 +23.4% +77.4%
+股東權益報酬率 45.9% 40.5% 34.8% +5.4 ppts +11.1 ppts
+晶圓出貨量 (千片十二吋約當晶圓) 4,336 4,174 3,718 +3.9% +16.6%
+平均匯率 (美元/新台幣) 31.60 31.7 31.59 31.05 +0.0% +1.8%
+*    2026年第二季加權平均流通在外股數為259億3仟2佰萬股
+**  股東權益報酬率為以母公司股東平均股權計算的年化數據
+
+=== 頁5 ===
+Unleash Innovation
+© 42026 TSMC, Ltd TSMC Property
+2026年第二季銷售分析-製程別
+
+
+=== 頁6 ===
+Unleash Innovation
+© 52026 TSMC, Ltd TSMC Property
+2026年第二季銷售分析-技術平台別
+
+
+=== 頁7 ===
+Unleash Innovation
+© 62026 TSMC, Ltd TSMC Property
+資產負債表及重要財務指標
+資產負債表項目 2Q26 1Q26 2Q25
+(新台幣十億元) 金額 % 金額 % 金額 %
+現金及有價金融商品投資 3,518.01 37.5 % 3,383.60 39.0 % 2,634.43 37.6 %
+應收帳款 440.92 4.7 % 363.01 4.2 % 235.69 3.4 %
+存貨 385.53 4.1 % 311.45 3.6 % 304.19 4.3 %
+長期投資 227.93 2.4 % 166.57 1.9 % 137.43 2.0 %
+不動產、廠房及設備 4,302.88 45.9 % 3,954.68 45.7 % 3,386.21 48.3 %
+資產總計 9,375.65 100.0 % 8,660.95 100.0 % 7,006.35 100.0 %
+流動負債 1,857.76 19.8 % 1,714.25 19.8 % 1,377.31 19.7 %
+長期計息負債 864.27 9.2 % 901.02 10.4 % 883.67 12.6 %
+負債總計 2,901.18 30.9 % 2,728.56 31.5 % 2,389.72 34.1 %
+股東權益總計 6,474.47 69.1 % 5,932.39 68.5 % 4,616.63 65.9 %
+重要財務指標
+平均收現日數 29 26 23
+平均銷貨日數 87 80 76
+流動比率 (倍) 2.5 2.5 2.4
+資產生產力 (倍) 1.2 1.2 1.1
+*  2026年6月30日流通在外股數為259億3仟2佰萬股
+** 資產生產力 = 年化營業收入淨額 / 平均不動產 、 廠房及設備淨額
+
+=== 頁8 ===
+Unleash Innovation
+© 72026 TSMC, Ltd TSMC Property
+現金流量表
+* 自由現金流量 = 營運活動之現金流入–資本支出
+(新台幣十億元) 2Q26 1Q26 2Q25
+期初現金 3,035.64 2,767.86 2,394.80
+營運活動之現金流入 783.36 698.97 497.07
+資本支出 (496.00) (350.76) (297.22)
+現金股利 (155.59) (129.66) (116.70)
+應付公司債 (31.66) 12.40 3.70
+投資與其他 (1.53) 36.83 (117.13)
+期末現金 3,134.22 3,035.64 2,364.52
+自由現金流量* 287.36 348.21 199.85
+
+=== 頁9 ===
+Unleash Innovation
+© 82026 TSMC, Ltd TSMC Property
+2026年第三季業績展望
+基於目前對營運展望的假設，台積公司預期:
+• 合併營收約介於美金 446 億元到 458 億元之間。
+此外，基於平均匯率 32 的假設，台積公司預期:
+• 營業毛利率約介於百分之 65 到百分之 67 之間。
+• 營業利益率約介於百分之 56 到百分之 58 之間。
+
+=== 頁10 ===
+Unleash Innovation
+© 92026 TSMC, Ltd TSMC Property
+未來展望
+基於目前對營運展望的假設，台積公司預期 :
+• 2026 年美元合併營收成長略高於 40%。
+
+=== 頁11 ===
+Unleash Innovation
+© 102026 TSMC, Ltd TSMC Property
+• 台積公司出售8.1%世界先進公司股權 (2026/05/15) 
+• 台積公司董事會核准配發2026年第一季之每股現金股利7.0元，其普通股配息基準日訂定為2026年9
+月22日，除息交易日則為2026年9月16日，並於2026年10月8日發放 (2026/05/12) 
+• Sony與台積公司初步達成下一世代影像感測器策略合作協議 (2026/05/08)
+• 台積公司舉辦2026年北美技術論壇，揭示A13製程技術 (2026/04/23)
+• 詳情請參閱台積公司網站 (https://www.tsmc.com) 最新消息公告及公開資訊觀測站 (https://mops.twse.com.tw) 重大訊息公告。
+近期重要事件摘要
+
+=== 頁12 ===
+Unleash Innovation
+© 112026 TSMC, Ltd TSMC Property
+https://www.tsmc.com
+invest@tsmc.com

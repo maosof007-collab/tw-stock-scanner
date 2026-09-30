@@ -1,0 +1,217 @@
+=== 頁1 ===
+PCL Technologies Inc.
+眾達科技
+(4977.TT)
+2025.12.09
+
+
+=== 頁2 ===
+投資安全聲明
+ DISCLAIMER
+本簡報所提供之資訊包含預測、預估或其他資訊之前瞻
+性聲明，因此具有風險及不確定因素，可能導致實際結
+果與前瞻性聲明中所表達的有重大差異。
+This material has been prepared by PCL Technologies, Inc. (“PCL ”).
+Statements made in this material include forward-looking statements, which 
+include, without limitation, statements about the issues, plans and expectations 
+of PCL. Forward-looking statements reflect, among other things, management 
+plans and objectives for future operations, current views with respect to future 
+events and future economic performances and projections of various financial 
+items. These forward-looking statements involve known and unknown risks, 
+uncertainties, and other factors which may cause actual results to differ 
+materially from those implied by such forward-looking statements.
+
+=== 頁3 ===
+* 成立日期: 2007.10.16
+* 上市日期: 2013.11.20
+* 資本額: 新台幣 8.02 億元
+* 生產基地: 
+ 眾達光通科技(蘇州)有限公司
+ PCL International Technologies (Penang) Sdn Bhd.
+* 主要產品: 
+ 高速光收發模組
+ 光發射/接收次模組
+ 雷射及檢光器元件封裝
+公司介紹
+眾
+達科技股份有限公司
+雷射二極體 (LD)
+檢光器 (PD)
+台北 (總部)
+中國蘇州廠
+馬來西亞檳城廠
+
+=== 頁4 ===
+眾達光通科技
+(
+蘇州
+)
+有限公司
+生產基地
+PCL 
+International Technologies (Penang) 
+Sdn
+ Bhd
+. (
+檳城
+) 
+
+
+=== 頁5 ===
+資
+料中
+心市
+場
+Source: IndustryARC, 2025
+
+
+=== 頁6 ===
+超大型資料中
+心
+成長
+The number of large data centers operated increased to 1,136 at the end of 2024, having doubled over the last 
+five years. It has taken < 4 years for the total capacity of operational hyperscale data centers to double, as the 
+average capacity of newly opened facilities continues to climb. The US still accounts for well over half of total 
+worldwide capacity, with Europe and China each accounting for about 1/3 of the balance. Looking ahead, Synergy 
+forecasts that it will take < 4 years for total hyperscale data center capacity to double once again. 
+1,000
+1136
+
+=== 頁7 ===
+超大型資料中
+心市
+場
+成長動能:
+過去:
+ Cloud computing 
+growth
+ Internet services 
+ Data explosion
+ Energy efficiency
+未來:
+ Edge computing
+ Cloud services
+ AI and machine 
+learning Source: The Business Research Company, 2025
+
+=== 頁8 ===
+CPO 
+解決方案
+Shorter Electrical Path / Higher Bandwidth / Lower Power Consumption
+> 10 pJ/b 1 ~ 10 pJ/b < 1 pJ/b
+Source:
+
+=== 頁9 ===
+共
+同結構光
+學
+CPO 
+–
+ Co
+-
+Packaged Optics
+Broadcom 
+方案
+TODAY
+FUTURE
+CPO
+ 設計
+:
+ 將
+IC
+元件及光學元件集成在單一封裝基板
+Source: Broadcom
+
+=== 頁10 ===
+Broadcom 領先業界推出 51.2T 全光交換機
+51.2T CPO Switch
+Source: Broadcom
+
+=== 頁11 ===
+CPO Technology
+Broadcom TH5
+-
+Bailly CPO
+Source: Broadcom, CPO Technology Evaluation for Hyperscale Data Center Fabric Switches”.
+
+=== 頁12 ===
+Complete systems are assembled & installed 
+in a rack, and monitored for change in traffic 
+performance while operating above maximum 
+specified ambient temperature. 
+CPO
+ 可
+靠性驗
+證
+系統
+CPO chip level reliability testing at even further 
+elevated temperatures than rack units, 
+increasing the acceleration factor of the test.
+Source: Broadcom, CPO Technology Evaluation for Hyperscale Data Center Fabric Switches”.
+Rack Level 
+ Chip Level
+
+=== 頁13 ===
+
+ 65%
+
+ 35% 
+TH5
+-
+Bailly CPO Performance
+CPO power savings vs. 
+retimed optics
+CPO power savings vs. 
+LPO for 100G/lane
+
+ 5X 
+CPO serviceable failures 
+improvement over 
+pluggables
+ALFR:
+Power:
+Source: Broadcom, CPO Technology Evaluation for Hyperscale Data Center Fabric Switches”.
+
+=== 頁14 ===
+
+ 1M
+TH5
+-
+Bailly CPO Performance
+No Link Flaps observed in 
+first 1M CPO device hours
+FEC:
+Source: Broadcom, CPO Technology Evaluation for Hyperscale Data Center Fabric Switches”.
+
+ 8.5M
+800G Equivalent devices 
+hours of HTOL stress
+
+
+=== 頁15 ===
+CPO ELSFP
+ELSFP
+核心設計優勢：
+ 熱管理
+ 可維護性
+ 安全性
+ 靈活性
+Objective: Ensure a safe method to field replace lasers in the event of failure. 
+Flexibility has been added to the form factor to enable a range of applications from 
+massive scale data center switches to special purpose optically enabled ASICs.
+Source: OIF, External Laser Small Form Factor Pluggable (ELSFP) Implementation Agreement”.
+
+=== 頁16 ===
+財務表現
+稅後淨利
+ (
+新台幣仟元
+)
+ 及每股獲利
+ (
+新台幣元
+)
+
+
+=== 頁17 ===
+THANK YOU

@@ -1,0 +1,677 @@
+=== 頁1 ===
+1
+2026Q2 
+中
+砂
+公司法人
+說明
+會
+
+=== 頁2 ===
+2
+免責聲明
+• 本簡報及同時發佈之相關訊息所提及之前瞻性資訊，係本公
+司基於公司資料及現況所得之資訊。
+• 此類前瞻性資訊將受風險、不確定性與推論所影響，部份將
+超出我們的控制之外，實際結果可能與這些前瞻性資訊大不
+相同。其原因可能來自於各種因素，包括但不限於原物料成
+本增加、市場需求，各種政策法令與金融經濟現況之改變以
+及其他非本公司所能控制之風險等因素。
+• 對未來的展望，反應本公司截至目前為止對於未來的看法，
+未來若有任何變更或調整時，本公司並不保證本簡報資料之
+正確性，且不負有更新或修正本簡報資料內容之責任。
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁3 ===
+3
+報告事項
+•
+ Welcome 
+ William Lee 
+ 李偉彰
+, 
+執行長
+ /
+發言人
+Tony Pai
+ 白景中
+, 
+副總經理
+ /
+代理發言人
+•
+ 公司簡介
+•
+ 2026 
+第二季營運概況
+•
+ 近期重要事件
+摘要
+•
+ 2026
+展望
+•
+ Q & A
+•
+ 附件
+:
+中砂願景
+, 
+核心技術及產品
+, 
+廠
+區資訊
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁4 ===
+4
+Copyright©  KINIK COMPANY , All Rights Reserved.
+1560 KINIK 
+中砂公司簡介
+
+ 成立於
+1953
+年
+;  2005
+股票上市
+, TWSE 
+股票代號
+ 1560
+
+ 實收資本額
+ (2026/08/11):
+新台幣
+ 15.03
+億
+
+ 員工人數：
+全球
+ ~
+2400
+人
+. 
+台灣
+ ~1900
+人
+. 
+工廠
+:
+台灣
+*
+5
+, 
+泰國
+*2, 
+日本
+*1
+
+ 2025
+合併營收
+ 81.5
+億
+ TWD, EPS=9.28
+
+ 2025
+年三大事業部與子公司主要產品及佔總營收比率
+.
+傳統及
+鑽石
+砂輪
+ CMP 
+鑽石
+碟
+ 測試
+及再生矽晶圓
+ABU 砂輪事業部 & 子公司鴻記
+/KTC/MKS/MGT(機械與工具機業..)
+DBU 鑽石事業部
+(半導體產業)
+SBU 晶圓事業部
+(半導體產業)
+31%
+ 46%
+營收佔比
+ 23%
+
+=== 頁5 ===
+5
+2026
+第
+二
+季
+營運概況
+ (
+合併財報
+)
+ 2Q26營收NT$24.9億, QoQ +8.7%, 毛利率40.1%(+5.1 ppt),  EPS=3.49
+ 1H26營收NT$47.9億, YoY +23.1%, 毛利率37.6%(+6.1 ppt),  EPS=6.44
+ 第二季業外收入(支)+60.7佰萬，主要為業外投資獲利44佰萬。
+Copyright©  KINIK COMPANY , All Rights Reserved.
+ Accounting Period Income
+(all in thousands TWD except *)
+ 2Q26  1Q25 QoQ  1H26  1H25  YoY
+*Net Revenue(USD thousand) 78,832 72,785 8.3% 151,617 122,260 24.0%
+Net Revenue 2,492,667 2,293,229 8.7% 4,785,896 3,886,390 23.1%
+Gross Margin 40.1% 35.0% +5.1 ppt 37.6% 31.6% +6.1 ppt
+Operating Expenses (394,539) (358,121) 10.2% (752,660) (593,735) 26.8%
+Operating Margin 24.2% 19.4% +4.8 ppt 21.9% 16.3% +5.6 ppt
+Non-Operating Items 60,722 87,512 (26,790) 148,234 17,836 130,398
+Net Income to Shareholders of
+the Parent Company 523,376 436,359 19.9% 959,735 552,181 73.8%
+Net Profit Margin 21.5% 19.3% +2.2 ppt 20.4% 14.6% +5.8 ppt
+EPS 3.49 2.94 18.7% 6.44 3.78 70.4%
+ROE 23.9% 20.7% +3.2 ppt 21.8% 15.3% +6.5 ppt
+Average Exchange Rate-USD/NTD 31.62 31.51 0.4% 31.59 31.84 -0.8%
+
+
+=== 頁6 ===
+6
+2
+Q’26
+各事業部及子公司營收
+ 全公司:第二季營收24.9億, QoQ +8.7%.  較2025第二季增加 17.9%.
+ ABU+砂輪子公司: 傳產機械與工具機砂輪需求回溫，CVD鑽石鍍膜客戶持續增加，季營
+收大幅增加 16.3%.
+ DBU: CMP鑽石碟於2/1.6奈米製程出貨持續上升，營收季增 9.1% 
+ SBU: 12吋產能36萬片滿載，特殊晶圓出貨增加，營收季增 4.4%
+ABU: 
+砂輪事業部
+ DBU
+:
+鑽石事業部
+ SBU:
+晶圓事業部
+砂輪子公司
+:
+鴻記、
+KTC
+、
+MKS
+、
+MGT
+Copyright©  KINIK COMPANY , All Rights Reserved.
+Business Unit 2Q25 1Q26 2Q26 wt% QoQ YoY
+ABU+subsidiaries
+(Grind Wheel) 551,671     543,555     632,340     25% 16.3% 14.6%
+DBU
+ (CMP Diamond Disk) 620,783     717,188     782,669     31% 9.1% 26.1%
+SBU
+ (Test/Reclaim Wafer) 942,306     1,032,486  1,077,658  43% 4.4% 14.4%
+Total 2,114,761  2,293,229  2,492,667  100% 8.7% 17.9%
+
+=== 頁7 ===
+7
+1H’26 
+各事業部及子公司營收
+ 全公司: 2026上半年營收 47.9億元，YoY +23.1%. 
+ABU: 
+砂輪事業部
+ DBU
+:
+鑽石事業部
+ SBU:
+晶圓事業部
+砂輪子公司
+:
+鴻記、
+KTC
+、
+MKS
+、
+MGT (MKS/MGT 2025
+年
+4
+月起併入
+)
+Copyright©  KINIK COMPANY , All Rights Reserved.
+Business Unit 1Q~2Q 2025 YoY
+ABU+subsidiaries
+(Grind Wheel) 852,994      1,175,895   25% 37.9%
+DBU
+(CMP Diamond Disk) 1,182,202   1,499,858   31% 26.9%
+SBU
+(Test/Reclaim Wafer) 1,851,194   2,110,144   44% 14.0%
+Total 3,886,390   4,785,896   100% 23.1%
+1Q~2Q 2026
+
+
+=== 頁8 ===
+8
+2
+Q26 
+鑽石碟營收表現
+(1/2)
+國內外
+客戶
+鑽石碟營收百分比
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁9 ===
+9
+2Q26 
+鑽石碟營收表現
+(2/2)
+備註：資料對象為單一最大客戶.
+• 2Q26 DBU營收7.8億, QoQ +9.1%。
+• 單一最大客戶先進製程產品(5奈米以下及先進封裝)營收比重61.2%，
+2nm鑽石碟營收增加 84%，1.4nm鑽石碟開始出貨。
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁10 ===
+10
+2Q26 
+晶圓事業部產品別分析
+ SBU第二季營收10.8億元，季增 4.4%。
+ 2Q26 12吋產能增加至36萬片，以及特殊晶圓營收持續增加。
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁11 ===
+11
+產能規劃與資本支出
+ 2026資本支出預算 15億
+ 擴增鑽石碟月產能至70K
+ 擴增SBU 12吋晶圓月產能至400K
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁12 ===
+12
+近期重要事件摘要
+ 本公司成功入選 2025 S&P Global CSA工具機與電子設備類別之「永續年鑑」與
+「產業最佳進步獎」。
+ 本公司林伯全董事長榮獲 HBR哈佛商業評論評選為 2026年台灣企業領袖 100強
+(2026 Aug. 05)。
+ 本公司訂定2026年8月11日為2026年第二季員工認股權憑證及可轉債轉換發行新
+股之增資基準日。第二季執行與轉換合計 1,364,185 股，共募得約新台幣 4,559
+萬元。實收資本額：增資後總資本額達新台幣 15.03億元。
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁13 ===
+13
+2026
+展望
+Copyright©  KINIK COMPANY , All Rights Reserved.
+ ABU 砂輪事業部與子公司:
+– 2026將受惠需求回溫及新砂輪子公司合併綜效，目標營收較2025雙位數以上
+成長。
+ DBU 鑽石事業部
+– 先進製程及先進封裝之鑽石碟需求將逐季持續增加。
+– 於美系記憶體及IDM客戶將持續增加市占及逐季放量。
+– 2026第二季產能達6萬顆/月，2026年第四季產能目標7萬顆以上。
+ SBU 晶圓事業部：
+– 12吋產能6月起已增加至40萬片並將滿載至年底，所增加之產能，皆以先進製
+程客戶之高階再生晶圓為主。
+– 2027年將增加至43萬片產能。
+– 高階產品組合比重將持續提高，以提升營收及毛利率。
+
+=== 頁14 ===
+14
+Q & A
+報告完畢
+敬請指教
+中
+砂
+投資人服務信箱
+i r @ k i n i k . c o m . t w
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁15 ===
+15
+附件
+中砂經營理念
+中砂產品介紹
+各廠區資訊
+榮耀記事
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁16 ===
+16
+企業經營理念使命與願景
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁17 ===
+17
+從
+磨石
+頭到磨半導體
+中砂的
+70
+年成長之路與未來展望
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁18 ===
+18
+
+
+=== 頁19 ===
+19
+Major Product and Business Diagram
+KINIK Group
+• Test Wafer
+• Reclaim wafer
+• CMP Disk
+• Diamond Tool
+• Si/SiC Wheel
+SBU
+(Semicon.)
+DBU
+(Diamond)
+Major 
+Products
+Business 
+Unit & 
+Subsidiary
+• Resin Wheel
+• Plating Wheel
+Hongia
+(Taiwan)
+• Grinding Wheel
+• Diamond Wheel
+• CBN Wheel
+KTC
+(Thailand)
+Customer 
+Industries Semiconductor/Electronics/Optical… Machinery/Mechanical…
+ABU
+(Abrasive)
+
+=== 頁20 ===
+20
+中砂產品介紹
+Products Introduction
+Copyright©  KINIK COMPANY, All Rights Reserved.
+
+=== 頁21 ===
+中
+砂研磨產品在
+半導體製程的角色
+21
+晶圓材料 IC元件製造 IC封裝
+研磨技術 (Grinding Technology by Diamond Abrasive)
+晶棒外
+圓磨砂輪
+3D封裝
+研磨砂輪
+倒角
+砂輪
+測試&
+再生晶圓
+CMP
+鑽石碟
+減薄
+砂輪
+晶粒
+切割
+刀輪
+磨刀板
+ABF
+載板
+壓頭
+38億 25億
+2025年營收新台幣
+2025年中砂在半導體相關產業的營收約66億元，佔KINIK合併營收約80%，
+
+=== 頁22 ===
+22
+測試
+ &
+再生
+晶圓
+ Test/Reclaim 
+ Wafer
+Copyright©  KINIK COMPANY , All Rights Reserved.
+What is test and reclaim wafer?
+
+=== 頁23 ===
+23
+中砂的測試與再生晶圓之製程特色以延性輪磨(Ductile Mode Grinding)加工取
+代傳統研磨(Lapping)加工，目的是降低加工之變質層，減少化學藥品污染，且可提
+高加工精度，為最先進之再生晶圓製程。
+The features of the KINIK’s test and reclaimed wafers are processed by ductile mode
+grinding used to replace traditional lapping to lower the damaged thickness on the surface
+and for less chemical contamination. The ductile mode grinding is the leading-edge process
+for the high precision reclaimed wafers.
+測試
+ /
+再生
+晶圓
+ Test/Reclaim 
+ Wafer
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁24 ===
+CMP (Chemical Mechanical Polish) 化學機械拋光，主要用於先進IC製程中，透過拋光墊與拋
+光液同時透過機械與化學反應加工晶圓表面，達到表面晶圓材料的移除及整體的平坦化，才能接續後
+續製程以及提高良率，進而能循摩爾定律持續微縮IC線寬面積，推展出N5/N3/N2先進製程。而鑽石
+碟的功用就是在拋光晶圓的同時去加工拋光墊 ，以移除拋光時的副產物及穩定拋光速率並提升良率
+及延長拋光墊使用壽命，是先進IC拋光製程中提升良率及控制成本中非常重要的一環。
+CMP (Chemical Mechanical Polish) is widely used for advanced IC manufacturing processes
+for surface material removal, smoothing surfaces, and planarization by the polish pad (mechanical)
+and the abrasive slurry (chemical reaction). And the diamond disk (aka pad conditioner)’s
+function is to in-situ dress the polish pad during the process to remove the polish byproduct, to
+maintain a stable pad roughness and remove rate, to improve yield, and to prolong the lifetime of
+the pad.
+CMP
+鑽石碟
+ Diamond Disk
+Copyright©  KINIK COMPANY , All Rights Reserved.
+鑽石碟
+拋光墊
+晶圓
+Polish Pad
+wafer
+Slurry
+拋光液
+Diamond Disk
+Source: VLSI-Expert 23
+
+=== 頁25 ===
+25
+KINIK CMP Module Lab
+Copyright©  KINIK COMPANY , All Rights Reserved.
+As Is
+Co-creation Platform (Now)
+
+
+=== 頁26 ===
+Increasing Trend of Logic IC  CMP Layer 
+Numbers
+& KINIK’s Diamond Disk Market Share
+26Copyright©  KINIK COMPANY , All Rights Reserved.
+Global CMP Diamond Disk Market Size and Kinik’s Market Share Trends (2020-2026)
+Source: SEMI, QY Research, and Kinik internal financial data and estimates; compiled by Kinik.
+
+
+=== 頁27 ===
+27
+中砂鑽石碟用於半導體化學機械研磨製程中修整研磨墊以達到理想移除率及平坦度。
+KINIK diamond disk is used on semi-conductor CMP process in order to make the pad reach the
+desirable removal rate and uniformity.
+CMP
+鑽石碟
+ Diamond Disk
+Conventional Disk
+DiaGrid® I-DiaGrid® S-DiaGrid®
+Advanced Disk
+：
+High Performance / Long Life Time 
+Pyradia® EDP Disk
+(Metal Free)
+CVD -WAVE® equaDia®
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁28 ===
+28
+EDP
+ D
+isk for Metal Free
+ Solution
+ Diamond disk protected with EDP film for metal-free requested in 
+advanced IC technologies.  
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁29 ===
+29
+equaDia Disk
+®   
+鑽石
+碟
+ Advanced  disk “equaDia” for excellence tip height leveling and longer lifetime.
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+
+=== 頁30 ===
+30
+Metal
+-
+free  O
+-
+Pyradia
+®   
+鑽石
+碟
+ O-Pyradia CMP pad conditioner for advanced customer’s tightened metal 
+contamination control. 
+Tip 
+Height 
+Control
+Metal 
+Free
+UPDST / 
+Laser 
+Stick  
+Strong 
+Diamond O-Pyradia
+Pyradia Type O-Pyradia Pyradia
+Photo
+Material of Substrate Polymer Metal
+Bonding Material Polymer LM(Ni ; Cr 
+powder)
+Bonding Strength + ++
+Process Temp <100 degree ~1000 degree
+Diamond Strength ++ +
+Acid and alkali 
+resistant Metal Free Ni ; Cr 
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁31 ===
+31
+Wafer Grinding Wheel 
+ 中砂的晶圓研磨砂輪可用於矽晶圓加工、IC封裝(WLP/PLP/2.5D/3D)、
+碳化矽、藍寶石及再生晶圓等硬脆材料的直立式進給研磨加工應用。直
+立式進給的晶圓研磨加工一般包括粗及細研磨製程，可依客戶加工需求，
+來客製化設計陶瓷結合劑，鑽石磨料及微結構組織。晶圓研磨砂輪的鑽
+石粒度一般為#325～#1000及#2000～#8000。其特色為有穩定的高材
+料移除率、長效使用壽命及低研磨阻抗電流等優點。
+晶圓研磨砂輪
+ 孔隙微結構組織
+Copyright©  KINIK COMPANY , All Rights Reserved.
+
+=== 頁32 ===
+Copyright©  KINIK COMPANY , All Rights Reserved.
+32
+廠區
+ Plant Information
+•
+ Manufacturing Plants: T aiwan x5; Thailand x2. Japan x1
+•
+ Grind Wheel: ABU(Yingge), Hongia(Hsinchu), KTC Thailand, 
+MGT 
+Thailand, MKS Japan
+•
+ Diamond Disk: DBU (Yingge & Shulin, Taiwan))
+•
+ Reclaim Wafer: SBU (Zhubei & Zhunan, Taiwan)
+
+=== 頁33 ===
+33
+廠區
+ Plant Information
+Copyright©  KINIK COMPANY , All Rights Reserved.
+總
+公
+司
+ Head Office
+鶯歌廠區
+ Yingge Factory
+239010 新北市鶯歌區中山路64號
+No.64, Zhongshan Rd., Yingge Dist., 
+New Taipei City 239010, Taiwan 
+TEL:+886 2 2679-1931~40   
+樹林廠區
+ Shulin Factory
+238010 新北市樹林區中山路2段151巷16號
+No.16, Ln. 151, Sec. 2, Zhongshan Rd.,
+Shulin Dist., New Taipei City 238010, Taiwan 
+TEL:+886 2 8684-4111~13  
+新竹廠區
+ Hsinchu Factory
+303035 新竹縣湖口鄉新竹工業區文化路6號
+No.6, Wenhua Rd., Hukou, Hsinchu Ind. 
+Park, Hsinchu County 303035, Taiwan 
+TEL:+886 3 598-4990     
+Grinding Wheel, Diamond Disk, Dicing Blade
+Diamond Disk & Wafer Grinding Wheels
+Electroplating Diamond & CBN Wheels
+
+
+=== 頁34 ===
+34
+廠區
+ Plant
+Copyright©  KINIK COMPANY , All Rights Reserved.
+竹北廠區
+ Zhubei Factory
+302059 新竹縣竹北市十興路260號
+No.260, Shixing Rd., Zhubei City, 
+Hsinchu County 302059, Taiwan 
+TEL:+886 3 550-7160~5   
+竹科廠區
+ Hsinchu Science 
+Park Factory
+350401 苗栗縣竹南鎮科北五路6號
+No. 6, Kebei 5th Rd., Jhunan 
+Township, Miaoli County 350401, 
+Taiwan
+TEL:+886 3 550-7160 
+Reclaim & Test Wafer
+再生晶圓 & 測試晶圓
+
+=== 頁35 ===
+35
+廠區
+ Plant
+Copyright©  KINIK COMPANY , All Rights Reserved.
+鴻記工業股份有限公司
+Hongia Industry Co, Ltd.
+239008 新北市鶯歌區余厝巷2號
+No. 2, Yucho Lane, Yingge Dist., 
+New Taipei City 239008, Taiwan
+TEL:+886 2 2679-1006
+Email : hongia-sale@kinik.com.tw
+www.hongia.com.tw
+金力泰國有限公司
+Kinik 
+-
+ Thai Co., Ltd.
+225   Moo 7 , Khok Pip, Simahosot, 
+Prachinburi 25190 Thailand
+TEL:+663 727 6954   
+Email : sales@kinikthai.co.th
+www.kinikthai.co.th
+Electroplated Diamond 
+Wheel 電鑄砂輪
+Resin and  Ceramic Wheel
+樹脂砂輪&陶瓷砂輪
+
+=== 頁36 ===
+36Copyright©  KINIK COMPANY , All Rights Reserved.
+Acquired MKS (Japan) & MGT (Thailand) as subsidiaries on April 2025

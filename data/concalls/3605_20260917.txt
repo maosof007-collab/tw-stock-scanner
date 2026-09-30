@@ -1,0 +1,274 @@
+=== 頁1 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+宏致電子股份有限公司
+ACES ELECTRONICS CO., LTD.
+股票代號 3605.TW
+法人說明會簡報
+SEP, 2026
+
+=== 頁2 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+2
+免責聲明
+• 本簡報及同時發佈之相關訊息內含有從公司內部與外部來源所取得
+的預測性資訊，其中包括營運展望、財務狀況以及業務預測等內容
+。
+• 本公司未來實際所發生的營運結果、財務狀況以及業務展望，可能
+與這些預測性資訊所明示或暗示的預估有所差異。其原因可能來自
+於各種因素，包括但不限於市場需求、價格波動、競爭情勢、國際
+經濟狀況、供應鏈、匯率波動以及其他本公司所不能掌控的風險等
+因素。
+• 本簡報中對未來的展望，反應本公司截至目前為止對於未來的看法
+。對於這些看法，未來若有任何變更或調整時，本公司並不負責隨
+時提醒或更新。
+
+=== 頁3 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+3
+會議議程
+4
+3
+2
+1 2026年財務說明
+市場說明
+產品發展
+問答交流
+
+=== 頁4 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+4
+工業產業
+不斷電系統
+智能工業設備
+工業電腦
+雲端通訊
+AI伺服器
+資料中心
+網路設備
+機上盒
+數據機
+電腦周邊
+消費性電子產品
+筆記型電腦
+與周邊
+汽車產業
+輔助駕駛系統
+智能座艙
+車聯網
+四大產業佈局
+
+=== 頁5 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+5
+2026年第二季摘要：營收 33.5億元（QoQ +19%）、毛利率 25.6%（QoQ 
++1.0 pp）、費用率18.3% （QoQ -1.1 pp） 、營業利益率 7.3%（QoQ +2.1 pp）
+
+
+=== 頁6 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+6
+合併綜合損益表-季度
+QoQ YoY
+營業收入(a) 3,350,348 100% 2,821,542 100% 19% 2,787,017 100% 20%
+營業成本 (2,491,357) (74.4% ) (2,127,665) (75.4% ) 17% (2,050,772) (73.6% ) 21%
+營業毛利 858,991 25.6% 693,877 24.6% 24% 736,245 26.4% 17%
+營業費用 (612,991) (18.3% ) (546,414) (19.4% ) 12% (541,174) (19.4% ) 13%
+營業利益 246,000 7.3% 147,463 5.2% 67% 195,071 7.0% 26%
+營業外利益(損失) 12,659 0.4% (4,442) (0.2% ) 385% (75,783) (2.7% ) 117%
+稅前淨利 258,659 7.7% 143,021 5.1% 81% 119,288 4.3% 117%
+所得稅利益(費用) (57,884) (1.7% ) (35,356) (1.3% ) 64% (17,939) (0.6% ) 223%
+稅後淨利 200,775 6.0% 107,665 3.8% 86% 101,349 3.6% 98%
+每股盈餘 (新台幣元)(b) NT$1.22 NT$0.67 NT$0.67
+(a) 營業收入係包括銷貨收入及其他營業收入
+(b) 每股盈餘為財務報告基本每股盈餘
+(c) 單位 :新台幣仟元(除EPS以外)
+2Q'252Q'26 1Q'26
+
+=== 頁7 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+7
+2026年上半年整體市場說明
+4. 筆電及消費性電子
+• 市場挑戰：受終端市場部分零組
+件缺料及供應鏈成本上漲影響，
+客戶短期拉貨動能趨於保守
+• 應對策略：持續優化產品組合、
+降低成本結構
+1. 算力產品線
+• 市場動能：受惠 CSP 客戶ASIC 
+AI 伺服器專案放量
+• 關鍵導入：導入高速連接器與高
+速傳輸線，推升單機貢獻價值
+2.電力產品線
+• 市場動能：客戶端電力需求強勁
+，切入Bloom Energy供應鏈
+• 關鍵導入：提供大功率電纜、高
+壓電源及特殊規格等各種線束
+3. 工控及網通市場
+• 現況分析：整體需求呈溫和穩定
+成長
+• 關鍵動能：主要受惠於既有客戶
+訂單穩定，支撐營運基本盤
+
+=== 頁8 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+8
+市場應用分布
+工業
+ 網通
+ 汽車
+ 電腦周邊/
+消費性電子Industry
+23% 13% 5% 49%
+2024 22% 14% 6% 54%
+2025
+4%
+10%
+2026 Q1 23% 16% 5% 42%14%
+2026 Q2 21% 15% 4% 40%20%
+AI
+2026Q2
+QoQ +8% +11% -5% +13%+70%
+
+=== 頁9 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+9
+ 算力方面：加速導入CSP ASIC平台，提升機內高速連接器及機內
+高速傳輸線之單台導入價值
+ 電力方面：導入Bloom Energy電力能源之大功率電源線
+AI 成長動能～三大產品並進
+
+
+=== 頁10 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+10
+高速連接器應用在伺服器之示意圖
+High Speed Connector
+ 2024年開始，參考NVIDIA GB200/GB300，宏致高速連接器導入平台
+ 2026年開始，參考AWS T3機種，宏致高速連接器開始出貨到CSP之ASIC 平台，
+導入產品數量擴大，成為宏致高速連接器之主要成長動能
+High Speed Connector
+MCIO
+MCIO / (Gen Z)
+MCIO
+Edge 
+card
+MCIO
+BTB
+Power
+Power (Fan)
+MCIO / (Gen 
+Z)
+
+=== 頁11 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+11
+AI 算力產品圖
+
+=== 頁12 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+12
+AI 算力產品線的拓展計劃
+2025 2026 2027
+高速連接器
+High-speed Conn
+高速連接線
+High-speed Cable
+MCIO Conn
+Edge card
+Gen Z
+Multitrak
+E.3 (PCIe Gen6)
+MCIO Cable
+Riser Card Cable
+MCIO Cable
+Riser Card Cable
+E.3 Cable
+Multitrack Cable
+MCIO Conn (multiple usage)
+Edge card (Addin card)
+Riser Card Cable (extension)
+5.0
+ 5.0  6.0 
+開發 MCIO 7.0 樣品
+6.0
+MCIO Conn
+Edge card
+Gen Z
+Multitrak
+E.3
+Gen Z (NIC, Storage)
+Backplane (112G/224G development)
+5.0
+ 5.0  6.0 
+MCIO Cable
+開發 MCIO 7.0 樣品
+
+
+=== 頁13 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+13
+AI 電力產品~與BE共同發展
+BE 發電廠示意圖
+資料來源： Power Generation - Bloom Energy (https://www.bloomenergy.com/category-power-generation/)
+
+=== 頁14 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+資料來源: https://www.bloomenergy.com/category-power-generation/) / 以及其他網路資訊
+SOFC (固態氧化物燃料電池) Energy Server 示意圖
+Hot Box (高溫反應模組) * 6
+Hot Box Cable
+發電區電纜 (耐高溫)
+Power Conditioning System
+電力控制與轉換模組系統
+Power System Control
+電力管理系統線纜
+宏致目前已提供電纜:
+• 高溫反應盒的耐高溫電纜
+• 電力控制與轉換模組
+(PCS)內的電纜
+• System Cable 電力系統
+管理與電力傳輸的電纜
+
+=== 頁15 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+資料來源: Power Generation - Bloom Energy (https://www.bloomenergy.com/category-power-generation/)
+Energy Server Cable – 線纜設計依其客戶的實際需求而調整
+客戶的布局配置不盡相同, 因此線的單價不
+是固定的, 隨機種設計而調整。
+系統出廠前即完成預先連接、配線及測試
+我們已經完成數百個料號的樣品與測試, 已
+陸續投入量產
+
+
+=== 頁16 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+16
+AI 電力事業發展 (2025年-2027年)
+— 2025年：技術導入期
+正式導入 Bloom Energy 固態氧化物燃料電池 (SOFC) 系統，
+啟動初期供貨
+— 2026年：出貨放量期
+Bloom Energy 系統供電預計達 1.5GW 以上 (1Q 200 MW、
+2Q 300 MW、3Q 500 MW、4Q 750 MW)；上半年出貨約新
+台幣 2 億元；下半年預估出貨金額將佔整體營收10%以上
+— 2027年： 規模倍增期
+配合 Bloom Energy 供電目標倍增至 3.5GW 以上，宏致相關
+電力業績將展現同步倍數成長
+
+=== 頁17 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+17
+AI 成長動能趨勢圖
+
+
+=== 頁18 ===
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+CONFIDENTIAL ｜ Copyright©2023 ACES Electronics Co., Ltd. and its Affiliates. All Rights Reserved.
+宏致集團
+連接無限可能的未來與願景
+ACES GROUP
+MORE SOLUTIONS FOR RELEVANT CONNECTIONS
+Q
+&
+A

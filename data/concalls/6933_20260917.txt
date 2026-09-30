@@ -1,0 +1,599 @@
+=== 頁1 ===
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX HOLDING CO., LTD.
+艾瑪斯科技控股股份有限公司
+法人說明會
+股票代號：6933
+簡報人：董事⾧ 倪小菁
+2026/9/17
+
+=== 頁2 ===
+2
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+美洲
+歐洲 台灣
+中國
+從單㇐伺服器、機
+櫃走向高價值、大
+規模、更⾧生命週
+期的工程專案、建
+立更⾧的客戶合作
+與收入週期。
+AMAX 的定位
+工程服務貫穿架構設計、NPI 與量產，以及整櫃驗證、部署、維運及後續升級
+從解決方案供應商，進階為先進運算系統與 AI 基礎設施的⾧期工程夥伴
+
+=== 頁3 ===
+3
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+經營績效
+
+=== 頁4 ===
+4
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+經營績效(㇐)最近三年度及最近期獲利能力
+單位：新台幣仟元
+253,481 
+163,906 
+212,997 
+272,328 
+6.88
+3.94
+5.04
+0.00
+1.00
+2.00
+3.00
+4.00
+5.00
+6.00
+7.00
+8.00
+0
+50,000
+100,000
+150,000
+200,000
+250,000
+300,000
+2023年 2024年 2025年 截至2026年第二季
+稅後淨利 EPS
+項目 2023年 2024年 2025年 截至2026年第二季
+營業收入 6,077,297 5,492,388 6,986,785 4,487,053
+稅前淨利 312,229 179,969 270,968 353,179
+稅後淨利 253,481 163,906 212,997 272,328
+稅後淨利率 4.17% 2.98% 3.05% 6.07%
+EPS 6.88 3.94 5.04 6.43
+
+=== 頁5 ===
+5
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AI／HPC與先進運算布局，正加速轉化為營收與獲利成果
+72.8 億元
+2026年前8月營收
+已達2025全年約104%
+4.8 億元
+2026年前7月稅前淨利
+已達2025全年約177%
+8個月
+營收突破全年基準
+前8月已超越2025全年
+可衡量成⾧
+投資人訊息
+不只是技術題材
+營收進度：2026年前8月已超越2025全年
+單位：新台幣億元
+69.9
+59.3
+72.8
+0
+10
+20
+30
+40
+50
+60
+70
+80
+2025全年 2026年1–7月 2026年1–8月
+獲利進度：2026年前7月稅前淨利已達去年全年約177%
+單位：新台幣億元
+2.7
+4.8
+0
+1
+2
+3
+4
+5
+6
+2025全年 2026年1–7月
+從技術投入到實質成⾧ 2026年前8月營收已超越2025全年；前7月稅前淨利已大幅超越去年全年水準，顯
+示AI、HPC與先進運算相關布局正逐步轉化為可衡量的財務成果。
+
+=== 頁6 ===
+6
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+人工智慧高效能
+運算解決方案
+49%
+高密度伺服器和
+存儲解決方案
+14%
+液冷整機櫃解決方案
+28%
+其他
+9%
+2023年
+人工智慧高效能
+運算解決方案
+59%
+高密度伺服器和
+存儲解決方案
+7%
+液冷整機櫃解決方案
+30%
+其他
+4%
+2025年
+人工智慧高效能
+運算解決方案
+51%
+高密度伺服器和
+存儲解決方案
+17%
+液冷整機櫃解決方案
+26%
+其他
+6%
+2024年
+人工智慧高效能運算解決方案 高密度伺服器和存儲解決方案 液冷整機櫃解決方案 其他
+人工智慧高效能
+運算解決方案
+65%高密度伺服器和
+存儲解決方案
+15%
+液冷整機櫃解決方案
+17%
+其他
+3%
+截至2026年第二季
+經營績效(二)應用實績及產品組合
+
+=== 頁7 ===
+7
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+成⾧引擎㇐
+三大成⾧引擎 - 推動未來營收、獲利與市場規模持續擴大的關鍵業務與能力
+AI 基礎設施全方位能力，結合 HostMax 拓展持續性服務
+成⾧引擎二 液冷工程、整櫃系統設計及資料中心建置的完整工程專⾧
+成⾧引擎三 NPI 至規模量產的製造實力
+
+=== 頁8 ===
+8
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+第㇐成⾧引擎: AI 基礎設施全方位能力，結合 HostMax 拓展持續性服務
+以端到端 AI 基礎設施工程與服務能力驅動 AMAX 成⾧動能
+系統與整櫃架構
+AI/HPC 架構與效能最佳化
+Vera Rubin NVL72, Rubin NVL8
+GB300, B300, Edge AI
+AI Factory at Any Scale
+運算、網路、儲存 、軟體平台
+及營運管理, 提供㇐系列整體
+部署方案
+液冷技術
+涵蓋冷板、CDU、管路設計、
+熱流模擬及整櫃驗證 。
+保固、維護與
+產品生命週期管理
+先進運算
+建置與交付
+液冷資料中心工程建置
+建構資料中心級高密度液冷基礎設施，涵蓋
+冷卻迴路、CDU、流體管路、配電工程、系
+統監控及整體驗證。
+ENGINEERING  •  DESIGN  •  BUILD  •  DEPLOY
+涵蓋維修、技術支援及產品汰
+換規劃，確保系統穩定運行
+
+=== 頁9 ===
+9
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+第二成⾧引擎: 累積逾十年液冷技術
+加速 Rubin 與 Vera Rubin 平台導入與部署
+AMAX 
+積從累積從熱流模擬、系統設計及整櫃
+驗證到現場部署的完整經驗
+AMAX 將多年液冷工程與量產經驗延伸至Vera Rubin 世代，支援客戶由設計、驗證到部署上線。
+奠定 AMAX 承接 Rubin 基礎設施的技術基礎
+可快速掌握 Rubin
+新世代液冷架構
+加速 Rubin 與 Vera 
+Rubin 平台的導入與應用
+2015
+投入高密度液冷
+運算系統
+Rubin 導入工程流程
+針對 Rubin 更高的機
+櫃功率密度，進行冷
+卻容量、流量、壓差
+及熱負載配置。
+同步規劃運算、網路、
+儲存、供電、重量承
+載、配管及維修空間，
+而非僅處理單㇐伺服
+器散熱。
+透過 HostMax 高
+密度液冷環境，在
+交付前進行燒機、
+性能、溫度、流量、
+壓力及可靠度驗證。
+將液冷設計轉化為
+可重複組裝、測試、
+量產及維修的標準
+流程，提高交付㇐
+致性。
+在設備進入客戶資
+料中心前完成系統
+與設施相容性驗證，
+減少現場修改、延
+遲與停機風險。
+液冷高功率
+散熱設計
+部署前
+相容性驗證
+NPI 到
+規模化量產
+實際運行
+環境驗證
+Rack-level 
+系統工程
+
+=== 頁10 ===
+10
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+第三成⾧引擎: NPI 至規模量產的製造實力
+加速客戶產品上市，擴大營收機會
+產品與
+架構設計
+需求定義、平台選型、
+系統架構與產品規格
+NPI
+工程導入
+設計審查、DFM、BOM
+與製程驗證
+試產與
+驗證
+原型製作、測試驗證
+及問題改善
+量產
+移轉
+標準化製程、品質管控
+、彈性產能及準時交付
+規模化
+生產
+持續
+優化
+良率提升、成本優化
+與工程變更管理
+Auto play video
+
+=== 頁11 ===
+11
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX 產品開發與演進
+公司演進脈絡
+2015
+ 2018
+ 2023 2026+
+2020 2024
+ 2025
+從液冷 HPC 技術研發到 Rack-Scale AI Factory 部署，AMAX 持續將工程能力轉化為規模化成⾧動能。
+完成半導體設備產
+業液冷 HPC 機櫃
+叢集設計與製造，
+部署
+AMAX 協助 AI 晶
+片加速器的客戶
+完成整櫃架構規
+劃與 Rack-Scale 
+系統配置， 從
+NPI 進入量產
+完成 IPO, 於臺灣證
+券交易所正式掛牌
+上市
+完成工廠並在台灣
+正式投產
+完成 HostMax 全
+液冷基礎建設
+新二代半導體液冷
+HPC與新二代 AI 
+晶片加速器專案同
+步推進，導入規模
+化量產階段
+啟動液冷 HPC 
+技術研發，為半
+導體與高密度運
+算環境開發機櫃
+級散熱、熱管理
+及系統工程能力
+技術範圍從整櫃
+系統推進至
+Rack-Scale AI 
+Factory 部署
+完成多個
+NVIDIA DGX 
+SuperPOD 建置
+開始規劃在
+Amax工廠內,設
+立液冷資料中心
+啟動 HostMax 
+高密度液冷資料
+中心建置
+
+=== 頁12 ===
+12
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX 工業級液冷運算櫃 - 產品邁入新二代 (NPI to MP)
+ 半導體與工業運算
+第㇐代建立工程驗證與液冷部署基準，新二代進㇐步提升機櫃密度、散熱能力與工廠部署適配性 。
+87%
+液冷能力提升
+全密封閉式液冷與 HEX, 
+提升熱管理能力
+最高可達 100% 熱捕捉率｜耐震結構｜安全 PLC｜IP32｜噪音低於 65 dB｜SEMI、NFPA 79 與 EMC
+第㇐代 液冷機櫃平台
+第二代 高密度液冷平台
+17%
+空間使用效率提升
+減少機房占用
+機櫃空間縮減
+熱流工程、
+模擬與平台建立
+• EDA 運算與工程模擬
+• 熱流分析及液冷設計驗證
+• 機構設計與工業部署規格
+
+=== 頁13 ===
+13
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX AI 晶片加速器機櫃 - 新二代產品進入量產 (NPI to MP)
+AI 晶片加速器
+依訓練、開發、推論及部署條件，配置最適合的 AI 加速架構
+AI 晶片加速器 與 NVIDIA GPU 可採互補定位，並非直接取代。
+第㇐代 AI 晶片加速器機櫃 新二代 AI 晶片加速器機櫃
+工程驗證逐步轉化為量產的製造系統
+EVT
+工程驗證
+POC 
+BUILD
+POC 試製
+DFM
+ QUALITY
+品質驗證
+PROCESS
+CONTROL
+製程管制
+工程驗證基礎
+ 資料流 AI 平台量產
+• 每櫃運算節點 (nodes)、主機數量
+(host server)、AI 加速晶片 記憶體
+容量及全面倍增
+• 符合 OCP ORV3 標準，模組化的
+機櫃架構, 可支援高功率密度、簡
+化維護及零組件更換及更高效的供
+電與散熱。
+• 採用 800G 光纖網路，支援高吞吐
+量 AI 叢集。
+製造優化
+
+=== 頁14 ===
+14
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX 液冷資料中心HostMax ™ - 從規劃到建置
+以 HostMax™ 為實績，完成冷卻、配電、機房與 AI 基礎設施的設計、施工及系統驗證
+PLAN 2DESIGN BUILD
+端到端資料中心工程
+乾式冷卻器與冷卻水管路
+ 雙泵浦Skid 機組
+籃式過濾器
+熱通道封閉系統
+ 液冷管路與泵浦機組
+HVAC 設備區
+Auto play video
+
+=== 頁15 ===
+15
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+HostMax™ Engineering and Operational Challenges
+• High-Density Power Delivery (高密度電力供應)
+支援高功率 GPU 機櫃，需處理配電容量、電力品質、備援機制及負載變化
+• Hybrid Air and Liquid Cooling (氣冷與液冷協同運作)
+同時管理氣冷與液冷設備，控制溫度、流量、壓差及熱負載，避免局部過熱
+• Rack-to-Facility Monitoring (機櫃至設施端的感測監控)
+部署並管理機櫃、CDU、管路、配電及機房感測器，提供即時告警、趨勢分析與故障診斷
+• Data Center and Software (資料中心與軟體平台協同)
+串接 BMS、CDU、GPU 叢集管理、Kubernetes、Mission Control 及 Run:ai，使設施狀態與工作負載管理相互配合
+
+
+=== 頁16 ===
+16
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+對客戶的價值
+ 降低資本支出：免除自建電力、液冷及測試環境
+ 確保導入品質：預先完成系統整合、冷卻驗證及部署準備
+ 提高設備搶先投入市場：在資料中心或託管機房就緒前提供短期代管，
+讓產品提前上線
+ 加速投資回報：縮短 GPU 閒置時間、降低營運成本，提前創造營收並
+提升整體 ROI
+更低 CapEx、更快上線、更高 GPU 利用率，
+提升客戶 AI 基礎設施 ROI。
+HostMax™ 加速 AI 基礎設施投資回報
+AMAX 在客戶現場部署前完成硬體、軟體及運行測試，確認系統可用並縮短正式上線時間。
+HostMax™ 設於
+AMAX 生產基地內
+短期託管｜液冷環境｜系統驗證
+軟體測試｜部署支援｜現場工程
+對 AMAX 的價值
+ 展現 AMAX 端到端 AI 基礎設施工程實力 : 拓展新客戶， 創造硬
+體、軟體與工程服務的高附加價值營收
+ 提高客戶黏著度 :帶動重複採購、 深化⾧期合作
+拓展客戶版圖，提升 AMAX 的投資效益
+
+=== 頁17 ===
+17
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX 四大目標市場
+Neocloud 基礎設施市場 企業地端與私有(液冷)AI
+基礎設施
+GPUaaS、模型訓練及大規模推論
+需求，推動 Neocloud 持續擴充高
+密度 GPU 容量。
+企業 AI 正由雲端應用逐步走向企業
+自建、私有雲及專屬 AI 基礎設施。
+高密度 GPU 叢集、液冷機櫃、高速網
+路、系統驗證及 HostMax 短期託管
+Private AI 架構、GPU 叢集、軟體部署、
+系統驗證、資料安全、運算延遲、⾧期
+成本，以及企業對系統與資料的掌控
+NeoCloud 市場快速成⾧ 企業 AI 加速走向
+On-Prem Infrastructure
+四大高成⾧市場支撐 AMAX ⾧期發展
+~58%
+(CAGR) 至 2031 年
+SynergyResearch
+~39%
+(CAGR) 至 2029 年
+Dell’Oro
+先進運算
+平台市場
+為半導體設備商、AI 軟體公司、AI 
+晶片與加速器開發商及資安業者，
+設計並製造專用運算系統。
+鎖定其中需要高度客製化、及⾧期供
+應能力的高價值市場，而不是與大型
+品牌標準化伺服器競爭
+AI、先進製造與資安需求，持
+續推動專用運算平台成⾧
+~18%
+(CAGR) 至 2030 年
+ABIResearch
+(AI Server & Rack-Scale)
+AI 資料中心建置
+(機房設施)市場
+GPU 功耗與機櫃密度持續增加，液
+冷逐步成為大型 AI 叢集的必要基礎
+設施。
+高密度熱流設計、Rack-to-Facility 工
+程、CDU 與管路、配電控制、
+HostMax 實機驗證
+AI 驅動資料中心工程建置需
+求加速成⾧
+~22%
+(CAGR) 至 2030 年
+(Data Center Physical Infrastructure)
+Dell’Oro
+
+=== 頁18 ===
+18
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX 將 ESG 能力轉化為產品價值與市場競爭力的延伸
+環境效率 (E)
+↓37% 能源密集度下降
+100% LED 照明汰換完成
+RoHS / 
+REACH
+產品符合環境
+法規
+客戶與人才 (S)
+94 客戶滿意度平均分數
+163 次 客戶實地稽查完成
+3,176 
+小時
+員工教育訓練
+治理紀律 (G)
+0 重大法規違反
+0 重大資安事件
+100% 供應商行為準則簽
+署率
+HostMax™ 高密度 AI 營運實證
+PUE 1.05
+最高 150 kW / Rack
+接近理想值 1.0，展現高效液冷能力,降低整體能源成本
+AMAX
+ 客戶
+降低自身營運與製造的能源消
+耗及碳排放
+提升資源使用、供應鏈、員工
+安全與公司治理效率
+建立可衡量、可追蹤的永續管
+理制度
+從企業責任與管理績效，延伸至客戶 AI 基礎設施的能源
+效率與⾧期價值
+創造雙方永續價值與成⾧
+將液冷與節能技術延伸至客戶
+的 AI 基礎設施、提升能源效率
+協助客戶與降低營運成本
+創造永續價值與成⾧
+
+
+=== 頁19 ===
+19
+WWW.AMAX.COM
+A max compute, A max future
+Copyright © 2026 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20260917
+AMAX - 走向更高價值成⾧
+AMAX 未來的成⾧，不只來自硬體出貨，更來自參與客戶完整的 AI 基礎設施的建置與營運，
+並持續推進技術層次與端到端 AI 服務。
+先進運算系統｜液冷技術｜規模化製造
+AI 基礎設施設計 → 部署 → 維運
+HostMax：驗證＋營運服務
+• 創造更高的客戶價值
+• 更大的市場機會
+• 帶動持續的成⾧
+持續提升
+技術能力
+
+
+=== 頁20 ===
+THANK YOU
+Copyright © 2025 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20251101
+
+=== 頁21 ===
+Q & A
+Copyright © 2025 AMAX. Confidential & All rights reserved. All trademarks are the property of their respective owners. All company and product names are trademarks or registered trademarks of their respective owners. Rev 20251101
