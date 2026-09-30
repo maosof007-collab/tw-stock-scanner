@@ -69,7 +69,9 @@ details p{color:#b8ad9c;font-size:15px}
 def shell(masthead: str, stamp: str, subtitle: str, nav: list[str],
           ticker_html: str, body_html: str, footer: str) -> str:
     nav_html = "".join(f'<a href="#{i}"><b>A{i+1}</b>{t}</a>' for i, t in enumerate(nav))
-    return f"""<!DOCTYPE html><html><head><meta charset="utf-8">{CSS}</head><body>
+    # 無外層骨架:瀏覽器/元件/Artifact 三處通吃;<title> 供發佈用
+    return f"""<title>{stamp}專刊</title>
+<meta charset="utf-8">{CSS}
 <div class="wrap">
 <div class="masthead"><h1>{masthead}<span class="stamp">{stamp}</span></h1>
 <div class="sub">{subtitle}</div></div>
@@ -77,7 +79,7 @@ def shell(masthead: str, stamp: str, subtitle: str, nav: list[str],
 <div class="ticker">{ticker_html}</div>
 {body_html}
 <div class="footer">{footer}</div>
-</div></body></html>"""
+</div>"""
 
 
 def save_issue(code: str, date: str, html: str) -> Path:
