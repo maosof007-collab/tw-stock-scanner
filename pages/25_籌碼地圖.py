@@ -82,7 +82,7 @@ if len(br):
     # ⛓️ 供應鏈接力:突破股的鏈上落後夥伴(大甲→彰源教案)
     try:
         import supply_chain as _sc
-        _bcodes = [str(x) for x in br[next(c for c in br.columns if c in ("代碼", "code"))]]
+        _bcodes = [str(x) for x in br[next(c for c in br.columns if c in ("代號", "代碼", "code"))]]
         for _al in _sc.relay_alerts(_bcodes):
             st.warning(_al)
     except Exception:

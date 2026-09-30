@@ -391,6 +391,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 籌碼地圖: {e}")
 
+    # ── Step 5.87:供應鏈發想日課(找「第二個大甲」,一天一題)──
+    try:
+        from chain_ideas import generate_daily
+        _ci = generate_daily()
+        log.info(f"  ⛓️ 供應鏈發想:{_ci or '今日無主角/引擎不可用'}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 供應鏈發想: {e}")
+
     # ── Step 5.88:策略衰減儀表(週六重算;免疫系統) ──
     if today.weekday() == 5:
         try:

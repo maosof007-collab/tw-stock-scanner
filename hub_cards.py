@@ -72,6 +72,17 @@ def _todo_list() -> list[str]:
                         f"({r['日期'][5:]})——共識在動,對照自己的論點")
     except Exception:
         pass
+    # ③.7 今日供應鏈發想(一天一題)
+    try:
+        import json as _json
+        _dp = D / "supply_chain_drafts.json"
+        if _dp.exists():
+            _ds = _json.loads(_dp.read_text(encoding="utf-8"))
+            if _ds and _ds[-1].get("date") == today:
+                todo.append(f"⛓️ 今日供應鏈發想:{_ds[-1]['subject']}——"
+                            f"想一想「第二個大甲」在哪(文章庫有題目)")
+    except Exception:
+        pass
     # ④ 突破/鯨魚
     try:
         p = pd.read_csv(D / "_mmap_pool.csv", dtype=str)
