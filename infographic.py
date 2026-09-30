@@ -106,3 +106,49 @@ DEMO = BASE_CSS + """
 if __name__ == "__main__":
     out = render_html(DEMO, IMG / "chain_steel_infographic.png")
     print("saved:", out)
+
+
+# ── 晶技 3042:AI 重評懶人包 ──
+INFO_3042 = BASE_CSS + """
+<div class="title">晶技(3042)AI 重評懶人包:石英「心跳稅」的單價革命</div>
+<div class="row">
+
+<div class="panel"><div class="phead blue">一、重評本質:ASP 階梯</div>
+  <div class="bars">
+    <div class="bar"><div class="stick" style="height:40px;background:linear-gradient(#f9a825,#fbd06a)"><div class="pct">1.5</div></div>
+      <div class="bname">800G</div><div class="bsub">現役主力</div></div>
+    <div class="bar"><div class="stick" style="height:64px;background:linear-gradient(#d84315,#ef8a65)"><div class="pct">2~2.5</div></div>
+      <div class="bname">1.6T</div><div class="bsub"><b>放量中</b></div></div>
+    <div class="bar"><div class="stick" style="height:148px;background:linear-gradient(#b3261e,#e57368)"><div class="pct">~7 美元</div></div>
+      <div class="bname">3.2T</div><div class="bsub">2027量產<br><b>單價 4 倍以上</b></div></div>
+  </div>
+  <div class="card">🏭 法說原文:「相同應用位置、更高規格——<b>每機櫃時脈價值 ASP +50%</b>」+IEEE 1588 新增用量</div>
+  <div class="card">📌 同樣的產線、同樣的壁壘,<b>單價表第一次陡峭向上</b>=從被動元件評價走向 AI 零組件評價</div>
+</div>
+
+<div class="panel"><div class="phead purple">二、為什麼是它:規格門檻墊高</div>
+  <div class="flow"><div class="fbox">光通訊往<br>1.6T/3.2T</div><div class="arrow">➜</div>
+    <div class="fbox hot">sub-30fs 抖動<br><b>變成入場門檻</b></div><div class="arrow">➜</div>
+    <div class="fbox">能玩的只剩<br>4~5 家(市占20%+)</div></div>
+  <div class="flow"><div class="fbox" style="min-width:190px">NVLink/CXL/PCIe 6-7<br>多協定並存</div><div class="arrow">➜</div>
+    <div class="fbox hot">時脈域倍增<br>GPU/DPU/NIC/光模組</div><div class="arrow">➜</div>
+    <div class="fbox ok" style="min-width:150px">差分XO<br>顆數+單價齊升</div></div>
+  <div class="card">🚗 <b>第二引擎·車用</b>:L2→L3 每車 <b>+45 顆</b>(滲透率20-25%),Grade1 車規全系列</div>
+  <div class="card">📡 <b>第三引擎·6G</b>:參考頻率上移至 491.52MHz、sub-5ppb → <b>OCXO 等級升級</b>(2027起)</div>
+</div>
+
+<div class="panel"><div class="phead orange">三、鐵證與對答案點</div>
+  <div class="card" style="background:#fde9e7"><span class="big">🚨</span> <b>Lytica 2026/07</b>:頻率控制=<b>全市場最緊缺類別</b><br>
+    <span class="badge">可得率 82.4% 最低</span><span class="badge">價格 +2.5%</span><span class="badge">交期 +13.5%</span></div>
+  <div class="card">✅ 已兌現:7月毛利率 <b>36%</b>(Q2 33.1%)·8月營收+23.5% 連創同期新高·同業NDK上修EPS+30%</div>
+  <div class="card">💰 下檔地板:<b>連續十年配息率 80%+</b>(中性 EPS 6.45→股利約5.2元)</div>
+  <div class="card" style="background:#fff7e8">⚠️ <b>裂縫=行情本體</b>:FactSet 共識停在 <b>90 元</b>(2025/12)vs 市價 203——外資補報告之日=下段引信</div>
+  <div class="card">📅 對答案:<span class="badge">每月10日營收</span><span class="badge">11/14 Q3(毛利35%+?)</span><span class="badge">外資報告</span></div>
+</div>
+</div>
+<div class="note">資料:公司9/1法說簡報·優分析·Lytica元件市場報告·系統模型|研究筆記非投資建議 · TW-BACKTEST</div>
+"""
+
+
+def make_3042():
+    return render_html(INFO_3042, IMG / "3042_infographic.png")
