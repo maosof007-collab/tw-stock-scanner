@@ -391,6 +391,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 籌碼地圖: {e}")
 
+    # ── Step 5.862:全市場 bulk 財報/月營收增量更新(MOPS彙總,進git)──
+    try:
+        from bulk_fin import refresh_latest
+        refresh_latest()
+        log.info("  💽 全市場bulk財報:已更新最新月/季")
+    except Exception as e:
+        log.warning(f"  ⚠️ bulk財報更新: {e}")
+
     # ── Step 5.865:追蹤股財報快取匯出(進git,雲端救生圈)──
     try:
         from fundamentals import export_fin_cache, tracked_codes

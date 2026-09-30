@@ -105,12 +105,39 @@ def tracked_codes() -> list[str]:
     return sorted(out)
 
 
+def _bulk_monthly(code: str, years: int) -> pd.DataFrame:
+    """全市場 bulk 月營收(MOPS 彙總,進git)——FinMind 失敗時的後盾。"""
+    p = DATA / "bulk_fin" / "rev_all.csv.gz"
+    if not p.exists():
+        return pd.DataFrame()
+    try:
+        d = pd.read_csv(p, dtype={"code": str})
+        d = d[d["code"] == str(code)].sort_values("ym")
+        return d[["ym", "revenue", "yoy%"]].tail(years * 12).reset_index(drop=True)
+    except Exception:
+        return pd.DataFrame()
+
+
+def _bulk_quarterly(code: str, years: int) -> pd.DataFrame:
+    """全市場 bulk 季損益(MOPS 彙總,進git)。"""
+    p = DATA / "bulk_fin" / "fin_q_all.csv.gz"
+    if not p.exists():
+        return pd.DataFrame()
+    try:
+        d = pd.read_csv(p, dtype={"code": str})
+        d = d[d["code"] == str(code)].sort_values("季度")
+        return (d[["季度", "營收(億)", "毛利率%", "營益率%", "淨利率%", "EPS"]]
+                .tail(years * 4).reset_index(drop=True))
+    except Exception:
+        return pd.DataFrame()
+
+
 def monthly_revenue(code: str, years: int = 3) -> pd.DataFrame:
     """月營收 + YoY%。欄位: ym, revenue(百萬), yoy%"""
     start = f"{now_tw().year - years - 1}-01-01"
     data = _fm("TaiwanStockMonthRevenue", code, start)
     if not data:
-        return pd.DataFrame()
+        return _bulk_monthly(code, years)
     df = pd.DataFrame(data)
     df["ym"] = df["revenue_year"].astype(str) + "-" + df["revenue_month"].astype(str).str.zfill(2)
     df["revenue"] = df["revenue"] / 1e6
@@ -124,13 +151,13 @@ def quarterly_fin(code: str, years: int = 3) -> pd.DataFrame:
     start = f"{now_tw().year - years - 1}-01-01"
     data = _fm("TaiwanStockFinancialStatements", code, start)
     if not data:
-        return pd.DataFrame()
+        return _bulk_quarterly(code, years)
     df = pd.DataFrame(data)
     piv = df.pivot_table(index="date", columns="type", values="value", aggfunc="first")
     out = pd.DataFrame(index=piv.index)
     rev = piv.get("Revenue")
     if rev is None:
-        return pd.DataFrame()
+        return _bulk_quarterly(code, years)
     out["營收(億)"] = rev / 1e8
     if "GrossProfit" in piv:
         out["毛利率%"] = piv["GrossProfit"] / rev * 100
