@@ -43,6 +43,13 @@ def _fm(dataset: str, code: str, start: str) -> list[dict]:
                 return json.loads(p.read_text(encoding="utf-8"))
             except Exception:
                 pass
+        # 進 git 的隨行快取(雲端無本地快取且被限流時的救生圈;run_daily 每日匯出追蹤股)
+        p2 = DATA / "fin_cache" / f"{code}_{dataset}.json"
+        if p2.exists():
+            try:
+                return json.loads(p2.read_text(encoding="utf-8"))
+            except Exception:
+                pass
         return []
 
     try:
@@ -56,6 +63,46 @@ def _fm(dataset: str, code: str, start: str) -> list[dict]:
         return _stale()          # 限流/空回應:用舊快取,並保留舊 mtime 讓下次仍會嘗試更新
     except Exception:
         return _stale()
+
+
+def export_fin_cache(codes: list[str]) -> int:
+    """把追蹤股的 FinMind 快取複製到 data/fin_cache(進 git,雲端救生圈)。"""
+    dst = DATA / "fin_cache"
+    dst.mkdir(exist_ok=True)
+    n = 0
+    for code in set(str(c) for c in codes):
+        for f in FUND_DIR.glob(f"{code}_TaiwanStock*.json"):
+            try:
+                (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+                n += 1
+            except Exception:
+                continue
+    return n
+
+
+def tracked_codes() -> list[str]:
+    """追蹤清單:持股日誌 open + 我的ETF + 深度文寫過的。"""
+    out = set()
+    try:
+        j = pd.read_csv(DATA / "decision_journal.csv", dtype=str)
+        out |= set(j[j["status"] == "open"]["code"].astype(str))
+    except Exception:
+        pass
+    try:
+        import my_etf
+        out |= {c["code"] for c in my_etf.load().get("constituents", [])
+                if str(c.get("code", "")).isdigit()}
+    except Exception:
+        pass
+    try:
+        import re as _re
+        for p in (DATA / "research_articles").glob("art_*_[0-9]*.md"):
+            m = _re.search(r"_(\d{4,6})\.md$", p.name)
+            if m:
+                out.add(m.group(1))
+    except Exception:
+        pass
+    return sorted(out)
 
 
 def monthly_revenue(code: str, years: int = 3) -> pd.DataFrame:

@@ -391,6 +391,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 籌碼地圖: {e}")
 
+    # ── Step 5.865:追蹤股財報快取匯出(進git,雲端救生圈)──
+    try:
+        from fundamentals import export_fin_cache, tracked_codes
+        _nfc = export_fin_cache(tracked_codes())
+        log.info(f"  💾 財報隨行快取:{_nfc} 檔案")
+    except Exception as e:
+        log.warning(f"  ⚠️ 財報快取匯出: {e}")
+
     # ── Step 5.87:供應鏈發想日課(找「第二個大甲」,一天一題)──
     try:
         from chain_ideas import generate_daily
