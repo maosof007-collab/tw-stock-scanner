@@ -51,33 +51,61 @@ ch = next(c for c in chains if c["chain"] == sel)
 st.caption(f"📌 {ch.get('note', '')}|鏈譜檔:data/supply_chain.json(查證後手動增修;"
            f"每日發想只出題,不自動入譜)")
 
-# ── 魚骨圖(graphviz,前端渲染) ──
+# ── 魚骨圖(HTML/CSS 卡片流,懶人包同款視覺) ──
 moms = {m[0]: _sc._mom(m[0]) for m in ch["members"]}
 segs: dict[str, list] = {}
 for m, nm, role in ch["members"]:
     segs.setdefault(_seg(role), []).append((m, nm, role))
 seg_sorted = sorted(segs.keys(), key=lambda s: _SEG_ORDER.get(s, 9))
 
-dot = ['digraph G { rankdir=LR; bgcolor="transparent";',
-       'node [shape=box style="rounded,filled" fontname="Microsoft JhengHei" '
-       'fontsize=13 margin="0.18,0.12"];',
-       'edge [color="#5a6b84" penwidth=1.4];']
-for si, s in enumerate(seg_sorted):
-    dot.append(f'subgraph cluster_{si} {{ label="{s}"; fontcolor="#8b98a8"; '
-               f'fontname="Microsoft JhengHei"; color="#26303f"; style=rounded;')
+_SEG_ICON = {"上游": "⛏️", "原料": "⛏️", "製程": "🏭", "中游": "🏭", "設備": "🏭",
+             "檢測": "🔬", "下游": "📦", "終端": "📦", "外圍": "🧱", "平行": "🧱"}
+
+
+def _grad(mm):
+    if mm is None:
+        return "linear-gradient(145deg,#39455a,#2b3648)", "#c9d4e3"
+    if mm >= 20:
+        return "linear-gradient(145deg,#c62828,#8e1f1a)", "#fff"
+    if mm >= 5:
+        return "linear-gradient(145deg,#e5544a,#b93a31)", "#fff"
+    if mm >= -5:
+        return "linear-gradient(145deg,#4a5568,#39455a)", "#e6edf3"
+    return "linear-gradient(145deg,#2e8b57,#1f6a41)", "#fff"
+
+
+_html = ["""<style>
+.cwrap{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:10px 2px 16px}
+.cseg{background:rgba(255,255,255,.03);border:1px solid #26303f;border-radius:18px;
+  padding:14px 12px 12px;min-width:190px;flex:1}
+.cseglab{color:#8b98a8;font-size:.82rem;letter-spacing:3px;text-align:center;
+  margin-bottom:10px;font-weight:700}
+.cnode{border-radius:14px;padding:12px 10px;margin:10px 0;text-align:center;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.10)}
+.cname{font-size:1.02rem;font-weight:800;letter-spacing:.5px}
+.crole{font-size:.74rem;opacity:.85;margin-top:3px}
+.cmom{display:inline-block;margin-top:7px;background:rgba(0,0,0,.28);
+  border-radius:999px;padding:2px 12px;font-size:.82rem;font-weight:800;
+  font-family:'Share Tech Mono',monospace}
+.carrow{display:flex;align-items:center;color:#5a7a9f;font-size:1.7rem;
+  font-weight:900;padding:0 6px}
+</style><div class="cwrap">"""]
+for i, s in enumerate(seg_sorted):
+    if i:
+        _html.append('<div class="carrow">➜</div>')
+    _html.append(f'<div class="cseg"><div class="cseglab">{_SEG_ICON.get(s, "🔹")} {s}</div>')
     for m, nm, role in segs[s]:
         mm = moms.get(m)
-        bg, fg = _mom_color(mm)
-        mtxt = f"{mm:+.0f}%" if mm is not None else "—"
-        sub = role.split("|")[-1]
-        dot.append(f'n{m} [label="{nm} {m}\\n{sub}\\n20日 {mtxt}" '
-                   f'fillcolor="{bg}" fontcolor="{fg}"];')
-    dot.append("}")
-# 主幹連線:段與段之間各取第一檔相連(視覺骨幹)
-for a, b in zip(seg_sorted, seg_sorted[1:]):
-    dot.append(f"n{segs[a][0][0]} -> n{segs[b][0][0]};")
-dot.append("}")
-st.graphviz_chart("\n".join(dot), width="stretch")
+        bg, fg = _grad(mm)
+        mtxt = f"20日 {mm:+.0f}%" if mm is not None else "20日 —"
+        _html.append(
+            f'<div class="cnode" style="background:{bg};color:{fg}">'
+            f'<div class="cname">{nm} <span style="opacity:.8">{m}</span></div>'
+            f'<div class="crole">{role.split("|")[-1]}</div>'
+            f'<div class="cmom">{mtxt}</div></div>')
+    _html.append("</div>")
+_html.append("</div>")
+st.markdown("".join(_html), unsafe_allow_html=True)
 st.caption("節點色=20日動能:深紅≥20%/紅≥5%/灰盤整/綠下跌。**紅的已在跑,灰綠的就是「還沒動的下一棒」候選**——先過九宮格看獲利純度,再過體檢卡。")
 
 # ── 鏈上明細表 ──
