@@ -399,6 +399,15 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ bulk財報更新: {e}")
 
+    # ── Step 5.864:投顧報告收件匣消化(PDF→文字→索引)──
+    try:
+        from report_inbox import ingest as _ri
+        _nri = _ri()
+        if _nri:
+            log.info(f"  📥 報告收件匣:消化 {_nri} 份新PDF")
+    except Exception as e:
+        log.warning(f"  ⚠️ 報告收件匣: {e}")
+
     # ── Step 5.865:追蹤股財報快取匯出(進git,雲端救生圈)──
     try:
         from fundamentals import export_fin_cache, tracked_codes

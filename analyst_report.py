@@ -930,6 +930,14 @@ def generate_quick_analysis(code: str, extra: str = "") -> str:
         pass
     if extra.strip():
         parts.append("【使用者補充(法說/筆記——已驗證事實,優先引用)】\n" + extra.strip()[:4000])
+    try:                                  # 投顧報告收件匣(使用者丟入的 PDF 全文)
+        from report_inbox import ingest as _ri_ingest, latest_for as _ri_latest
+        _ri_ingest()
+        _rtxt = _ri_latest(code)
+        if _rtxt:
+            parts.append("【投顧報告素材(收件匣,引用需標明券商)】\n" + _rtxt)
+    except Exception:
+        pass
     try:
         from tp_radar import latest_for
         tp = latest_for(code)
