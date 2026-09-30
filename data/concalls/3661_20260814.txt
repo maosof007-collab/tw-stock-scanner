@@ -1,0 +1,219 @@
+=== 頁1 ===
+1
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+世芯電子
+法人說明會
+Aug 14th, 2026
+(3661 TT)
+
+=== 頁2 ===
+2
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+Safe Harbor Disclaimer 
+This presentation contains forward-looking statements, including statements about business outlook and strategy , and 
+statements about historical results that may suggest trends for our business. These statements are based on estimates 
+and information available to us at the time of this presentation and are not guarantees of future performance. Actual 
+results could differ materially from our current expectations as result of many factors, including: our financial performance, 
+including our net revenue, cost of revenue, operating expenses and ability to sustain profitability; our planned capital 
+expenditures; our ability to expand our customer base; our ability to expand our product and service offerings; the impact 
+of seasonality on our business; our ability to remediate the material weaknesses and significant deficiencies in our 
+internal control over financial reporting; our ability to stay abreast of modified or new laws applying to our business; and 
+our spending of the net proceeds from this offering. Except as required by law, we undertake no obligation to update any 
+forward-looking statements, whether as a result of new information, future events, or otherwise.
+
+=== 頁3 ===
+3
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+◼ This meeting will be in English, If you need Chinse presentation slides, please go to 
+MOPS to download the Chinese version
+◼ Participants please write down your questions to host through Team’s message function 
+with your and your company name
+◼ Please use the “raise hand” function through Team for the Q&A session, the host will 
+unmuted you for your questions
+◼ The video and audio content of this meeting will upload to MOPS (Market Observation 
+Post System) 
+
+=== 頁4 ===
+4
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+© 2019 Alchip Technologies
+總經理報告
+⚫ 2Q26 總結
+⚫ 未來營運展望
+⚫ 結論
+
+=== 頁5 ===
+5
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+2026年第二季損益
+EPS is calculated on concurrent shares outstanding and FX
+US$'000 1Q26 2Q26 QoQ (%) YoY (%)
+Revenue 132,366 241,728 82.6 -18.7
+COGs 65,948 157,490 138.8 -33.2
+Gross Profit 66,417 84,238 26.8 36.7
+Op. Exp 23,181 32,130 38.6 33.5
+Op. Income 43,236 52,108 20.5 38.7
+Non. Op. 13,165 12,288 -6.7 -14.7
+Pre-Tax Profit 56,402 64,396 14.2 23.9
+Income Tax -11,284 -12,563 11.3 39.0
+Net income 45,118 51,833 14.9 20.7
+EPS (NT$) 17.6 20.0 
+
+=== 頁6 ===
+6
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+季度分布 年度分布
+營收應用分布
+18% 22%
+36% 32%1%
+7%
+10% 16%
+1%
+4%
+3% 1%
+79%
+67%
+51% 50%
+0%
+20%
+40%
+60%
+80%
+100%
+3Q25 4Q25 1Q26 2Q26
+Consumer Networking Niche HPC
+1%
+12%
+34%
+3%
+3%
+14%
+3%
+1%
+2%
+93%
+83%
+50%
+0%
+20%
+40%
+60%
+80%
+100%
+2024 2025 1H26
+Consumer Networking Niche HPC
+
+=== 頁7 ===
+7
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+營收製程分布
+季度分布 年度分布
+Advanced process node means 40nm or better
+3% 10% 7% 7%
+8%
+11%
+9% 6%
+70%
+43%
+63%
+40%
+19%
+36%
+21%
+47%
+0%
+20%
+40%
+60%
+80%
+100%
+3Q25 4Q25 1Q26 2Q26
+28nm and lower 16/12nm 7nm/5nm 3nm/2nm
+3% 7% 3%2%
+5% 11%
+94% 73%
+48%
+1%
+14%
+38%
+0%
+20%
+40%
+60%
+80%
+100%
+2024 2025 1H26
+28nm and lower 16/12nm 7nm/5nm 3nm/2nm
+
+=== 頁8 ===
+8
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+營收地區分布
+季度分布 年度分布
+17%
+6% 8% 7%
+7%
+18%
+47%
+25%
+74%
+50%
+23%
+51%
+2%
+26% 22% 17%
+0%
+20%
+40%
+60%
+80%
+100%
+3Q25 4Q25 1Q26 2Q26
+Japan Asia Pacific N.A. Others
+2%
+8% 7%10%
+8%
+32%
+86% 78%
+41%
+2% 6%
+19%
+0%
+20%
+40%
+60%
+80%
+100%
+2024 2025 1H26
+Japan Asia Pacific N.A. Others
+
+=== 頁9 ===
+9
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+2Q26 營運回顧
+量產業務貢獻提升，帶動營收加速成長
+– 2Q26 營收達 2.42 億美元，季增 82.6%，年減 18.7%。
+– 受量產營收佔比提高影響，2Q26 毛利率（GM）下滑。惟營業利益率（OPM）較去年
+同期呈改善趨勢。
+– 營業費用（OPEX）增加，主要反映 1) 人員擴編與薪資調整；2) EDA 工具及伺服器
+使用等相關費用增加。
+N3 加速器自五月起開始進入量產
+– 核心量產專案 (北美 CSP 客戶之 N3 加速器) 已於五月啟動出貨。
+– 該加速器專案將於整個 3Q26 持續放量。
+– 供應予中國車廠的自動駕駛晶片出貨維持穩健；次世代專案接近 Tape-out 階段。
+
+=== 頁10 ===
+10
+Proprietary and Confidential Information 
+© 2019 Alchip Technologies
+謝謝指教
+www.alchip.com     

@@ -1,0 +1,315 @@
+=== 頁1 ===
+2025年第三季法人說明會
+股票代碼:8064.TW
+時間：2025年11月26日(三)
+
+
+=== 頁2 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.2
+本報告內容係依現有資訊而做成，上述說明中的財務或相關資訊可能包
+含㇐些對本公司及子公司未來前景的說明，這些說明易受重大的風險和
+不確定性因素影響，致使最後結果與原先的說明迥異，是以本公司特此
+聲明，本報告中的內容，僅為資訊流通之目的而公佈，並非投資建議，
+本公司不對報告內容的正確性、完整性或任何使用本報告內容所產生的
+損害負任何責任。
+
+=== 頁3 ===
+About US
+Copyright © 2021-2025 Contrel Technology Co., Ltd.3
+1998/5
+設立時間
+台 南
+公司總部
+2006
+IPO
+580 +
+員工數
+16.4 億
+資本額
+近 20 個
+全球據點
+
+
+=== 頁4 ===
+東捷發展里程碑 Milestone
+2018
+投入μLED技術開發
+ 成立 μLED製程實驗線
+ 巨量轉移及光學檢驗技
+術開發
+1998
+東捷科技創立
+ 專注於半導體與面
+板設備開發
+2000
+投入TFT LCD產業
+ 投入面板設備本土
+化開發生產
+2006
+正式掛牌上櫃股票
+ 8064.TW
+ 智慧物流與智能倉儲
+2012
+入股漢錸科技
+2022
+推出μLED巨轉巨
+修設備
+ 偕同客戶推進μLED顯
+示器量產發展
+2019
+切入半導體領域
+ 推出600 PLP EFEM、
+AOI設備
+2024
+投入TGV技術開發
+ 成立TGV製程實驗室
+ 推出雷射切割、修整
+/RDL量測設備
+2011
+入股富臨科技工程
+ 跨入真空鍍膜領域
+2025
+推進先進封裝製程導入
+ 推出雷射Debond設備
+ 開發 μLED巨轉技術延伸應
+用至半導體Bonding
+集團資源整合
+攜手客戶邁入智慧製造
+推進高階PLP封裝與μLED顯
+示器精進量產
+Copyright © 2021-2025 Contrel Technology Co., Ltd.4
+
+=== 頁5 ===
+東捷集團概覽
+在真空沉積（PVD）領域位居市場領
+導地位 , 其精密鍍膜產品廣泛使用於
+LCD、觸控面板、AR眼鏡LCOS 精密
+鍍膜和AI IC測試探針等高端應用。
+( Mi cr o) LED
+AR VR
+AI 探針卡 等精密鍍膜
+富臨科技-真空鍍膜
+專注於自動化及物流系統領域，範圍
+涵蓋AI伺服器檢測產線自動化、智慧
+撿儲、高速分揀及智能倉儲等全方位
+解決方案。
+物流中心、自 動 倉儲
+AI伺服器 測 試線 整 合
+漢錸科技-物流中心
+TFT面板
+半導體封裝設備
+Micro LED
+以研發為主的設備製造商，專注於新
+型雷射應用與雷射微加工技術，並擅
+⾧LCD製程設備整合整廠自動化，將
+技術應用擴展至（micro）LED和半導
+體產業。
+東捷科技-雷射應用
+Copyright © 2021-2025 Contrel Technology Co., Ltd.5
+
+=== 頁6 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.6
+研發軟硬整合，推動創新成⾧→驅動雷射應用核心技術
+Hardware
+Support
+Soft
+Power 
+研發/設計人才
+286位
+佔集團近50%
+專利成就
+過去5年申請81項，成功獲
+批59項，
+專業雷射實驗室
+自主研發雷射主機/光路、
+16座應用平台、高精度儀器
+業界唯一，AI 判別瑕疵類別
++ AI 推薦雷射修補路徑
+能力
+人才 x 設備
+東捷競爭優勢
+x 
+
+=== 頁7 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.7
+雷射微加工LASER MICRO-MACHINING
+真空鍍膜VACUUM COATING
+技術方式METHODS 對應產業TARGET INDUSTRIES
+整線自動化AUTOMATION
+CORE COMPETENCE
+Grooving
+Cutting
+Modification 
+Bonding
+ Debond
+Trimming
+ Repair
+Advanced Packaging 
+ABF substrate  
+TGV Core Substrate
+Micro LED
+CPO
+技術方式METHODS 對應產業TARGET INDUSTRIES
+Sputtering
+ Evaporation
+ALD 
+Plasma Treatment
+Optical Coating
+Micro / Mini LED
+3rd Gen Semiconductor
+TSV / TGV
+FOPLP
+Intelligent Manufacturing Foundation
+
+=== 頁8 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.8
+Advanced Packaging Outlook
+Source: YOLE Group
+USD 46B
+USD 79.4B
+2024 2030
+2024 2030
+ CAGR (2024-2030)：9.5%
+ AI 與 HPC 帶動封裝密度與功耗
+挑戰
+ 亞太地區為主要成⾧引擎，PLP / 
+FOWLP 技術快速滲透
+
+=== 頁9 ===
+Source: YOLE Group
+1 SiP
+4 SiP
+6 SiP
+9 SiP
+面板級封裝
+解決晶片模組封裝尺寸愈來愈大，材料利用率不佳及生產
+量效率問題
+原來的封測廠 、 PCB 廠、顯示器面板廠均機會進入這領
+域
+晶圓級封裝→面板級封裝
+9
+ Copyright © 2021-2025 Contrel Technology Co., Ltd.
+
+=== 頁10 ===
+東捷佈局-聚焦 PLP / FOWLP 製程節點
+Release Layer RDL Process Die Bonging Compression
+Molding
+Plasma
+Clean
+Laser
+Debond
+EMC Laser
+Trimming Grinding
+Solder
+Bumping
+Laser
+Marking
+Laser
+Singulation
+Chip
+Bumping
+Glass Cutting
+Copyright © 2021-2025 Contrel Technology Co., Ltd.10
+EMC Mold
+Chip
+Release Layer
+RDL
+Seed Layer 
+Sputter
+
+=== 頁11 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.11
+「雷射 + 真空 + 光學」三軸整合｜聚焦FOPLP/WLP
+PLP RDL OM
+自動光學測量機
+Laser Cutting
+玻璃載板切割設備
+EMC Trimming
+EMC 修整設備
+Laser De-bonding
+雷射剝離設備
+EMC Laser
+singulation
+電漿蝕刻設備
+Plasma Descum
+Seed Layer Sputter
+真空枚葉式
+磁控濺鍍系統
+11
+
+=== 頁12 ===
+ 低電器阻抗及絕緣，適合高速傳輸
+ 熱穩定性優，不易變形
+ 熱傳導性優，具多功能角色
+ 利用率高，具潛在成本效益
+ 低介電損失及機械穩定性
+From Carrier to core substrate
+ 取代有機/矽基板
+ 電學/機械優勢，支援Chiplet整合
+ 高性能應用，支持AI及HPC高密度堆疊
+ 高光學品質，適用於光子整合 (CPO)
+玻璃優勢
+技術創新 TGV 及 混合鍵合
+Copyright © 2021-2025 Contrel Technology Co., Ltd.12
+
+=== 頁13 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.13
+聯手產業夥伴，打造TGV製程應對方案
+13
+
+=== 頁14 ===
+2025年前3季營運成果
+資料來源：2022– 2025年第3季經會計師查核或核閱之合併財務報告。
+項目
+2025 3Q 2024 3Q 2024 2023 2022
+金額 % 金額 % 金額 % 金額 % 金額 %
+營業收入淨額 1,791 100% 1,990 100% 2,604 100% 2,990 100% 3,921 100%
+營業成本 1,396 77.9% 1,458 73.3% 1,919 73.7% 2,324 77.8% 3,010 76.8%
+營業毛利 395 22.1% 532 26.7% 685 26.3% 666 22.2% 911 23.2%
+營業費用 381 21.3% 511 25.7% 654 25.1% 572 19.1% 733 18.7%
+營業淨利 14 0.8% 21 1.1% 31 1.2% 94 3.1% 178 4.6%
+業外收(支) 3 0.2% 132 6.6% 168 6.5% 140 4.7% 292 7.4%
+稅前淨利 17 0.9% 153 7.7% 199 7.6% 233 7.8% 470 12.0%
+本期淨利 (3) (0.2%) 119 6.0% 174 6.7% 186 6.2% 378 9.7%
+歸屬於母公司之
+本期淨利 (26) (1.5%) 87 4.4% 131 5.0% 158 5.3% 336 8.6%
+每股盈餘 (0.16) 0.53 0.79 0.96 2.04
+股東權益報酬率 (0.1%) 4.9% 5.4% 5.8% 11.8%
+負債比 42.3% 44.8% 42.9% 48.2% 52.9%
+單位:新台幣百萬元
+14 Copyright © 2021-2025 Contrel Technology Co., Ltd.
+
+=== 頁15 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.15
+歷年合併營收、毛利及毛利率一覽
+資料來源：2020 – 2025年第3季經會計師查核或核閱之合併財務報告
+單位:新台幣百萬元
+3,807
+4,532
+3,921
+2,990 2,604
+1,791
+830 1,220 911 666 685 395
+21.80%
+26.92%
+23.23% 22.29%
+26.32%
+22.05%
+2020 2021 2022 2023 2024 2025 3Q
+合併營收 合併毛利 合併毛利率
+
+=== 頁16 ===
+以⾧期視野面對市場波動，以研發實力推進企業升級
+Looking to the future
+應用核心技術，深化先進封裝製程開發
+與策略客戶積極鏈結，共同開發量產技術1
+集團資源整合，全力推動先進封裝產業
+與策略客戶共同開發量產技術2
+穩健財務與持續創新
+適當研發投入，確保技術領先與財務韌性3
+Copyright © 2021-2025 Contrel Technology Co., Ltd.16
+
+
+=== 頁17 ===
+Copyright © 2021-2025 Contrel Technology Co., Ltd.17
+穩健耕耘・前瞻布局・掌握趨勢

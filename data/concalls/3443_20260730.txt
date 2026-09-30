@@ -1,0 +1,183 @@
+=== 頁1 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+
+
+=== 頁2 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+2026 年第 2季經營績效簡報 
+07/30/2026 
+
+=== 頁3 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+Agenda 
+3
+ 2026 年第 2季財務報告 
+營運績效 
+
+=== 頁4 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+4
+ GUC’s statements of its current expectations are forward-looking 
+statements subject to significant risks and uncertainties and actual 
+results may differ materially from those contained in the forward-
+looking statements. 
+ Except as required by law, we undertake no obligation to update any 
+forward-looking statement, whether as a result of new information, 
+future events, or otherwise. 
+Safe Harbor Notice 
+
+=== 頁5 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+2026 年第 2季結算數字 
+
+=== 頁6 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+6
+2026 年第 2季綜合損益表 
+單位: 新台幣佰萬元 2026年 
+第2季 
+與上季 
+比較 
+2026年 
+第1季 
+2025年 
+第2季 
+與去年同 
+期比較 
+營業收入淨額 13,896 21% 11,448 6,104 128% 
+   委託設計及智財元件 2,310 41% 1,643 2,080 11% 
+   晶圓產品 11,586 18% 9,805 4,024 188% 
+營業毛利 2,994 -4% 3,113 2,034 47% 
+      % 21.5% 27.2% 33.3% 
+   推銷及管理費用 (271) -2% (276) (254) 7% 
+   研究發展費用 (1,047) 3% (1,013) (837) 25% 
+營業淨利 1,676 -8% 1,824 943 78% 
+      % 12.1% 15.9% 15.4% 
+營業外收入及支出 79 101 (15) 
+所得稅費用 (200) (279) (146) 
+純益 1,555 -6% 1,646 782 99% 
+      % 11.2% 14.4% 12.8% 
+每股盈餘(新台幣元) 11.61 -6% 12.28 5.84 99% 
+
+=== 頁7 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+7
+綜合損益表 
+單位: 新台幣佰萬元 
+金額 % 金額 % 金額 % 金額 % 金額 %
+營業收入淨額 26,241 9% * 25,044 -5% * 34,141 36% * 25,344 93% * 13,128 6% * 93%
+   委託設計及智財元件 7,260 28% 8,883 35% 8,405 25% 3,953 16% 3,439 26% 15% 
+   晶圓產品 18,981 72% 16,161 65% 25,736 75% 21,391 84% 9,689 74% 121% 
+營業毛利 7,976 30.4% 8,108 32.4% 8,454 24.8% 6,107 24.1% 4,007 30.5% 52%
+   推銷及管理費用 (891) -3.4% (1,082) -4.3% (774) -2.3% (547) -2.2% (332) -2.5% 65% 
+   研究發展費用 (3,116) -11.9% (3,223) -12.9% (3,330) -9.8% (2,060) -8.1% (1,637) -12.5% 26% 
+營業淨利 3,969 15.1% 3,803 15.2% 4,350 12.7% 3,500 13.8% 2,038 15.5% 72%
+營業外收入及支出 186 0.7% 260 1.0% 93 0.3% 180 0.7% 33 0.3% 445%
+所得稅費用 (647) -2.4% (612) -2.4% (673) -2.0% (479) -1.9% (328) -2.5% 46%
+純益 3,508 13.4% 3,451 13.8% 3,770 11.0% 3,201 12.6% 1,743 13.3% 84%
+每股盈餘(新台幣元) 26.18 25.75 28.13 23.89 13.01 84%
+* 營收成⻑率 
+ 與去年同 
+期比較 
+2025年上半年 2023年 2024年 2025年 2026年上半年 
+
+=== 頁8 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+營運報告 
+
+=== 頁9 ===
+04/30/2026 © 2026 GUC Proprietary & Security B 
+9
+YoY 
++128% 
+QoQ 
++21% 
+YoY 
+-11.8 ppt 
+QoQ 
+-5.7 ppt 
+2026 年第 2季營收與毛利 
+
+
+=== 頁10 ===
+04/30/2026 © 2026 GUC Proprietary & Security B 
+10 
+YoY 
+NRE & IP:+11% 
+Turnkey:+188% QoQ 
+NRE & IP: +41% 
+Turnkey: +18% 
+2026 年第 2季營收分類 
+
+=== 頁11 ===
+04/30/2026 © 2026 GUC Proprietary & Security B 
+11 
+% of Sales 2Q25 3Q25 4Q25 1Q26 2Q26 
+R&D 13.7% 9.5% 7.1% 8.9% 7.5% 
+SG&A 4.2% 2.5% 1.8% 2.4% 1.9% 
+OPEX 17.9% 12.0% 8.9% 11.3% 9.4% 
+OPM 15.4% 12.2% 10.1% 15.9% 12.1% 
+YoY 
+R&D: +25% 
+SG&A: +7% 
+OPM: +78% 
+QoQ 
+R&D: +3%
+SG&A: -2% 
+OPM: -8%
+2026 年第 2季營業費用及淨利 
+
+=== 頁12 ===
+04/30/2026 © 2026 GUC Proprietary & Security B 
+12 
+YoY 
+-1.6 ppt QoQ 
+-3.2 ppt QoQ 
+-6% 
+YoY 
++99% 
+2026 年第 2季稅後淨利及每股盈餘 
+
+
+=== 頁13 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+13 
+依製程別之季營收比重 
+
+=== 頁14 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+14 
+依製程別之年營收比重 
+
+=== 頁15 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+15 
+委託設計 之年營收比重 
+
+=== 頁16 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+16 
+晶圓產品 之年營收比重 
+
+=== 頁17 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+17 
+依地區別之年營收比重 
+
+=== 頁18 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+18 
+依應用別之年營收比重 
+2024 Sales(NT$M) $25,044 2025 Sales(NT$M) $34,141 1H2 6 Sales(NT$M) $25,344 
+
+
+=== 頁19 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+Presentation Disclaimer 
+The content may only represent current status 
+and are subject to change without prior notice. 
+
+=== 頁20 ===
+07/30/2026 © 2026 GUC Proprietary & Security B 
+Thank You 
+for your attention 
