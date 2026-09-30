@@ -217,3 +217,50 @@ body{{width:{width}px;padding:30px 28px 24px}}
 <span class="sw" style="background:#2e8b57"></span>下跌 · 20日動能每日更新</div>
 """
     return render_html(html, out, width=width)
+
+
+# ── 騰輝電子-KY 6672:完美風暴懶人包 ──
+INFO_6672 = BASE_CSS + """
+<div class="title">騰輝電子-KY(6672)懶人包:三十年罕見大缺貨的寡占者</div>
+<div class="row">
+
+<div class="panel"><div class="phead blue">一、它靠什麼賺錢</div>
+  <div class="card">🛰️ <b>PI 聚醯亞胺·全球第二大</b><br>
+    <span class="badge">軍工航天佔營收 80%</span><span class="badge">毛利率約七成</span></div>
+  <div class="card">🔥 散熱鋁基板(埋入式功率半導體/電動車)·特規CCL·無流膠PP<br>
+    <span class="badge">台股唯一天空產品PI供應</span></div>
+  <div class="bars" style="height:190px;margin-top:16px">
+    <div class="bar"><div class="stick" style="height:66px;background:linear-gradient(#f9a825,#fbd06a)"><div class="pct">+68%</div></div>
+      <div class="bname">6月</div></div>
+    <div class="bar"><div class="stick" style="height:96px;background:linear-gradient(#d84315,#ef8a65)"><div class="pct">+91%</div></div>
+      <div class="bname">7月</div></div>
+    <div class="bar"><div class="stick" style="height:142px;background:linear-gradient(#b3261e,#e57368)"><div class="pct">+133%</div></div>
+      <div class="bname">8月<div class="bsub">8.06億</div></div></div>
+  </div>
+  <div class="card">📈 月營收 YoY <b>三連加速</b>·Q2 毛利率 <b>35.98% 歷史高</b>·EPS 2.96</div>
+</div>
+
+<div class="panel"><div class="phead purple">二、完美風暴:供給側出清</div>
+  <div class="flow"><div class="fbox">歐洲禁火令<br>禁用含鹵材料</div><div class="arrow">➜</div>
+    <div class="fbox hot">3M 退出市場<br>Rogers 換料換供應商</div></div>
+  <div class="flow"><div class="fbox">三大原物料同缺<br>月漲10%+·樹脂30-50%</div><div class="arrow">➜</div>
+    <div class="fbox hot">一般廠毛利被吃<br>寡占者轉嫁+搶單</div></div>
+  <div class="flow"><div class="fbox">PI 對手產能<br>只有它的 1/6</div><div class="arrow">➜</div>
+    <div class="fbox ok">拚第一大供應商<br>「三十年罕見」</div></div>
+  <div class="card">🧭 公司明言:<b>「並不是源自 AI」</b>——與 AI 擁擠板塊低相關,反而稀缺</div>
+</div>
+
+<div class="panel"><div class="phead orange">三、引擎·籌碼·家規</div>
+  <div class="card">🏭 <b>泰國廠 Q3 啟用</b>·產能目標擴增兩倍(蘇州90%地緣對沖起點)</div>
+  <div class="card">🖥️ <b>M9/M10 已認證</b>·Corework 資料中心 2027 量產|🚀 低軌衛星火箭主板已接單</div>
+  <div class="card" style="background:#e8f1fb">🐳 權證資金:<b>連續14天高於中位(差1天升🔵佈局)</b>·4.37倍·幾乎全call</div>
+  <div class="card" style="background:#fff7e8">⚠️ 家規:9/24爆量創高=<b>追高窗禁區</b>;窗過+回測320站穩→半倉·停損-1.5ATR(約-25元)</div>
+  <div class="card">📅 對答案:<span class="badge">10/10 九月營收</span><span class="badge">Q3 泰國廠</span><span class="badge">11/14 Q3毛利35%+?</span></div>
+</div>
+</div>
+<div class="note">資料:使用者法說彙整筆記(公司說法為源)+系統籌碼/財報|研究筆記非投資建議 · TW-BACKTEST</div>
+"""
+
+
+def make_6672():
+    return render_html(INFO_6672, IMG / "6672_infographic.png")
