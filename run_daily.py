@@ -399,6 +399,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ bulk財報更新: {e}")
 
+    # ── Step 5.8635:追蹤股法說簡報增量(finmoconf索引,已有跳過)──
+    try:
+        from concall import refresh_tracked
+        _ncc = refresh_tracked()
+        log.info(f"  🎤 法說簡報:新抓 {_ncc} 場")
+    except Exception as e:
+        log.warning(f"  ⚠️ 法說簡報: {e}")
+
     # ── Step 5.864:投顧報告收件匣消化(PDF→文字→索引)──
     try:
         from report_inbox import ingest as _ri

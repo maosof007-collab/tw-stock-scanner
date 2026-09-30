@@ -930,6 +930,13 @@ def generate_quick_analysis(code: str, extra: str = "") -> str:
         pass
     if extra.strip():
         parts.append("【使用者補充(法說/筆記——已驗證事實,優先引用)】\n" + extra.strip()[:4000])
+    try:                                  # 最新法說簡報(finmoconf索引→MOPS PDF 自動抓)
+        from concall import latest_text as _cc_latest
+        _cct = _cc_latest(code)
+        if _cct:
+            parts.append("【最新法說簡報全文(公司口徑,已驗證優先)】\n" + _cct)
+    except Exception:
+        pass
     try:                                  # 投顧報告收件匣(使用者丟入的 PDF 全文)
         from report_inbox import ingest as _ri_ingest, latest_for as _ri_latest
         _ri_ingest()
