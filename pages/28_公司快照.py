@@ -79,6 +79,20 @@ def _assemble(code: str) -> dict:
     qq = qq.sort_values("dt")
     qq["ttm"] = qq["EPS"].rolling(4).sum()
     A["ttm"] = float(qq["ttm"].iloc[-1]) if pd.notna(qq["ttm"].iloc[-1]) else None
+    # 本業 TTM(業外剝離):每季 EPS×(營益率/淨利率)。教案 2436 偉詮電:近4季 EPS 5.72
+    # 但七成是業外一次性,乘上歷史 PE 帶得出 Base 214 vs 市價 74 的笑話 → 業外占比高改用本業
+    core, nonop = [], []
+    for _, r in qq.tail(4).iterrows():
+        ni, op, e = r.get("淨利率%"), r.get("營益率%"), float(r["EPS"])
+        if pd.notna(ni) and pd.notna(op) and float(ni) > 0:
+            ratio = max(0.0, min(float(op) / float(ni), 1.2))
+            core.append(e * ratio)
+            nonop.append(max(0.0, 1 - float(op) / float(ni)))
+        else:
+            core.append(e)
+            nonop.append(0.0)
+    A["ttm_core"] = round(float(sum(core)), 2) if core else None
+    A["nonop_pct"] = round(float(sum(nonop) / len(nonop)) * 100) if nonop else 0
     band = None
     if close and A["ttm"] and "px" in A:
         px = A["px"].copy()
@@ -158,8 +172,11 @@ with v1:
                 f"估值基準 {now_tw():%Y.%m.%d}</span>", unsafe_allow_html=True)
     band, ttm, close = A["band"], A["ttm"], A["close"]
     if band and ttm and close:
-        lo, base, hi = (round(band["p25"] * ttm, 1), round(band["p50"] * ttm, 1),
-                        round(band["p75"] * ttm, 1))
+        ttm_use, used_core = ttm, False
+        if A.get("nonop_pct", 0) >= 40 and A.get("ttm_core") and A["ttm_core"] > 0:
+            ttm_use, used_core = A["ttm_core"], True
+        lo, base, hi = (round(band["p25"] * ttm_use, 1), round(band["p50"] * ttm_use, 1),
+                        round(band["p75"] * ttm_use, 1))
         gap = (base / close - 1) * 100
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("最新收盤", f"{close:g}")
@@ -167,9 +184,17 @@ with v1:
         m3.metric("Base", f"{base:g}", f"距 Base {gap:+.1f}%")
         m4.metric("合理上緣", f"{hi:g}")
         st.caption(f"PE 參考帶 {band['p25']:.0f}~{band['p75']:.0f}x(近3年分位)· "
-                   f"Base {band['p50']:.0f}x · 近4季EPS {ttm:.2f} → 現價 PE {close/ttm:.1f}x")
+                   f"Base {band['p50']:.0f}x · 估值用EPS {ttm_use:.2f} → 現價 PE {close/ttm_use:.1f}x")
+        if used_core:
+            st.warning(f"⚠️ 近4季獲利約 {A['nonop_pct']:.0f}% 來自業外(淨利率遠高於營益率)——"
+                       f"估值帶已改用**本業EPS {ttm_use:.2f}**;帳面近4季EPS {ttm:.2f} "
+                       f"含一次性收益,直接年化會高估。")
+        if base > close * 1.8 or base < close * 0.55:
+            st.error("🚨 估值帶與市價嚴重背離(>80%)——通常代表獲利結構劇變(轉型/一次性損益/"
+                     "歷史低基期推高PE帶)。此時帶子只是歷史錨,**不是目標價**;以月營收動能與"
+                     "九宮格體質為準。")
         with st.expander("▶ 自填 EPS 試算"):
-            my_eps = st.number_input("你預估的年度 EPS", value=float(round(ttm, 2)), step=0.1)
+            my_eps = st.number_input("你預估的年度 EPS", value=float(round(ttm_use, 2)), step=0.1)
             st.markdown(f"合理下緣 **{band['p25']*my_eps:.0f}** · Base **{band['p50']*my_eps:.0f}**"
                         f" · 合理上緣 **{band['p75']*my_eps:.0f}**")
         with st.expander("▶ 估值依據"):
