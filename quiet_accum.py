@@ -39,15 +39,39 @@ _AI_THEME = {
     "機器人自動化": "AI|機器人", "PCB": "AI|板材(查產品線)", "網通": "AI|網通(查)",
     "被動元件": "AI|伺服器被動件",
 }
-# 個案轉型故事(不在族群表、但有 AI/轉型敘事;(假設)=待查證)
+# 個案轉型故事——鐵律:先查法說再寫,查證過的註明法說日期;(假設)=還沒查到法說
+# 教案(2026-10-01):南寶標了(假設),用戶糾正「不是要去猜,看法說是否有導入新的」
+# → 一查:半導體封裝膠+折疊OCA 已小量出貨;廣宇原標「AI關聯低」更是大錯(AI+Robotics雙引擎)
 _AI_EXTRA = {
-    "2354": "轉型|鴻海系AI伺服器散熱/機殼(假設)",
-    "1609": "轉型|電網電纜→AI電力間接(假設)",
+    "4766": "電子轉型|半導體封裝膠+折疊OCA已小量出貨·客戶認證中(26/8法說)",
+    "2328": "轉型|AI+Robotics雙賽道·馬來西亞產能搶AI伺服器·AFM電機(26/7法說)",
+    "2354": "AI|伺服器散熱/機殼(26/9/30法說)",
+    "1609": "電網|強韌電網電纜(26/8法說無AI敘事)",
     "2451": "記憶體模組|AI邊緣/工控(假設)",
     "2367": "轉型|低軌衛星板(假設)",
-    "4766": "轉型|製鞋膠→電子膠/封裝材料(假設)",
-    "2328": "鴻海系|連接器/板(AI關聯低)",
 }
+
+# 法說關鍵詞掃描:選出來的每一檔自動抓最新法說數詞頻——證據,不是猜測
+_KW = ["AI", "人工智慧", "資料中心", "伺服器", "半導體", "先進封裝", "封裝", "CPO",
+       "光通訊", "玻璃基板", "液冷", "散熱", "機器人", "算力", "電網", "衛星",
+       "轉型", "新事業", "小量出貨", "認證"]
+
+
+def _concall_clue(code: str) -> str:
+    try:
+        import concall
+        p = concall.fetch_latest(code)
+        if p is None:
+            return "無法說簡報"
+        t = concall.latest_text(code, cap=20000)
+        hits = sorted(((k, t.count(k)) for k in _KW if t.count(k) >= 2),
+                      key=lambda x: -x[1])[:4]
+        d = p.stem.split("_")[1]
+        tag = f"{d[2:4]}/{d[4:6]}/{d[6:8]}法說"
+        return tag + (":" + "·".join(f"{k}×{n}" for k, n in hits) if hits
+                      else "(無AI相關詞)")
+    except Exception:
+        return ""
 
 
 def _ai_tag(code: str) -> str:
@@ -143,8 +167,9 @@ def scan(top: int = 5) -> pd.DataFrame:
         df["_ai"] = (df["AI/轉型"] != "").astype(int)
         df = (df.sort_values(["_ai", "吸籌比%"], ascending=False)
                 .drop(columns="_ai").head(top))
-        cols = ["代碼", "名稱", "AI/轉型"] + [c for c in df.columns
-                                              if c not in ("代碼", "名稱", "AI/轉型")]
+        df["法說線索"] = [_concall_clue(c) for c in df["代碼"]]
+        cols = ["代碼", "名稱", "AI/轉型", "法說線索"] + [
+            c for c in df.columns if c not in ("代碼", "名稱", "AI/轉型", "法說線索")]
         df = df[cols]
     df.to_csv(OUT, index=False, encoding="utf-8-sig")
     return df
