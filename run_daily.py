@@ -328,6 +328,16 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 選擇權模擬倉: {e}")
 
+    # ── Step 4.597:美股連動雷達(US族群領先對照)──
+    try:
+        from us_link import fetch_us, scan as _us_scan
+        fetch_us()
+        _ud = _us_scan()
+        _uh = _ud[_ud["燈號"].astype(str).str.contains("🔥", na=False)] if len(_ud) else _ud
+        log.info(f"  🦅 美股連動:🔥台股待跟 {len(_uh)} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 美股連動: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
