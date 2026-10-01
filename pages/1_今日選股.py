@@ -450,6 +450,21 @@ st.markdown("### 🌡️ 今日族群熱點分布")
 render_sector_section(key_prefix="scan_sec")
 st.markdown("---")
 
+# ── 🤫 還沒發動 Top5(選股抓已發動,這裡抓發動前)──
+_qa_p = DATA_DIR / "_quiet_accum.csv"
+if _qa_p.exists():
+    try:
+        _qa = pd.read_csv(_qa_p, dtype={"代碼": str})
+        with st.expander(f"🤫 **還沒發動 Top{len(_qa)}**|低檔整理 + 外資連吃 + "
+                         "爆量第一根還沒出(每日盤後更新)", expanded=True):
+            st.dataframe(_qa, hide_index=True, width="stretch")
+            st.caption("條件:距年高≤-10%、40日箱體≤25%、站上60日線、外資20日買超≥12天、"
+                       "近15日無爆量(>2.3×均量)。排序=吸籌比(外資買超÷總量)。"
+                       "**這是觀察名單不是買點**——家規禁追,等它自己出第一根量、回測不破再進。")
+    except Exception:
+        pass
+st.markdown("---")
+
 # ── 自動刷新邏輯 ──────────────────────────
 def _is_trading_day() -> bool:
     return now_tw().weekday() < 5

@@ -83,6 +83,14 @@ def _todo_list() -> list[str]:
                             f"想一想「第二個大甲」在哪(文章庫有題目)")
     except Exception:
         pass
+    # ③.8 還沒發動觀察名單(低檔整理+外資吃貨+未出量)
+    try:
+        q = pd.read_csv(D / "_quiet_accum.csv", dtype=str)
+        if len(q):
+            todo.append(f"🤫 還沒發動 Top{len(q)}:{'、'.join((q['名稱'] + q['代碼']).head(5))}"
+                        f"——外資在吃貨、還沒出量(選股頁置頂,等第一根)")
+    except Exception:
+        pass
     # ④ 突破/鯨魚
     try:
         p = pd.read_csv(D / "_mmap_pool.csv", dtype=str)

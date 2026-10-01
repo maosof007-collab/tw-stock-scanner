@@ -338,6 +338,18 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 美股連動: {e}")
 
+    # ── Step 4.5991:還沒發動掃描(低檔整理+外資吃貨+未出量)──
+    try:
+        import quiet_accum
+        _qa = quiet_accum.scan(5)
+        if len(_qa):
+            log.info("  🤫 還沒發動 Top5:" + "、".join(
+                f"{r['名稱']}{r['代碼']}" for _, r in _qa.iterrows()))
+        else:
+            log.info("  🤫 還沒發動:今日無符合")
+    except Exception as e:
+        log.warning(f"  ⚠️ 還沒發動掃描: {e}")
+
     # ── Step 4.6:營收反轉雷達(每月10日後新營收公布 → 過期自動重建)──
     log.info("\n[Step 4.6/6] 營收反轉雷達...")
     try:
