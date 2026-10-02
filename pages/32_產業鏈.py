@@ -112,3 +112,79 @@ else:
 
 st.caption(f"<span style='color:{MUTED}'>魚骨圖只畫「查證過」的鏈;產業很大,一條一條建,"
            f"每深挖一檔就把它的上下游寫進鏈譜——這頁會越用越厚。</span>", unsafe_allow_html=True)
+
+# ── 🧬 技術拆解圖:問題→解法→產品→公司(2026-10-02)──────────────
+# 資料:data/tech_maps/*.json(nodes 三欄+edges+公司對應;✓查證/?假設,直接改檔即可)
+st.markdown("---")
+st.markdown("### 🧬 技術拆解圖|問題 → 解法 → 產品 → 公司")
+_TM_DIR = ROOT / "data" / "tech_maps"
+_tms = sorted(_TM_DIR.glob("*.json")) if _TM_DIR.exists() else []
+if not _tms:
+    st.info("尚無拆解圖——把產業技術文丟給系統即可建圖(data/tech_maps/*.json)。")
+else:
+    import json as _tmj
+    import streamlit.components.v1 as _tmc
+    _opts = {}
+    for _p in _tms:
+        try:
+            _opts[_tmj.loads(_p.read_text(encoding="utf-8")).get("title", _p.stem)] = _p
+        except Exception:
+            continue
+    _sel = st.selectbox("選一張拆解圖", list(_opts), key="tm_sel")
+    _d = _tmj.loads(_opts[_sel].read_text(encoding="utf-8"))
+    if _d.get("note"):
+        st.caption(_d["note"])
+    _payload = _tmj.dumps(_d, ensure_ascii=False)
+    _html = """
+<style>
+ body{margin:0;background:#0e1117;font-family:'Microsoft JhengHei',sans-serif}
+ .wrap3{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:26px;padding:10px 6px}
+ .colh{color:#8b94a7;font-size:12px;margin-bottom:2px}
+ .colh b{display:block;color:#e6e9f0;font-size:15px;margin-top:2px}
+ .nd{border:1.5px solid #2a3040;border-radius:10px;padding:7px 11px;margin:7px 0;
+     color:#55607a;font-size:13.5px;cursor:pointer;background:#141926;transition:.15s}
+ .nd .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#394052;
+     margin-right:7px;vertical-align:1px}
+ .nd.on{color:#eef1f8;border-color:#5b8def;background:#182036;box-shadow:0 0 10px #5b8def33}
+ .nd.on .dot{background:#5b8def}
+ .nd.src{border-color:#e06c5a;box-shadow:0 0 12px #e06c5a44}
+ .nd.src .dot{background:#e06c5a}
+ .chips{margin-top:5px}
+ .chip{display:inline-block;font-size:11px;border-radius:6px;padding:1px 7px;margin:2px 3px 0 0;
+     border:1px solid #2a3040;color:#4a5468;background:#10141f}
+ .nd.on .chip{color:#cdd6e6}
+ .nd.on .chip.v{border-color:#3f8f5f;color:#7fd3a0}
+ .nd.on .chip.q{border-color:#8f7a3f;color:#e0c070}
+ .hint{color:#59627a;font-size:12px;padding:4px 6px}
+</style>
+<div class="hint">點任一節點 → 亮出它的上游問題與下游產品/公司;✓綠=查證過,?黃=假設待查</div>
+<div class="wrap3" id="map"></div>
+<script>
+const D = __DATA__;
+const IN = {}, OUT = {};
+D.edges.forEach(([a,b]) => {(OUT[a]=OUT[a]||[]).push(b);(IN[b]=IN[b]||[]).push(a);});
+function reach(id, adj){const s=new Set(), q=[id];while(q.length){const x=q.pop();
+  (adj[x]||[]).forEach(y=>{if(!s.has(y)){s.add(y);q.push(y);}});}return s;}
+const map=document.getElementById('map');
+const colDivs=D.cols.map((c,i)=>{const d=document.createElement('div');
+  const [a,b]=c.split('|');d.innerHTML=`<div class="colh">${a}<b>${b||''}</b></div>`;
+  map.appendChild(d);return d;});
+const els={};
+Object.entries(D.nodes).forEach(([id,n])=>{
+  const e=document.createElement('div');e.className='nd';e.id=id;
+  let chips='';
+  (n.companies||[]).forEach(([c,nm,role,fl])=>{
+    chips+=`<span class="chip ${fl==='✓'?'v':'q'}">${nm} ${c}·${role}${fl==='?'?' ?':''}</span>`;});
+  e.innerHTML=`<span class="dot"></span>${n.label}`+(chips?`<div class="chips">${chips}</div>`:'');
+  e.onclick=()=>{
+    document.querySelectorAll('.nd').forEach(x=>x.classList.remove('on','src'));
+    const up=reach(id,IN), dn=reach(id,OUT);
+    e.classList.add('on','src');
+    up.forEach(x=>els[x]&&els[x].classList.add('on'));
+    dn.forEach(x=>els[x]&&els[x].classList.add('on'));
+  };
+  els[id]=e;colDivs[n.col].appendChild(e);
+});
+</script>"""
+    _tmc.html(_html.replace("__DATA__", _payload), height=780, scrolling=True)
+    st.caption("建新圖:把技術文/報告丟給系統 → 引擎拆「問題/解法/產品」草稿 → 公司對應逐一查證後入檔。")
