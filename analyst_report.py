@@ -945,6 +945,13 @@ def generate_quick_analysis(code: str, extra: str = "") -> str:
             parts.append("【投顧報告素材(收件匣,引用需標明券商)】\n" + _rtxt)
     except Exception:
         pass
+    try:                                  # 投顧觀點彙整(旺來站,公開新聞整理摘要)
+        from advisory_hub import latest_text as _ad_latest
+        _adt = _ad_latest(code)
+        if _adt:
+            parts.append("【券商觀點彙整(公開新聞整理,非原始報告;引用標券商與日期)】\n" + _adt)
+    except Exception:
+        pass
     try:
         from tp_radar import latest_for
         tp = latest_for(code)

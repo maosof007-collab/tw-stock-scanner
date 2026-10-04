@@ -429,6 +429,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 法說簡報: {e}")
 
+    # ── Step 5.8637:投顧觀點彙整增量(旺來站,追蹤股∩站上有的,rec沒變跳過)──
+    try:
+        from advisory_hub import refresh as _ad_refresh
+        _nad = _ad_refresh()
+        log.info(f"  📰 投顧觀點彙整:更新 {_nad} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 投顧觀點彙整: {e}")
+
     # ── Step 5.864:投顧報告收件匣消化(PDF→文字→索引)──
     try:
         from report_inbox import ingest as _ri
