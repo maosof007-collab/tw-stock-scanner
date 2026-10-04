@@ -37,7 +37,14 @@ def _clean(html: str) -> str:
     html = re.sub(r"<script[\s\S]*?</script>|<style[\s\S]*?</style>", " ", html)
     txt = re.sub(r"<[^>]+>", "\n", html)
     txt = re.sub(r"[ \t]+", " ", txt)
-    return re.sub(r"\n\s*\n+", "\n", txt).strip()
+    txt = re.sub(r"\n\s*\n+", "\n", txt).strip()
+    # 正文從警語起算,掐掉頁頭導覽與 JS 殘渣;再砍殘留的 js 樣式行
+    i = txt.find("⚠")
+    if i > 0:
+        txt = txt[i:]
+    lines = [ln for ln in txt.splitlines()
+             if "history.back" not in ln and not re.match(r"^[\s{}();>\"']*$", ln)]
+    return "\n".join(lines)
 
 
 def fetch_one(stock: dict) -> Path | None:
