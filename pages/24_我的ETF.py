@@ -165,6 +165,37 @@ with tab_pick:
             cand = _me.candidates()
         st.dataframe(cand, hide_index=True, width="stretch")
 
+    # ── 🤖 量化重選(00409A 式,2026-10-05)─────────────────
+    st.markdown("---")
+    st.markdown("#### 🤖 量化重選(00409A 式全市場規則選股)")
+    st.caption("篩選:站上60日線+距年高>-30%+日均額≥1億+最新季營益率>5%;"
+               "評分=60日動能/月營收YoY/外資買超天 等權排名。**建議制**——按「採用」才改組。")
+    _qc1, _qc2 = st.columns([1, 1])
+    _qtop = _qc1.number_input("檔數", 5, 15, 10)
+    _qcash = _qc2.number_input("現金保留 %", 0.0, 40.0, 10.0, step=5.0)
+    if st.button("🤖 跑量化重選", key="qr_btn"):
+        with st.spinner("全市場掃描+因子排名…"):
+            st.session_state["qr_df"] = _me.quant_reselect(int(_qtop), float(_qcash))
+    if "qr_df" in st.session_state and len(st.session_state["qr_df"]):
+        _qdf = st.session_state["qr_df"]
+        _cur = {c["code"] for c in d["constituents"] if c.get("code", "") != "CASH"}
+        _new = set(_qdf["code"])
+        _qdf2 = _qdf.copy()
+        _qdf2["異動"] = _qdf2["code"].map(lambda c: "" if c in _cur else "🆕新增")
+        st.dataframe(_qdf2, hide_index=True, width="stretch")
+        _drop = _cur - _new
+        if _drop:
+            st.caption("將剔除:" + "、".join(sorted(_drop)))
+        if st.button("✅ 採用此組合(改組生效並寫日誌)", key="qr_apply"):
+            rows = [{"code": r["code"], "name": r["name"], "weight": r["weight"],
+                     "thesis": f"量化重選 綜合分{r['綜合分']}"} for _, r in _qdf.iterrows()]
+            if float(_qcash) > 0:
+                rows.append({"code": "CASH", "name": "現金(乾火藥)",
+                             "weight": float(_qcash), "thesis": "量化重選保留"})
+            _me.set_constituents(rows, note=f"🤖量化重選 top{int(_qtop)} 現金{_qcash:g}%")
+            st.success("已改組並寫入日誌。")
+            st.rerun()
+
 with tab_log:
     if d["log"]:
         for e in reversed(d["log"][-20:]):

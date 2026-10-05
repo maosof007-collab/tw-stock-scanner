@@ -292,3 +292,65 @@ def daily_review() -> str:
     fn = save_article("ETF", "我的ETF", "ETF日檢", content)
     print(f"[my_etf] 日檢 {fn}")
     return fn
+
+
+def quant_reselect(top: int = 10, cash_pct: float = 10.0) -> "pd.DataFrame":
+    """🤖 量化重選(00409A 式,2026-10-05):全市場規則選股,透明因子、無裁量。
+    篩選(全過):站上60日均線、距年高>-30%、20日均成交額≥1億、最新季營益率>5%。
+    評分(等權排名平均):60日動能 / 最新月營收YoY / 外資20日買超天數。
+    輸出 top N 等權(保留 cash_pct% 現金)——建議制:頁24按「採用」才生效。"""
+    from pathlib import Path as _P
+    import glob as _g
+    import os as _os
+    rev = pd.read_csv(ROOT / "data" / "bulk_fin" / "rev_all.csv.gz", dtype={"code": str})
+    latest_rev = (rev.sort_values("ym").groupby("code").tail(1)
+                  .set_index("code")[["ym", "yoy%"]])
+    fin = pd.read_csv(ROOT / "data" / "bulk_fin" / "fin_q_all.csv.gz", dtype={"code": str})
+    latest_op = (fin.sort_values("季度").groupby("code").tail(1)
+                 .set_index("code")["營益率%"])
+    rows = []
+    for f in _g.glob(str(ROOT / "data" / "[0-9]*.csv")):
+        code = _os.path.basename(f).split(".")[0]
+        if len(code) != 4:
+            continue
+        try:
+            px = pd.read_csv(f, usecols=["Date", "Close", "Volume"]).dropna()
+            if len(px) < 130:
+                continue
+            cl, v = px["Close"].astype(float), px["Volume"].astype(float)
+            c = cl.iloc[-1]
+            if c <= 0 or v.tail(20).mean() * c < 1e8:                      # 流動性
+                continue
+            if c < cl.tail(60).mean() or c / cl.tail(250).max() - 1 < -0.30:  # 趨勢
+                continue
+            op = latest_op.get(code)
+            if op is None or pd.isna(op) or op <= 5:                       # 品質
+                continue
+            mom60 = c / cl.iloc[-60] - 1
+            yoy = pd.to_numeric(latest_rev["yoy%"].get(code), errors="coerce")
+            ip = ROOT / "data" / "institutional" / f"{code}_inst.csv"
+            fi_days = None
+            if ip.exists():
+                fi = pd.to_numeric(pd.read_csv(ip).iloc[:, 4], errors="coerce")
+                fi_days = int((fi.tail(20) > 0).sum())
+            rows.append({"code": code, "mom60": mom60, "yoy": yoy,
+                         "fi_days": fi_days, "op": float(op)})
+        except Exception:
+            continue
+    df = pd.DataFrame(rows).dropna(subset=["mom60"])
+    if df.empty:
+        return df
+    for col in ("mom60", "yoy", "fi_days"):
+        df[col + "_r"] = df[col].rank(pct=True)
+    df["score"] = df[[c for c in df.columns if c.endswith("_r")]].mean(axis=1)
+    df = df.sort_values("score", ascending=False).head(top).reset_index(drop=True)
+    from symbols import resolve as _rs
+    df["name"] = df["code"].map(lambda c: _rs(c)[1] or "")
+    w = round((100 - cash_pct) / len(df), 2)
+    df["weight"] = w
+    df["60日%"] = (df["mom60"] * 100).round(1)
+    df["月營收YoY%"] = df["yoy"].round(1)
+    df["外資買超天"] = df["fi_days"]
+    df["營益率%"] = df["op"].round(1)
+    df["綜合分"] = (df["score"] * 100).round(1)
+    return df[["code", "name", "weight", "綜合分", "60日%", "月營收YoY%", "外資買超天", "營益率%"]]

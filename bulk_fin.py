@@ -20,6 +20,14 @@ import requests
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "bulk_fin"
 OUT.mkdir(parents=True, exist_ok=True)
+
+
+def _atomic_csv_gz(df: pd.DataFrame, path: Path) -> None:
+    """G:碟偶發 Errno 22(2026-10-05 教案):先寫暫存再 os.replace,失敗不毀原檔。"""
+    import os
+    tmp = path.with_name(path.stem + ".tmp.gz")
+    df.to_csv(tmp, index=False, encoding="utf-8-sig", compression="gzip")
+    os.replace(tmp, path)
 _HDR = {"User-Agent": "Mozilla/5.0"}
 
 
@@ -209,7 +217,7 @@ def refresh_latest():
         new = (pd.concat(frames, ignore_index=True)
                .drop_duplicates(subset=["code", "ym"], keep="last")
                .sort_values(["code", "ym"]))
-        new.to_csv(p, index=False, encoding="utf-8-sig", compression="gzip")
+        _atomic_csv_gz(new, p)
     # 季報:重抓「當前年度」各已公布季 → 差分 → 併回其他年度舊資料(不整檔覆寫)
     roc = t.year - 1911
     se = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1, 6: 2, 7: 2, 8: 2, 9: 2,
@@ -244,7 +252,7 @@ def refresh_latest():
             old = old[~old["季度"].astype(str).str.startswith(year_tag)]
             merged = (pd.concat([old, new], ignore_index=True)
                       .sort_values(["code", "季度"]))
-            merged.to_csv(qp, index=False, encoding="utf-8-sig", compression="gzip")
+            _atomic_csv_gz(merged, qp)
 
 
 if __name__ == "__main__":
