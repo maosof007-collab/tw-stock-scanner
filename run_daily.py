@@ -306,6 +306,23 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 公司行為雷達: {e}")
 
+    # ── Step 4.593:期交所外資期貨淨未平倉(OpenAPI僅回最新日,必須天天累積)──
+    # 2026-10-06 系統掃描教案:原本只靠頁面觸發,頁面沒開=斷更;排進每日
+    try:
+        from taifex_flow import fetch_fi_futures
+        _tfd = fetch_fi_futures()
+        log.info(f"  🧾 期貨籌碼:累積至 {_tfd['date'].iloc[-1] if len(_tfd) else '無'}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 期貨籌碼: {e}")
+
+    # ── Step 4.594:法說行事曆(同教案:每日強制刷新,駕駛艙徽章靠它)──
+    try:
+        from conf_calendar import refresh as _cc_refresh
+        _ccd = _cc_refresh(force=True)
+        log.info(f"  🎤 法說行事曆:{len(_ccd)} 場(至 {_ccd['date'].max() if len(_ccd) else '-'})")
+    except Exception as e:
+        log.warning(f"  ⚠️ 法說行事曆: {e}")
+
     # ── Step 4.595:目標價雷達(鉅亨Factset共識速報;feed只留~40篇須天天抓)──
     try:
         from tp_radar import fetch as _tp_fetch
