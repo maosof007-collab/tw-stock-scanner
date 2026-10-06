@@ -224,16 +224,26 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️  失敗: {e}")
 
-    # ── Step 4：集保股權分散表（週四限定）──
-    if is_thursday:
-        log.info("\n[Step 4/6] 集保股權分散表（週四）...")
+    # ── Step 4：集保股權分散表（本地落後 >6 天就補，不看星期幾）──
+    # 2026-10-06 教案：原「週四限定」錯過一次就整週舊資料；改成每天檢查新鮮度
+    _tdcc_stale = True
+    try:
+        import pandas as _tpd
+        _tf = TDCC_DIR / "2330_tdcc.csv"
+        if _tf.exists():
+            _last = _tpd.to_datetime(_tpd.read_csv(_tf)["date"]).max()
+            _tdcc_stale = (_tpd.Timestamp(today) - _last).days > 6
+    except Exception:
+        pass
+    if _tdcc_stale:
+        log.info("\n[Step 4/6] 集保股權分散表（本地已逾一週，補抓）...")
         try:
             update_all_tdcc(tickers)
             log.info("  ✅ 完成")
         except Exception as e:
             log.warning(f"  ⚠️  失敗: {e}")
     else:
-        log.info(f"\n[Step 4/6] 集保資料：今日非週四（{today.strftime('%A')}），跳過")
+        log.info("\n[Step 4/6] 集保資料：本地已是最新週，跳過")
 
     # ── Step 4.4：大盤融資維持率快取重算（總經頁秒開的關鍵）──
     log.info("\n[Step 4.4/6] 大盤融資維持率彙整...")
