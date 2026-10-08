@@ -238,3 +238,68 @@ with t3:
     if st.button("📌 把本月榜前20寫入預實追蹤", key="mf_record"):
         n = _mf.record_top(df, target.strip())
         st.success(f"已寫入 {n} 筆,開獎自動對答案")
+
+# ── 🧪 情境試算:自填數字(2026-10-08,起因:1303 傳聞>400億)──────────
+# 鐵律:使用者數字=未證實情報,只進 user_scenarios.json 標註保存,永不寫入官方營收庫;
+# 開獎後本區自動回填實際值對答案——你的情報源準不準,用紀錄說話。
+st.markdown("---")
+st.markdown("### 🧪 情境試算|我聽到一個數字,先算它意味著什麼")
+import json as _usj
+from pathlib import Path as _usP
+_USF = _usP(__file__).parent.parent / "data" / "user_scenarios.json"
+_c1, _c2, _c3 = st.columns([1.2, 1.2, 1])
+_us_q = _c1.text_input("代碼/名稱", key="us_code", placeholder="1303 或 南亞")
+_us_v = _c2.number_input("假設月營收(百萬)", min_value=0.0, step=100.0, key="us_val")
+_us_m = _c3.text_input("月份", value=f"{_now.year}-{_now.month:02d}" if '_now' in dir() else "2026-09",
+                       key="us_ym")
+if _us_q.strip() and _us_v > 0:
+    from symbols import resolve as _us_rs
+    _uc, _un = _us_rs(_us_q.strip())
+    if _uc:
+        import pandas as _uspd
+        _rev = _uspd.read_csv(_usP(__file__).parent.parent / "data" / "bulk_fin" / "rev_all.csv.gz",
+                              dtype={"code": str})
+        _r = _rev[_rev["code"] == _uc].set_index("ym")["revenue"]
+        try:
+            _ly = _r.get(f"{int(_us_m[:4])-1}{_us_m[4:]}")
+            _lm_keys = [k for k in _r.index if k < _us_m]
+            _lm = _r[_lm_keys[-1]] if _lm_keys else None
+            _yoy = (_us_v / _ly - 1) * 100 if _ly else None
+            _mom = (_us_v / _lm - 1) * 100 if _lm else None
+            _pct = float((_r < _us_v).mean()) * 100
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("隱含 YoY", f"{_yoy:+.1f}%" if _yoy is not None else "—")
+            m2.metric("隱含 MoM", f"{_mom:+.1f}%" if _mom is not None else "—")
+            m3.metric("歷史分位", f"{_pct:.0f}%", help="高於歷史幾%的月份")
+            m4.metric("上月實際", f"{_lm:,.0f}" if _lm is not None else "—")
+            if _mom is not None and _mom > 25:
+                st.warning(f"⚠️ 這個數字隱含單月 MoM {_mom:+.0f}%——對 {_un} 這種體量屬罕見事件,"
+                           "先確認消息源沒把名字相近的公司搞混(例:南亞1303 vs 南亞科2408)、"
+                           "單位沒錯(百萬vs千元)。情報越驚人,查證義務越重。")
+            if st.button("💾 存為情境(開獎自動對答案)", key="us_save"):
+                _log = _usj.loads(_USF.read_text(encoding="utf-8")) if _USF.exists() else []
+                from twtime import now_tw as _usnow
+                _log.append({"saved": f"{_usnow():%Y-%m-%d %H:%M}", "code": _uc, "name": _un,
+                             "ym": _us_m, "假設營收": _us_v,
+                             "隱含YoY%": round(_yoy, 1) if _yoy is not None else None})
+                _USF.write_text(_usj.dumps(_log, ensure_ascii=False, indent=1), encoding="utf-8")
+                st.success("已存——此為未證實情報,只進情境紀錄,不碰官方資料庫。")
+        except Exception as _e:
+            st.warning(f"試算失敗:{_e}")
+# 歷史情境對答案
+if _USF.exists():
+    import pandas as _uspd2
+    _hist = _usj.loads(_USF.read_text(encoding="utf-8"))
+    if _hist:
+        _rev2 = _uspd2.read_csv(_usP(__file__).parent.parent / "data" / "bulk_fin" / "rev_all.csv.gz",
+                                dtype={"code": str})
+        rows = []
+        for h in _hist[-15:]:
+            act = _rev2[(_rev2["code"] == h["code"]) & (_rev2["ym"] == h["ym"])]["revenue"]
+            a = float(act.iloc[0]) if len(act) else None
+            err = (h["假設營收"] / a - 1) * 100 if a else None
+            rows.append({"存檔": h["saved"], "檔": f"{h['name']}{h['code']}", "月": h["ym"],
+                         "你的數字": h["假設營收"], "實際": a,
+                         "誤差%": round(err, 1) if err is not None else "未開獎"})
+        with st.expander(f"📒 我的情報戰績({len(_hist)} 筆)"):
+            st.dataframe(_uspd2.DataFrame(rows), hide_index=True, width="stretch")
