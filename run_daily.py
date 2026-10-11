@@ -365,6 +365,15 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 美股連動: {e}")
 
+    # ── Step 4.5990:迴轉率雷達(高迴轉+隔日沖指紋=禁入名單)──
+    try:
+        import turnover_radar
+        _tv = turnover_radar.scan()
+        _nw = int(_tv["隔日沖指紋"].astype(str).str.contains("警戒").sum()) if len(_tv) else 0
+        log.info(f"  🌪️ 迴轉率:入榜 {len(_tv)} 檔,🔪警戒 {_nw} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 迴轉率雷達: {e}")
+
     # ── Step 4.5991:還沒發動掃描(低檔整理+外資吃貨+未出量)──
     try:
         import quiet_accum
