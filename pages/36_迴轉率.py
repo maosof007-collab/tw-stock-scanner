@@ -59,18 +59,13 @@ if len(warn):
 if len(dump):
     st.warning("🩸 昨鎖今倒(教材組):" + "、".join(f"{r['名稱']}{r['代碼']}" for _, r in dump.iterrows()))
 
+st.caption("👆 點任一列=直接開那檔的戰情室")
 _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
                     on_select="rerun", selection_mode="single-row", key="tr_table")
 _rows = _sel.get("selection", {}).get("rows", []) if isinstance(_sel, dict) else _sel.selection.rows
 if _rows:
-    _r = df.iloc[_rows[0]]
-    _cA, _cB, _cC = st.columns([1.2, 1.2, 3])
-    if _cA.button(f"🎯 {_r['名稱']} {_r['代碼']} → 戰情室", key="tr_war", type="primary"):
-        st.session_state["war_code"] = str(_r["代碼"])
-        st.switch_page("pages/27_個股戰情室.py")
-    if _cB.button("🏢 → 公司快照", key="tr_snap"):
-        st.query_params["code"] = str(_r["代碼"])
-        st.switch_page("pages/28_公司快照.py")
+    st.session_state["war_code"] = str(df.iloc[_rows[0]]["代碼"])
+    st.switch_page("pages/27_個股戰情室.py")
 st.caption("判讀:①迴轉率>20%=當沖/隔日沖主戰場,波動與你無關,是資金在對打 "
            "②🔪 警戒股想買=等 2~3 天洗完量縮回測(彰源教案) ③連續多日高迴轉+價不跌=有人真的在收(對照還沒發動名單)。")
 
