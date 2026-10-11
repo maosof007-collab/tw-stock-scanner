@@ -64,10 +64,19 @@ if len(warn):
 if len(dump):
     st.warning("🩸 昨鎖今倒(教材組):" + "、".join(f"{r['名稱']}{r['代碼']}" for _, r in dump.iterrows()))
 
-st.caption("👆 **點每列最左邊的小圓圈** → 迷你戰情直接展開在表格上方(不跳頁)")
+# 已選股 → 表格收合成摺疊列,迷你戰情佔版面;未選 → 全表
+_prev = st.session_state.get("tr_table", {})
+_prev_rows = (_prev.get("selection", {}).get("rows", []) if isinstance(_prev, dict)
+              else getattr(getattr(_prev, "selection", None), "rows", []) or [])
 _panel = st.container()
-_sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
-                    on_select="rerun", selection_mode="single-row", key="tr_table")
+if _prev_rows:
+    with st.expander("📋 迴轉率榜(點開換股;取消勾選=回全表)", expanded=False):
+        _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
+                            on_select="rerun", selection_mode="single-row", key="tr_table")
+else:
+    st.caption("👆 **點每列最左邊的小圓圈** → 表格自動收合,迷你戰情全版展開")
+    _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
+                        on_select="rerun", selection_mode="single-row", key="tr_table")
 _rows = _sel.get("selection", {}).get("rows", []) if isinstance(_sel, dict) else _sel.selection.rows
 if _rows:
     _r = df.iloc[_rows[0]]
