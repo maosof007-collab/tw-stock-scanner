@@ -28,8 +28,13 @@ import turnover_radar as tr
 def _scan(ver: int = 1):
     import time
     if tr.OUT.exists() and time.time() - tr.OUT.stat().st_mtime < 3600 * 6:
-        return pd.read_csv(tr.OUT, dtype={"代碼": str})
-    return tr.scan()
+        out = pd.read_csv(tr.OUT, dtype={"代碼": str})
+    else:
+        out = tr.scan()
+    if len(out):
+        out["隔日沖指紋"] = out["隔日沖指紋"].fillna("")
+        out["名稱"] = out["名稱"].fillna("")
+    return out
 
 
 c1, c2 = st.columns([1, 4])
@@ -59,15 +64,17 @@ if len(warn):
 if len(dump):
     st.warning("🩸 昨鎖今倒(教材組):" + "、".join(f"{r['名稱']}{r['代碼']}" for _, r in dump.iterrows()))
 
-st.caption("👆 點任一列=下方直接展開迷你戰情(不跳頁)")
+st.caption("👆 **點每列最左邊的小圓圈** → 迷你戰情直接展開在表格上方(不跳頁)")
+_panel = st.container()
 _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
                     on_select="rerun", selection_mode="single-row", key="tr_table")
 _rows = _sel.get("selection", {}).get("rows", []) if isinstance(_sel, dict) else _sel.selection.rows
 if _rows:
     _r = df.iloc[_rows[0]]
     _code, _nm = str(_r["代碼"]), _r["名稱"]
-    st.markdown(f"## 🎯 {_nm} {_code} 迷你戰情")
-    _cL, _cR = st.columns([2, 1])
+    with _panel:
+        st.markdown(f"## 🎯 {_nm} {_code} 迷你戰情")
+        _cL, _cR = st.columns([2, 1])
     with _cL:
         try:
             import plotly.graph_objects as go
