@@ -354,3 +354,28 @@ def quant_reselect(top: int = 10, cash_pct: float = 10.0) -> "pd.DataFrame":
     df["營益率%"] = df["op"].round(1)
     df["綜合分"] = (df["score"] * 100).round(1)
     return df[["code", "name", "weight", "綜合分", "60日%", "月營收YoY%", "外資買超天", "營益率%"]]
+
+
+def autopilot_run() -> str:
+    """🤖 自動駕駛(2026-10-12,使用者要求「跟著盤主動調整」):
+    開關存於 store['autopilot'];開啟時——每月第一次執行日自動跑量化重選並直接改組。
+    每次自動改組都寫日誌(note 標 🤖),使用者隨時可關閉或手動覆蓋。"""
+    d = load()
+    if not d.get("autopilot"):
+        return "off"
+    t = now_tw()
+    last_auto = d.get("autopilot_last", "")
+    if last_auto[:7] == f"{t:%Y-%m}":
+        return "done_this_month"
+    df = quant_reselect(10, 10.0)
+    if df.empty:
+        return "scan_empty"
+    rows = [{"code": r["code"], "name": r["name"], "weight": r["weight"],
+             "thesis": f"自動駕駛 綜合分{r['綜合分']}"} for _, r in df.iterrows()]
+    rows.append({"code": "CASH", "name": "現金(乾火藥)", "weight": 10.0,
+                 "thesis": "自動駕駛保留"})
+    set_constituents(rows, note=f"🤖自動駕駛月度重選({t:%m/%d})")
+    d = load()
+    d["autopilot_last"] = f"{t:%Y-%m-%d}"
+    save(d)
+    return "rebalanced:" + "、".join(r["name"] for r in rows if r["code"] != "CASH")

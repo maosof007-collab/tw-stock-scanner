@@ -295,6 +295,10 @@ def main():
         _fn = daily_review()
         if _fn:
             log.info(f"  ✅ 我的ETF日檢:{_fn}")
+        from my_etf import autopilot_run
+        _ap = autopilot_run()
+        if _ap.startswith("rebalanced"):
+            log.info(f"  🤖 ETF自動駕駛改組:{_ap}")
     except Exception as e:
         log.warning(f"  ⚠️ ETF追蹤: {e}")
 

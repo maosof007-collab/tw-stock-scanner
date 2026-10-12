@@ -83,6 +83,13 @@ def _todo_list() -> list[str]:
                             f"想一想「第二個大甲」在哪(文章庫有題目)")
     except Exception:
         pass
+    # ③.75 我的ETF換股警鈴(swap_alerts 四條件,響了才列)
+    try:
+        import my_etf as _meh
+        for _al in _meh.swap_alerts()[:3]:
+            todo.append(f"🧺 我的ETF警鈴:{_al}(頁24 處理或開自動駕駛)")
+    except Exception:
+        pass
     # ③.8 還沒發動觀察名單(低檔整理+外資吃貨+未出量)
     try:
         q = pd.read_csv(D / "_quiet_accum.csv", dtype=str)

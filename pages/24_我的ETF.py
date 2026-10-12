@@ -28,6 +28,15 @@ with st.expander("❓ 怎麼用(三步)", expanded=False):
 """)
 
 d = _me.load()
+
+# 🤖 自動駕駛開關(開=每月第一個執行日自動量化重選並直接改組,日誌標🤖;關=一切手動)
+_ap_on = st.toggle("🤖 自動駕駛:每月自動量化重選改組(00409A 式)",
+                   value=bool(d.get("autopilot")), key="etf_ap",
+                   help="開啟後 run_daily 每月自動跑因子重選並直接改組;警鈴與日誌照常,隨時可關。")
+if _ap_on != bool(d.get("autopilot")):
+    d["autopilot"] = bool(_ap_on)
+    _me.save(d)
+    st.toast("🤖 自動駕駛:" + ("已開啟,下次月初生效" if _ap_on else "已關閉"))
 cons = pd.DataFrame(d["constituents"]) if d["constituents"] else pd.DataFrame(
     columns=["code", "name", "weight", "thesis"])
 
