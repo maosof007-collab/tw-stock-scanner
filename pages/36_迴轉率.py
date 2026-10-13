@@ -64,76 +64,10 @@ if len(warn):
 if len(dump):
     st.warning("🩸 昨鎖今倒(教材組):" + "、".join(f"{r['名稱']}{r['代碼']}" for _, r in dump.iterrows()))
 
-# 已選股 → 表格收合成摺疊列,迷你戰情佔版面;未選 → 全表
-_prev = st.session_state.get("tr_table", {})
-_prev_rows = (_prev.get("selection", {}).get("rows", []) if isinstance(_prev, dict)
-              else getattr(getattr(_prev, "selection", None), "rows", []) or [])
-_panel = st.container()
-if _prev_rows:
-    with st.expander("📋 迴轉率榜(點開換股;取消勾選=回全表)", expanded=False):
-        _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
-                            on_select="rerun", selection_mode="single-row", key="tr_table")
-else:
-    st.caption("👆 **點每列最左邊的小圓圈** → 表格自動收合,迷你戰情全版展開")
-    _sel = st.dataframe(df, hide_index=True, width="stretch", height=520,
-                        on_select="rerun", selection_mode="single-row", key="tr_table")
-_rows = _sel.get("selection", {}).get("rows", []) if isinstance(_sel, dict) else _sel.selection.rows
-if _rows:
-    _r = df.iloc[_rows[0]]
-    _code, _nm = str(_r["代碼"]), _r["名稱"]
-    with _panel:
-        st.markdown(f"## 🎯 {_nm} {_code} 迷你戰情")
-        _cL, _cR = st.columns([2, 1])
-    with _cL:
-        try:
-            import plotly.graph_objects as go
-            for _suf in (".TW.csv", ".TWO.csv"):
-                _pp = ROOT / "data" / f"{_code}{_suf}"
-                if _pp.exists():
-                    _px = pd.read_csv(_pp).dropna(subset=["Close"]).tail(120)
-                    fig = go.Figure(go.Candlestick(
-                        x=_px["Date"], open=_px["Open"], high=_px["High"],
-                        low=_px["Low"], close=_px["Close"],
-                        increasing_line_color=RED, decreasing_line_color="#3fae6a"))
-                    fig.update_layout(height=320, margin=dict(l=0, r=0, t=8, b=0),
-                                      xaxis_rangeslider_visible=False,
-                                      paper_bgcolor="rgba(0,0,0,0)",
-                                      plot_bgcolor="rgba(0,0,0,0)")
-                    fig.update_xaxes(type="category", nticks=8)
-                    st.plotly_chart(fig, use_container_width=True, key="tr_k")
-                    break
-        except Exception as e:
-            st.caption(f"K線載入失敗:{e}")
-    with _cR:
-        st.metric("迴轉率", f"{_r['迴轉率%']}%", f"量比 {_r['量比']}")
-        st.metric("漲跌", f"{_r['漲跌%']}%", f"成交 {_r['成交額(億)']} 億", delta_color="off")
-        if str(_r.get("隔日沖指紋", "")):
-            st.error(_r["隔日沖指紋"])
-        try:
-            _fin = pd.read_csv(ROOT / "data" / "bulk_fin" / "fin_q_all.csv.gz",
-                               dtype={"code": str})
-            _q = _fin[_fin["code"] == _code].tail(1).iloc[0]
-            st.caption(f"最新季:毛利 {_q['毛利率%']}%|營益 {_q['營益率%']}%|EPS {_q['EPS']}")
-        except Exception:
-            pass
-        try:
-            _rv = pd.read_csv(ROOT / "data" / "bulk_fin" / "rev_all.csv.gz",
-                              dtype={"code": str})
-            _m = _rv[_rv["code"] == _code].tail(3)
-            st.caption("月營收YoY:" + " → ".join(
-                f"{str(r['ym'])[5:]}月 {r['yoy%']:+.0f}%" for _, r in _m.iterrows()))
-        except Exception:
-            pass
-        try:
-            _ins = pd.read_csv(ROOT / "data" / "institutional" / f"{_code}_inst.csv")
-            _fi = pd.to_numeric(_ins.iloc[:, 4], errors="coerce")
-            st.caption(f"外資20日:買超 {int((_fi.tail(20) > 0).sum())} 天,"
-                       f"累計 {_fi.tail(20).sum() / 1000:+,.0f} 張")
-        except Exception:
-            pass
-        if st.button("🎯 開完整戰情室", key="tr_war_full", type="primary"):
-            st.session_state["war_code"] = _code
-            st.switch_page("pages/27_個股戰情室.py")
+from ui_mini_war import mini_war_table
+mini_war_table(df, code_col="代碼", key="tr", height=520,
+               extras=["迴轉率%", "量比", "漲跌%", "隔日沖指紋"],
+               collapse_label="📋 迴轉率榜(點開換股;取消勾選=回全表)")
 st.caption("判讀:①迴轉率>20%=當沖/隔日沖主戰場,波動與你無關,是資金在對打 "
            "②🔪 警戒股想買=等 2~3 天洗完量縮回測(彰源教案) ③連續多日高迴轉+價不跌=有人真的在收(對照還沒發動名單)。")
 

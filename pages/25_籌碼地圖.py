@@ -78,7 +78,10 @@ st.markdown(
 br = pool[pool["狀態"].str.contains("突破")]
 st.markdown(f"### 🎯 剛突破(近3日,{len(br)} 檔)——地圖第④關:第一根K別追,回測不破再進")
 if len(br):
-    st.dataframe(br.drop(columns=["掃描日"]), hide_index=True, width="stretch")
+    from ui_mini_war import mini_war_table
+    mini_war_table(br.drop(columns=["掃描日"]), code_col="代號", key="mm_br", height=260,
+                   extras=["狀態", "A位階", "B1大戶", "B2量縮不跌"],
+                   collapse_label="📋 剛突破名單(點開換股)")
     # ⛓️ 供應鏈接力:突破股的鏈上落後夥伴(大甲→彰源教案)
     try:
         import supply_chain as _sc
@@ -93,7 +96,10 @@ else:
 # ⏳ 蓄勢池
 wt = pool[~pool["狀態"].str.contains("突破")]
 st.markdown(f"### ⏳ 蓄勢池(量縮不跌,{len(wt)} 檔)——地圖說的「賣壓消失、等量增」")
-st.dataframe(wt.drop(columns=["掃描日"]), hide_index=True, width="stretch")
+from ui_mini_war import mini_war_table as _mwt
+_mwt(wt.drop(columns=["掃描日"]), code_col="代號", key="mm_wt", height=480,
+     extras=["狀態", "A位階", "B1大戶", "B2量縮不跌"],
+     collapse_label="📋 蓄勢池名單(點開換股)")
 
 st.markdown("""
 **用法(照地圖的紀律)**:
