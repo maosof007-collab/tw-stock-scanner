@@ -130,9 +130,10 @@ def build_quarters(start_roc: int = 112, end_roc: int = 115, end_season: int = 2
 
 
 # ── 月營收:t21sc03 全市場月表(當月+去年當月 → YoY 直接有) ──
-def _fetch_month(roc_year: int, month: int, market: str) -> pd.DataFrame:
+def _fetch_month(roc_year: int, month: int, market: str, kind: int = 0) -> pd.DataFrame:
+    # kind: 0=國內 1=KY(國外)——2026-10-14 教案:KY 股(GIS 6456 等)在 _1.html,原本整批漏掉
     url = (f"https://mopsov.twse.com.tw/nas/t21/{market}/"
-           f"t21sc03_{roc_year}_{month}_0.html")
+           f"t21sc03_{roc_year}_{month}_{kind}.html")
     r = requests.get(url, headers=_HDR, timeout=40)
     if r.status_code != 200 or len(r.content) < 5000:
         return pd.DataFrame()
@@ -174,10 +175,11 @@ def build_months(months_back: int = 40, sleep: float = 1.2) -> pd.DataFrame:
         if m < 1:
             m += 12; y -= 1
         for mk in ("sii", "otc"):
-            d = _fetch_month(y - 1911, m, mk)
-            if len(d):
-                frames.append(d)
-            time.sleep(sleep)
+            for kd in (0, 1):                      # 0=國內 1=KY
+                d = _fetch_month(y - 1911, m, mk, kd)
+                if len(d):
+                    frames.append(d)
+                time.sleep(sleep)
         print(f"  {y}-{m:02d}: ok")
         m -= 1
     raw = pd.concat(frames, ignore_index=True).drop_duplicates(subset=["code", "ym"])
@@ -206,7 +208,8 @@ def refresh_latest():
             m += 12; y -= 1
         frames = [old]
         for mk in ("sii", "otc"):
-            d = _fetch_month(y - 1911, m, mk)
+          for kd in (0, 1):                        # 含 KY(_1.html)
+            d = _fetch_month(y - 1911, m, mk, kd)
             if len(d):
                 frames.append(pd.DataFrame({
                     "code": d["code"], "ym": d["ym"],
