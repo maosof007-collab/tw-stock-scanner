@@ -36,9 +36,19 @@ def set_constituents(rows: list[dict], note: str = "") -> dict:
     tot = sum(float(r.get("weight", 0)) for r in rows) or 1.0
     for r in rows:
         r["weight"] = round(float(r.get("weight", 0)) / tot * 100, 2)
+    # 換股差異(2026-10-14:「應該出每日換了那些」)——加/刪/調權重,寫進日誌
+    _old = {c["code"]: c for c in d.get("constituents", []) if c.get("code")}
+    _new = {r["code"]: r for r in rows if r.get("code")}
+    _add = [f"{_new[c].get('name', '')}{c}×{_new[c]['weight']}%"
+            for c in _new if c not in _old and c != "CASH"]
+    _del = [f"{_old[c].get('name', '')}{c}" for c in _old if c not in _new and c != "CASH"]
+    _adj = [f"{_new[c].get('name', '')}{c} {_old[c].get('weight')}→{_new[c]['weight']}%"
+            for c in _new if c in _old and c != "CASH"
+            and abs(float(_new[c]["weight"]) - float(_old[c].get("weight", 0))) >= 0.5]
     d["log"].append({"date": f"{now_tw():%Y-%m-%d}",
                      "note": note or "改組",
-                     "constituents": [f"{r['code']}×{r['weight']}%" for r in rows]})
+                     "constituents": [f"{r['code']}×{r['weight']}%" for r in rows],
+                     "diff": {"加": _add, "刪": _del, "調": _adj}})
     d["constituents"] = rows
     save(d)
     return d
@@ -379,3 +389,59 @@ def autopilot_run() -> str:
     d["autopilot_last"] = f"{t:%Y-%m-%d}"
     save(d)
     return "rebalanced:" + "、".join(r["name"] for r in rows if r["code"] != "CASH")
+
+
+def _close_on(code: str, date: str) -> float | None:
+    s = _px(code)
+    if s is None or s.empty:
+        return None
+    w = s[s.index <= date]
+    return float(w.iloc[-1]) if len(w) else None
+
+
+def backfill_entries() -> int:
+    """舊成分補進場資訊(2026-10-14:「進出點為?」):無 entry 欄者,以成立日/上次改組日收盤回填。"""
+    d = load()
+    base = d.get("log", [{}])[-1].get("date") if d.get("log") else d.get("inception")
+    n = 0
+    for c in d["constituents"]:
+        if c.get("code") == "CASH" or c.get("entry_px"):
+            continue
+        px = _close_on(c["code"], base or f"{now_tw():%Y-%m-%d}")
+        if px:
+            c["entry_date"], c["entry_px"] = base, round(px, 2)
+            n += 1
+    if n:
+        save(d)
+    return n
+
+
+def positions_table() -> "pd.DataFrame":
+    """持倉進出表:進場價/現價/報酬/停損(家規:未賺1R=買價-1.5ATR;賺1R後=保本+移動2ATR)/距停損。"""
+    from weekly_review import stop_suggestion
+    backfill_entries()
+    d = load()
+    rows = []
+    for c in d["constituents"]:
+        code = c.get("code")
+        if code == "CASH" or not code:
+            continue
+        s = _px(code)
+        if s is None or s.empty:
+            continue
+        close = float(s.iloc[-1])
+        ep = c.get("entry_px")
+        ret = (close / ep - 1) * 100 if ep else None
+        try:
+            sg = stop_suggestion(code, float(ep) if ep else None)
+        except Exception:
+            sg = {}
+        stop = sg.get("建議")
+        gap = (close / stop - 1) * 100 if stop else None
+        rows.append({"代碼": code, "名稱": c.get("name", ""), "權重%": c.get("weight"),
+                     "進場日": c.get("entry_date", ""), "進場價": ep, "現價": round(close, 2),
+                     "報酬%": round(ret, 1) if ret is not None else None,
+                     "停損價": stop, "距停損%": round(gap, 1) if gap is not None else None,
+                     "停損型態": sg.get("說明", ""),
+                     "⚠": "🛑" if (gap is not None and gap <= 3) else ""})
+    return pd.DataFrame(rows)

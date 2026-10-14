@@ -1,0 +1,131 @@
+=== 頁1 ===
+SERVICE
+INTEGRITY
+INNOVATION
+SHARING
+致新科技 (8081.TW)
+2026 第2季營運法人說明會
+報 告 人
+董 事 長:  吳 錦 川
+2 0 2 6年 8 月 7 日
+
+=== 頁2 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 2/7
+免責聲明
+ These following-looking statements, which may include statements regarding 
+GMT’s future results of operations, financial condition or business prospects 
+are subject to significant risks and uncertainties and are based on GMT’s 
+current expectations.
+ Actual results may differ materially from those expressed or implied in these 
+forward-looking statements for a variety of reasons, including, among other 
+things; the cyclical nature or our industry; our dependence on introducing new 
+products on a timely basis; our dependence on growth in the demand for our 
+products; our ability to compete effectively; our ability to successfully expand 
+our capacity; our dependence on key personnel; general economic and 
+political conditions, including those related to the IC industry; possible 
+disruptions in commercial activities caused by natural and human-induced 
+disaster, including terrorist activity and armed conflict; and fluctuations in 
+foreign currency exchange rates. 
+ In addition, any financial information contained here with is presented in 
+conformity with accounting principles generally accepted in the Republic of 
+China.
+ Our release of financial forecasts and forward-looking statements at any 
+particular time does not create any duty of disclosure beyond that which is 
+imposed by law, and we expressly disclaim and obligation to publicly update or 
+revise any forecasts or forward-looking statements, whether as a result of new 
+information, future events or otherwise.
+
+=== 頁3 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 3/7
+• From: service@twse.com.tw
+Subject: 致新(8081) 貴公司於法人說明會中發言應注
+意事項
+• 於法人說明會中，應注意預測性營業收入或獲利資訊之發言
+，且會中所揭露資訊（含簡報檔及口頭說明），不得有誇耀
+性或類似廣告宣傳之文字，不應任意發布尚未確定之消息或
+公開與事實不符之資料等，敬請落實轉達貴公司高層發言人
+員，以免違反本公司「對有價證券上市公司重大訊息之查證
+暨公開處理程序」第15條第1項第2款及第3款規定，或「對上
+市公司應公開完整式財務預測之認定標準」規定，致有編製
+財務預測之虞。
+
+=== 頁4 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 4/7
+合併財務報表 單位: 千元台幣
+•以上數字係依據IRFS編製且經會計師核閱。
+114年度 114年度 114年度 114年度 115年度 115年度
+第一季 第二季 第三季 第四季 第一季 第二季
+營業收入 2,157,891 2,248,135 2,215,410  2,044,241   2,111,258    2,237,688    
+營業毛利 888,586 928,730 781,268      779,297      836,287       904,269       
+毛利率 41% 41% 35% 38% 40% 40%
+營業費用 425,862 397,463     428,321      449,239      465,765       452,642       
+營業利益 462,724 531,267     352,947      330,058      370,522       451,627       
+營業利益率 22% 23% 16% 16% 18% 20%
+業外收支 45,694       (162,336) 112,630     114,048      67,589         24,038         
+稅後淨利 421,741 311,944     401,193      415,867      402,259       397,076       
+稅後淨利
+(歸屬母公司)
+412,490     316,696      389,383      404,162      395,524       386,426       
+每股盈餘 4.81 3.69 4.54           4.72 4.62 4.51
+項目
+
+=== 頁5 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 5/7
+產品應用
+114Q1 114Q2 114Q3 114Q4 115Q1 115Q2
+Panel 32% 31% 35% 36% 32% 33%
+Computing 31% 32% 28% 28% 32% 30%
+TV 17% 14% 15% 17% 16% 12%
+Motor 6% 7% 6% 5% 5% 7%
+Distributor 3% 3% 3% 2% 2% 3%
+Others 11% 13% 13% 12% 13% 15%
+
+=== 頁6 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 6/7
+• 不能給2026 Q3 展望. 依証交所規定:最近四季合併財務報表,
+營業外收支淨額合計數,占稅前損益合計數,超過百分之十.
+• 三大記憶體廠產能增加跟不上需要的增加, 缺貨持續.
+• 根據毛利率,記憶體產能優先滿足server DDR5,再來HBM.
+剩下的產能做Client DDR5, LPDDR5. 大陸產能做後者.
+• AI推論的資料處理主要由CPU做, AI推論用的server需要
+配置更多的server DDR5來提提推論效能.
+• Client DDR5漲價很多,導致3C產品明顯漲價, 總銷量下降.
+• 取得更多wafer比 成本,售價,毛利率 的變動更重要.
+• 車用,工業用,伺服器 繼續做, 業績貢獻一定慢, 但穩定.
+• 持續增加研發人力和經費, 開發新產品、拓展新客戶.
+現況分析
+
+=== 頁7 ===
+致新科技股份有限公司www.gmt.com.tw
+Global Mixed-mode Technology Inc.
+ 7/7
+現況分析 II
+資本支出 (億美元)
+2024 2025 2026
+台積電 298 409 560
+三星 378 351 730
+海力士 106 193 200
+美光 82 138 250
+長鑫存儲 70 77 ???
+長江存儲 3年 400
+資料來源: Google 搜尋
+
+=== 頁8 ===
+SERVICE
+INTEGRITY
+INNOVATION
+SHARING
+請參照致新科技網址
+www.gmt.com.tw
+問題、建議與指教
+ir@gmt.com.tw

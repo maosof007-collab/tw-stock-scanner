@@ -43,6 +43,19 @@ cons = pd.DataFrame(d["constituents"]) if d["constituents"] else pd.DataFrame(
 tab_hold, tab_pick, tab_log = st.tabs(["📊 淨值與持股", "🎯 候選池(系統訊號)", "📓 改組日誌"])
 
 with tab_hold:
+    # ── 📍 持倉進出表(2026-10-14:進場價/停損/距停損,家規內建)──
+    try:
+        _pt = _me.positions_table()
+        if len(_pt):
+            st.markdown("#### 📍 進出點與停損(家規:未賺1R守「進場價-1.5ATR」;賺1R後保本+移動2ATR只升不降)")
+            st.dataframe(_pt, hide_index=True, width="stretch")
+            _hits = _pt[_pt["⚠"] == "🛑"]
+            if len(_hits):
+                st.error("🛑 距停損 ≤3%:" + "、".join(
+                    f"{r['名稱']}{r['代碼']}(停損 {r['停損價']})" for _, r in _hits.iterrows())
+                    + "——跌破就走,不討論。")
+    except Exception as _e:
+        st.caption(f"進出表載入失敗:{_e}")
     # ── 🔔 換股提醒(表現不好在最上面直接說)──
     try:
         _alerts = _me.swap_alerts()
@@ -209,5 +222,15 @@ with tab_log:
     if d["log"]:
         for e in reversed(d["log"][-20:]):
             st.markdown(f"**{e['date']}**|{e['note']}|{'、'.join(e['constituents'])}")
+            _df = e.get("diff") or {}
+            _parts = []
+            if _df.get("加"):
+                _parts.append("🟢 加:" + "、".join(_df["加"]))
+            if _df.get("刪"):
+                _parts.append("🔴 刪:" + "、".join(_df["刪"]))
+            if _df.get("調"):
+                _parts.append("🔧 調:" + "、".join(_df["調"]))
+            if _parts:
+                st.caption("　→ " + "|".join(_parts))
     else:
         st.info("尚無改組紀錄。")

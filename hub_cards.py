@@ -83,6 +83,27 @@ def _todo_list() -> list[str]:
                             f"想一想「第二個大甲」在哪(文章庫有題目)")
     except Exception:
         pass
+    # ③.74 我的ETF:今日改組 diff + 成員距停損≤3%
+    try:
+        import my_etf as _me74
+        _d74 = _me74.load()
+        _last = _d74.get("log", [{}])[-1] if _d74.get("log") else {}
+        if _last.get("date") == today:
+            _df74 = _last.get("diff") or {}
+            _seg = []
+            if _df74.get("加"):
+                _seg.append("加 " + "、".join(x.split("×")[0] for x in _df74["加"][:5]))
+            if _df74.get("刪"):
+                _seg.append("刪 " + "、".join(_df74["刪"][:5]))
+            todo.append(f"🧺 我的ETF今日改組({_last.get('note','')}):"
+                        + ("|".join(_seg) if _seg else "權重再平衡") + "——進出點見頁24")
+        _pt74 = _me74.positions_table()
+        _hit74 = _pt74[_pt74["⚠"] == "🛑"] if len(_pt74) else _pt74
+        for _, r in _hit74.iterrows():
+            todo.append(f"🛑 ETF成員 {r['名稱']}{r['代碼']} 距停損 {r['距停損%']}%"
+                        f"(停損 {r['停損價']})——跌破就走")
+    except Exception:
+        pass
     # ③.75 我的ETF換股警鈴(swap_alerts 四條件,響了才列)
     try:
         import my_etf as _meh
