@@ -21,6 +21,11 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("Nova 下單台", "ORDER DESK", "🧾")
 
+# 第二層防禦:就算有人直接打 URL,雲端(無 config.json)一律擋下
+if not (ROOT / "config.json").exists():
+    st.error("⛔ 下單台僅限本機版——雲端環境不提供交易功能。")
+    st.stop()
+
 import nova_trade as nt
 
 s = nt.status()

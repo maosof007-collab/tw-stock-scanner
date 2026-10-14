@@ -96,6 +96,10 @@ def place(code: str, lots: int, side: str = "Buy", price: float | None = None,
     """下單。預設 dry-run;live=True 且 config nova_live=true 才送實單。
     lots=張數;price=None 代表以漲跌停保護價市價化前先擋(v1 僅支援限價)。"""
     now = f"{datetime.now():%Y-%m-%d %H:%M:%S}"
+    # 第三層防禦:無 config.json(=雲端/非本人環境)直接拒絕,連模擬單都不收
+    if not (ROOT / "config.json").exists():
+        return {"time": now, "mode": "NONE", "side": side, "code": code, "lots": lots,
+                "price": price, "status": "REJECT", "note": "本機限定:雲端環境不提供交易功能"}
     blocks = _pre_trade_check(code, side) if not force else []
     mode = "LIVE" if (live and config().get("nova_live")) else "DRY"
     rec = {"time": now, "mode": mode, "side": side, "code": code,

@@ -38,3 +38,4 @@ data/update_log.csv
 # 雲端每次 code push 被 git 蓋回舊版（曾造成大盤停在 7/13），故移出 git
 data/benchmark_TWII.csv
 data/_batch_reports.lock
+data/trade_log.csv
