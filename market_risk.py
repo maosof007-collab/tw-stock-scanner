@@ -4,7 +4,7 @@ market_risk.py — 大盤風險燈(2026-10-15,-3.4% 大跌教案)
 =================================================================
 起因:個股級風控(停損紅點/爆量禁入/體檢卡)一直都有;但大盤級訊號
 (融資高檔、外資期貨急空、廣度惡化)只是「儀表」沒有「警報」——10/13 外資
-加空 8,138 口、融資 919 萬張高檔,沒有任何紅點。本模組把六個大盤訊號
+加空 8,138 口、融資 919 萬張高檔,沒有任何紅點。本模組把九個大盤訊號(本土槓桿/期貨/廣度/過熱+亞鄰傳染/美股前夜/事件日)
 匯總成一顆燈:🟢(0-1分)/🟡(2-3分)/🔴(≥4分),駕駛艙頂端顯示+待辦紅點。
 倉位對接家規:🟡=新倉減半;🔴=禁開新倉、只出不進。
 """
@@ -99,6 +99,40 @@ def assess() -> dict:
         if nw >= 6:
             score += 1
             reasons.append(f"短線過熱:迴轉率警戒 {nw} 檔")
+    except Exception:
+        pass
+    # ⑥ 亞鄰傳染:韓-台價差極端 或 KOSPI 20日重挫(10/15教案:z=-3.2、KOSPI -19.6% 無人升警報)
+    try:
+        import asia_watch
+        snap = asia_watch.asia_snapshot()
+        for m in snap.get("markets", []):
+            if m["name"] == "韓國" and m.get("chg20") is not None and m["chg20"] <= -15:
+                score += 2
+                reasons.append(f"亞鄰傳染:KOSPI 20日 {m['chg20']:+.1f}%(風暴中)")
+        for s in snap.get("spreads", []):
+            if s["pair"].startswith("韓國") and abs(s.get("z", 0)) >= 2.5:
+                score += 1
+                reasons.append(f"韓-台價差 z={s['z']:+.1f}(歷史極端,補跌/傳染風險)")
+    except Exception:
+        pass
+    # ⑦ 美股前夜:NVDA(半導體風向)單日 ≤-3%
+    try:
+        nv = pd.read_csv(D / "us" / "NVDA.csv").dropna()
+        r = nv["Close"].iloc[-1] / nv["Close"].iloc[-2] - 1
+        if r <= -0.03:
+            score += 1
+            reasons.append(f"美股前夜:NVDA {r*100:+.1f}%")
+    except Exception:
+        pass
+    # ⑧ 總經事件日:macro_events.csv 今日/明晨高重要度事件
+    try:
+        ev = pd.read_csv(D / "macro_events.csv", dtype=str)
+        from twtime import now_tw
+        today_s = f"{now_tw():%Y-%m-%d}"
+        hit = ev[(ev["date"] == today_s) & (ev["importance"] == "高")]
+        for _, e in hit.iterrows():
+            score += 1
+            reasons.append(f"事件日:{e['event']}({e.get('time','')})——數據落地前倉位從輕")
     except Exception:
         pass
     lamp = "🔴" if score >= 4 else ("🟡" if score >= 2 else "🟢")

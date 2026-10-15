@@ -83,6 +83,13 @@ def _todo_list() -> list[str]:
                             f"想一想「第二個大甲」在哪(文章庫有題目)")
     except Exception:
         pass
+    # ③.72 總經事件日(macro_events.csv,手動維護)
+    try:
+        ev = pd.read_csv(D / "macro_events.csv", dtype=str)
+        for _, e in ev[(ev["date"] == today) & (ev["importance"] == "高")].iterrows():
+            todo.append(f"📅 今晚事件:{e['event']}({e.get('time','')})——{str(e.get('note',''))[:40]}")
+    except Exception:
+        pass
     # ③.73 外資期貨淨空單急變(|日增減|≥5000口=大部位表態;10/15教案:10/13加空8138口兩天後-3.4%)
     try:
         _tf73 = pd.read_csv(D / "_taifex_fi.csv")
@@ -227,6 +234,8 @@ def render():
         elif _mr["lamp"] == "🟡":
             st.warning(f"🚦 大盤風險燈 🟡({_mr['score']}分)|{_mr['rule']}:"
                        + ";".join(_mr["reasons"]))
+        else:
+            st.caption(f"🚦 大盤風險燈 🟢({_mr['score']}分)|正常紀律")
     except Exception:
         pass
 
