@@ -221,11 +221,9 @@ def render():
         import json as _mrj
         _mr = _mrj.loads((D / "_market_risk.json").read_text(encoding="utf-8"))
         if _mr["lamp"] == "🔴":
-            st.error(f"🚦 **大盤風險燈 🔴({_mr['score']}分)|{_mr['rule']}**
-
-"
-                     + "
-".join(f"- {r}" for r in _mr["reasons"]))
+            _nl = chr(10)
+            st.error(f"🚦 **大盤風險燈 🔴({_mr['score']}分)|{_mr['rule']}**{_nl}{_nl}"
+                     + _nl.join(f"- {r}" for r in _mr["reasons"]))
         elif _mr["lamp"] == "🟡":
             st.warning(f"🚦 大盤風險燈 🟡({_mr['score']}分)|{_mr['rule']}:"
                        + ";".join(_mr["reasons"]))
