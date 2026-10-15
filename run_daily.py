@@ -387,6 +387,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 共振回調: {e}")
 
+    # ── Step 4.59908:大盤風險燈(六訊號匯總;🔴=禁開新倉)──
+    try:
+        from market_risk import assess
+        _mr = assess()
+        log.info(f"  🚦 大盤風險燈 {_mr['lamp']}({_mr['score']}分):{';'.join(_mr['reasons'][:3])}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 風險燈: {e}")
+
     # ── Step 4.5991:還沒發動掃描(低檔整理+外資吃貨+未出量)──
     try:
         import quiet_accum

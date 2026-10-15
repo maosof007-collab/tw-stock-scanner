@@ -216,6 +216,22 @@ def render():
         v = b.get(key)
         return tpl.format(v) if v else ""
 
+    # ── 🚦 大盤風險燈(2026-10-15 大跌教案:大盤級訊號從儀表升級為警報) ──
+    try:
+        import json as _mrj
+        _mr = _mrj.loads((D / "_market_risk.json").read_text(encoding="utf-8"))
+        if _mr["lamp"] == "🔴":
+            st.error(f"🚦 **大盤風險燈 🔴({_mr['score']}分)|{_mr['rule']}**
+
+"
+                     + "
+".join(f"- {r}" for r in _mr["reasons"]))
+        elif _mr["lamp"] == "🟡":
+            st.warning(f"🚦 大盤風險燈 🟡({_mr['score']}分)|{_mr['rule']}:"
+                       + ";".join(_mr["reasons"]))
+    except Exception:
+        pass
+
     # ── 直覺層:四張大數字(今天一眼) ──
     m1, m2, m3, m4 = st.columns(4)
     try:
