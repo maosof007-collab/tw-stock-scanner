@@ -387,6 +387,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 共振回調: {e}")
 
+    # ── Step 4.59907:總經頭條(鉅亨 headline+國際股,風險關鍵詞標記)──
+    try:
+        from macro_news import fetch as _mn_fetch
+        _mn = _mn_fetch()
+        log.info(f"  📰 總經頭條:{len(_mn)} 則(風險相關 {sum(1 for x in _mn if x['risk'])})")
+    except Exception as e:
+        log.warning(f"  ⚠️ 總經頭條: {e}")
+
     # ── Step 4.59908:大盤風險燈(六訊號匯總;🔴=禁開新倉)──
     try:
         from market_risk import assess

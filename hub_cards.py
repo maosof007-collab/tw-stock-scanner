@@ -239,6 +239,63 @@ def render():
     except Exception:
         pass
 
+    # ── 📰 今日戰報(一天最多自動彈一次,且僅在 🟡🔴 或高重要事件日;手動鈕隨時可開)──
+    from twtime import now_tw as _ntw
+    _today_b = f"{_ntw():%Y-%m-%d}"
+
+    @st.dialog("📰 今日戰報", width="large")
+    def _briefing():
+        try:
+            import json as _bj
+            _mr2 = _bj.loads((D / "_market_risk.json").read_text(encoding="utf-8"))
+            st.markdown(f"## 🚦 {_mr2['lamp']}({_mr2['score']}分)|{_mr2['rule']}")
+            for r in _mr2["reasons"]:
+                st.markdown(f"- {r}")
+        except Exception:
+            st.caption("風險燈資料未生成")
+        try:
+            ev = pd.read_csv(D / "macro_events.csv", dtype=str)
+            tv = ev[ev["date"] == _today_b]
+            if len(tv):
+                st.markdown("#### 📅 今日事件")
+                for _, e in tv.iterrows():
+                    st.markdown(f"- **{e['event']}**({e.get('time','')}):{e.get('note','')}")
+        except Exception:
+            pass
+        try:
+            import macro_news
+            news = [n for n in macro_news.load() if n.get("risk")][:6]
+            if news:
+                st.markdown("#### 📰 總經頭條(風險相關)")
+                for n in news:
+                    st.markdown(f"- [{n['title']}]({n['url']})")
+        except Exception:
+            pass
+        try:
+            import my_etf as _meb
+            _ptb = _meb.positions_table()
+            _hb = _ptb[_ptb["⚠"] == "🛑"] if len(_ptb) else _ptb
+            if len(_hb):
+                st.markdown("#### 🛑 持倉警報")
+                for _, r in _hb.iterrows():
+                    st.markdown(f"- {r['名稱']}{r['代碼']}:距停損 {r['距停損%']}%(停損 {r['停損價']})")
+        except Exception:
+            pass
+        st.caption("來源:風險燈/事件庫/鉅亨頭條/ETF 持倉——紀律在燈上,不在情緒上。")
+
+    _c_brief, _c_sp = st.columns([1, 5])
+    if _c_brief.button("📰 今日戰報", key="brief_btn"):
+        _briefing()
+    try:
+        import json as _bj2
+        _lamp_now = _bj2.loads((D / "_market_risk.json").read_text(encoding="utf-8"))["lamp"]
+    except Exception:
+        _lamp_now = "🟢"
+    _bk = f"briefed_{_today_b}"
+    if _lamp_now in ("🔴", "🟡") and not st.session_state.get(_bk):
+        st.session_state[_bk] = True
+        _briefing()
+
     # ── 直覺層:四張大數字(今天一眼) ──
     m1, m2, m3, m4 = st.columns(4)
     try:
