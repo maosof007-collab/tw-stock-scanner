@@ -378,6 +378,15 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 迴轉率雷達: {e}")
 
+    # ── Step 4.59905:共振回調掃描(Martin Luk 日線版:共振+錨點+回踩匯聚區)──
+    try:
+        import resonance_pullback
+        _rp = resonance_pullback.scan()
+        _na = int((_rp["級"].astype(str).str.startswith("A")).sum()) if len(_rp) else 0
+        log.info(f"  🎯 共振回調:A級 {_na} 檔/B級 {len(_rp) - _na} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 共振回調: {e}")
+
     # ── Step 4.5991:還沒發動掃描(低檔整理+外資吃貨+未出量)──
     try:
         import quiet_accum

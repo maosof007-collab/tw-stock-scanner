@@ -464,6 +464,23 @@ if _qa_p.exists():
                        "**這是觀察名單不是買點**——家規禁追,等它自己出第一根量、回測不破再進。")
     except Exception:
         pass
+# ── 🎯 共振回調(Martin Luk 日線版:A級=回踩觸發,B級=等回踩)──
+_rp_p = DATA_DIR / "_resonance.csv"
+if _rp_p.exists():
+    try:
+        _rp = pd.read_csv(_rp_p, dtype={"代碼": str})
+        _na = int(_rp["級"].astype(str).str.startswith("A").sum()) if len(_rp) else 0
+        with st.expander(f"🎯 **共振回調**|A級 {_na} 檔(可進場評估)+B級 {len(_rp)-_na} 檔(蓄勢等回踩)",
+                         expanded=bool(_na)):
+            from ui_mini_war import mini_war_table
+            mini_war_table(_rp, code_col="代碼", key="rp_tbl", height=360,
+                           extras=["級", "匯聚區", "停損(結構)", "3R"],
+                           collapse_label="📋 共振回調名單(點開換股)")
+            st.caption("日EMA9>21>50+週EMA9向上(共振)→60日內爆量錨點→前漲15%+→5日整理≤10%→"
+                       "回踩 EMA9/21/AVWAP 匯聚區。**原策略勝率僅22%,靠3R/5R賺錢——"
+                       "停損(近2日低)碰到就走,不講理由**;倉位固定小額,連虧是常態不是錯誤。")
+    except Exception:
+        pass
 st.markdown("---")
 
 # ── 自動刷新邏輯 ──────────────────────────
