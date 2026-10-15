@@ -83,6 +83,16 @@ def _todo_list() -> list[str]:
                             f"想一想「第二個大甲」在哪(文章庫有題目)")
     except Exception:
         pass
+    # ③.73 外資期貨淨空單急變(|日增減|≥5000口=大部位表態;10/15教案:10/13加空8138口兩天後-3.4%)
+    try:
+        _tf73 = pd.read_csv(D / "_taifex_fi.csv")
+        if len(_tf73) and abs(float(_tf73["日增減"].iloc[-1])) >= 5000:
+            _r73 = _tf73.iloc[-1]
+            _dir = "加空" if _r73["日增減"] < 0 else "回補"
+            todo.append(f"🧾 外資期貨單日{_dir} {abs(_r73['日增減']):,.0f} 口"
+                        f"(淨OI {_r73['淨未平倉口數']:,.0f})——大部位在表態,順向別逆勢")
+    except Exception:
+        pass
     # ③.74 我的ETF:今日改組 diff + 成員距停損≤3%
     try:
         import my_etf as _me74
