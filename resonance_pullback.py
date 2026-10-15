@@ -11,7 +11,10 @@ resonance_pullback.py — 共振回調掃描(Martin Luk 策略日線版,2026-10-
   ③前漲幅:整理前20日漲≥15%(證明是強勢股的回調,不是弱勢股的反彈)
   ④整理:近5日振幅≤10%
   ⑤回踩匯聚區:EMA9/EMA21/錨點AVWAP 三線匯聚(區寬≤3%),近3日曾觸區、現收在區上
-加風險閘:現價距結構停損(近2日低)≤4% → 給 3R/5R 參考價。
+回測(2015-2026,全市場,含0.6%成本):
+  原版結構停損(近2日低)→ PF 0.92 ❌日線不過關(停損太貼=雜訊掃損)
+  1.5ATR停損+3R → PF 1.05;+5R → PF 1.14;再加大盤>EMA50濾網 → PF 1.19、平均+0.86%/筆 ✅小幅正期望
+  定位:日線版=觀察名單產生器;分鐘級執行請用 XQ 原腳本(策略靈魂在盤中結構)。
 """
 from __future__ import annotations
 
@@ -97,13 +100,15 @@ def _check(code: str) -> dict | None:
         base["級"] = "B(等回踩觸區)"
         return base
     # 風險閘:距結構停損 ≤4%
-    stop = float(l.tail(2).min())
-    risk = close / stop - 1
-    if risk <= 0 or risk > 0.05:               # 日線尺度5%
+    tr = pd.concat([(h - l), (h - c.shift(1)).abs(), (l - c.shift(1)).abs()], axis=1).max(axis=1)
+    atr = float(tr.rolling(14).mean().iloc[-1])
+    stop = round(close - 1.5 * atr, 2)          # 回測結論:1.5ATR 版才有正期望,結構停損在日線不過關
+    risk = close / stop - 1 if stop > 0 else -1
+    if risk < 0.01 or risk > 0.08:
         base["級"] = "B(觸區但風險寬)"
         return base
     r1 = close - stop
-    base.update({"級": "A(可進場評估)", "停損(結構)": round(stop, 2),
+    base.update({"級": "A(可進場評估)", "停損(1.5ATR)": stop,
                  "風險%": round(risk * 100, 2),
                  "3R": round(close + 3 * r1, 1), "5R": round(close + 5 * r1, 1)})
     return base
