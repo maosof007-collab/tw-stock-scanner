@@ -121,6 +121,17 @@ def _todo_list() -> list[str]:
                         f"(停損 {r['停損價']})——跌破就走")
     except Exception:
         pass
+    # ③.745 ETF成員處置中(處置股不接刀研究)
+    try:
+        from disposal import current_set
+        import my_etf as _me745
+        _dpset = current_set()
+        for c in _me745.load().get("constituents", []):
+            if c.get("code") in _dpset:
+                todo.append(f"⛔ ETF成員 {c.get('name','')}{c['code']} 處置中——分盤流動性差,"
+                            f"停損單可能滑價,優先處理")
+    except Exception:
+        pass
     # ③.75 我的ETF換股警鈴(swap_alerts 四條件,響了才列)
     try:
         import my_etf as _meh

@@ -378,6 +378,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 迴轉率雷達: {e}")
 
+    # ── Step 4.59903:處置股名單(TWSE;候選池全域排除+ETF持股警示)──
+    try:
+        from disposal import refresh_current
+        _dp = refresh_current()
+        log.info(f"  ⛔ 處置中(上市):{len(_dp)} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 處置名單: {e}")
+
     # ── Step 4.59905:共振回調掃描(Martin Luk 日線版:共振+錨點+回踩匯聚區)──
     try:
         import resonance_pullback

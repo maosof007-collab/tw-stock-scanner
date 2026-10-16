@@ -118,10 +118,15 @@ def scan() -> pd.DataFrame:
     import glob
     import os
     import symbols
+    try:
+        from disposal import current_set
+        _dispo = current_set()
+    except Exception:
+        _dispo = set()
     rows = []
     for f in glob.glob(str(D / "[0-9]*.csv")):
         code = os.path.basename(f).split(".")[0]
-        if len(code) != 4:
+        if len(code) != 4 or code in _dispo:
             continue
         try:
             r = _check(code)

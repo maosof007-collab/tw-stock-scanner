@@ -152,8 +152,15 @@ def scan(top: int = 5) -> pd.DataFrame:
     import symbols
     codes = sorted(p.name.split("_")[0] for p in INST.glob("*_inst.csv")
                    if p.name.split("_")[0].isdigit() and len(p.name.split("_")[0]) == 4)
+    try:
+        from disposal import current_set
+        _dispo = current_set()
+    except Exception:
+        _dispo = set()
     rows = []
     for code in codes:
+        if code in _dispo:
+            continue
         r = _check(code)
         if r:
             try:

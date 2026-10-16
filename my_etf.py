@@ -348,6 +348,11 @@ def quant_reselect(top: int = 10, cash_pct: float = 10.0) -> "pd.DataFrame":
         except Exception:
             continue
     df = pd.DataFrame(rows).dropna(subset=["mom60"])
+    try:                                   # 處置中股票不入選(回測:處置股不接刀)
+        from disposal import current_set
+        df = df[~df["code"].isin(current_set())]
+    except Exception:
+        pass
     if df.empty:
         return df
     for col in ("mom60", "yoy", "fi_days"):
