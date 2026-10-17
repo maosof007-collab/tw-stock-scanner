@@ -182,6 +182,88 @@ def macro_block() -> dict:
     return out
 
 
+# 匯率傳導:產業別 → 強美元/台幣貶對「這檔」是順風還是成本
+_FX_COST = ("塑膠", "化學", "鋼鐵", "水泥", "航運", "油電", "造紙", "橡膠", "食品")   # 進口原料美元計價
+_FX_NEUTRAL = ("金融", "營建", "觀光", "貿易百貨", "生技")                            # 內需為主
+
+
+def _beta(code: str) -> float | None:
+    """250日 beta vs 加權指數——風險燈🔴時,高beta=優先縮手的那批。"""
+    try:
+        bm = pd.read_csv(D / "benchmark_TWII.csv", usecols=["Date", "Close"]).dropna()
+        for suf in (".TW", ".TWO"):
+            p = D / f"{code}{suf}.csv"
+            if p.exists():
+                px = pd.read_csv(p, usecols=["Date", "Close"]).dropna()
+                break
+        else:
+            return None
+        m = bm.merge(px, on="Date", suffixes=("_bm", "_s")).tail(250)
+        rb = m["Close_bm"].pct_change().dropna()
+        rs = m["Close_s"].pct_change().dropna()
+        if len(rb) < 60:
+            return None
+        return round(float(rs.cov(rb) / rb.var()), 2)
+    except Exception:
+        return None
+
+
+def macro_for(code: str, pe: float | None) -> list[dict]:
+    """個股版總經傳導:同一個總經,不同股票的受力點不一樣——這是外部卡的精髓。"""
+    rows = []
+    # ① 利率→PE(久期):PE 越高,折現率升一碼砍得越痛
+    if pe and pe > 0:
+        lv = "高" if pe > 30 else ("中" if pe > 12 else "低")
+        note = {"高": f"TTM {pe:.0f} 倍=長久期,利率上行時估值端最先挨刀",
+                "中": f"TTM {pe:.0f} 倍,利率敏感度中等",
+                "低": f"TTM {pe:.0f} 倍,估值已趴在地上,利率傷害有限"}[lv]
+        rows.append({"路徑": "利率→PE", "敏感度": lv, "讀法": note})
+    b = _beta(code)
+    if b is not None:
+        rows.append({"路徑": "大盤β", "敏感度": f"{b}",
+                     "讀法": ("高β:風險燈🔴時優先縮手的那批" if b > 1.2 else
+                              "低β:大盤級風暴中相對抗震" if b < 0.8 else "隨盤")})
+    # ② 匯率→毛利:產業別定方向
+    sector = ""
+    try:
+        sl = pd.read_csv(D / "stock_list.csv", encoding="utf-8-sig", dtype=str)
+        h = sl[sl["code"] == code]
+        sector = h["sector"].iloc[0] if not h.empty else ""
+    except Exception:
+        pass
+    if any(k in sector for k in _FX_COST):
+        fx = ("逆風", f"{sector}:原料多為美元計價——強美元/台幣貶=成本上升")
+    elif any(k in sector for k in _FX_NEUTRAL):
+        fx = ("中性", f"{sector}:內需為主,匯率傳導弱")
+    else:
+        fx = ("順風", f"{sector or '電子'}:美元收入+台幣成本——台幣貶值=毛利/匯兌順風")
+    rows.append({"路徑": "匯率→毛利", "敏感度": fx[0], "讀法": fx[1]})
+    # ③ AI資本支出→營收:族群歸屬定連動
+    ai_tag = ""
+    try:
+        from quiet_accum import _ai_tag
+        ai_tag = _ai_tag(code)
+    except Exception:
+        pass
+    if not ai_tag:
+        try:
+            sc = json.loads((D / "supply_chain.json").read_text(encoding="utf-8"))
+            for chain, info in sc.items():
+                members = info if isinstance(info, list) else info.get("members", [])
+                if any(code == str(m).split()[0] or code in str(m) for m in members):
+                    ai_tag = chain
+                    break
+        except Exception:
+            pass
+    if ai_tag:
+        rows.append({"路徑": "AI資本支出→營收", "敏感度": "直接",
+                     "讀法": f"屬「{ai_tag}」——CSP資本支出上修=順風;留意資本配給收緊的反面"})
+    else:
+        rows.append({"路徑": "AI資本支出→營收", "敏感度": "間接/排擠",
+                     "讀法": "非AI鏈:當前市場的資本排擠受害端;AI降溫反而是資金回流的受益方"})
+    return rows
+
+
 # ---------------------------------------------------------------- 最沒把握的地方(自動候選)
 def uncertainty(code: str, A: dict) -> str:
     cands = []

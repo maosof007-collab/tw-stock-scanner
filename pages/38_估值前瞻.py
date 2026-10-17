@@ -144,8 +144,12 @@ if manual_tp > 0 and band:
                f";對基準 EPS {scen['基準']} 為 {manual_tp/max(scen['基準'],0.01):.1f} 倍 PE。")
 
 # ---------------------------------------------------------------- 總經傳導
-st.subheader("總體經濟傳導")
-st.markdown(f"**傳導路徑**:{mac['傳導路徑']}")
+st.subheader("總體經濟傳導(這一檔的受力點)")
+st.caption(f"傳導路徑:{mac['傳導路徑']}")
+_pe_now = (band["close"] / A["ttm"]) if (band and A["ttm"] and A["ttm"] > 0
+                                         and not core_dead and not cyc_trough) else None
+st.dataframe(pd.DataFrame(FCX.macro_for(code, _pe_now)),
+             hide_index=True, use_container_width=True)
 r = mac.get("risk")
 if r:
     lamp = r.get("lamp", r.get("level", ""))
