@@ -124,6 +124,32 @@ def assess() -> dict:
             reasons.append(f"美股前夜:NVDA {r*100:+.1f}%")
     except Exception:
         pass
+    # ⑩ 資金前哨·台幣:5日貶≥1%=外資匯出收據(10/15教案:崩前台幣連貶2%系統沒在看。
+    #    「盤感很奇特,但資金不會騙人」——匯率是最誠實的資金流向表)
+    try:
+        tw = pd.read_csv(D / "us" / "TWD.csv").dropna()
+        r5 = tw["Close"].iloc[-1] / tw["Close"].iloc[-6] - 1
+        if r5 >= 0.01:
+            score += 1
+            reasons.append(f"資金前哨:台幣5日貶 {r5*100:.1f}%(外資匯出跡象)")
+    except Exception:
+        pass
+    # ⑪ 資金前哨·亞美背離:費半/KOSPI 5日重挫而台股未跟=補跌風險
+    #    (10/15教案:10/13 當晚 KOSPI 5日-11%、費半-6.6%、台股才-2.9%——提前兩天)
+    try:
+        bm5 = pd.read_csv(D / "benchmark_TWII.csv", usecols=["Close"]).dropna()
+        tw5 = bm5["Close"].iloc[-1] / bm5["Close"].iloc[-6] - 1
+        hits = []
+        for fn, nm in (("SOX", "費半"), ("KS11", "KOSPI")):
+            x = pd.read_csv(D / "us" / f"{fn}.csv").dropna()
+            x5 = x["Close"].iloc[-1] / x["Close"].iloc[-6] - 1
+            if x5 <= -0.06 and (tw5 - x5) >= 0.04:
+                hits.append(f"{nm} 5日 {x5*100:+.1f}% vs 台股 {tw5*100:+.1f}%")
+        if hits:
+            score += 1
+            reasons.append("資金前哨:亞美先殺、台股未跟(補跌風險)——" + ";".join(hits))
+    except Exception:
+        pass
     # ⑧ 總經事件日:macro_events.csv 今日/明晨高重要度事件
     try:
         ev = pd.read_csv(D / "macro_events.csv", dtype=str)

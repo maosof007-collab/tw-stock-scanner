@@ -58,6 +58,11 @@ def pairs() -> list[dict]:
     return _SEED
 
 
+# 資金前哨(2026-10-17 教案:10/15 崩盤前一週,KOSPI 先跌 11%、費半先跌 10.6%、
+# 台幣連貶 2%——資金不會騙人,但系統當時沒在看台幣。這三個是風險燈前哨訊號的資料源)
+_MACRO = {"TWD=X": "TWD", "^SOX": "SOX", "^KS11": "KS11"}
+
+
 def fetch_us(period: str = "6mo") -> int:
     import yfinance as yf
     ok = 0
@@ -72,6 +77,16 @@ def fetch_us(period: str = "6mo") -> int:
                     ok += 1
             except Exception:
                 continue
+    for sym, fn in _MACRO.items():
+        try:
+            d = yf.Ticker(sym).history(period=period)
+            if len(d) > 20:
+                d = d.reset_index()[["Date", "Close"]]
+                d["Date"] = pd.to_datetime(d["Date"]).dt.strftime("%Y-%m-%d")
+                d.to_csv(US_DIR / f"{fn}.csv", index=False)
+                ok += 1
+        except Exception:
+            continue
     return ok
 
 
