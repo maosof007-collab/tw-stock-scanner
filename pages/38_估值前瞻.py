@@ -65,9 +65,9 @@ defaults_p = {"保守": 30, "基準": 50, "樂觀": 20}
 for col, k in zip((c1, c2, c3), ("保守", "基準", "樂觀")):
     with col:
         scen[k] = st.number_input(f"{k} EPS", value=float(A["scen"][k]), step=0.5,
-                                  key=f"eps_{k}")
+                                  key=f"eps_{code}_{k}")
         probs[k] = st.number_input(f"{k} 機率%", value=defaults_p[k], step=5,
-                                   min_value=0, max_value=100, key=f"p_{k}")
+                                   min_value=0, max_value=100, key=f"p_{code}_{k}")
 psum = sum(probs.values())
 if psum != 100:
     st.warning(f"機率合計 {psum}%(≠100)——期望值按比例正規化。")
@@ -120,9 +120,10 @@ except Exception:
     st.caption("tp_radar 無資料。")
 mc1, mc2 = st.columns(2)
 with mc1:
-    manual_tp = st.number_input("手動:機構目標價均值(選填,0=略過)", value=0.0, step=1.0)
+    manual_tp = st.number_input("手動:機構目標價均值(選填,0=略過)", value=0.0, step=1.0,
+                                key=f"tp_{code}")
 with mc2:
-    manual_n = st.number_input("手動:機構家數(選填)", value=0, step=1)
+    manual_n = st.number_input("手動:機構家數(選填)", value=0, step=1, key=f"tn_{code}")
 if manual_tp > 0 and band:
     st.caption(f"→ 手動共識隱含 {(manual_tp/band['close']-1)*100:+.1f}%"
                f";對基準 EPS {scen['基準']} 為 {manual_tp/max(scen['基準'],0.01):.1f} 倍 PE。")
@@ -159,7 +160,8 @@ with colA:
 with colB:
     st.markdown("**推論(沒有直接數字,看方向就好)——手動**")
     moat_note = st.text_area("推論筆記(存入查詢紀錄)",
-                             value="", height=150, placeholder="例:漲價能力/客戶黏性/後進者難複製…"
+                             value="", height=150, key=f"moat_{code}",
+                             placeholder="例:漲價能力/客戶黏性/後進者難複製…"
                              "——寫下你「相信但還沒有數字」的部分,之後對帳。")
 
 # ---------------------------------------------------------------- 家規與籌碼檢查
@@ -182,7 +184,8 @@ for col, (k, v, note) in zip(fcol, items):
 # ---------------------------------------------------------------- 最沒把握的地方
 st.subheader("最沒把握的地方")
 auto_u = FCX.uncertainty(code, A)
-uncertain = st.text_area("(自動偵測,可覆寫)", value=auto_u, height=80)
+uncertain = st.text_area("(自動偵測,可覆寫)", value=auto_u, height=80,
+                         key=f"unc_{code}")
 
 # ---------------------------------------------------------------- 綜合評論+存檔
 st.subheader("綜合評論")
