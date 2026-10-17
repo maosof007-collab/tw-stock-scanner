@@ -23,6 +23,10 @@ require_login(); logout_button()
 page_header("估值前瞻", "VALUATION OUTLOOK", "🎯")
 
 import forecast_card as FCX
+# 熱更新自癒:app 不重啟時 import 會拿到舊模組 → 缺新函式就強制重載
+if not all(hasattr(FCX, f) for f in ("consensus", "macro_for", "anchor")):
+    import importlib
+    FCX = importlib.reload(FCX)
 
 # ---------------------------------------------------------------- 查詢紀錄
 recent = FCX.recent_cards(10)
