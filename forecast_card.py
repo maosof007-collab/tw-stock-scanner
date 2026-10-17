@@ -55,7 +55,12 @@ def anchor(code: str) -> dict:
         else:
             core.append(e); nonop.append(0.0)
     ttm = float(qq["EPS"].tail(4).sum())
+    # 完整年度 EPS 均值(近5年)——循環股偵測用:TTM 遠低於歷史均值=獲利谷底,PE 帶失真
+    yr_eps = [float(g["EPS"].sum()) for y, g in qq.groupby(qq["dt"].dt.year)
+              if len(g) == 4 and y < yr]
+    yr_avg = round(sum(yr_eps[-5:]) / len(yr_eps[-5:]), 2) if yr_eps else None
     out.update(ok=True, realized=round(realized, 2), n_done=len(cur), n_left=n_left,
+               yr_avg_eps=yr_avg,
                ttm=round(ttm, 2), ttm_core=round(float(sum(core)), 2),
                nonop_pct=round(float(sum(nonop) / len(nonop)) * 100) if nonop else 0,
                scen={"保守": round(cons, 2), "基準": round(base, 2), "樂觀": round(opt, 2)},

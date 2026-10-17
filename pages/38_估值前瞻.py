@@ -73,16 +73,32 @@ if psum != 100:
     st.warning(f"機率合計 {psum}%(≠100)——期望值按比例正規化。")
 exp_eps = sum(scen[k] * probs[k] for k in scen) / max(psum, 1)
 
-# 業外剝離警告(我們的獨門)
-if A["nonop_pct"] >= 40:
+# 業外剝離警告(我們的獨門)+ 本業虧損/循環谷底兩道保險絲
+core_dead = A["nonop_pct"] >= 40 and (A["ttm_core"] is None or A["ttm_core"] <= 0)
+cyc_trough = (A.get("yr_avg_eps") and A["yr_avg_eps"] > 0
+              and A["ttm"] < 0.4 * A["yr_avg_eps"])
+if core_dead:
+    st.error(f"⛔ 本業 TTM **{A['ttm_core']}**(虧損),帳面 TTM {A['ttm']} 全靠業外撐"
+             f"({A['nonop_pct']}%)——**PE 法整個失效,估值矩陣停用**。"
+             "這種股請改看 PB/循環位置/資產價值,不是 EPS 乘倍數。")
+    scale = 1.0
+elif A["nonop_pct"] >= 40:
     st.error(f"🚨 近4季獲利約 {A['nonop_pct']}% 來自業外(TTM {A['ttm']} vs 本業 TTM "
              f"{A['ttm_core']})——下方估值矩陣已改用「本業係數」折算,別拿全 EPS 配歷史 PE。")
     scale = A["ttm_core"] / A["ttm"] if A["ttm"] else 1.0
 else:
     scale = 1.0
+if cyc_trough:
+    st.warning(f"🌀 循環股陷阱:TTM EPS {A['ttm']} 不到歷史年均 {A['yr_avg_eps']} 的四成"
+               "——獲利在谷底時歷史 PE 帶會虛胖(高PE=谷底、低PE=循環頂)。"
+               "下方矩陣僅供參考,循環股請用 PB 帶/景氣位置判斷。")
 
 # ---------------------------------------------------------------- 估值矩陣
-if band:
+exp_px = None
+if band and core_dead:
+    st.info("估值矩陣停用(本業虧損)。可看的替代訊號:月營收 YoY 轉折(頁19)、"
+            "同業毛利率排名(下方)、循環位置。")
+elif band:
     st.subheader("估值矩陣(三情境 × 歷史 PE 帶)")
     st.caption(f"近3年 PE 分位:P25 {band['P25']} / P50 {band['P50']} / P75 {band['P75']}"
                f"|現價 {band['close']}" + ("|⚠️ 已按本業係數折算" if scale < 1 else ""))
@@ -98,7 +114,6 @@ if band:
     st.metric("期望價(機率加權 EPS × P50)", f"{exp_px}",
               f"{up:+.1f}% vs 現價 {band['close']}")
 else:
-    exp_px = None
     st.info("歷史 PE 樣本不足(虧損期太長或上市太短)——矩陣停用,只看情境 EPS。")
 
 # ---------------------------------------------------------------- 機構預估(tp_radar)
