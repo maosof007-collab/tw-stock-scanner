@@ -26,10 +26,19 @@ API_BROADCAST = "https://api.line.me/v2/bot/message/broadcast"
 
 
 def _cfg() -> dict:
+    """相容兩種寫法:頂層 line_channel_token/line_group_id,
+    或巢狀 line_messaging:{enabled, channel_access_token, to_id}
+    (2026-10-17 教案:config 用巢狀、這裡讀頂層——鍵名對不上,推播啞了都沒人知道)。"""
     try:
-        return json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+        c = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
     except Exception:
         return {}
+    lm = c.get("line_messaging") or {}
+    if lm.get("channel_access_token") and not c.get("line_channel_token"):
+        if lm.get("enabled", True):
+            c["line_channel_token"] = lm["channel_access_token"]
+            c.setdefault("line_group_id", lm.get("to_id"))
+    return c
 
 
 def enabled() -> bool:

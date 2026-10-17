@@ -237,7 +237,14 @@ def render():
     # ── 🚦 大盤風險燈(2026-10-15 大跌教案:大盤級訊號從儀表升級為警報) ──
     try:
         import json as _mrj
-        _mr = _mrj.loads((D / "_market_risk.json").read_text(encoding="utf-8"))
+        _mrp = D / "_market_risk.json"
+        _mr = _mrj.loads(_mrp.read_text(encoding="utf-8"))
+        # 數據過期防呆(2026-10-17「我很怕我沒看到」教案):燈沒更新≠天下太平
+        import time as _t
+        _age_h = (_t.time() - _mrp.stat().st_mtime) / 3600
+        if _age_h > 20:
+            st.warning(f"⏰ 風險燈數據已 {_age_h:.0f} 小時未更新——沉默≠安全,"
+                       "先跑 run_daily 或 sentinel_morning 再做決策。")
         if _mr["lamp"] == "🔴":
             _nl = chr(10)
             st.error(f"🚦 **大盤風險燈 🔴({_mr['score']}分)|{_mr['rule']}**{_nl}{_nl}"
