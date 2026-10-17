@@ -298,6 +298,30 @@ def uncertainty(code: str, A: dict) -> str:
     return sorted(cands, reverse=True)[0][1]
 
 
+# ---------------------------------------------------------------- 機構共識(yfinance/FactSet)
+def consensus(code: str) -> dict | None:
+    """全量券商共識(yfinance 轉 FactSet):目標價均/中/高/低+家數+評等+forward EPS。
+    tp_radar 是新聞流(只有最近被報導的股票),這個才是逐檔都查得到的共識庫。"""
+    try:
+        import yfinance as yf
+        suf = ".TW" if (D / f"{code}.TW.csv").exists() else ".TWO"
+        t = yf.Ticker(f"{code}{suf}")
+        pt = t.analyst_price_targets or {}
+        if not pt.get("mean"):
+            return None
+        out = {k: round(float(v), 1) for k, v in pt.items() if v is not None}
+        try:
+            info = t.info
+            out["家數"] = info.get("numberOfAnalystOpinions")
+            out["評等"] = info.get("recommendationKey")
+            out["forwardEPS"] = info.get("forwardEps")
+        except Exception:
+            pass
+        return out
+    except Exception:
+        return None
+
+
 # ---------------------------------------------------------------- 存取查詢紀錄
 def save_card(code: str, payload: dict) -> Path:
     p = FC / f"{code}.json"

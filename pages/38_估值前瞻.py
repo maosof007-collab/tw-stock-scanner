@@ -116,23 +116,45 @@ elif band:
 else:
     st.info("歷史 PE 樣本不足(虧損期太長或上市太短)——矩陣停用,只看情境 EPS。")
 
-# ---------------------------------------------------------------- 機構預估(tp_radar)
-st.subheader("機構預估(FactSet 新聞流,非全量共識)")
+# ---------------------------------------------------------------- 機構預估彙總
+st.subheader("機構預估彙總")
+
+
+@st.cache_data(ttl=3600, show_spinner="抓券商共識…")
+def _cons(c):
+    return FCX.consensus(c)
+
+
+cons = _cons(code)
+if cons:
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("目標價均值", cons.get("mean", "—"),
+              (f"{(cons['mean']/cons['current']-1)*100:+.1f}% 隱含"
+               if cons.get("current") else None))
+    k2.metric("中位/區間", f"{cons.get('median','—')}",
+              f"{cons.get('low','—')}~{cons.get('high','—')}", delta_color="off")
+    k3.metric("機構家數", cons.get("家數", "—"),
+              str(cons.get("評等", "") or ""), delta_color="off")
+    fw = cons.get("forwardEPS")
+    k4.metric("共識 Forward EPS", fw if fw else "—",
+              (f"對基準差 {(scen['基準']/fw-1)*100:+.0f}%" if fw else None),
+              delta_color="off")
+    if fw:
+        st.caption(f"對帳:你的基準 {scen['基準']} vs 街上 forward {fw}"
+                   f"——差距大就回頭檢查剩餘季 run-rate 假設;"
+                   f"均值 {cons.get('mean')} 隱含 {cons['mean']/fw:.1f} 倍 forward PE。")
+    st.caption("來源:yfinance(轉 FactSet 共識)·每小時快取——家數少(<5)時均值噪音大,看區間別看點。")
+else:
+    st.caption("yfinance 查無此檔共識(冷門股常見)——用下方手動欄。")
 try:
     from tp_radar import latest_for, load
     hit = latest_for(code)
     if hit:
-        st.markdown(f"最新:{hit.get('日期','')} {hit.get('類型','')}{hit.get('方向','')} "
-                    f"目標價 **{hit.get('目標價','—')}**|EPS預估 {hit.get('EPS預估','—')}")
-        hist = load()
-        h = hist[hist["code"] == code].tail(6) if not hist.empty else pd.DataFrame()
-        if len(h) > 1:
-            st.dataframe(h[["日期", "類型", "方向", "目標價", "EPS預估"]],
-                         hide_index=True, use_container_width=True)
-    else:
-        st.caption("近期無 FactSet 調查新聞——可自填下方手動欄。")
+        st.markdown(f"📰 近期異動(鉅亨FactSet快報):{hit.get('日期','')} "
+                    f"{hit.get('類型','')}{hit.get('方向','')} 目標價 "
+                    f"**{hit.get('目標價','—')}**|EPS預估 {hit.get('EPS預估','—')}")
 except Exception:
-    st.caption("tp_radar 無資料。")
+    pass
 mc1, mc2 = st.columns(2)
 with mc1:
     manual_tp = st.number_input("手動:機構目標價均值(選填,0=略過)", value=0.0, step=1.0,
