@@ -37,7 +37,11 @@ def _cfg() -> dict:
     if lm.get("channel_access_token") and not c.get("line_channel_token"):
         if lm.get("enabled", True):
             c["line_channel_token"] = lm["channel_access_token"]
-            c.setdefault("line_group_id", lm.get("to_id"))
+            # LINE 的 ID 一定以 C(群組)/U(個人)/R(聊天室)開頭;
+            # 填 "broadcast"/"all" 之類的字樣=想用廣播 → 當空值處理
+            tid = (lm.get("to_id") or "").strip()
+            if tid and tid[0] in "CUR" and len(tid) > 10:
+                c.setdefault("line_group_id", tid)
     return c
 
 
