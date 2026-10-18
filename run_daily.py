@@ -410,6 +410,8 @@ def main():
         log.info(f"  🚦 大盤風險燈 {_mr['lamp']}({_mr['score']}分):{';'.join(_mr['reasons'][:3])}")
         from alert_watch import check_and_push
         log.info(f"  📡 哨兵:{check_and_push()}")
+        from daily_line import push as _dl_push
+        log.info(f"  📰 日報LINE:{_dl_push()}")
     except Exception as e:
         log.warning(f"  ⚠️ 風險燈: {e}")
 
