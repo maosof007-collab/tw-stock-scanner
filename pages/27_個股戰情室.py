@@ -276,6 +276,35 @@ with _lx2:
         except Exception as _e:
             st.warning(f"鏈譜讀取失敗:{_e}")
 
+# ── Row2.7:融資壓力對照(tetsu壓力圖融合版;10/16研究:紅盤×高融資=-15.6%最毒)──
+with st.expander("🩸 融資壓力對照(推估維持率 × 大盤急跌區)", expanded=False):
+    try:
+        import margin_stress as _ms
+        _fig, _mr2 = _ms.chart(code)
+        if _fig is None:
+            st.info("此股無融資資料(data/margin)。")
+        else:
+            _cd = _mr2["cards"]
+            _m1, _m2, _m3, _m4 = st.columns(4)
+            _lv = _cd["最新維持率%"]
+            _m1.metric("最新推估維持率", f"{_lv}%" if _lv else "—",
+                       "⚠️近斷頭" if _lv and _lv < 130 else
+                       ("偏低" if _lv and _lv < 150 else None), delta_color="inverse")
+            _m2.metric("期間股價(130日)", f"{_cd['期間股價%']:+.1f}%")
+            _m3.metric("融資使用率", f"{_cd['融資使用率%']}%" if _cd["融資使用率%"] else "—",
+                       "≥30%=踩踏燃料" if (_cd["融資使用率%"] or 0) >= 30 else None,
+                       delta_color="off")
+            _wk = _cd.get("大盤最弱日") or {}
+            _m4.metric(f"大盤最弱日 {_wk.get('日期','—')}({_wk.get('大盤%','')}%)",
+                       f"該日維持率 {_wk.get('該日維持率','—')}%")
+            st.plotly_chart(_fig, width="stretch", config={"displayModeBar": False})
+            st.caption("維持率為「推估」(餘額增量×當日價推加權成本;上市成數0.6/上櫃0.5)"
+                       "——看趨勢與130%追繳線距離,別當精確值。紅底=大盤急跌區"
+                       "(5日≤-4%或距20日高≤-8%)。家規對接:維持率<130或使用率≥30,"
+                       "大跌日嚴禁接刀(紅盤×高融資=60日-15.6%最毒象限)。")
+    except Exception as _e:
+        st.warning(f"融資壓力計算失敗:{_e}")
+
 # ── Row3:圖表頁籤 ──
 t_kd, t_macd, t_chip, t_rep = st.tabs(["📈 KD+MA", "📉 MACD", "🗺️ 五軌分軌圖", "📄 相關報告"])
 with t_kd:
