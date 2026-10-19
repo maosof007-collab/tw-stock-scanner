@@ -383,7 +383,7 @@ def main():
     # ── Step 4.59905:強勢資金(EOD成交注意力;白底HTML+LINE段落用)──
     try:
         import attention_scan
-        log.info(f"  💪 {attention_scan.run_daily_step()}")
+        log.info(f"  💪 強勢資金+Flex:{attention_scan.push_flex_daily()}")
     except Exception as e:
         log.warning(f"  ⚠️ 強勢資金: {e}")
 

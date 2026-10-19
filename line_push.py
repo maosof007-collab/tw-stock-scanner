@@ -89,3 +89,25 @@ def push_text(text: str) -> str:
 
 def push_markdown(md: str) -> str:
     return push_text(_md_to_plain(md))
+
+
+def push_flex(alt_text: str, contents: dict) -> str:
+    """推 Flex Message(原生表格卡片;額度計 1 則)。contents=bubble/carousel dict。"""
+    cfg = _cfg()
+    token = cfg.get("line_channel_token")
+    if not token:
+        return "未設定 line_channel_token,略過"
+    gid = cfg.get("line_group_id")
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    body = {"messages": [{"type": "flex", "altText": alt_text[:390], "contents": contents}]}
+    try:
+        if gid:
+            body["to"] = gid
+            r = requests.post(API_PUSH, headers=headers, json=body, timeout=20)
+        else:
+            r = requests.post(API_BROADCAST, headers=headers, json=body, timeout=20)
+        if r.status_code == 200:
+            return "LINE Flex 推播成功 ✅"
+        return f"LINE Flex 失敗 {r.status_code}:{r.text[:160]}"
+    except Exception as e:
+        return f"LINE Flex 例外:{type(e).__name__}"

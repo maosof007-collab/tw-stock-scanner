@@ -191,3 +191,72 @@ if __name__ == "__main__":
     if r:
         print(save_html(r))
         print(line_text(r))
+
+
+# ---------------------------------------------------------------- LINE Flex(白底表格卡)
+def _flex_row(r) -> dict:
+    chg = float(r["漲跌%"])
+    col = "#d0342c" if chg > 0 else ("#1a8a4d" if chg < 0 else "#555555")
+    dt = str(r.get("隔日沖") or "")
+    dt = "" if dt == "nan" else dt
+    return {"type": "box", "layout": "horizontal", "contents": [
+        {"type": "text", "text": f"{r['代碼']} {r['名稱']}"[:11], "size": "sm",
+         "flex": 5, "color": "#1a1d24"},
+        {"type": "text", "text": f"{chg:+.1f}%", "size": "sm", "flex": 3,
+         "align": "end", "color": col, "weight": "bold"},
+        {"type": "text", "text": f"x{r['占比倍數']}", "size": "sm", "flex": 3,
+         "align": "end", "color": "#555555"},
+        {"type": "text", "text": dt or " ", "size": "sm", "flex": 2,
+         "align": "end", "color": "#c47f00"}]}
+
+
+def flex_payload(res: dict, n: int = 8) -> tuple[str, dict]:
+    m, top, dt = res["meta"], res["top"], res["dt"]
+    head = {"type": "box", "layout": "horizontal", "contents": [
+        {"type": "text", "text": "代碼/名稱", "size": "xs", "flex": 5, "color": "#999999"},
+        {"type": "text", "text": "漲跌", "size": "xs", "flex": 3, "align": "end", "color": "#999999"},
+        {"type": "text", "text": "占比倍", "size": "xs", "flex": 3, "align": "end", "color": "#999999"},
+        {"type": "text", "text": "沖", "size": "xs", "flex": 2, "align": "end", "color": "#999999"}]}
+    body = [head, {"type": "separator", "margin": "sm"}]
+    body += [_flex_row(r) for _, r in top.head(n).iterrows()]
+    if len(dt):
+        body.append({"type": "separator", "margin": "md"})
+        body.append({"type": "text", "text": "🔪 隔日沖警戒(明日賣壓,禁入)",
+                     "size": "xs", "color": "#c47f00", "weight": "bold", "margin": "md"})
+        names = "、".join((dt["代碼"] + dt["名稱"]).head(10).tolist())
+        body.append({"type": "text", "text": names, "size": "xs", "wrap": True,
+                     "color": "#555555"})
+    bubble = {"type": "bubble", "size": "mega",
+      "header": {"type": "box", "layout": "vertical", "backgroundColor": "#f4f4f4",
+        "contents": [{"type": "text", "text": f"💪 強勢資金 {m['date'][5:]}",
+                       "weight": "bold", "size": "md", "color": "#1a1d24"},
+                      {"type": "text", "text": f"大盤 {m['mkt_r']:+.2f}%|合格 {m['n']} 檔",
+                       "size": "xs", "color": "#888888"}]},
+      "body": {"type": "box", "layout": "vertical", "spacing": "sm", "contents": body},
+      "footer": {"type": "box", "layout": "vertical", "contents": [
+        {"type": "text", "text": "占比倍=資金湧入倍率·EOD版·非投資建議",
+         "size": "xxs", "color": "#aaaaaa"}]}}
+    alt = f"強勢資金 {m['date'][5:]}:" + "、".join(
+        (top["代碼"] + top["名稱"]).head(5).tolist())
+    return alt, bubble
+
+
+def push_flex_daily(force: bool = False) -> str:
+    """每日一則 Flex 表格卡(與日報文字版分開;額度 +1/日)。"""
+    from twtime import now_tw
+    mark = D / "_att_flex_sent.txt"
+    today_s = f"{now_tw():%Y-%m-%d}"
+    if not force and mark.exists() and mark.read_text() == today_s:
+        return "今日Flex已推"
+    res = scan()
+    if not res:
+        return "無資料"
+    save_html(res)
+    alt, bubble = flex_payload(res)
+    import line_push
+    if not line_push.enabled():
+        return "LINE未設定"
+    r = line_push.push_flex(alt, bubble)
+    if "成功" in r:
+        mark.write_text(today_s)
+    return r
