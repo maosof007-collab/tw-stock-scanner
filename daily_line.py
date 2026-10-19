@@ -117,11 +117,31 @@ def _events() -> list[str]:
         return []
 
 
+def _attention() -> list[str]:
+    """強勢資金+隔日沖(2026-10-19:「每天強勢以及可能隔日沖的,做成方便給LINE讀的」)。"""
+    try:
+        import attention_scan
+        df = pd.read_csv(D / "_attention.csv", dtype={"代碼": str})
+        if df.empty:
+            return []
+        out = ["💪 強勢資金 Top5:"]
+        for _, r in df.head(5).iterrows():
+            out.append(f"・{r['代碼']}{r['名稱']} {r['漲跌%']:+.1f}% "
+                       f"占比x{r['占比倍數']} 量{r['量比']}x{' '+str(r['隔日沖']) if str(r['隔日沖'])!='nan' and r['隔日沖'] else ''}")
+        dt = df[df["隔日沖"].fillna("") != ""]
+        if len(dt):
+            out.append("🔪 隔日沖警戒(明日賣壓,禁入):"
+                       + "、".join((dt["代碼"] + dt["名稱"]).head(8).tolist()))
+        return out
+    except Exception:
+        return []
+
+
 def build_digest() -> str:
     n = now_tw()
     wd = "一二三四五六日"[n.weekday()]
     parts = [f"📰 tw_backtest 日報 {n:%m/%d}(週{wd})"]
-    for sec in (_risk(), _market(), _stops(), _turnover(), _quiet(),
+    for sec in (_risk(), _market(), _stops(), _attention(), _turnover(), _quiet(),
                 _concalls(), _events()):
         if sec:
             parts.append("")

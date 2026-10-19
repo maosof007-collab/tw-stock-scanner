@@ -295,6 +295,8 @@ def main():
         _fn = daily_review()
         if _fn:
             log.info(f"  ✅ 我的ETF日檢:{_fn}")
+        from my_etf import enforce_stops
+        log.info(f"  🛑 ETF停損執行:{enforce_stops()}")
         from my_etf import autopilot_run
         _ap = autopilot_run()
         if _ap.startswith("rebalanced"):
@@ -377,6 +379,13 @@ def main():
         log.info(f"  🌪️ 迴轉率:入榜 {len(_tv)} 檔,🔪警戒 {_nw} 檔")
     except Exception as e:
         log.warning(f"  ⚠️ 迴轉率雷達: {e}")
+
+    # ── Step 4.59905:強勢資金(EOD成交注意力;白底HTML+LINE段落用)──
+    try:
+        import attention_scan
+        log.info(f"  💪 {attention_scan.run_daily_step()}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 強勢資金: {e}")
 
     # ── Step 4.59903:處置股名單(TWSE;候選池全域排除+ETF持股警示)──
     try:

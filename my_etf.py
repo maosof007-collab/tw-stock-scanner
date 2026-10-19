@@ -450,3 +450,30 @@ def positions_table() -> "pd.DataFrame":
                      "停損型態": sg.get("說明", ""),
                      "⚠": "🛑" if (gap is not None and gap <= 3) else ""})
     return pd.DataFrame(rows)
+
+
+def enforce_stops() -> str:
+    """每日停損執行(2026-10-19教案:「為啥不停損換股?」——停損價只顯示不執行=裝飾)。
+    現價跌破停損價 → 砍出,權重轉 CASH,寫進改組日誌;不自動補新股:
+    家規 🔴 禁開新倉——換股等風險燈退或月度重選,現金就是部位。"""
+    d = load()
+    pt = positions_table()
+    if pt.empty:
+        return "無持倉"
+    hit = pt[pt["距停損%"].notna() & (pt["距停損%"] < 0)]
+    if hit.empty:
+        return "無跌破停損"
+    codes = set(hit["代碼"])
+    rows = [c for c in d["constituents"] if c.get("code") not in codes]
+    freed = sum(float(c.get("weight", 0)) for c in d["constituents"]
+                if c.get("code") in codes)
+    cash = next((c for c in rows if c.get("code") == "CASH"), None)
+    if cash:
+        cash["weight"] = round(float(cash.get("weight", 0)) + freed, 2)
+    else:
+        rows.append({"code": "CASH", "name": "現金", "weight": round(freed, 2),
+                     "thesis": "停損釋出——🔴禁開新倉,等燈退/月選"})
+    note = "🛑停損執行:" + "、".join(
+        f"{r['名稱']}{r['代碼']}({r['報酬%']:+.1f}%)" for _, r in hit.iterrows())
+    set_constituents(rows, note=note)
+    return note
