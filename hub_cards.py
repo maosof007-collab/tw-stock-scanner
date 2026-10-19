@@ -230,6 +230,15 @@ def render():
     """首頁頂部駕駛艙。"""
     b = _badges()
 
+    # 主題切換(2026-10-19「介面想改白的」:白=預設,深色=懷舊選項)
+    try:
+        from ui_theme import theme_toggle
+        _tg_c, _ = st.columns([1, 6])
+        with _tg_c:
+            theme_toggle()
+    except Exception:
+        pass
+
     def n(key, tpl):
         v = b.get(key)
         return tpl.format(v) if v else ""
