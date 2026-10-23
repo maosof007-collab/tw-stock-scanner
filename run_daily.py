@@ -386,8 +386,11 @@ def main():
         log.info(f"  💪 強勢資金+Flex:{attention_scan.push_flex_daily()}")
         import research_rank
         _rr = research_rank.build()
+        _rq = research_rank.quiet_rank()
         log.info(f"  🏆 研究排名:{len(_rr)} 檔,榜首 "
-                 f"{_rr['名稱'].iloc[0] if len(_rr) else '-'}")
+                 f"{_rr['名稱'].iloc[0] if len(_rr) else '-'}"
+                 f"|🤫 潛伏榜 {len(_rq)} 檔,首位 "
+                 f"{_rq['名稱'].iloc[0] if len(_rq) else '-'}")
     except Exception as e:
         log.warning(f"  ⚠️ 強勢資金: {e}")
 

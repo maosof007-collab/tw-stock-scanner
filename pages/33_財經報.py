@@ -32,6 +32,18 @@ with st.expander("🏆 研究名單總排名(覆蓋標的·每日重算)", expan
                      hide_index=True, use_container_width=True, height=560)
         st.caption("總分=營收30%+獲利30%+籌碼25%+位置15%-家規扣分(處置10/爆量8/融資≥30% 8/迴轉警5);"
                    "業外佔比重的獲利分腰斬。排名是體檢不是買單——高分看續航,低分看原因。")
+        st.markdown("##### 🤫 還沒發動版(低檔+整理+吃貨;位置是資格不是分數)")
+        try:
+            _qk = _rpd.read_csv(_RP(__file__).parent.parent / "data" / "_research_rank_quiet.csv",
+                                dtype={"代碼": str})
+            _qc = ["潛伏排名", "代碼", "名稱", "潛伏分", "籌碼分", "營收分", "獲利分",
+                   "距年高%", "60日%", "外資天", "大戶4週Δ", "融資%"]
+            st.dataframe(_qk[[c for c in _qc if c in _qk.columns]],
+                         hide_index=True, use_container_width=True)
+            st.caption("資格:距年高≤-15%+站60MA+60日<25%+無爆量/處置;排序=籌碼40%+營收30%+獲利30%。"
+                       "家規:觀察名單零部位,進場等它自己出第一根後回測不破;融資%高的列大跌日禁接。")
+        except Exception:
+            st.caption("潛伏榜尚未生成。")
         if st.button("🔄 立即重算(約2分鐘)"):
             import research_rank
             with st.spinner("全名單重算中…"):

@@ -136,3 +136,23 @@ if __name__ == "__main__":
     cols = ["排名", "代碼", "名稱", "總分", "營收分", "獲利分", "籌碼分", "位置分", "扣分",
             "營收YoY3", "毛利率", "營益率", "外資天", "大戶4週Δ", "距年高%", "融資%"]
     print(d[[c for c in cols if c in d.columns]].to_string(index=False))
+
+
+def quiet_rank() -> pd.DataFrame:
+    """還沒發動版排名(2026-10-24):同一份名單、反向權重——
+    資格:距年高 ≤-15%(還在低檔)+ 站60MA(整理偏強)+ 60日漲幅 <25%(沒噴過)
+         + 無爆量窗/處置(家規乾淨)
+    排序:籌碼 40%(錢有沒有先進)+ 營收 30% + 獲利 30%;位置不計分(低就是資格)。"""
+    p = D / "_research_rank.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(p, dtype={"代碼": str})
+    ok = (df["距年高%"] <= -15) & df["站60MA"].fillna(False) & (df["60日%"] < 25)          & ~df.get("爆量窗", False).fillna(False) & ~df.get("處置", False).fillna(False)
+    q = df[ok].copy()
+    if q.empty:
+        return q
+    q["潛伏分"] = (q["籌碼分"] * .4 + q["營收分"] * .3 + q["獲利分"] * .3).round(1)
+    q = q.sort_values("潛伏分", ascending=False).reset_index(drop=True)
+    q.insert(0, "潛伏排名", q.index + 1)
+    q.to_csv(D / "_research_rank_quiet.csv", index=False, encoding="utf-8-sig")
+    return q
