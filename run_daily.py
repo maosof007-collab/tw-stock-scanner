@@ -384,6 +384,10 @@ def main():
     try:
         import attention_scan
         log.info(f"  💪 強勢資金+Flex:{attention_scan.push_flex_daily()}")
+        import research_rank
+        _rr = research_rank.build()
+        log.info(f"  🏆 研究排名:{len(_rr)} 檔,榜首 "
+                 f"{_rr['名稱'].iloc[0] if len(_rr) else '-'}")
     except Exception as e:
         log.warning(f"  ⚠️ 強勢資金: {e}")
 

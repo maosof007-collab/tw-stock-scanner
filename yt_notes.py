@@ -40,6 +40,7 @@ def fetch(url: str) -> dict:
     """抓標題+字幕 → data/yt_notes/{id}_{title}.txt。回傳 {ok, path|err, title, source}。"""
     import yt_dlp
     base = {"skip_download": True, "quiet": True, "no_warnings": True,
+            "ignore_no_formats_error": True,     # 會員片常無可下載格式,我們只要字幕
             "writesubtitles": True, "writeautomaticsub": True,
             "subtitleslangs": ["zh-TW", "zh-Hant", "zh", "zh-CN", "en"],
             "subtitlesformat": "vtt"}

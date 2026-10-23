@@ -19,6 +19,27 @@ from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("財經報專刊", "THE PAPER", "🗞️")
 
+# ── 🏆 研究名單總排名(2026-10-23「我們找那麼多,應該也要有排名」)──
+with st.expander("🏆 研究名單總排名(覆蓋標的·每日重算)", expanded=False):
+    try:
+        import pandas as _rpd
+        from pathlib import Path as _RP
+        _rk = _rpd.read_csv(_RP(__file__).parent.parent / "data" / "_research_rank.csv",
+                            dtype={"代碼": str})
+        _cols = ["排名", "代碼", "名稱", "總分", "營收分", "獲利分", "籌碼分", "位置分",
+                 "扣分", "營收YoY3", "毛利率", "外資天", "大戶4週Δ", "距年高%", "融資%"]
+        st.dataframe(_rk[[c for c in _cols if c in _rk.columns]],
+                     hide_index=True, use_container_width=True, height=560)
+        st.caption("總分=營收30%+獲利30%+籌碼25%+位置15%-家規扣分(處置10/爆量8/融資≥30% 8/迴轉警5);"
+                   "業外佔比重的獲利分腰斬。排名是體檢不是買單——高分看續航,低分看原因。")
+        if st.button("🔄 立即重算(約2分鐘)"):
+            import research_rank
+            with st.spinner("全名單重算中…"):
+                research_rank.build()
+            st.rerun()
+    except Exception as _e:
+        st.info(f"排名表尚未生成——run_daily 會自動產生({_e})")
+
 import newspaper as _np
 from symbols import resolve as _rs
 
