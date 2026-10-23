@@ -39,3 +39,7 @@ data/update_log.csv
 data/benchmark_TWII.csv
 data/_batch_reports.lock
 data/trade_log.csv
+
+# YT 筆記(會員內容+cookies,絕不進雲端)
+data/yt_notes/
+data/_yt_cookies.txt
