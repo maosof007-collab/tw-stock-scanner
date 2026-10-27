@@ -1,0 +1,137 @@
+=== 頁1 ===
+Unleash Innovation
+© 02026 TSMC, Ltd TSMC Property
+Unleash Innovation
+2026年第三季法人說明會
+2026年10月15日
+
+=== 頁2 ===
+Unleash Innovation
+© 12026 TSMC, Ltd TSMC Property
+會議議程
+• 致歡迎詞 蘇志凱 法人關係處處長
+• 2026年第三季營運成果及第四季業績展望 黃仁昭 財務長
+• Key Messages 黃仁昭 財務長
+魏哲家 董事長暨總裁
+• 問與答
+
+=== 頁3 ===
+Unleash Innovation
+© 22026 TSMC, Ltd TSMC Property
+Safe Harbor Notice
+• TSMC’s statements of its current expectations are forward-looking statements subject to 
+significant risks and uncertainties and actual results may differ materially from those 
+contained in the forward-looking statements. 
+• Information as to those factors that could cause actual results to vary can be found in 
+TSMC’s 2025 Annual Report on Form 20-F filed with the United States Securities and 
+Exchange Commission (the “SEC”) on April 16, 2026 and such other documents as TSMC 
+may file with, or submit to, the SEC from time to time. 
+• Except as required by law, we undertake no obligation to update any forward-looking 
+statement, whether as a result of new information, future events, or otherwise.
+
+=== 頁4 ===
+Unleash Innovation
+© 32026 TSMC, Ltd TSMC Property
+綜合損益表
+綜合損益表項目
+3Q26
+3Q26
+2Q26 3Q25 季變化 年變化(除另予註明者外，金額為新台幣十億元) 業績展望
+營業收入淨額 (美金十億元) 46.72 44.6-45.8 40.20 33.10 +16.2% +41.2%
+營業收入淨額 1,494.24 1,270.38 989.92 +17.6% +50.9%
+營業毛利率 66.4% 65.0%-67.0% 67.7% 59.5% -1.3 ppts +6.9 ppts
+營業費用 (116.43) (98.98) (87.76) +17.6% +32.7%
+營業淨利率 58.7% 56.0%-58.0% 60.3% 50.6% -1.6 ppts +8.1 ppts
+營業外收入及支出 34.59 95.83 24.68 -63.9% +40.1%
+歸屬予母公司業主之本期淨利 763.06 706.56 452.30 +8.0% +68.7%
+純益率 51.1% 55.6% 45.7% -4.5 ppts +5.4 ppts
+每股盈餘 (新台幣元) 29.43 27.25 17.44 +8.0% +68.7%
+股東權益報酬率 45.5% 45.9% 37.8% -0.4 ppts +7.7 ppts
+晶圓出貨量 (千片十二吋約當晶圓) 4,476 4,336 4,085 +3.2% +9.6%
+平均匯率 (美元/新台幣) 31.98 32.0 31.60 29.91 +1.2% +6.9%
+*    2026年第三季加權平均流通在外股數為259億3仟2佰萬股
+**  股東權益報酬率為以母公司股東平均股權計算的年化數據
+
+=== 頁5 ===
+Unleash Innovation
+© 42026 TSMC, Ltd TSMC Property
+2026年第三季銷售分析-製程別
+
+
+=== 頁6 ===
+Unleash Innovation
+© 52026 TSMC, Ltd TSMC Property
+2026年第三季銷售分析-技術平台別
+
+
+=== 頁7 ===
+Unleash Innovation
+© 62026 TSMC, Ltd TSMC Property
+資產負債表及重要財務指標
+資產負債表項目 3Q26 2Q26 3Q25
+(新台幣十億元) 金額 % 金額 % 金額 %
+現金及有價金融商品投資 4,016.98 39.9 % 3,518.01 37.5 % 2,751.06 37.4 %
+應收帳款 483.56 4.8 % 440.92 4.7 % 307.81 4.2 %
+存貨 427.75 4.3 % 385.53 4.1 % 288.69 3.9 %
+長期投資 224.63 2.2 % 227.93 2.4 % 148.98 2.0 %
+不動產、廠房及設備 4,526.49 45.0 % 4,302.88 45.9 % 3,499.34 47.6 %
+資產總計 10,052.89 100.0 % 9,375.65 100.0 % 7,354.11 100.0 %
+流動負債 1,967.75 19.6 % 1,857.76 19.8 % 1,275.91 17.3 %
+長期計息負債 818.38 8.1 % 864.27 9.2 % 918.23 12.5 %
+負債總計 3,009.66 29.9 % 2,901.18 30.9 % 2,318.53 31.5 %
+股東權益總計 7,043.23 70.1 % 6,474.47 69.1 % 5,035.58 68.5 %
+重要財務指標
+平均收現日數 28 29 25
+平均銷貨日數 82 87 74
+流動比率 (倍) 2.6 2.5 2.7
+資產生產力 (倍) 1.4 1.2 1.2
+*  2026年9月30日流通在外股數為259億3仟2佰萬股
+** 資產生產力 = 年化營業收入淨額 / 平均不動產 、 廠房及設備淨額
+
+=== 頁8 ===
+Unleash Innovation
+© 72026 TSMC, Ltd TSMC Property
+現金流量表
+* 自由現金流量 = 營運活動之現金流入–資本支出
+(新台幣十億元) 3Q26 2Q26 3Q25
+期初現金 3,134.22 3,035.64 2,364.52
+營運活動之現金流入 919.77 783.36 426.83
+資本支出 (443.21) (496.00) (287.45)
+現金股利 (155.59) (155.59) (116.70)
+應付公司債 (0.85) (31.66) (9.06)
+投資與其他 167.55 (1.53) 92.62
+期末現金 3,621.89 3,134.22 2,470.76
+自由現金流量* 476.56 287.36 139.38
+
+=== 頁9 ===
+Unleash Innovation
+© 82026 TSMC, Ltd TSMC Property
+2026年第四季業績展望
+基於目前對營運展望的假設，台積公司預期:
+• 合併營收約介於美金 523 億元到 543 億元之間。
+此外，基於平均匯率 31.8 的假設，台積公司預期:
+• 營業毛利率約介於百分之 65 到百分之 67 之間。
+• 營業利益率約介於百分之 56.5 到百分之 58.5 之間。
+
+=== 頁10 ===
+Unleash Innovation
+© 92026 TSMC, Ltd TSMC Property
+未來展望
+基於目前對營運展望的假設，台積公司預期 :
+• 2026 年美元合併營收成長大約 44%。
+
+=== 頁11 ===
+Unleash Innovation
+© 102026 TSMC, Ltd TSMC Property
+• 艾司摩爾與台積公司引領產業轉移升級至大尺寸High NA EUV光罩 (2026/09/08)
+• Sony與台積公司同意成立合資公司支援下一世代影像感測器 (2026/08/11) 
+• 台積公司董事會核准配發2026年第二季之每股現金股利7.0元，其普通股配息基準日訂定為2026年12
+月16日，除息交易日則為2026年12月10日，並於2027年1月7日發放 (2026/08/11) 
+• 詳情請參閱台積公司網站 (https://www.tsmc.com) 最新消息公告及公開資訊觀測站 (https://mops.twse.com.tw) 重大訊息公告。
+近期重要事件摘要
+
+=== 頁12 ===
+Unleash Innovation
+© 112026 TSMC, Ltd TSMC Property
+https://www.tsmc.com
+invest@tsmc.com
