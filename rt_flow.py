@@ -1,0 +1,210 @@
+# -*- coding: utf-8 -*-
+"""
+rt_flow.py — 盤中族群資金流(證交所 MIS 即時快照 → 流入/流出推估)
+=================================================================
+起因(2026-10-28):「我想做一個跟台新即時的平台,即時看族群資金流進流出」。
+原理:MIS API 每分鐘快照 → 累積成交量增量 × 成交價 × 1000 = 該分鐘成交金額;
+     方向用價格變化判定(漲=流入、跌=流出、平=與昨收比)。
+     這是推估,不是逐筆內外盤——但族群層級聚合後排序高度一致(台新同款邏輯)。
+資料:免費、上市(tse_)+上櫃(otc_)都走 mis.twse.com.tw;指數 t00/o00。
+快照存 data/_rt_flow/YYYYMMDD.csv(gitignore——盤中暫態資料,不進雲端)。
+族群對照:theme_groups.THEME_GROUPS(改表即生效)。
+"""
+from __future__ import annotations
+
+import json
+import time
+import urllib.request
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from theme_groups import THEME_GROUPS
+from twtime import now_tw
+
+ROOT = Path(__file__).parent
+RT_DIR = ROOT / "data" / "_rt_flow"
+RT_DIR.mkdir(exist_ok=True)
+
+_HDR = {"User-Agent": "Mozilla/5.0"}
+_BATCH = 50          # MIS 單次查詢上限內的安全批量
+_NAMES: dict[str, str] = {}   # code -> 名稱(抓一次就記住)
+
+
+# ─────────────────────────── 宇宙與市場別 ───────────────────────────
+def _market_map() -> dict[str, str]:
+    """code -> tse/otc;來源 stock_list.csv,查不到預設 tse。"""
+    try:
+        sl = pd.read_csv(ROOT / "data" / "stock_list.csv", dtype={"code": str})
+        return {r.code: ("otc" if r.market == "上櫃" else "tse") for r in sl.itertuples()}
+    except Exception:
+        return {}
+
+
+def universe() -> pd.DataFrame:
+    """族群成分股攤平:code / group / ex。一檔多族群會重複列(聚合時各算各的)。"""
+    mk = _market_map()
+    rows = [{"code": c, "group": g, "ex": mk.get(c, "tse")}
+            for g, codes in THEME_GROUPS.items() for c in codes]
+    return pd.DataFrame(rows)
+
+
+# ─────────────────────────── MIS 快照 ───────────────────────────
+def _mis(ex_ch: str) -> list[dict]:
+    url = (f"https://mis.twse.com.tw/stock/api/getStockInfo.jsp?"
+           f"ex_ch={ex_ch}&json=1&delay=0&_={int(time.time()*1000)}")
+    req = urllib.request.Request(url, headers=_HDR)
+    return json.loads(urllib.request.urlopen(req, timeout=15).read()).get("msgArray", [])
+
+
+def _num(x) -> float | None:
+    try:
+        v = float(str(x).replace(",", ""))
+        return v if v == v else None   # NaN guard
+    except (TypeError, ValueError):
+        return None
+
+
+def indices() -> dict:
+    """加權(t00)+櫃買(o00)即時:{名: (最新, 漲跌%)}。"""
+    out = {}
+    try:
+        for r in _mis("tse_t00.tw|otc_o00.tw"):
+            z, y = _num(r.get("z")), _num(r.get("y"))
+            name = "加權指數" if r.get("c") == "t00" else "櫃買指數"
+            if z and y:
+                out[name] = (z, (z / y - 1) * 100)
+            elif y:
+                out[name] = (y, 0.0)
+    except Exception:
+        pass
+    return out
+
+
+def snap() -> pd.DataFrame:
+    """抓整個宇宙一輪快照:ts/code/price/vol(張)/y。無成交價(盤前)的列略過。"""
+    uni = universe().drop_duplicates("code")
+    rows = []
+    ts = f"{now_tw():%H:%M:%S}"
+    items = [f"{r.ex}_{r.code}.tw" for r in uni.itertuples()]
+    for i in range(0, len(items), _BATCH):
+        try:
+            for r in _mis("|".join(items[i:i + _BATCH])):
+                if r.get("n"):
+                    _NAMES[r.get("c", "")] = r["n"]
+                v, y = _num(r.get("v")), _num(r.get("y"))
+                if v is None:          # 還沒有任何成交 → 無量可算
+                    continue
+                # MIS 陷阱:z 只在「最近5秒剛好有成交」才有值,其餘回 "-"
+                # fallback:最新成交 → 買賣最佳報價中點 → 單邊報價 → 昨收
+                z = _num(r.get("z"))
+                if z is None:
+                    a0 = _num(str(r.get("a", "")).split("_")[0])
+                    b0 = _num(str(r.get("b", "")).split("_")[0])
+                    z = (a0 + b0) / 2 if (a0 and b0) else (a0 or b0) or y
+                if z is None:
+                    continue
+                rows.append({"ts": ts, "code": r["c"], "price": z, "vol": v, "y": y})
+        except Exception:
+            continue
+        time.sleep(0.25)
+    return pd.DataFrame(rows)
+
+
+def record() -> int:
+    """抓一輪並追加到當日檔;回傳寫入筆數。同一分鐘重複呼叫不重寫。"""
+    f = RT_DIR / f"{now_tw():%Y%m%d}.csv"
+    df = snap()
+    if df.empty:
+        return 0
+    if f.exists():
+        try:
+            last = pd.read_csv(f, usecols=["ts"]).ts.iloc[-1]
+            if str(last)[:5] == df.ts.iloc[0][:5]:   # 同一分鐘 → 跳過
+                return 0
+        except Exception:
+            pass
+    df.to_csv(f, mode="a", header=not f.exists(), index=False, encoding="utf-8-sig")
+    return len(df)
+
+
+# ─────────────────────────── 流向計算 ───────────────────────────
+def load_day(date: str | None = None) -> pd.DataFrame:
+    """讀當日(或指定 YYYYMMDD)快照;沒有就找最近一天。"""
+    f = RT_DIR / f"{date or f'{now_tw():%Y%m%d}'}.csv"
+    if not f.exists():
+        files = sorted(RT_DIR.glob("2*.csv"))
+        if not files:
+            return pd.DataFrame()
+        f = files[-1]
+    df = pd.read_csv(f, dtype={"code": str})
+    df.attrs["date"] = f.stem
+    return df
+
+
+def stock_flows(day: pd.DataFrame) -> pd.DataFrame:
+    """快照 → 每檔每分鐘資金流(萬元):漲=+、跌=-、平=與昨收比。"""
+    if day.empty:
+        return pd.DataFrame()
+    day = day.sort_values(["code", "ts"]).copy()
+    day["sec"] = pd.to_timedelta(day["ts"]).dt.total_seconds()
+    g = day.groupby("code")
+    day["dv"] = g["vol"].diff().fillna(day["vol"]).clip(lower=0)      # 首筆=開盤以來累積
+    day["dp"] = g["price"].diff()
+    # 方向:正常一分鐘增量看 tick;首筆或補抓(間隔>90秒,增量橫跨多分鐘)看對昨收
+    # ——否則漏抓後追回的大增量會被單一 tick 整包誤判(2026-10-28 南亞科教案)
+    catchup = g["sec"].diff().isna() | (g["sec"].diff() > 90)
+    sgn = np.sign(day["dp"].fillna(0))
+    tie = np.sign((day["price"] - day["y"]).fillna(0))
+    day["dir"] = np.where(catchup, tie, np.where(sgn != 0, sgn, tie))
+    day["amt"] = day["dv"] * day["price"] * 1000 / 1e4                # 萬元
+    day["flow"] = day["amt"] * day["dir"]
+    return day
+
+
+def group_flows(day: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """回傳 (族群總表, 族群分時累積)。金額單位:億元。"""
+    sf = stock_flows(day)
+    if sf.empty:
+        return pd.DataFrame(), pd.DataFrame()
+    m = sf.merge(universe(), on="code")                    # 一檔多族群 → 各族群都計
+    per_ts = (m.groupby(["group", "ts"])
+               .agg(flow=("flow", "sum"), amt=("amt", "sum")).reset_index())
+    per_ts["累積淨流"] = per_ts.groupby("group")["flow"].cumsum() / 1e4   # 億
+    last = sf.sort_values("ts").groupby("code").tail(1).copy()
+    last["pct"] = (last["price"] / last["y"] - 1) * 100
+    pm = last.merge(universe(), on="code")
+    tot = (m.groupby("group").agg(淨流入=("flow", "sum"), 總成交=("amt", "sum"))
+            .div(1e4).join(pm.groupby("group")["pct"].median().rename("漲跌%"))
+            .sort_values("淨流入", ascending=False).reset_index())
+    return tot, per_ts
+
+
+def stock_table(day: pd.DataFrame, group: str) -> pd.DataFrame:
+    """單一族群的個股明細(最新價/漲跌%/成交額/淨流入,萬→億顯示在頁面處理)。"""
+    sf = stock_flows(day)
+    if sf.empty:
+        return pd.DataFrame()
+    codes = THEME_GROUPS.get(group, [])
+    sub = sf[sf["code"].isin(codes)]
+    agg = sub.groupby("code").agg(淨流入=("flow", "sum"), 成交額=("amt", "sum"))
+    last = sub.sort_values("ts").groupby("code").tail(1).set_index("code")
+    out = agg.join(last[["price", "y", "vol"]])
+    out["漲跌%"] = (out["price"] / out["y"] - 1) * 100
+    try:
+        from symbols import resolve
+        out["名稱"] = [_NAMES.get(c) or (resolve(c)[1] or c) for c in out.index]
+    except Exception:
+        out["名稱"] = [_NAMES.get(c, c) for c in out.index]
+    return (out.reset_index()[["code", "名稱", "price", "漲跌%", "成交額", "淨流入", "vol"]]
+              .rename(columns={"code": "代號", "price": "最新", "vol": "張數"})
+              .sort_values("淨流入", ascending=False))
+
+
+if __name__ == "__main__":
+    print("指數:", indices())
+    n = record()
+    print(f"快照寫入 {n} 檔")
+    tot, _ = group_flows(load_day())
+    print(tot.head(10).to_string(index=False) if len(tot) else "尚無盤中資料")

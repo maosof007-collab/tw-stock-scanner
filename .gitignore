@@ -43,3 +43,6 @@ data/trade_log.csv
 # YT 筆記(會員內容+cookies,絕不進雲端)
 data/yt_notes/
 data/_yt_cookies.txt
+
+# 盤中即時快照(每分鐘累積的暫態資料,不進 git——雲端開頁自己會抓)
+data/_rt_flow/
