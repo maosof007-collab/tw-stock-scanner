@@ -51,6 +51,11 @@ def main() -> None:
             from attention_scan import push_flex_daily
             return push_flex_daily()
         _step("強勢Flex", flex)
+
+        def faces():
+            from new_faces import push
+            return push()
+        _step("新面孔雷達", faces)
     else:
         print("[notify] 17:00 前時段:日報/Flex 留給晚間時段")
 
