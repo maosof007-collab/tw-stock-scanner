@@ -96,6 +96,33 @@ def _live():
                        xaxis=dict(categoryorder="category ascending"))
     st.plotly_chart(fig2, use_container_width=True)
 
+    # ── 盤中強勢股(當沖觀察池) ──
+    st.markdown("#### 🎯 盤中強勢股(當沖觀察池)")
+    ss = RT.strong_stocks(day)
+    if len(ss):
+        v = ss.head(12).copy()
+        v["淨流"] = (v["淨流"] / 1e4).round(2)
+        v["額"] = (v["額"] / 1e4).round(2)
+        st.dataframe(
+            v.rename(columns={"淨流": "淨流入(億)", "額": "成交額(億)"}),
+            hide_index=True, use_container_width=True,
+            column_config={
+                "漲%": st.column_config.NumberColumn(format="%+.2f%%"),
+                "量比": st.column_config.NumberColumn(format="%.1f"),
+                "買氣": st.column_config.NumberColumn(format="%+.2f"),
+                "距日高%": st.column_config.NumberColumn(format="%+.2f%%"),
+                "最新": st.column_config.NumberColumn(format="%.1f"),
+                "強勢分": st.column_config.ProgressColumn(min_value=0, max_value=100,
+                                                       format="%.0f"),
+            })
+        st.caption("強勢分=漲幅35%+量比25%+買氣20%+站均價10%+貼日高10(池門檻:上漲且"
+                   "成交額≥3000萬)。量比=今日累積量÷(5日均量×U型時段曲線);買氣=淨流入/成交額。"
+                   "⚠ 家內回測(6-10月、1339筆、含當沖成本0.435%):開盤買收盤賣整體勝率僅44.5%、"
+                   "中位數-0.43%;唯一正期望組是「開盤跳空1~3%」(勝率52.1%、平均+0.58%),"
+                   "跳空>3%追高無肉。這是觀察池不是買單;風險燈🔴時禁開新倉。")
+    else:
+        st.info("強勢池還沒有符合門檻的標的(上漲+成交額≥3000萬)。")
+
     # ── 個股明細 ──
     g1, g2 = st.columns([1, 3])
     pick = g1.selectbox("看族群成分", list(tot.sort_values("淨流入", ascending=False)["group"]))

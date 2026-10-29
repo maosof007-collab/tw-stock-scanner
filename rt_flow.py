@@ -202,9 +202,87 @@ def stock_table(day: pd.DataFrame, group: str) -> pd.DataFrame:
               .sort_values("淨流入", ascending=False))
 
 
+# ─────────────────────────── 盤中強勢股(當沖觀察池) ───────────────────────────
+# 量能時段曲線:台股 U 型(開盤重、午間輕、尾盤重)的粗估累積比例——量比用,推估值
+_VC_MIN = [0, 15, 30, 60, 120, 180, 240, 270]
+_VC_CUM = [.02, .14, .20, .30, .45, .60, .80, 1.0]
+
+_AVG5: dict[str, float | None] = {}   # code -> 近5日均量(張);當日不變,抓一次
+
+
+def _avg5_vol(code: str) -> float | None:
+    if code in _AVG5:
+        return _AVG5[code]
+    v = None
+    for suf in (".TW.csv", ".TWO.csv"):
+        p = ROOT / "data" / f"{code}{suf}"
+        if p.exists():
+            try:
+                s = pd.read_csv(p, usecols=["Volume"]).Volume.astype(float)
+                s = s[s > 0].tail(5)
+                v = float(s.mean()) / 1000 if len(s) else None   # 股 → 張
+            except Exception:
+                v = None
+            break
+    _AVG5[code] = v
+    return v
+
+
+def strong_stocks(day: pd.DataFrame, min_amt: float = 3000) -> pd.DataFrame:
+    """盤中強勢股體檢:漲幅/量比/買氣/位置 四維合成分(0~100)。
+    量比=今日累積張 ÷(5日均量×時段曲線);買氣=淨流入/成交額(-1~1)。
+    min_amt:今日累積成交額門檻(萬元)——流動性不足不進池(當沖滑價殺人)。
+    僅供觀察:家內回測(news_daytrade)唯一正期望組是「跳空1~3%」,>3% 追高無肉。"""
+    sf = stock_flows(day)
+    if sf.empty:
+        return pd.DataFrame()
+    sf = sf.copy()
+    sf["pv"] = sf["dv"] * sf["price"]
+    agg = sf.groupby("code").agg(淨流=("flow", "sum"), 額=("amt", "sum"),
+                                 日高=("price", "max"), Σdv=("dv", "sum"), Σpv=("pv", "sum"))
+    last = sf.sort_values("ts").groupby("code").tail(1).set_index("code")
+    t = agg.join(last[["price", "y", "vol", "ts"]])
+    t["漲%"] = (t["price"] / t["y"] - 1) * 100
+    t["均價"] = np.where(t["Σdv"] > 0, t["Σpv"] / t["Σdv"], t["price"])
+    t["站均價"] = t["price"] >= t["均價"]
+    t["距日高%"] = (t["price"] / t["日高"] - 1) * 100
+    # 量比:經過時間用最後快照的時刻
+    mins = (pd.to_timedelta(t["ts"]).dt.total_seconds() - 9 * 3600) / 60
+    frac = np.interp(mins.clip(1, 270), _VC_MIN, _VC_CUM)
+    av5 = pd.Series({c: _avg5_vol(c) for c in t.index}, dtype=float)
+    t["量比"] = t["vol"] / (av5 * frac)
+    t["買氣"] = np.where(t["額"] > 0, t["淨流"] / t["額"], 0)
+    # 池門檻:上漲 + 流動性
+    t = t[(t["漲%"] > 0) & (t["額"] >= min_amt)]
+    if t.empty:
+        return pd.DataFrame()
+
+    def r(col):
+        return (t[col].rank(pct=True) * 100).fillna(50)
+    t["強勢分"] = (r("漲%") * .35 + r("量比") * .25 + r("買氣") * .20
+                 + t["站均價"].astype(int) * 10
+                 + (t["距日高%"] >= -1.0).astype(int) * 10).round(1)
+    grp = universe().drop_duplicates("code").set_index("code")["group"]
+    t["族群"] = grp.reindex(t.index)
+    try:
+        from symbols import resolve
+        t["名稱"] = [_NAMES.get(c) or (resolve(c)[1] or c) for c in t.index]
+    except Exception:
+        t["名稱"] = [_NAMES.get(c, c) for c in t.index]
+    out = (t.reset_index()[["code", "名稱", "族群", "price", "漲%", "量比", "買氣",
+                            "站均價", "距日高%", "淨流", "額", "強勢分"]]
+             .rename(columns={"code": "代號", "price": "最新"})
+             .sort_values("強勢分", ascending=False))
+    return out
+
+
 if __name__ == "__main__":
     print("指數:", indices())
     n = record()
     print(f"快照寫入 {n} 檔")
     tot, _ = group_flows(load_day())
     print(tot.head(10).to_string(index=False) if len(tot) else "尚無盤中資料")
+    ss = strong_stocks(load_day())
+    if len(ss):
+        print("\n=== 盤中強勢股 Top10 ===")
+        print(ss.head(10).to_string(index=False))
