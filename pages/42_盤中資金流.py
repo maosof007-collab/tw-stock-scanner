@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-pages/42_盤中資金流.py — 即時族群資金流進流出(台新同款,自家免費版)
+pages/42_盤中資金流.py — 即時族群資金流(Shioaji Pro 同款四區版面,自家免費版)
 =================================================================
-「我想做一個跟台新即時的平台,即時看族群資金流進流出」(2026-10-28)。
+「我想做一個跟台新即時的平台,即時看族群資金流進流出」(2026-10-28)
+「即時頁面改這樣吧」(2026-10-29,附 Shioaji Pro 截圖)→ 改四區:
+  ①市場脈動(指數/台幣/宇宙累計淨流大數字) ②族群資金流向泡泡圖
+  ③累計淨流排行                         ④產業全景 treemap + 個股貢獻
 盤中(09:00-13:32)每 60 秒自動輪詢證交所 MIS 快照 → 量增量×價×方向=資金流。
 紅=流入(漲)、綠=流出(跌)——台股習慣。收盤後顯示當日(或最近一日)全貌。
 注意:這是推估(快照級),不是逐筆內外盤;族群排序才是重點,個股數字看相對。
 """
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -44,51 +47,99 @@ def _live():
         except Exception:
             pass
 
+    day = RT.load_day()
+    tot, per_ts = (RT.group_flows(day) if not day.empty
+                   else (pd.DataFrame(), pd.DataFrame()))
+
+    # ── ① 市場脈動 ──
     idx = RT.indices()
-    c = st.columns(4)
-    for i, (name, (px, pct)) in enumerate(idx.items()):
-        c[i].metric(name, f"{px:,.0f}", f"{pct:+.2f}%",
+    c = st.columns(5)
+    for i, (name, (px_, pct)) in enumerate(idx.items()):
+        c[i].metric(name, f"{px_:,.0f}", f"{pct:+.2f}%",
                     delta_color="inverse")        # 台股紅漲:inverse 讓 + 顯紅
     fx = RT.usdtwd()
     if fx:
         c[2].metric("台幣(USD/TWD)", f"{fx[0]:.3f}",
                     f"{fx[1]:+.2f}% {'貶' if fx[1] > 0 else '升'}",
                     delta_color="inverse")        # 貶值顯紅(出口甜、資金流出訊號)
-    c[3].metric("模式", "🔴 LIVE 60s" if live else "⏸ 收盤快照",
+    if len(tot):
+        net, amt = tot["淨流入"].sum(), tot["總成交"].sum()
+        c[3].metric("宇宙資金流(億)", f"{amt:,.0f} 成交",
+                    f"{net:+,.1f} 淨流", delta_color="inverse")
+    c[4].metric("模式", "🔴 LIVE 60s" if live else "⏸ 收盤快照",
                 f"{now_tw():%H:%M:%S}", delta_color="off")
 
-    day = RT.load_day()
     if day.empty:
         st.info("還沒有今日快照——開盤(09:00)後這頁會自動每分鐘累積。"
-                "掛著不用動,像看台新的盤一樣。")
+                "掛著不用動,像看 Shioaji 的盤一樣。")
         return
     ddate = day.attrs.get("date", "")
     if ddate and ddate != f"{now_tw():%Y%m%d}":
-        c[3].metric("資料日", f"{ddate[4:6]}/{ddate[6:]}", "最近交易日", delta_color="off")
-
-    tot, per_ts = RT.group_flows(day)
+        c[4].metric("資料日", f"{ddate[4:6]}/{ddate[6:]}", "最近交易日", delta_color="off")
     if tot.empty:
         st.info("快照已開始,等前兩輪取得增量後出圖(約 2 分鐘)。")
         return
 
-    # ── 主圖:族群淨流入排行(紅流入/綠流出) ──
-    tot = tot.sort_values("淨流入")
-    colors = [T.RED if v >= 0 else T.GREEN for v in tot["淨流入"]]
-    fig = go.Figure(go.Bar(
-        x=tot["淨流入"], y=tot["group"], orientation="h", marker_color=colors,
-        text=[f"{v:+.1f}億({p:+.1f}%)" for v, p in zip(tot["淨流入"], tot["漲跌%"])],
-        textposition="outside", textfont=dict(size=11),
+    # ── ②+③ 族群資金流向泡泡圖|累計淨流排行 ──
+    L, R = st.columns([3, 2])
+    bub = tot.dropna(subset=["漲跌%"]).copy()
+    sz = bub["總成交"].clip(lower=0.1) ** 0.5
+    sz = 14 + 40 * (sz - sz.min()) / max(float(sz.max() - sz.min()), 1e-9)
+    # 標籤只給成交額前 12 大(全標會疊成一團);其餘 hover 看
+    big = set(bub.nlargest(12, "總成交")["group"])
+    figb = go.Figure(go.Scatter(
+        x=bub["淨流入"], y=bub["漲跌%"], mode="markers+text",
+        hovertext=bub["group"],
+        text=[g if g in big else "" for g in bub["group"]],
+        textposition="top center",
+        textfont=dict(size=10, color=T.MUTED),
+        marker=dict(size=sz, opacity=.8, line=dict(width=1, color=T.CARD),
+                    color=[T.RED if v >= 0 else T.GREEN for v in bub["淨流入"]]),
+        customdata=bub["總成交"],
+        hovertemplate="%{hovertext}<br>淨流入 %{x:+.2f} 億|漲跌中位 %{y:+.2f}%|"
+                      "成交 %{customdata:,.1f} 億<extra></extra>"))
+    figb.add_vline(x=0, line_color=T.GRID, line_width=1)
+    figb.add_hline(y=0, line_color=T.GRID, line_width=1)
+    figb.update_layout(height=460, margin=dict(l=10, r=10, t=36, b=10),
+                       title="族群資金流向(泡泡=成交額)",
+                       xaxis_title="累計淨流入(億)", yaxis_title="漲跌%(成分中位)")
+    L.plotly_chart(figb, use_container_width=True)
+
+    tot_s = tot.sort_values("淨流入")
+    figr = go.Figure(go.Bar(
+        x=tot_s["淨流入"], y=tot_s["group"], orientation="h",
+        marker_color=[T.RED if v >= 0 else T.GREEN for v in tot_s["淨流入"]],
+        text=[f"{v:+.1f}" for v in tot_s["淨流入"]],
+        textposition="outside", textfont=dict(size=10),
         hovertemplate="%{y}<br>淨流入 %{x:+.2f} 億<extra></extra>"))
-    fig.update_layout(height=max(420, 24 * len(tot)), margin=dict(l=10, r=100, t=30, b=10),
-                      xaxis=dict(range=[min(tot["淨流入"].min() * 1.3,
-                                            -abs(tot["淨流入"].max()) * 0.22) - 1,
-                                        tot["淨流入"].max() * 1.25]),
-                      title=f"族群淨流入(億元,開盤累積到 {day.ts.iloc[-1][:5]})",
-                      xaxis_title=None, yaxis_title=None)
-    st.plotly_chart(fig, use_container_width=True)
+    figr.update_layout(height=460, margin=dict(l=10, r=60, t=36, b=10),
+                       title="累計淨流入排行(億)",
+                       xaxis=dict(range=[float(tot_s["淨流入"].min()) * 1.35 - .5,
+                                         float(tot_s["淨流入"].max()) * 1.35 + .5]),
+                       yaxis=dict(tickfont=dict(size=10)))
+    R.plotly_chart(figr, use_container_width=True)
+
+    # ── ④ 產業全景 treemap(面積=成交額、顏色=漲跌%) ──
+    alls = RT.all_stocks(day)
+    tm = alls.dropna(subset=["族群"]).query("成交額 > 0").copy()
+    if len(tm):
+        tm["名稱"] = tm["名稱"].fillna(tm["代號"])
+        tm["標籤"] = [f"{n}<br>{p:+.1f}%" for n, p in zip(tm["名稱"], tm["漲跌%"])]
+        mid = "#2A3A55" if T.MODE == "dark" else "#E7EAF0"
+        figt = px.treemap(tm, path=["族群", "標籤"], values="成交額", color="漲跌%",
+                          color_continuous_scale=[T.GREEN, mid, T.RED],
+                          range_color=[-5, 5], color_continuous_midpoint=0)
+        figt.update_traces(marker_line_width=1, marker_line_color=T.DARK,
+                           textfont=dict(size=11),
+                           hovertemplate="%{id}<br>成交 %{value:,.0f} 萬<extra></extra>")
+        figt.update_layout(height=560, margin=dict(l=4, r=4, t=36, b=4),
+                           title="產業全景(面積=成交額、紅漲綠跌)",
+                           coloraxis_showscale=False)
+        st.plotly_chart(figt, use_container_width=True)
 
     # ── 走勢:流入前 5 + 流出前 3 的盤中累積線 ──
-    lead = list(tot.tail(5)["group"]) + list(tot.head(3)["group"])
+    lead = list(tot.sort_values("淨流入").tail(5)["group"]) \
+         + list(tot.sort_values("淨流入").head(3)["group"])
     sub = per_ts[per_ts["group"].isin(lead)]
     fig2 = go.Figure()
     for i, g in enumerate(reversed(lead)):
@@ -100,6 +151,22 @@ def _live():
                        yaxis_title="億元", legend=dict(orientation="h", y=-0.2),
                        xaxis=dict(categoryorder="category ascending"))
     st.plotly_chart(fig2, use_container_width=True)
+
+    # ── 個股貢獻排行(買超/賣超金額) ──
+    if len(alls):
+        g1, g2 = st.columns(2)
+        a = alls.copy()
+        a["淨流入(億)"] = (a["淨流入"] / 1e4).round(2)
+        a["成交額(億)"] = (a["成交額"] / 1e4).round(2)
+        cols = ["代號", "名稱", "族群", "最新", "漲跌%", "淨流入(億)", "成交額(億)"]
+        cfg = {"漲跌%": st.column_config.NumberColumn(format="%+.2f%%"),
+               "最新": st.column_config.NumberColumn(format="%.1f")}
+        g1.markdown("##### 🔴 淨流入最大(買超)")
+        g1.dataframe(a.nlargest(10, "淨流入")[cols], hide_index=True,
+                     use_container_width=True, column_config=cfg)
+        g2.markdown("##### 🟢 淨流出最大(賣超)")
+        g2.dataframe(a.nsmallest(10, "淨流入")[cols], hide_index=True,
+                     use_container_width=True, column_config=cfg)
 
     # ── 盤中強勢股(當沖觀察池) ──
     st.markdown("#### 🎯 盤中強勢股(當沖觀察池)")
@@ -147,7 +214,8 @@ def _live():
                      column_config={"漲跌%": st.column_config.NumberColumn(format="%+.2f%%"),
                                     "最新": st.column_config.NumberColumn(format="%.1f")})
     st.caption("方法:每分鐘快照的成交量增量×價格,漲判流入、跌判流出(平盤與昨收比)——"
-               "推估值,非逐筆內外盤。族群相對排序是重點;一檔多族群會分別計入。"
+               "推估值,非逐筆內外盤。族群相對排序是重點;一檔多族群會分別計入"
+               "(僅 treemap/個股貢獻取第一族群,避免面積重複)。"
                "資料源:證交所 MIS(上市+上櫃),免費、約 5 秒延遲。")
 
 

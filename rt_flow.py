@@ -194,6 +194,27 @@ def group_flows(day: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     return tot, per_ts
 
 
+def all_stocks(day: pd.DataFrame) -> pd.DataFrame:
+    """全宇宙個股聚合(產業全景 treemap / 個股貢獻排行用)。
+    一檔多族群時取第一個族群(treemap 不能重複計面積)。金額單位:萬元。"""
+    sf = stock_flows(day)
+    if sf.empty:
+        return pd.DataFrame()
+    agg = sf.groupby("code").agg(淨流入=("flow", "sum"), 成交額=("amt", "sum"))
+    last = sf.sort_values("ts").groupby("code").tail(1).set_index("code")
+    out = agg.join(last[["price", "y"]])
+    out["漲跌%"] = (out["price"] / out["y"] - 1) * 100
+    grp = universe().drop_duplicates("code").set_index("code")["group"]
+    out["族群"] = grp.reindex(out.index)
+    try:
+        from symbols import resolve
+        out["名稱"] = [_NAMES.get(c) or (resolve(c)[1] or c) for c in out.index]
+    except Exception:
+        out["名稱"] = [_NAMES.get(c, c) for c in out.index]
+    return (out.reset_index()[["code", "名稱", "族群", "price", "漲跌%", "成交額", "淨流入"]]
+              .rename(columns={"code": "代號", "price": "最新"}))
+
+
 def stock_table(day: pd.DataFrame, group: str) -> pd.DataFrame:
     """單一族群的個股明細(最新價/漲跌%/成交額/淨流入,萬→億顯示在頁面處理)。"""
     sf = stock_flows(day)
