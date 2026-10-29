@@ -104,6 +104,13 @@ def _live():
     # ── 盤中強勢股(當沖觀察池) ──
     st.markdown("#### 🎯 盤中強勢股(當沖觀察池)")
     ss = RT.strong_stocks(day)
+    if live and len(ss):
+        try:
+            pushed = RT.strong_alert(ss)          # 駐留≥10分鐘 → LINE 一次/日
+            for m in pushed:
+                st.toast(m.splitlines()[0])
+        except Exception:
+            pass
     if len(ss):
         v = ss.head(12).copy()
         v["淨流"] = (v["淨流"] / 1e4).round(2)

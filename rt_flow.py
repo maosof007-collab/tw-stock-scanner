@@ -289,6 +289,48 @@ def strong_stocks(day: pd.DataFrame, min_amt: float = 3000) -> pd.DataFrame:
     return out
 
 
+def strong_alert(ss: pd.DataFrame, topn: int = 12, need: int = 10) -> list[str]:
+    """強勢池「駐留提醒」:同一檔在 Top{topn} 累積出現 ≥need 次(≈分鐘)→ LINE 一次/日。
+    起因(2026-10-29):「我沒選到的股,如果一直選到,是否能提醒」——瞬間上榜可能是雜訊,
+    賴著不走才值得抬頭看。狀態存 _rt_flow/_strong_hits_YYYYMMDD.json(與快照同生命週期)。"""
+    if ss is None or len(ss) == 0:
+        return []
+    f = RT_DIR / f"_strong_hits_{now_tw():%Y%m%d}.json"
+    try:
+        state = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    except Exception:
+        state = {}
+    hits: dict = state.get("hits", {})
+    sent: list = state.get("sent", [])
+    top = ss.head(topn)
+    for c in top["代號"]:
+        hits[str(c)] = hits.get(str(c), 0) + 1
+    out = []
+    for _, r in top.iterrows():
+        c = str(r["代號"])
+        if hits[c] >= need and c not in sent:
+            out.append(
+                f"🎯 強勢池駐留|{r['名稱']} {c}({r['族群']})\n"
+                f"在 Top{topn} 已待 {hits[c]} 分鐘\n"
+                f"現價 {r['最新']:.1f}({r['漲%']:+.1f}%)量比 {r['量比']:.1f}、買氣 {r['買氣']:+.2f}\n"
+                f"{'站均價上' if r['站均價'] else '均價線下'}、距日高 {r['距日高%']:+.1f}%\n"
+                f"⚠ 觀察非買單;開盤跳空>3%追高無肉(家內回測)")
+            sent.append(c)
+    try:
+        f.write_text(json.dumps({"hits": hits, "sent": sent}), encoding="utf-8")
+    except Exception:
+        pass
+    if out:
+        try:
+            import line_push
+            if line_push.enabled():
+                for m in out:
+                    line_push.push_text(m)
+        except Exception:
+            pass
+    return out
+
+
 if __name__ == "__main__":
     print("指數:", indices())
     n = record()
