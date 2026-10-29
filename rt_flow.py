@@ -82,6 +82,19 @@ def indices() -> dict:
     return out
 
 
+def usdtwd() -> tuple[float, float] | None:
+    """USD/TWD 即時(Yahoo):(最新, 對昨收%)。貶=+、升=-。止跌訊號#1 盯這個。"""
+    try:
+        req = urllib.request.Request(
+            "https://query1.finance.yahoo.com/v8/finance/chart/TWD=X?range=1d&interval=5m",
+            headers=_HDR)
+        m = json.loads(urllib.request.urlopen(req, timeout=10).read())["chart"]["result"][0]["meta"]
+        px, y = m["regularMarketPrice"], m.get("chartPreviousClose") or m.get("previousClose")
+        return (px, (px / y - 1) * 100) if px and y else None
+    except Exception:
+        return None
+
+
 def snap() -> pd.DataFrame:
     """抓整個宇宙一輪快照:ts/code/price/vol(張)/y。無成交價(盤前)的列略過。"""
     uni = universe().drop_duplicates("code")

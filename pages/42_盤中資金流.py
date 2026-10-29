@@ -49,7 +49,12 @@ def _live():
     for i, (name, (px, pct)) in enumerate(idx.items()):
         c[i].metric(name, f"{px:,.0f}", f"{pct:+.2f}%",
                     delta_color="inverse")        # 台股紅漲:inverse 讓 + 顯紅
-    c[2].metric("模式", "🔴 LIVE 60s" if live else "⏸ 收盤快照",
+    fx = RT.usdtwd()
+    if fx:
+        c[2].metric("台幣(USD/TWD)", f"{fx[0]:.3f}",
+                    f"{fx[1]:+.2f}% {'貶' if fx[1] > 0 else '升'}",
+                    delta_color="inverse")        # 貶值顯紅(出口甜、資金流出訊號)
+    c[3].metric("模式", "🔴 LIVE 60s" if live else "⏸ 收盤快照",
                 f"{now_tw():%H:%M:%S}", delta_color="off")
 
     day = RT.load_day()
