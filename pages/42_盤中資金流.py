@@ -32,6 +32,11 @@ page_header("盤中資金流(族群即時)", "LIVE MONEY FLOW", "🌊")
 import rt_flow as RT
 from twtime import now_tw
 
+# 長駐進程防呆:pages/*.py 會熱載入,但 import 的模組不會——偵測到舊版就地 reload
+if not hasattr(RT, "_seed_last_px"):
+    import importlib
+    RT = importlib.reload(RT)
+
 def _trading_now() -> bool:
     t = now_tw()
     return t.weekday() < 5 and "08:59" <= f"{t:%H:%M}" <= "13:32"

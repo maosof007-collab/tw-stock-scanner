@@ -30,6 +30,10 @@ RT_DIR.mkdir(exist_ok=True)
 _HDR = {"User-Agent": "Mozilla/5.0"}
 _BATCH = 50          # MIS 單次查詢上限內的安全批量
 _NAMES: dict[str, str] = {}   # code -> 名稱(抓一次就記住)
+# 跌停鎖死陷阱(2026-10-30 台燿教案):無成交+五檔被清空 → 舊 fallback 退到「昨收」,
+# 跌停股顯示 0%、方向判定也被污染 → 記住每檔最後一個真實價,快照斷線時頂上
+_LAST_PX: dict[str, float] = {}
+_LAST_PX_DATE = ""
 
 
 # ─────────────────────────── 宇宙與市場別 ───────────────────────────
@@ -95,8 +99,27 @@ def usdtwd() -> tuple[float, float] | None:
         return None
 
 
+def _seed_last_px() -> None:
+    """重啟後從今日既有快照回填 _LAST_PX(排除 price==y 的昨收fallback列)。"""
+    f = RT_DIR / f"{now_tw():%Y%m%d}.csv"
+    if not f.exists():
+        return
+    try:
+        prev = pd.read_csv(f, dtype={"code": str})
+        g = prev[prev["price"] != prev["y"]].groupby("code").tail(1)
+        _LAST_PX.update(dict(zip(g["code"], g["price"])))
+    except Exception:
+        pass
+
+
 def snap() -> pd.DataFrame:
     """抓整個宇宙一輪快照:ts/code/price/vol(張)/y。無成交價(盤前)的列略過。"""
+    global _LAST_PX_DATE
+    today = f"{now_tw():%Y%m%d}"
+    if _LAST_PX_DATE != today:
+        _LAST_PX.clear()
+        _LAST_PX_DATE = today
+        _seed_last_px()
     uni = universe().drop_duplicates("code")
     rows = []
     ts = f"{now_tw():%H:%M:%S}"
@@ -110,12 +133,17 @@ def snap() -> pd.DataFrame:
                 if v is None:          # 還沒有任何成交 → 無量可算
                     continue
                 # MIS 陷阱:z 只在「最近5秒剛好有成交」才有值,其餘回 "-"
-                # fallback:最新成交 → 買賣最佳報價中點 → 單邊報價 → 昨收
+                # fallback:最新成交 → 買賣最佳報價中點 → 單邊報價 → 最後真實價 → 昨收
+                # (跌停/漲停鎖死時五檔會被清空,退到昨收會把跌停股畫成 0%)
                 z = _num(r.get("z"))
                 if z is None:
                     a0 = _num(str(r.get("a", "")).split("_")[0])
                     b0 = _num(str(r.get("b", "")).split("_")[0])
-                    z = (a0 + b0) / 2 if (a0 and b0) else (a0 or b0) or y
+                    z = (a0 + b0) / 2 if (a0 and b0) else (a0 or b0)
+                if z is not None:
+                    _LAST_PX[r["c"]] = z
+                else:
+                    z = _LAST_PX.get(r["c"]) or y
                 if z is None:
                     continue
                 rows.append({"ts": ts, "code": r["c"], "price": z, "vol": v, "y": y})
