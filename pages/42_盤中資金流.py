@@ -109,6 +109,11 @@ def _live():
     def _arrow(d, dead):
         return "▲" if d > dead else ("▼" if d < -dead else "–")
 
+    # 防呆:長駐進程熱載入時 rt_flow 模組可能還是舊版(沒算 Δ1分)→ 頁面自己補算
+    if "Δ1分" not in tot.columns and len(per_ts):
+        d1g = per_ts[per_ts["ts"] == per_ts["ts"].max()].set_index("group")["flow"] / 1e4
+        tot["Δ1分"] = d1g.reindex(tot["group"]).fillna(0).values
+
     tot_s = tot.sort_values("淨流入")
     figr = go.Figure(go.Bar(
         x=tot_s["淨流入"], y=tot_s["group"], orientation="h",
@@ -161,6 +166,10 @@ def _live():
     if len(alls):
         g1, g2 = st.columns(2)
         a = alls.copy()
+        if "Δ1分" not in a.columns:          # 同上:舊模組防呆
+            sf_ = RT.stock_flows(day)
+            d1s = sf_[sf_["ts"] == sf_["ts"].max()].groupby("code")["flow"].sum()
+            a["Δ1分"] = a["代號"].map(d1s).fillna(0)
         a["淨流入(億)"] = (a["淨流入"] / 1e4).round(2)
         a["成交額(億)"] = (a["成交額"] / 1e4).round(2)
         # 1分動向:跟前一分鐘比——▲持續流入 / ▼轉流出 / –持平(|增量|<50萬)
