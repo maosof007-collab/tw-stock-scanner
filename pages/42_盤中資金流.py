@@ -105,11 +105,16 @@ def _live():
                        xaxis_title="累計淨流入(億)", yaxis_title="漲跌%(成分中位)")
     L.plotly_chart(figb, use_container_width=True)
 
+    # 箭頭=跟前一分鐘比(最後一輪快照的增量方向;小於門檻視為持平)
+    def _arrow(d, dead):
+        return "▲" if d > dead else ("▼" if d < -dead else "–")
+
     tot_s = tot.sort_values("淨流入")
     figr = go.Figure(go.Bar(
         x=tot_s["淨流入"], y=tot_s["group"], orientation="h",
         marker_color=[T.RED if v >= 0 else T.GREEN for v in tot_s["淨流入"]],
-        text=[f"{v:+.1f}" for v in tot_s["淨流入"]],
+        text=[f"{v:+.1f} {_arrow(d, .02)}"
+              for v, d in zip(tot_s["淨流入"], tot_s.get("Δ1分", pd.Series(0, index=tot_s.index)))],
         textposition="outside", textfont=dict(size=10),
         hovertemplate="%{y}<br>淨流入 %{x:+.2f} 億<extra></extra>"))
     figr.update_layout(height=460, margin=dict(l=10, r=60, t=36, b=10),
@@ -158,9 +163,15 @@ def _live():
         a = alls.copy()
         a["淨流入(億)"] = (a["淨流入"] / 1e4).round(2)
         a["成交額(億)"] = (a["成交額"] / 1e4).round(2)
-        cols = ["代號", "名稱", "族群", "最新", "漲跌%", "淨流入(億)", "成交額(億)"]
+        # 1分動向:跟前一分鐘比——▲持續流入 / ▼轉流出 / –持平(|增量|<50萬)
+        d1 = a.get("Δ1分", pd.Series(0, index=a.index)).fillna(0)
+        a["1分"] = [f"{_arrow(d, 50)} {d/1e4:+.2f}" if abs(d) >= 50 else "–"
+                    for d in d1]
+        cols = ["代號", "名稱", "族群", "最新", "漲跌%", "淨流入(億)", "1分", "成交額(億)"]
         cfg = {"漲跌%": st.column_config.NumberColumn(format="%+.2f%%"),
-               "最新": st.column_config.NumberColumn(format="%.1f")}
+               "最新": st.column_config.NumberColumn(format="%.1f"),
+               "1分": st.column_config.TextColumn("1分動向", help="跟前一分鐘快照比:"
+                        "▲再流入 ▼轉流出(數字=該分鐘增量,億)")}
         g1.markdown("##### 🔴 淨流入最大(買超)")
         g1.dataframe(a.nlargest(10, "淨流入")[cols], hide_index=True,
                      use_container_width=True, column_config=cfg)

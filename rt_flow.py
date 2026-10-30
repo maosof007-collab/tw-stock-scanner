@@ -191,6 +191,10 @@ def group_flows(day: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     tot = (m.groupby("group").agg(淨流入=("flow", "sum"), 總成交=("amt", "sum"))
             .div(1e4).join(pm.groupby("group")["pct"].median().rename("漲跌%"))
             .sort_values("淨流入", ascending=False).reset_index())
+    # Δ1分:最後一輪快照的淨流(億)——「跟前一分鐘比」的方向箭頭用
+    last_ts = per_ts["ts"].max()
+    d1 = per_ts[per_ts["ts"] == last_ts].set_index("group")["flow"] / 1e4
+    tot["Δ1分"] = d1.reindex(tot["group"]).fillna(0).values
     return tot, per_ts
 
 
@@ -204,6 +208,10 @@ def all_stocks(day: pd.DataFrame) -> pd.DataFrame:
     last = sf.sort_values("ts").groupby("code").tail(1).set_index("code")
     out = agg.join(last[["price", "y"]])
     out["漲跌%"] = (out["price"] / out["y"] - 1) * 100
+    # Δ1分:最後一輪快照這一分鐘的淨流(萬元)——頁面畫「比前一分鐘」箭頭
+    last_ts = sf["ts"].max()
+    d1 = sf[sf["ts"] == last_ts].groupby("code")["flow"].sum()
+    out["Δ1分"] = d1.reindex(out.index).fillna(0)
     grp = universe().drop_duplicates("code").set_index("code")["group"]
     out["族群"] = grp.reindex(out.index)
     try:
@@ -211,7 +219,8 @@ def all_stocks(day: pd.DataFrame) -> pd.DataFrame:
         out["名稱"] = [_NAMES.get(c) or (resolve(c)[1] or c) for c in out.index]
     except Exception:
         out["名稱"] = [_NAMES.get(c, c) for c in out.index]
-    return (out.reset_index()[["code", "名稱", "族群", "price", "漲跌%", "成交額", "淨流入"]]
+    return (out.reset_index()[["code", "名稱", "族群", "price", "漲跌%", "成交額", "淨流入",
+                               "Δ1分"]]
               .rename(columns={"code": "代號", "price": "最新"}))
 
 
