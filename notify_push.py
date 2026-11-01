@@ -56,6 +56,11 @@ def main() -> None:
             from new_faces import push
             return push()
         _step("新面孔雷達", faces)
+
+        def margin():
+            from margin_alert import push
+            return push()   # 融資 21:00 後才齊;掃描內建新鮮度檢查,沒到不推
+        _step("斷頭投降日", margin)
     else:
         print("[notify] 17:00 前時段:日報/Flex 留給晚間時段")
 
