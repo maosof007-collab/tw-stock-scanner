@@ -51,12 +51,14 @@ def _close_series(code: str) -> pd.Series | None:
     return None
 
 
-def _weighted_cost(balance: np.ndarray, close: np.ndarray) -> float:
-    """融資加權平均成本(同 strategies/margin_maintenance._weighted_cost,
+def _weighted_cost_arr(balance: np.ndarray, close: np.ndarray) -> np.ndarray:
+    """融資加權平均成本逐日序列(同 strategies/margin_maintenance._weighted_cost,
     為了讓通知跑者不 import strategies 包——那個 __init__ 會載入全部策略)。
-    餘額增加=以當日收盤建倉更新均價;減少=只減量成本不變。回傳最終成本。"""
+    餘額增加=以當日收盤建倉更新均價;減少=只減量成本不變。"""
+    n = len(balance)
+    out = np.full(n, np.nan)
     hold_qty = hold_cost = 0.0
-    for i in range(len(balance)):
+    for i in range(n):
         b = balance[i] if not np.isnan(balance[i]) else 0.0
         px = close[i]
         if i == 0:
@@ -72,7 +74,13 @@ def _weighted_cost(balance: np.ndarray, close: np.ndarray) -> float:
                 hold_qty = max(hold_qty + delta, 0.0)
             if hold_qty <= 0:
                 hold_cost, hold_qty = px, max(b, 0.0)
-    return hold_cost
+        out[i] = hold_cost
+    return out
+
+
+def _weighted_cost(balance: np.ndarray, close: np.ndarray) -> float:
+    arr = _weighted_cost_arr(balance, close)
+    return float(arr[-1]) if len(arr) else 0.0
 
 
 def scan(date: str | None = None) -> pd.DataFrame:
@@ -143,6 +151,107 @@ def scan(date: str | None = None) -> pd.DataFrame:
               .reset_index(drop=True) if len(df) else df)
 
 
+def _load_margin(code: str) -> pd.DataFrame | None:
+    f = MARGIN_DIR / f"{code}_margin.csv"
+    if not f.exists():
+        return None
+    try:
+        m = pd.read_csv(f, usecols=["date", "margin_balance", "margin_quota"],
+                        parse_dates=["date"])
+    except Exception:
+        return None
+    return (m.dropna(subset=["date"]).drop_duplicates("date", keep="last")
+             .sort_values("date").set_index("date"))
+
+
+def maint_series(code: str, days: int = 240) -> pd.DataFrame | None:
+    """個股維持率曲線(頁44「選號碼就看得到」用)。
+    回傳近 days 日:收盤/估算成本/維持率%/融資餘額/日增減/使用率%。
+    成本推估前面多墊 LOOKBACK 日暖身,與 scan() 口徑一致。"""
+    m = _load_margin(code)
+    px = _close_series(code)
+    if m is None or px is None or len(m) < 10:
+        return None
+    m = m.tail(days + LOOKBACK)
+    aligned = px.reindex(m.index).ffill()
+    bal = m["margin_balance"].astype(float)
+    cost = _weighted_cost_arr(bal.values, aligned.values)
+    out = pd.DataFrame({
+        "收盤": aligned.values, "估算成本": np.round(cost, 2),
+        "維持率%": np.round(aligned.values / np.where(cost > 0, cost, np.nan)
+                          / 0.6 * 100.0, 1),
+        "融資餘額": bal.values,
+        "日增減": bal.diff().values,
+        "使用率%": np.round(bal.values / m["margin_quota"].replace(0, np.nan)
+                          .astype(float).values * 100.0, 1),
+    }, index=m.index).tail(days)
+    return out.dropna(subset=["收盤"])
+
+
+HIST = ROOT / "data" / "_margin_capit_hist.csv"
+
+
+def backfill(start: str = "2025-01-01") -> pd.DataFrame:
+    """投降日全程回放:逐檔找出歷史上所有「維持率<135% 且 融資單日減≥5%」的日子,
+    記錄其後 5/20 日報酬與 20 日內最高漲幅 → data/_margin_capit_hist.csv。
+    成本推估用分段滾動(每段 LOOKBACK 日、前面墊 LOOKBACK 日暖身),
+    避免全史累積的陳年成本漂移(會算出 40% 這種現實不存在的維持率)。"""
+    rows = []
+    t0 = pd.Timestamp(start)
+    for f in sorted(MARGIN_DIR.glob("*_margin.csv")):
+        code = f.name.split("_")[0]
+        if not (code.isdigit() and len(code) == 4):
+            continue
+        m = _load_margin(code)
+        px = _close_series(code)
+        if m is None or px is None or len(m) < LOOKBACK:
+            continue
+        aligned = px.reindex(m.index).ffill()
+        bal = m["margin_balance"].astype(float)
+        n = len(m)
+        ratio = np.full(n, np.nan)
+        for s in range(0, n, LOOKBACK):          # 分段:暖身 LOOKBACK + 有效 LOOKBACK
+            lo = max(0, s - LOOKBACK)
+            arr = _weighted_cost_arr(bal.values[lo:s + LOOKBACK],
+                                     aligned.values[lo:s + LOOKBACK])
+            seg = arr[s - lo:]
+            ratio[s:s + len(seg)] = (aligned.values[s:s + len(seg)]
+                                     / np.where(seg > 0, seg, np.nan) / 0.6 * 100)
+        d1p = bal.pct_change().values * 100.0
+        prev = bal.shift(1).values
+        hit = ((ratio < WARN_RATIO) & (d1p <= -CAPIT_PCT) & (prev >= MIN_BAL)
+               & (aligned.values >= MIN_PRICE) & (m.index >= t0))
+        closes = px.values
+        pidx = {d: i for i, d in enumerate(px.index)}
+        for i in np.where(hit)[0]:
+            d = m.index[i]
+            j = pidx.get(d)
+            if j is None:
+                continue
+            c0 = closes[j]
+            fw = closes[j + 1:j + 21]
+            rows.append({
+                "日期": f"{d:%Y-%m-%d}", "代號": code,
+                "收盤": round(float(c0), 2),
+                "維持率%": round(float(ratio[i]), 1),
+                "融資減%": round(float(d1p[i]), 2),
+                "5日%": round((float(fw[4]) / c0 - 1) * 100, 2) if len(fw) >= 5 else None,
+                "20日%": round((float(fw[-1]) / c0 - 1) * 100, 2) if len(fw) >= 20 else None,
+                "20日內最高%": round((float(fw.max()) / c0 - 1) * 100, 2) if len(fw) else None,
+            })
+    df = pd.DataFrame(rows)
+    if len(df):
+        try:
+            from symbols import resolve
+            names = {c: (resolve(c)[1] or c) for c in df["代號"].unique()}
+            df.insert(2, "名稱", df["代號"].map(names))
+        except Exception:
+            df.insert(2, "名稱", df["代號"])
+        df = df.sort_values("日期")
+        df.to_csv(HIST, index=False, encoding="utf-8-sig")
+    return df
+
+
 def _log_append(df: pd.DataFrame) -> None:
     if df.empty:
         return
@@ -207,7 +316,17 @@ def push() -> str:
 
 
 if __name__ == "__main__":
-    out = scan()
-    print(f"警戒池 {len(out)} 檔(投降日 {(out['類型'] == '投降日').sum() if len(out) else 0})")
-    if len(out):
-        print(out.head(30).to_string(index=False))
+    import sys as _sys
+    if len(_sys.argv) > 1 and _sys.argv[1] == "backfill":
+        h = backfill()
+        v = h.dropna(subset=["20日%"])
+        print(f"投降日回放 {len(h)} 筆(2025-01 起);20日可驗 {len(v)} 筆")
+        if len(v):
+            print(f"  5日 平均 {v['5日%'].mean():+.2f}% | 20日 平均 {v['20日%'].mean():+.2f}%"
+                  f" 中位 {v['20日%'].median():+.2f}% 勝率 {(v['20日%'] > 0).mean()*100:.0f}%"
+                  f" | 20日內曾漲>10% {(v['20日內最高%'] >= 10).mean()*100:.0f}%")
+    else:
+        out = scan()
+        print(f"警戒池 {len(out)} 檔(投降日 {(out['類型'] == '投降日').sum() if len(out) else 0})")
+        if len(out):
+            print(out.head(30).to_string(index=False))
