@@ -61,6 +61,12 @@ def main() -> None:
             from margin_alert import push
             return push()   # 融資 21:00 後才齊;掃描內建新鮮度檢查,沒到不推
         _step("斷頭投降日", margin)
+
+        def att_review():
+            # 強勢榜每日檢討:增量回放(近45日補熟成報酬)→ LINE 一行戰績(防重複)
+            from attention_replay import push_review
+            return push_review()
+        _step("強勢榜檢討", att_review)
     else:
         print("[notify] 17:00 前時段:日報/Flex 留給晚間時段")
 
