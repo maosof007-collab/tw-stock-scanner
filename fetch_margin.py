@@ -127,6 +127,87 @@ def fetch_margin_daily(date_str: str) -> pd.DataFrame:
 
 
 # ════════════════════════════════════════
+# 1a. 全市場信用交易統計(上市)——融資金額餘額「真值」
+#     大盤融資維持率 = Σ(上市融資張數×收盤×1000) ÷ 融資金額餘額
+#     TWSE 逐檔只給張數,但「全市場融資金額」每天有公布 → 分母用真的
+# ════════════════════════════════════════
+MARKET_AMT = DATA_DIR.parent / "_market_amount.csv"
+
+
+def fetch_market_margin_daily(date_str: str) -> dict | None:
+    """單日全市場信用交易統計。回傳 {date, amt_k(融資金額餘額 仟元),
+    lots(融資餘額 張), short_lots(融券餘額 張)};休市日回 None。"""
+    params = {"response": "json", "date": date_str, "selectType": "MS"}
+    for attempt in range(1, MAX_RETRY + 1):
+        try:
+            resp = requests.get(URL, params=params, headers=HEADERS, timeout=20)
+            resp.raise_for_status()
+            j = resp.json()
+            if j.get("stat") != "OK" or not j.get("tables"):
+                return None
+            table = next((t for t in j["tables"]
+                          if isinstance(t.get("fields"), list) and len(t["fields"]) == 6),
+                         None)
+            if table is None or not table.get("data"):
+                return None
+            rows = {str(r[0]).strip(): r for r in table["data"]}
+
+            def _num(key):
+                r = rows.get(key)
+                return (float(str(r[5]).replace(",", "").strip())
+                        if r is not None else None)
+            amt = _num("融資金額(仟元)")
+            if amt is None:
+                return None
+            return {"date": pd.to_datetime(date_str, format="%Y%m%d"),
+                    "amt_k": amt,
+                    "lots": _num("融資(交易單位)"),
+                    "short_lots": _num("融券(交易單位)")}
+        except Exception as e:
+            log.warning(f"{date_str} 市場總表 第{attempt}次失敗: {e}")
+            time.sleep(2 * attempt)
+    return None
+
+
+def _save_market_amount(rows: list[dict]):
+    if not rows:
+        return
+    new = pd.DataFrame(rows)
+    if MARKET_AMT.exists():
+        old = pd.read_csv(MARKET_AMT, parse_dates=["date"])
+        new = pd.concat([old, new])
+    (new.drop_duplicates("date", keep="last").sort_values("date")
+        .to_csv(MARKET_AMT, index=False, encoding="utf-8-sig"))
+
+
+def update_market_amount(start: str | None = None):
+    """缺口感知增量:從檔案最後日+1 抓到今天(無檔案從 start/2025-01-01 起)。"""
+    if MARKET_AMT.exists():
+        try:
+            last = pd.read_csv(MARKET_AMT, usecols=["date"], parse_dates=["date"])["date"].max()
+            start_dt = last + timedelta(days=1)
+        except Exception:
+            start_dt = pd.Timestamp(start or "2025-01-01")
+    else:
+        start_dt = pd.Timestamp(start or "2025-01-01")
+    dates = pd.bdate_range(start=start_dt, end=now_tw().strftime("%Y-%m-%d"))
+    if not len(dates):
+        return
+    log.info(f"全市場融資金額:{dates[0]:%Y-%m-%d} ~ {dates[-1]:%Y-%m-%d} 共 {len(dates)} 日")
+    rows = []
+    for i, d in enumerate(dates, 1):
+        r = fetch_market_margin_daily(d.strftime("%Y%m%d"))
+        if r:
+            rows.append(r)
+        if i % 20 == 0:          # 邊抓邊存,斷線不白抓
+            _save_market_amount(rows); rows = []
+            log.info(f"  市場總表 [{i}/{len(dates)}]")
+        time.sleep(DELAY * 0.8)
+    _save_market_amount(rows)
+    log.info(f"全市場融資金額更新完成({len(dates)} 日)")
+
+
+# ════════════════════════════════════════
 # 1b. 單日上櫃融資（櫃買中心 TPEX）
 # ════════════════════════════════════════
 TPEX_URL = ("https://www.tpex.org.tw/web/stock/margin_trading/"
@@ -272,6 +353,10 @@ def update_margin(data_dir: Path = DATA_DIR):
     save_by_ticker(df, data_dir)
     _log_run(start_date, end_date, df)
     log.info(f"完成！共 {len(df)} 筆，{df['ticker'].nunique()} 檔")
+    try:
+        update_market_amount()   # 全市場融資金額真值(大盤維持率分母)
+    except Exception as e:
+        log.warning(f"全市場融資金額更新失敗(不影響個股):{e}")
 
 
 def _log_run(start, end, df):
@@ -302,12 +387,15 @@ def load_margin(ticker: str, data_dir: Path = DATA_DIR) -> pd.DataFrame:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="個股融資融券餘額抓取工具")
-    parser.add_argument("--mode", choices=["update", "history"], default="update")
+    parser.add_argument("--mode", choices=["update", "history", "market-history"],
+                        default="update")
     parser.add_argument("--start", default="2023-01-01")
     parser.add_argument("--end",   default=now_tw().strftime("%Y-%m-%d"))
     args = parser.parse_args()
 
-    if args.mode == "history":
+    if args.mode == "market-history":
+        update_market_amount(start=args.start)
+    elif args.mode == "history":
         log.info(f"抓取歷史：{args.start} ~ {args.end}（每日間隔 {DELAY}s）")
         df = fetch_range(args.start, args.end)
         if not df.empty:

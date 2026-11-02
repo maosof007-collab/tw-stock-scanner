@@ -88,7 +88,9 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
                 continue
             m["numer"] = m["close"] * m["margin_balance"]
             m["cost"] = m["ma"] * m["margin_balance"]
-            parts.append(m[["date", "numer", "cost", "margin_balance", "short_balance"]])
+            m["is_tw"] = (DATA / f"{code}.TW.csv").exists()   # 上市(真值分母只涵蓋上市)
+            parts.append(m[["date", "numer", "cost", "margin_balance",
+                            "short_balance", "is_tw"]])
         except Exception:
             pass
 
@@ -105,6 +107,18 @@ def build_market_margin_series(window_days: int = 500, rebuild: bool = False) ->
     s = g[["date", "ratio", "margin_balance", "short_balance"]].rename(
         columns={"margin_balance": "margin_lots", "short_balance": "short_lots"})
     s = s.sort_values("date").reset_index(drop=True)
+
+    # 真實口徑維持率:上市擔保市值 ÷ TWSE 公布全市場融資金額餘額(真值)
+    # ratio(MA60 推估成本)照舊給既有風險燈用;ratio_real 給頁44 大盤溫度計
+    # 單位:numer=元×千股、amt_k=仟元 → 千分位互消,直接相除×100
+    try:
+        amt = pd.read_csv(DATA / "_market_amount.csv", parse_dates=["date"])
+        tw = (allm[allm["is_tw"]].groupby("date", as_index=False)["numer"].sum()
+              .merge(amt[["date", "amt_k"]], on="date", how="inner"))
+        tw["ratio_real"] = tw["numer"] / tw["amt_k"] * 100.0
+        s = s.merge(tw[["date", "ratio_real"]], on="date", how="left")
+    except Exception:
+        s["ratio_real"] = np.nan
 
     # 併大盤指數
     try:

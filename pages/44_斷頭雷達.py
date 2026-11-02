@@ -30,6 +30,86 @@ page_header("斷頭雷達(融資維持率)", "MARGIN CALL RADAR", "💥")
 
 import margin_alert as MA
 
+# ══════════════ ⓪ 大盤殺夠了沒(整體維持率溫度計) ══════════════
+# 口徑:上市融資擔保市值(Σ張數×收盤×1000)÷ TWSE 公布融資金額餘額(真值)
+# 個股推估看「誰會被斷頭」,這條看「全市場殺到哪」——兩層合起來才是斷頭雷達
+try:
+    from macro import build_market_margin_series
+
+    @st.cache_data(ttl=1800)
+    def _mkt() -> pd.DataFrame:
+        return build_market_margin_series(window_days=500)
+
+    _mk = _mkt().copy()
+except Exception:
+    _mk = pd.DataFrame()
+
+if len(_mk):
+    _mk["date"] = pd.to_datetime(_mk["date"])
+    # 真值欄要「夠多且夠新」才用(回補中/斷更時自動退回推估口徑,避免顯示舊日期)
+    _col = "ratio"
+    if "ratio_real" in _mk.columns and _mk["ratio_real"].notna().sum() > 20:
+        _lr = _mk.dropna(subset=["ratio_real"])["date"].max()
+        if (_mk["date"].max() - _lr).days <= 7:
+            _col = "ratio_real"
+    _v = _mk.dropna(subset=[_col])
+    cur, cur_d = float(_v[_col].iloc[-1]), _v["date"].iloc[-1]
+    _y = _v.tail(240)
+    _li = _y[_col].idxmin()
+    lo, lo_d = float(_y.loc[_li, _col]), _y.loc[_li, "date"]
+    tw_ret = None                                   # 低點以來大盤漲跌
+    _tws = _mk.dropna(subset=["twii"]) if "twii" in _mk.columns else pd.DataFrame()
+    if len(_tws):
+        try:
+            _base = float(_tws.loc[_tws["date"] >= lo_d, "twii"].iloc[0])
+            tw_ret = (float(_tws["twii"].iloc[-1]) / _base - 1) * 100
+        except Exception:
+            pass
+    if cur >= 180:
+        zi, zl = "🟢", "還沒殺到——融資老神在在"
+    elif cur >= 160:
+        zi, zl = "🟡", "降溫中"
+    elif cur >= 130:
+        zi, zl = "🟠", "關鍵壓力區——歷史常見底部"
+    else:
+        zi, zl = "🔴", "全面追繳——極端恐慌"
+
+    st.markdown("#### 🌡️ 判斷:大盤殺夠了沒(整體融資維持率)")
+    c0 = st.columns(4)
+    c0[0].metric(f"整體維持率({cur_d:%m-%d})", f"{cur:.0f}%",
+                 f"{zi} {zl}", delta_color="off")
+    c0[1].metric("溫度分區", "130|160|180",
+                 "追繳←壓力區←降溫←沒殺到", delta_color="off")
+    c0[2].metric("近一年低點", f"{lo:.0f}%", f"{lo_d:%m/%d}", delta_color="off")
+    c0[3].metric("低點以來大盤",
+                 f"{tw_ret:+.1f}%" if tw_ret is not None else "—",
+                 "殺進壓力區=歷史常見買點", delta_color="off")
+
+    figm = go.Figure()
+    for _y0, _y1, _fc in [(100, 130, "rgba(214,69,65,.28)"),
+                          (130, 160, "rgba(230,126,34,.20)"),
+                          (160, 180, "rgba(241,196,15,.12)"),
+                          (180, 230, "rgba(46,204,113,.10)")]:
+        figm.add_hrect(y0=_y0, y1=_y1, fillcolor=_fc, line_width=0)
+    figm.add_scatter(x=_y["date"], y=_y[_col], mode="lines", name="整體維持率%",
+                     line=dict(color=T.CYAN, width=2.2))
+    figm.add_annotation(x=cur_d, y=cur, text=f"現在 {cur:.0f}%",
+                        showarrow=True, arrowhead=2)
+    figm.add_annotation(x=lo_d, y=lo, text=f"低點 {lo:.0f}%",
+                        showarrow=True, arrowhead=2, ay=28)
+    figm.update_layout(height=300, margin=dict(l=10, r=10, t=12, b=10),
+                       yaxis_range=[min(122, lo - 8), max(198, cur + 10)],
+                       showlegend=False)
+    st.plotly_chart(figm, use_container_width=True)
+    _note = ("" if _col == "ratio_real"
+             else "(真值金額回補中,暫以 MA60 推估口徑顯示)")
+    st.caption("口徑:上市融資擔保市值(Σ張數×收盤)÷ 證交所公布融資金額餘額(分母真值)"
+               + _note + "。判讀:**180%+ 融資還老神在在、殺不夠**;160–180% 降溫中;"
+               "**130–160% 關鍵壓力區=歷史常見底部**;<130% 全面追繳。"
+               "下面的個股投降日訊號只在大盤「殺夠+止穩」後才有肉——"
+               "這條溫度計就是那個「殺夠了沒」的判斷。")
+    st.divider()
+
 
 @st.cache_data(ttl=3600)
 def _pool(_mtime: float) -> pd.DataFrame:    # _mtime 只當快取鍵:日誌更新就重讀

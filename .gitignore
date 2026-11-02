@@ -26,6 +26,7 @@ data/reports/
 data/fi_holding/
 data/_rank_*.csv
 data/_market_margin.csv
+data/_market_amount.csv
 data/_auto_update*.log
 backtest_results/
 logs/
