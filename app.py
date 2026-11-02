@@ -97,3 +97,6 @@ for _i, (_pg, _lb) in enumerate([
     with _top[_i]:
         st.page_link(_pg, label=_lb)
 nav.run()
+
+# 全站免責(每頁頁尾):私人免費工具,法律定位=朋友間分享,非投顧
+st.caption("資料來源為證交所/櫃買中心公開資訊之推估聚合,僅供參考,非投資建議。")
