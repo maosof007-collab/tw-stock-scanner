@@ -83,6 +83,11 @@ nav = st.navigation({
     ],
 }, position="hidden")   # 2026-09-19 介面改造:側欄導航整個拿掉,改首頁駕駛艙區塊卡+全域頂列
 
+# 全站登入門:每個網址都先經過這裡,個別頁漏呼叫也繞不過(含雲端資料包開機 ensure_data)。
+# 必須放在 st.navigation 之後——之前就 st.stop() 的話,Streamlit 會退回 pages/ 舊式路由直接跑該頁,門形同虛設
+from gate import require_login
+require_login()
+
 # 全域頂列(每一頁都有,回得了家)
 _top = st.columns(8)
 for _i, (_pg, _lb) in enumerate([
