@@ -6,7 +6,7 @@
 
 ## 完成的定義
 
-1. **畫面相關的改動**：要在真的 app 裡看過才算完成。
+1. **畫面相關的改動**：要在真的 app 裡看過才算完成，照 `/verify` 走（check.py → preview → `scripts/sweep_js.py` 巡檢）。
    - preview 名稱是 `tw-backtest-app`（port 8599，設定寫在 stride_os 的 launch.json）
    - 登入方式：點密碼欄 → 輸入管理者密碼 → Enter → 點「進入」
    - 每次 navigate 都會整頁重載、session 歸零，必須重新登入
