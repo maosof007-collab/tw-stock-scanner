@@ -332,12 +332,18 @@ def render_sector_section(key_prefix: str = "sec", n_cols: int = 5):
 # ════════════════════════════════════════
 def _brief_bucket() -> str:
     """快取分桶:盤中(09:00-14:00)每30分鐘一桶;盤後/假日整天一桶。
-    2026-09-20 修:原 ttl=1800 導致收盤後每30分鐘白白重寫(含引擎潤稿)。"""
+    2026-09-20 修:原 ttl=1800 導致收盤後每30分鐘白白重寫(含引擎潤稿)。
+    2026-11-03 修:桶再摻大盤檔 mtime——14:0x 開頁會把「資料還停昨日」的日報
+    凍一整天,背景更新補進今日收盤後快取不會醒,日期看起來永遠是錯的。"""
     from twtime import now_tw
     t = now_tw()
+    try:
+        mt = int((Path(__file__).parent / "data" / "benchmark_TWII.csv").stat().st_mtime)
+    except OSError:
+        mt = 0
     if t.weekday() < 5 and 9 <= t.hour < 14:
-        return f"{t:%Y-%m-%d}#{t.hour}:{t.minute // 30}"
-    return f"{t:%Y-%m-%d}#盤後"
+        return f"{t:%Y-%m-%d}#{t.hour}:{t.minute // 30}#{mt}"
+    return f"{t:%Y-%m-%d}#盤後#{mt}"
 
 
 @st.cache_data(ttl=24 * 3600, show_spinner="彙整今日強弱並撰寫日報中（約 10-30 秒）…")

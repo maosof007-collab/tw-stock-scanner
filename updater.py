@@ -151,11 +151,46 @@ def update_one(ticker: str, csv_path: Path) -> dict:
     return result
 
 
+def _official_index_today(csv_path: Path):
+    """Yahoo 的 ^TWII 日K常比個股晚半小時出（11/03 實測 14:33 個股有、指數沒有），
+    收盤後若大盤檔還缺今天，改用證交所 MIS 官方快照(tse_t00)補當日 OHLC。
+    Volume 填 0 沒關係：隔日 update_one 重疊回抓時 yf 整列覆寫，自癒。"""
+    import requests
+    now = now_tw()
+    if now.weekday() >= 5 or now.hour < 14:
+        return None                       # 未收盤/假日不補
+    df = pd.read_csv(csv_path, index_col=0, parse_dates=True)
+    today = pd.Timestamp(now.date())
+    if df.index[-1] >= today:
+        return None                       # 已有今天
+    r = requests.get(
+        "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_t00.tw",
+        headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+    x = (r.json().get("msgArray") or [{}])[0]
+    z = x.get("z", "-")
+    if x.get("d") != now.strftime("%Y%m%d") or z in ("-", "", None):
+        return None                       # 今天休市（MIS 回前一交易日）或無成交價
+    def f(k):
+        v = x.get(k, "-")
+        return float(v) if v not in ("-", "", None) else float(z)
+    df.loc[today, ["Close", "Open", "High", "Low", "Volume"]] = [
+        float(z), f("o"), f("h"), f("l"), 0.0]
+    df.to_csv(csv_path)
+    return float(z)
+
+
 def update_benchmark():
     """更新大盤指數"""
     csv_path = DATA_DIR / "benchmark_TWII.csv"
     log.info(f"更新大盤 {BENCHMARK}...")
     res = update_one(BENCHMARK, csv_path)
+    try:
+        z = _official_index_today(csv_path)
+        if z:
+            res["status"] = "OK"
+            res["note"] = (res.get("note") or "") + f"｜Yahoo 還沒出今日指數，已用證交所官方快照補收盤 {z:,.2f}"
+    except Exception as e:
+        log.warning(f"官方指數快照補值失敗（不影響既有資料）: {e}")
     icon = "✅" if res["status"] == "OK" else ("⏭️" if res["status"] == "SKIP" else "❌")
     log.info(f"  {icon} 大盤: {res['status']}  {res.get('note','')}")
     return res
