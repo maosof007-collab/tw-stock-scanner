@@ -18,6 +18,9 @@
 
 ## 鐵律（每一條都出過事）
 
+能自動檢查的鐵律已經寫進 `scripts/check.py`，**commit 前先跑 `python scripts\check.py`**。它會檢查：語法、`datetime.now()`/`date.today()`（棘輪：舊用法記在 `NOW_BASELINE`，只擋新增的）、`.applymap`、bat 的 `git add` 萬用字元、登入門位置、`pages/` 有沒有掛進 navigation 和 Feature Map、金鑰檔有沒有被 git 追蹤。
+又抓到新的重複失誤時，**優先加進 check.py**，做不到才寫在下面。修掉舊的 `datetime.now()` 後，把 `NOW_BASELINE` 的數字調小。
+
 ### 程式碼
 - **不可以整檔覆寫既有模組**。用 Edit 做局部修改；必須重寫時，先 `git diff` 確認沒有吃掉別人的函式（chip_chart 的 SuperTrend 引擎被蓋掉過，頁 11 因此掛掉）
 - **熱更新殘留**：長時間執行的 app 會一直留著舊模組。正在快速迭代的模組，頁面裡直接無條件 `importlib.reload(mod)`；不要用 `hasattr` 檢查函式名稱來決定要不要 reload，新增函式就會漏掉。等模組穩定了再拿掉
