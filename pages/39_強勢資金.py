@@ -42,10 +42,42 @@ if c1.button("🔄 立即重掃(約1分鐘)"):
 c2.caption("分數=RS/占比倍數/量比/收位 百分位均值;🔪⚠=隔日沖警戒(家規:爆量+2~3天禁入)。"
            "EOD 版,非盤中;黃底列=明天的賣壓名單。")
 
-# ══════════════ 上榜戰績回放(2023 起;每晚 notify_push 自動檢討) ══════════════
-# 「跑 然後每天檢討 我想看的是 有否策略可以生出來」(2026-11-02)
+# ══════════ 明日空方觀察(榜單鏡像;「幫忙想另外一個方向 放空」2026-11-05) ══════════
 import pandas as pd
 import numpy as np
+
+st.divider()
+st.markdown("#### 🩸 明日空方觀察名單(榜單鏡像:開盤跳空 ≥3% 才空,當沖回補)")
+try:
+    import short_watch
+    _sw = short_watch.build_short_watch()
+except Exception as _e:
+    _sw = None
+    st.warning(f"空方名單產生失敗:{_e}")
+if _sw:
+    if _sw["df"].empty:
+        st.info(f"{_sw['date']} 榜單 Top20 全數被剔除(處置/連榜),明日無空方候選。")
+    else:
+        st.caption(f"依 **{_sw['date']}** 榜單 Top20 剔除處置股與連榜≥2 後,"
+                   f"剩 **{len(_sw['df'])} 檔**候選。開盤沒站上觸發價=整天不動。")
+        st.dataframe(_sw["df"], hide_index=True, use_container_width=True,
+                     column_config={
+                         "收盤": st.column_config.NumberColumn(format="%.2f"),
+                         "觸發價(開盤≥)": st.column_config.NumberColumn(format="%.2f"),
+                         "停損(逆漲3.5%)": st.column_config.NumberColumn(format="%.2f"),
+                         "漲跌%": st.column_config.NumberColumn(format="%+.2f%%"),
+                         "量比": st.column_config.NumberColumn(format="%.1f"),
+                         "收位%": st.column_config.NumberColumn(format="%.0f%%")})
+    if _sw["excluded"]:
+        st.caption("已剔除:" + ";".join(_sw["excluded"]))
+    st.caption("**回放依據(18,463 筆,2023 起)**:榜上股隔日開盤空→當日收盤回補,全榜 +0.48%/筆;"
+               "**跳空≥3% 才進場 +1.21%、排除連榜後 +1.13%,四年逐年皆正**——賺的是隔日沖倒貨"
+               "+追價套牢的結構財。鐵則:①只做現股當沖**先賣後買**(下單前確認在可先賣後買名單),"
+               "收盤前必回補——同批股票抱空 5 天期望值歸零;②勝率僅 52%,期望值全靠砍右尾:"
+               "**逆漲 3.5% 無條件回補**(回放單筆最慘 -28%);③大跌期留意金管會**限空令**。")
+
+# ══════════════ 上榜戰績回放(2023 起;每晚 notify_push 自動檢討) ══════════════
+# 「跑 然後每天檢討 我想看的是 有否策略可以生出來」(2026-11-02)
 
 st.divider()
 st.markdown("#### 📜 上榜戰績回放(隔日開盤買,追榜到底賺不賺,歷史說話)")
