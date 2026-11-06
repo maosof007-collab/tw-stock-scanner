@@ -1,146 +1,146 @@
 [
  {
-  "id": 6649247,
-  "title": "盤中速報 - 貝萊德(BLK-US)大跌5.01%，報1163.09美元",
-  "time": 1793902592,
-  "url": "https://news.cnyes.com/news/id/6649247",
+  "id": 6651015,
+  "title": "〈台塑四寶業績〉台塑、南亞估Q4業績優於Q3 南亞電子材料維持「量增、價漲」",
+  "time": 1793963100,
+  "url": "https://news.cnyes.com/news/id/6651015",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6651070,
+  "title": "營收速報  - 欣興(3037)10月營收189.86億元年增率高達67.62％",
+  "time": 1793962425,
+  "url": "https://news.cnyes.com/news/id/6651070",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650231,
+  "title": "比亞迪：仰望U9X於阿布達比跑出503.17km/h 創量產車極速紀錄",
+  "time": 1793962203,
+  "url": "https://news.cnyes.com/news/id/6650231",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650489,
+  "title": "金管會祭三招救市 調降借券賣出額度、調高融券保證金成數、放寬多元擔保品",
+  "time": 1793962202,
+  "url": "https://news.cnyes.com/news/id/6650489",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650480,
+  "title": "美國民主黨計劃對蘋果、Meta展開調查",
+  "time": 1793962134,
+  "url": "https://news.cnyes.com/news/id/6650480",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650482,
+  "title": "中鋼Q3每股賺0.07元 投資10.79億元布局SOFC因應製程電氣化",
+  "time": 1793961071,
+  "url": "https://news.cnyes.com/news/id/6650482",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650488,
+  "title": "美股盤前／AI晶片股反彈那指期貨漲1.48%，輝達回升3.6%",
+  "time": 1793961009,
+  "url": "https://news.cnyes.com/news/id/6650488",
   "cat": "wd_stock",
   "risk": true
  },
  {
-  "id": 6649246,
-  "title": "鉅亨速報 - Factset 最新調查：新聞集團(NWS-US)EPS預估上修至1.38元，預估目標價為39.00元",
-  "time": 1793902551,
-  "url": "https://news.cnyes.com/news/id/6649246",
+  "id": 6650486,
+  "title": "AI賣壓衝擊亞洲股市台灣啟動國安基金、南韓放寬融資規定穩市場",
+  "time": 1793961008,
+  "url": "https://news.cnyes.com/news/id/6650486",
   "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649245,
-  "title": "鉅亨速報 - Factset 最新調查：Applovin Corp - Class A(APP-US)EPS預估上修至16.04元，預估目標價為450.00元",
-  "time": 1793902549,
-  "url": "https://news.cnyes.com/news/id/6649245",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649244,
-  "title": "鉅亨速報 - Factset 最新調查：美卡多(MELI-US)EPS預估下修至37.3元，預估目標價為2,250.00元",
-  "time": 1793902547,
-  "url": "https://news.cnyes.com/news/id/6649244",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649243,
-  "title": "鉅亨速報 - Factset 最新調查：馬拉松石油(MPC-US)EPS預估上修至67.83元，預估目標價為472.00元",
-  "time": 1793902545,
-  "url": "https://news.cnyes.com/news/id/6649243",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649242,
-  "title": "鉅亨速報 - Factset 最新調查：森科能源公司(SU-US)EPS預估上修至9.17元，預估目標價為82.04元",
-  "time": 1793902544,
-  "url": "https://news.cnyes.com/news/id/6649242",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649241,
-  "title": "鉅亨速報 - Factset 最新調查：Permian Resources Corp - Class A(PR-US)EPS預估下修至2.35元，預估目標價為29.00元",
-  "time": 1793902542,
-  "url": "https://news.cnyes.com/news/id/6649241",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649240,
-  "title": "鉅亨速報 - Factset 最新調查：Unum集團(UNM-US)EPS預估下修至8.51元，預估目標價為98.00元",
-  "time": 1793902539,
-  "url": "https://news.cnyes.com/news/id/6649240",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649239,
-  "title": "鉅亨速報 - Factset 最新調查：富達全國資訊服務FIS-US的目標價調降至35元，幅度約5.41%",
-  "time": 1793902538,
-  "url": "https://news.cnyes.com/news/id/6649239",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649238,
-  "title": "鉅亨速報 - Factset 最新調查：Figma, Inc. Class AFIG-US的目標價調降至28元，幅度約6.67%",
-  "time": 1793902536,
-  "url": "https://news.cnyes.com/news/id/6649238",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649237,
-  "title": "鉅亨速報 - Factset 最新調查：新聞集團(NWSA-US)EPS預估上修至1.38元，預估目標價為37.00元",
-  "time": 1793902536,
-  "url": "https://news.cnyes.com/news/id/6649237",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649236,
-  "title": "鉅亨速報 - Factset 最新調查：加拿大自然資源公司(CNQ-US)EPS預估上修至4.69元，預估目標價為52.83元",
-  "time": 1793902534,
-  "url": "https://news.cnyes.com/news/id/6649236",
-  "cat": "wd_stock",
-  "risk": false
- },
- {
-  "id": 6649206,
-  "title": "科技股殺完換比特幣？跌破7.6萬美元 探七周低點",
-  "time": 1793901603,
-  "url": "https://news.cnyes.com/news/id/6649206",
-  "cat": "headline",
   "risk": true
  },
  {
-  "id": 6649071,
-  "title": "1.8兆美元恐蒸發！AI基建怕卡關 那斯達克100遭血洗",
-  "time": 1793899808,
-  "url": "https://news.cnyes.com/news/id/6649071",
-  "cat": "headline",
-  "risk": true
- },
- {
-  "id": 6649207,
-  "title": "AI股為何殺成這樣？分析師：不只美國期中選舉 機構也在去槓桿",
-  "time": 1793898006,
-  "url": "https://news.cnyes.com/news/id/6649207",
+  "id": 6650478,
+  "title": "敦泰Q4出貨、營收估續降 AMOLED驅動IC年底拚月出貨百萬顆挹注毛利",
+  "time": 1793960736,
+  "url": "https://news.cnyes.com/news/id/6650478",
   "cat": "headline",
   "risk": false
  },
  {
-  "id": 6649070,
-  "title": "升息還沒完？Fed兩官員發聲 通膨仍是頭號風險",
-  "time": 1793896207,
-  "url": "https://news.cnyes.com/news/id/6649070",
-  "cat": "headline",
-  "risk": true
- },
- {
-  "id": 6647975,
-  "title": "南韓財團加速布局美國、縮減中國業務 10年內美國關係企業增至3.3倍",
-  "time": 1793894412,
-  "url": "https://news.cnyes.com/news/id/6647975",
+  "id": 6650446,
+  "title": "〈台塑四寶業績〉旺季+油價創半年新高激勵營收年增6成 南亞再寫55個月新高",
+  "time": 1793960103,
+  "url": "https://news.cnyes.com/news/id/6650446",
   "cat": "headline",
   "risk": false
  },
  {
-  "id": 6649126,
-  "title": "選後行情變臉！那指盤中跌入修正區間 台積電ADR挫近7.6%",
-  "time": 1793892498,
-  "url": "https://news.cnyes.com/news/id/6649126",
+  "id": 6650283,
+  "title": "材料-KY 10月營收續站穩10億元大關寫今年次高 年增33%",
+  "time": 1793960016,
+  "url": "https://news.cnyes.com/news/id/6650283",
   "cat": "headline",
-  "risk": true
+  "risk": false
+ },
+ {
+  "id": 6650396,
+  "title": "〈電子五哥營收〉緯創前10月營收衝3.29兆元續創高 11、12月AI伺服器動能更佳",
+  "time": 1793959898,
+  "url": "https://news.cnyes.com/news/id/6650396",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650428,
+  "title": "外資狠砍台股911億元、空單直逼10萬口 投信逆勢狂敲「7大金控」抗賣壓",
+  "time": 1793959749,
+  "url": "https://news.cnyes.com/news/id/6650428",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650445,
+  "title": "台股下周「安」了！國安基金緊急召開臨時會 拍板進場護盤",
+  "time": 1793959485,
+  "url": "https://news.cnyes.com/news/id/6650445",
+  "cat": "headline",
+  "risk": false
+ },
+ {
+  "id": 6650449,
+  "title": "Microchip訂單強卻卡產能AI排擠封測供給、毛利率展望承壓",
+  "time": 1793959208,
+  "url": "https://news.cnyes.com/news/id/6650449",
+  "cat": "wd_stock",
+  "risk": false
+ },
+ {
+  "id": 6650448,
+  "title": "不鏽鋼市況／歐洲進口減四成仍難去庫存終端需求疲弱拖累鋼廠出貨",
+  "time": 1793959208,
+  "url": "https://news.cnyes.com/news/id/6650448",
+  "cat": "wd_stock",
+  "risk": false
+ },
+ {
+  "id": 6650291,
+  "title": "通膨壓力有望緩解！美10月非農就業料將反彈至6.5萬人　時薪增幅四年來首跌破3%",
+  "time": 1793959208,
+  "url": "https://news.cnyes.com/news/id/6650291",
+  "cat": "wd_stock",
+  "risk": false
+ },
+ {
+  "id": 6650230,
+  "title": "〈美國期中選舉〉共和黨大敗主因仍是經濟問題 德州參議員：每天有多達20萬人靠賣血維生",
+  "time": 1793958013,
+  "url": "https://news.cnyes.com/news/id/6650230",
+  "cat": "wd_stock",
+  "risk": false
  }
 ]
