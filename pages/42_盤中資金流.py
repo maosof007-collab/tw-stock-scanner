@@ -212,6 +212,7 @@ def _live():
             hide_index=True, use_container_width=True,
             column_config={
                 "漲%": st.column_config.NumberColumn(format="%+.2f%%"),
+                "距漲停%": st.column_config.NumberColumn(format="%.1f%%"),
                 "量比": st.column_config.NumberColumn(format="%.1f"),
                 "買氣": st.column_config.NumberColumn(format="%+.2f"),
                 "距日高%": st.column_config.NumberColumn(format="%+.2f%%"),
@@ -219,8 +220,8 @@ def _live():
                 "強勢分": st.column_config.ProgressColumn(min_value=0, max_value=100,
                                                        format="%.0f"),
             })
-        st.caption("強勢分=漲幅35%+量比25%+買氣20%+站均價10%+貼日高10(池門檻:上漲且"
-                   "成交額≥3000萬)。量比=今日累積量÷(5日均量×U型時段曲線);買氣=淨流入/成交額。"
+        st.caption("強勢分=漲幅35%+量比25%+買氣20%+站均價10%+貼日高10(池門檻:上漲、"
+                   "成交額≥3000萬、距漲停≥2%——漲停/準漲停追不進也沒肉,不進池)。量比=今日累積量÷(5日均量×U型時段曲線);買氣=淨流入/成交額。"
                    "⚠ 家內回測(6-10月、1339筆、含當沖成本0.435%):開盤買收盤賣整體勝率僅44.5%、"
                    "中位數-0.43%;唯一正期望組是「開盤跳空1~3%」(勝率52.1%、平均+0.58%),"
                    "跳空>3%追高無肉。這是觀察池不是買單;風險燈🔴時禁開新倉。")

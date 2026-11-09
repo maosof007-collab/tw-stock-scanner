@@ -305,6 +305,7 @@ def strong_stocks(day: pd.DataFrame, min_amt: float = 3000) -> pd.DataFrame:
     """盤中強勢股體檢:漲幅/量比/買氣/位置 四維合成分(0~100)。
     量比=今日累積張 ÷(5日均量×時段曲線);買氣=淨流入/成交額(-1~1)。
     min_amt:今日累積成交額門檻(萬元)——流動性不足不進池(當沖滑價殺人)。
+    距漲停 <2% 不進池:漲停/準漲停追不進也沒肉,觀察池只留「還有路可走」的。
     僅供觀察:家內回測(news_daytrade)唯一正期望組是「跳空1~3%」,>3% 追高無肉。"""
     sf = stock_flows(day)
     if sf.empty:
@@ -325,8 +326,11 @@ def strong_stocks(day: pd.DataFrame, min_amt: float = 3000) -> pd.DataFrame:
     av5 = pd.Series({c: _avg5_vol(c) for c in t.index}, dtype=float)
     t["量比"] = t["vol"] / (av5 * frac)
     t["買氣"] = np.where(t["額"] > 0, t["淨流"] / t["額"], 0)
-    # 池門檻:上漲 + 流動性
-    t = t[(t["漲%"] > 0) & (t["額"] >= min_amt)]
+    # 距漲停=剩餘的肉(漲停價≈昨收×1.1,忽略檔位進位誤差 <0.5%)
+    t["距漲停%"] = (t["y"] * 1.1 / t["price"] - 1) * 100
+    # 池門檻:上漲 + 流動性 + 還有肉——距漲停 <2% 的踢出
+    # (2026-11-09「漲停還需要?」:+9% 才上榜,追進最多吃 1% 還可能鎖死出不來)
+    t = t[(t["漲%"] > 0) & (t["額"] >= min_amt) & (t["距漲停%"] >= 2)]
     if t.empty:
         return pd.DataFrame()
 
@@ -342,7 +346,7 @@ def strong_stocks(day: pd.DataFrame, min_amt: float = 3000) -> pd.DataFrame:
         t["名稱"] = [_NAMES.get(c) or (resolve(c)[1] or c) for c in t.index]
     except Exception:
         t["名稱"] = [_NAMES.get(c, c) for c in t.index]
-    out = (t.reset_index()[["code", "名稱", "族群", "price", "漲%", "量比", "買氣",
+    out = (t.reset_index()[["code", "名稱", "族群", "price", "漲%", "距漲停%", "量比", "買氣",
                             "站均價", "距日高%", "淨流", "額", "強勢分"]]
              .rename(columns={"code": "代號", "price": "最新"})
              .sort_values("強勢分", ascending=False))
