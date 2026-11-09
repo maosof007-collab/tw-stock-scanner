@@ -181,10 +181,49 @@ with r1a:
     if A["bz"]:
         fig.add_hrect(y0=A["bz"]["lo"], y1=A["bz"]["hi"], fillcolor="#00C2A8",
                       opacity=0.12, line_width=0)
+    # ── 圖上標示(2026-11-09「紅綠燈工具」影片同款):價位線含距現價%、事件標記 ──
+    _last, _c0 = px["Date"].iloc[-1], float(A["close"])
+    hi60 = float(px["High"].tail(60).max())
+    fig.add_hline(y=hi60, line=dict(color="#E5484D", width=1, dash="dot"))
+    fig.add_annotation(x=_last, y=hi60, xanchor="right", yanchor="bottom", showarrow=False,
+                       text=f"壓力 {hi60:g}({(hi60 / _c0 - 1) * 100:+.1f}%)",
+                       font=dict(size=10, color="#E5484D"))
+    _stp = (A["stop"] or {}).get("建議")
+    if _stp and _stp < _c0:
+        fig.add_hline(y=_stp, line=dict(color="#E8873A", width=1, dash="dot"))
+        fig.add_annotation(x=_last, y=_stp, xanchor="right", yanchor="top", showarrow=False,
+                           text=f"停損 {_stp:g}({(_stp / _c0 - 1) * 100:+.1f}%)",
+                           font=dict(size=10, color="#E8873A"))
+    if A["bz"]:
+        fig.add_annotation(x=_last, y=A["bz"]["hi"], xanchor="right", yanchor="bottom",
+                           showarrow=False, text=f"買區 {A['bz']['lo']}~{A['bz']['hi']}",
+                           font=dict(size=10, color="#00C2A8"))
+    try:  # ▲ 強勢榜上榜日
+        _ah = pd.read_csv(ROOT / "data" / "_attention_hist.csv",
+                          usecols=["日期", "代號"], dtype=str)
+        _m = px[px["Date"].isin(pd.to_datetime(_ah.loc[_ah["代號"] == code, "日期"]))]
+        if len(_m):
+            fig.add_scatter(x=_m["Date"], y=_m["Low"] * 0.985, mode="markers",
+                            marker=dict(symbol="triangle-up", size=9, color="#E8B33A"),
+                            hovertext=["強勢榜上榜"] * len(_m), hoverinfo="text", name="")
+    except Exception:
+        pass
+    try:  # ★ 大跌日外資大買(crash_fi 最強切片:買超≥10%量+前日也買)
+        _cf = pd.read_csv(ROOT / "data" / "_crash_fi_study.csv", dtype={"code": str})
+        _cf = _cf[(_cf["code"] == code) & (_cf["fi_ratio"] >= 10) & (_cf["fi_prev"] > 0)]
+        _m = px[px["Date"].isin(pd.to_datetime(_cf["d"]))]
+        if len(_m):
+            fig.add_scatter(x=_m["Date"], y=_m["Low"] * 0.96, mode="markers",
+                            marker=dict(symbol="star", size=11, color="#00C2A8"),
+                            hovertext=["大跌日外資搶籌(crash_fi 事件)"] * len(_m),
+                            hoverinfo="text", name="")
+    except Exception:
+        pass
     fig.update_layout(height=330, showlegend=False, xaxis_rangeslider_visible=False,
                       margin=dict(l=8, r=8, t=8, b=8))
     st.plotly_chart(fig, width="stretch")
-    st.caption("綠帶=建議買區(20日高×0.87~0.92)")
+    st.caption("綠帶=建議買區(20日高×0.87~0.92);紅虛線=壓力(60日高)、橘虛線=停損建議;"
+               "▲=強勢榜上榜日、★=大跌日外資搶籌(crash_fi)")
 with r1b:
     st.markdown(f"#### 🧠 決策核心 {A['tag']}")
     _rows = [("趨勢", "多頭排列" if A["close"] > A["ma20"] > A["ma60"] else
