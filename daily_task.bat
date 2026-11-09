@@ -5,11 +5,16 @@ rem 2) if prices fresh and today's scan not done yet -> full run_daily once
 rem ASCII only - Chinese in .bat breaks on cp950
 cd /d G:\Stock\tw_backtest\tw_backtest
 if not exist logs mkdir logs
+rem utf-8 stdout: emoji in notify/log crashed under cp950 (2026-11-06..08 nightly)
+set PYTHONIOENCODING=utf-8
 G:\python\python.exe fetch_daily_official.py >> logs\daily_task.log 2>&1
 G:\python\python.exe check_run_needed.py >> logs\daily_task.log 2>&1
 if errorlevel 1 (
   G:\python\python.exe run_daily.py >> logs\daily_task.log 2>&1
 )
+rem self-guard: rescan attention board if it is older than latest prices
+rem (2026-11-06 crash day: TWSE files lagged, board stuck on 11-05 all night)
+G:\python\python.exe refresh_attention.py >> logs\daily_task.log 2>&1
 rem margin/short data publishes ~21:00, institutional ~16:00 - keep chips fresh
 rem in every evening slot even after run_daily already completed (gap-aware, cheap)
 G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log 2>&1

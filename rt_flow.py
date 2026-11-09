@@ -359,6 +359,8 @@ def strong_alert(ss: pd.DataFrame, topn: int = 12, need: int = 10) -> list[str]:
     賴著不走才值得抬頭看。狀態存 _rt_flow/_strong_hits_YYYYMMDD.json(與快照同生命週期)。"""
     if ss is None or len(ss) == 0:
         return []
+    if "距漲停%" in ss.columns:          # 雙保險:準漲停不提醒(池已過濾,防舊模組/舊快照)
+        ss = ss[ss["距漲停%"] >= 2]
     f = RT_DIR / f"_strong_hits_{now_tw():%Y%m%d}.json"
     try:
         state = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
