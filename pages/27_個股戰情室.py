@@ -178,26 +178,35 @@ with r1a:
                         increasing_line_color="#D64545", decreasing_line_color="#2E9E5B")
     ma20 = px["Close"].rolling(20).mean()
     fig.add_scatter(x=px["Date"], y=ma20, line=dict(color="#3B82F6", width=1.4), name="MA20")
-    if A["bz"]:
-        fig.add_hrect(y0=A["bz"]["lo"], y1=A["bz"]["hi"], fillcolor="#00C2A8",
-                      opacity=0.12, line_width=0)
-    # ── 圖上標示(2026-11-09「紅綠燈工具」影片同款):價位線含距現價%、事件標記 ──
+    # ── 圖上標示(2026-11-09 影片同款;11-09 晶技教案:崩過的股票 60 日高是火星
+    #    數字(+91%)、2ATR 停損 -17%,參考線要自己認知「已經崩了」,不能硬畫)──
     _last, _c0 = px["Date"].iloc[-1], float(A["close"])
-    hi60 = float(px["High"].tail(60).max())
-    fig.add_hline(y=hi60, line=dict(color="#E5484D", width=1, dash="dot"))
-    fig.add_annotation(x=_last, y=hi60, xanchor="right", yanchor="bottom", showarrow=False,
-                       text=f"壓力 {hi60:g}({(hi60 / _c0 - 1) * 100:+.1f}%)",
+    _broken = bool(A["bz"]) and _c0 < A["bz"]["lo"] * 0.97  # 買區已被跌破
+    if A["bz"]:
+        fig.add_hrect(y0=A["bz"]["lo"], y1=A["bz"]["hi"],
+                      fillcolor="#8A8F98" if _broken else "#00C2A8",
+                      opacity=0.10 if _broken else 0.12, line_width=0)
+        fig.add_annotation(x=_last, y=A["bz"]["hi"], xanchor="right", yanchor="bottom",
+                           showarrow=False,
+                           text=(f"前買區 {A['bz']['lo']}~{A['bz']['hi']}(已破→視為壓力)"
+                                 if _broken else f"買區 {A['bz']['lo']}~{A['bz']['hi']}"),
+                           font=dict(size=10, color="#8A8F98" if _broken else "#00C2A8"))
+    # 壓力:現價上方「最近」的 N 日高(10/20/60 取最貼身的一條,不死抓 60 日高)
+    _cands = [(n, float(px["High"].tail(n).max())) for n in (10, 20, 60)]
+    _pn, _hi = min(((n, h) for n, h in _cands if h >= _c0 * 1.02),
+                   key=lambda t: t[1], default=_cands[-1])
+    fig.add_hline(y=_hi, line=dict(color="#E5484D", width=1, dash="dot"))
+    fig.add_annotation(x=_last, y=_hi, xanchor="right", yanchor="bottom", showarrow=False,
+                       text=f"壓力 {_hi:g}({(_hi / _c0 - 1) * 100:+.1f}%,{_pn}日高)",
                        font=dict(size=10, color="#E5484D"))
     _stp = (A["stop"] or {}).get("建議")
     if _stp and _stp < _c0:
+        _dist = (_stp / _c0 - 1) * 100
+        _tag = ";2ATR過寬=波動失控,非持有區" if _dist <= -12 else ""
         fig.add_hline(y=_stp, line=dict(color="#E8873A", width=1, dash="dot"))
         fig.add_annotation(x=_last, y=_stp, xanchor="right", yanchor="top", showarrow=False,
-                           text=f"停損 {_stp:g}({(_stp / _c0 - 1) * 100:+.1f}%)",
+                           text=f"停損 {_stp:g}({_dist:+.1f}%{_tag})",
                            font=dict(size=10, color="#E8873A"))
-    if A["bz"]:
-        fig.add_annotation(x=_last, y=A["bz"]["hi"], xanchor="right", yanchor="bottom",
-                           showarrow=False, text=f"買區 {A['bz']['lo']}~{A['bz']['hi']}",
-                           font=dict(size=10, color="#00C2A8"))
     try:  # ▲ 強勢榜上榜日
         _ah = pd.read_csv(ROOT / "data" / "_attention_hist.csv",
                           usecols=["日期", "代號"], dtype=str)
@@ -222,7 +231,8 @@ with r1a:
     fig.update_layout(height=330, showlegend=False, xaxis_rangeslider_visible=False,
                       margin=dict(l=8, r=8, t=8, b=8))
     st.plotly_chart(fig, width="stretch")
-    st.caption("綠帶=建議買區(20日高×0.87~0.92);紅虛線=壓力(60日高)、橘虛線=停損建議;"
+    st.caption("綠帶=建議買區(20日高×0.87~0.92,跌破轉灰=視為壓力);"
+               "紅虛線=壓力(現價上方最近的10/20/60日高)、橘虛線=停損建議(>12%會標波動失控);"
                "▲=強勢榜上榜日、★=大跌日外資搶籌(crash_fi)")
 with r1b:
     st.markdown(f"#### 🧠 決策核心 {A['tag']}")
