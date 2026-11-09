@@ -135,16 +135,18 @@ def snap() -> pd.DataFrame:
                 # MIS 陷阱:z 只在「最近5秒剛好有成交」才有值,其餘回 "-"
                 # fallback:最新成交 → 買賣最佳報價中點 → 單邊報價 → 最後真實價 → 昨收
                 # (跌停/漲停鎖死時五檔會被清空,退到昨收會把跌停股畫成 0%)
+                # MIS 偶發回 0 價(2026-11-09 台達電教案:一分鐘 0 元→頁面 -100%),
+                # 0 與 None 一律當「沒價」走 fallback
                 z = _num(r.get("z"))
-                if z is None:
+                if not z or z < 0:
                     a0 = _num(str(r.get("a", "")).split("_")[0])
                     b0 = _num(str(r.get("b", "")).split("_")[0])
                     z = (a0 + b0) / 2 if (a0 and b0) else (a0 or b0)
-                if z is not None:
+                if z and z > 0:
                     _LAST_PX[r["c"]] = z
                 else:
                     z = _LAST_PX.get(r["c"]) or y
-                if z is None:
+                if not z or z <= 0:
                     continue
                 rows.append({"ts": ts, "code": r["c"], "price": z, "vol": v, "y": y})
         except Exception:
