@@ -228,12 +228,59 @@ with r1a:
                             hoverinfo="text", name="")
     except Exception:
         pass
+    try:  # 線形事件標籤(2026-11-09 手機看盤 app 同款):吞噬/跳空/爆量/5日線
+        _w = px.tail(46).copy()          # 近兩個月,免得整張圖都是字
+        _w["ma5"] = px["Close"].rolling(5).mean().tail(46)
+        _w["v20"] = px["Volume"].rolling(20).mean().tail(46)
+        _UP, _DN = "#D64545", "#2E9E5B"   # 台股紅漲綠跌
+        _marks = []                       # (日期, y, 文字, 色, 放上方?)  每日只留優先級最高一個
+        for _i in range(1, len(_w)):
+            r, p = _w.iloc[_i], _w.iloc[_i - 1]
+            bh, bl = max(r["Open"], r["Close"]), min(r["Open"], r["Close"])
+            ph, pl = max(p["Open"], p["Close"]), min(p["Open"], p["Close"])
+            _red, _pred = r["Close"] >= r["Open"], p["Close"] >= p["Open"]
+            m = None
+            if (not _red) and _pred and bh >= ph and bl <= pl and bh > bl:
+                m = (r["High"], "空頭吞噬", _DN, True)
+            elif _red and (not _pred) and bh >= ph and bl <= pl and bh > bl:
+                m = (r["Low"], "多頭吞噬", _UP, False)
+            elif r["Low"] > p["High"] * 1.02:
+                m = (r["Low"], f"跳空{(r['Low'] / p['High'] - 1) * 100:+.1f}%", _UP, False)
+            elif r["High"] < p["Low"] * 0.98:
+                m = (r["High"], f"跳空{(r['High'] / p['Low'] - 1) * 100:+.1f}%", _DN, True)
+            elif r["v20"] and r["Volume"] > 2.3 * r["v20"]:
+                m = ((r["High"], "爆量收漲", _UP, True) if _red
+                     else (r["High"], "爆量收跌", _DN, True))
+            elif r["ma5"] and p["ma5"]:
+                if p["Close"] < p["ma5"] and r["Close"] > r["ma5"]:
+                    m = (r["Low"], "站上5日線", _UP, False)
+                elif p["Close"] > p["ma5"] and r["Close"] < r["ma5"]:
+                    m = (r["High"], "跌破5日線", _DN, True)
+            if m:
+                _marks.append((_i, r["Date"], *m))
+        _keep, _last_i = [], 10 ** 9              # 由新到舊挑:至少隔3根K、最多5個
+        for _mk in reversed(_marks):
+            if _last_i - _mk[0] >= 3:
+                _keep.append(_mk)
+                _last_i = _mk[0]
+            if len(_keep) >= 5:
+                break
+        for _n, (_i, _d, _y, _txt, _clr, _up) in enumerate(_keep):
+            _off = (22 + 14 * (_n % 2))           # 上下交錯兩檔高度,免得疊字
+            fig.add_annotation(x=_d, y=_y, text=_txt, showarrow=True, arrowhead=0,
+                               arrowcolor=_clr, arrowwidth=1, ax=0,
+                               ay=-_off if _up else _off,
+                               font=dict(size=9, color=_clr),
+                               bgcolor="rgba(0,0,0,0.25)", borderpad=1)
+    except Exception:
+        pass
     fig.update_layout(height=330, showlegend=False, xaxis_rangeslider_visible=False,
                       margin=dict(l=8, r=8, t=8, b=8))
     st.plotly_chart(fig, width="stretch")
     st.caption("綠帶=建議買區(20日高×0.87~0.92,跌破轉灰=視為壓力);"
                "紅虛線=壓力(現價上方最近的10/20/60日高)、橘虛線=停損建議(>12%會標波動失控);"
-               "▲=強勢榜上榜日、★=大跌日外資搶籌(crash_fi)")
+               "▲=強勢榜上榜日、★=大跌日外資搶籌(crash_fi);"
+               "線形標籤=近兩月吞噬/跳空/爆量/5日線事件(每日取一、最多8個)")
 with r1b:
     st.markdown(f"#### 🧠 決策核心 {A['tag']}")
     _rows = [("趨勢", "多頭排列" if A["close"] > A["ma20"] > A["ma60"] else
