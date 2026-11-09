@@ -18,6 +18,8 @@ G:\python\python.exe refresh_attention.py >> logs\daily_task.log 2>&1
 rem margin/short data publishes ~21:00, institutional ~16:00 - keep chips fresh
 rem in every evening slot even after run_daily already completed (gap-aware, cheap)
 G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log 2>&1
+rem taifex tick->1min K archive (free window is only last 30 sessions - hoard daily)
+G:\python\python.exe fetch_taifex_ticks.py >> logs\daily_task.log 2>&1
 G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
 rem daily money-flow journal article - self-guarded: needs today's institutional
 rem data (16:00+), local Claude engine, and skips if already generated today
