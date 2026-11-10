@@ -1,0 +1,278 @@
+=== 頁1 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+1 1
+LandMark Optoelectronics Corporation
+LandMark Optoelectronics Corporation
+Ticker: 3081
+
+=== 頁2 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+2
+Safe Harbor Notice
+Land Mark 2
+This presentation and discussions contain forward-looking statements. These statements are
+based on current expectations and are subject to known and unknown risks and
+uncertainties. Actual results may differ materially from those expressed or implied by these
+forward-looking statements. Except as required by law, we undertake no obligation to
+update any forward-looking statement, whether as a result of new information, future
+events, or otherwise.
+
+=== 頁3 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+3
+Established June, 1997 
+Products
+Epi-wafer for laser diode (LD)
+Epi-wafer for photo-detector (PD)
+Service MOCVD growth, all kinds of overgrowth, Zn-diffusion; 
+grating formation and epi-side process
+Address
+Factory I ：No.12, Nanke 9th Rd., Shanhua Dist., Tainan Science
+Park, Tainan City, Taiwan
+Factory II：No. 9, Xishan 1st Rd., Shanhua Dist., Tainan Science
+Park, Tainan City, Taiwan
+Company Profile
+LandMark 3
+
+=== 頁4 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+4
+GaAs
+PD Epiwafer
+InGaAs PD/ C-PD 
+& APD / C-APD
+GaAs PD 
+(0.6~0.85μm)
+LD Epiwafer
+InP material
+(1.2~1.65μm)
+GaAs material
+(0.6~1.06μm)
+2.5G/10G/25G FP/DFB LD
+2.5G/10G/25G/50G C-DFB / EML LD 
+(grating and overgrowth completed)
+High Power LD
+VCSEL
+ InP
+SiPh LD
+Product Categories
+Land Mark 4
+
+=== 頁5 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+5
+Optical Telecom 
+FTTX / 5G
+Product Applications
+Industrial/ Consumer
+Data Center
+/ Silicon Photonics
+Land Mark 5
+
+=== 頁6 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+6
+Module
+Fabrication
+System
+Epitaxy
+Device 
+Fabrication
+Land Mark
+Supply Chain of Telecom Sector
+Land Mark 6
+
+
+=== 頁7 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+7
+Evolution of 5G Networks
+Source: NGOF
+ Source: UTP University of Science and Technology
+Land Mark 7
+
+=== 頁8 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+8
+Example Layouts of SiPh Transceiver
+Source: Juniper Networks
+Land Mark 8
+
+
+=== 頁9 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+9
+Example of SiPh
+Land Mark 9
+Source: Photonic Network Communications
+
+=== 頁10 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+10
+Developing Roadmap of SiPh and CPO
+Source: TSMC
+10
+Land Mark
+
+=== 頁11 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+11
+Migration to Higher-Speed in AI Networks
+Land Mark 11
+ 800G will be more than 80% for AI 
+networks in 2025. 
+ Significant growth of high-speed 
+products before 2028. 
+
+=== 頁12 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+12
+Source: Google
+Example of Optical Architecture for AI
+Source: Intel
+Regular Data Center AI Application
+Land Mark 12
+
+=== 頁13 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+13
+Silicon Photonic Market Value
+Land Mark 13
+
+
+=== 頁14 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+14
+Revenue & Margin Trend 
+14
+Land Mark
+28% 31% 32%
+43% 44%
+49%
+55% 57% 59%
+2%
+-2%
+10%
+27%
+19%
+21%
+41%
+47% 49%
+3% 4%
+9%
+17% 18%
+30%
+35%
+38% 40%
+Gross Margin
+Operating Margin
+Net Margin
+3Q-24 4Q-24 1Q-25 2Q-25 3Q-25 4Q-25 1Q-26 2Q-26 3Q-26
+Net Revenue 323 289 455 553 553 642 904 1,221 1,562
+Gross profit 89 90 147 240 241 313 495 702 915
+Operating Income 8 -6 45 149 104 135 373 573 771
+Net Income 8 8 42 97 99 190 318 468 621
+-100
+ 300
+ 700
+ 1,100
+ 1,500
+NT$M
+
+=== 頁15 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+15
+Income Statement
+15
+Land Mark
+Unit: NTD Million
+2026
+3Q
+2026
+2Q
+2025
+3Q QoQ YoY 2026
+1Q-3Q
+2025
+1Q-3Q YoY
+Net revenue 1,562 1,221 553 +28% +183% 3,688 1,560 +136%
+Gross profit 915 702 241 +30% +279% 2,112 628 +236%
+Gross margin(%) 59% 57% 44% 57% 40%
+Operating expenses (143) (129) (138) +11% +4% (394) (330) +19%
+Operating income 771 573 104 +35% +644% 1,717 297 +477%
+Operating margin(%) 49% 47% 19% 47% 19%
+Non-operating incomes and expenses 5 13 20 42 0 
+Income before income tax 777 586 124 +33% +528% 1,759 298 +491%
+Income tax benefit (expense) (155) (117) (25) (352) (60)
+Net income 621 468 99 +33% +528% 1,407 238 +491%
+Net margin(%) 40% 38% 18% 38% 15%
+Comprehensive income 619 470 101 +32% +512% 1,406 239 +487%
+EPS (NT$) 6.12 4.62 0.98 13.88 2.36
+
+=== 頁16 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+16
+Unit: NTD Million September 30, 2026 December 31, 2025 September 30, 2025
+Amount % Amount % Amount %
+Cash and cash equivalents 3,954 38 703 14 543 11 
+Time deposits 969 9 1,270 25 1,270 27 
+Accounts receivable, net 931 9 337 7 368 8 
+Inventories 969 9 571 11 416 9 
+Corporate bonds 330 3 231 5 232 5 
+Net property, plant and equipment 2,283 22 1,522 30 1,550 33 
+Other assets 875 8 374 7 378 8 
+Total assets 10,312 100 5,008 100 4,757 100 
+Current liabilities 1,248 12 532 11 476 10 
+Bonds Payable 2,831 27 - - - -
+Non-current liabilities 333 3 286 6 289 6 
+Total liabilities 4,412 43 817 16 765 16 
+Capital stock 1,019 10 925 18 925 19 
+Capital surplus 2,586 25 1,800 36 1,800 38 
+Retained earnings 2,526 24 1,488 30 1,298 27 
+Other equity (230) -2 (23) 0 (31) -1 
+Total shareholders' equity 5,900 57 4,191 84 3,992 84 
+Book value per share (NT$) 57.92 45.29 43.15
+Balance Sheets
+16
+Land Mark
+
+=== 頁17 ===
+L a n d M a r k O p t o e l e c t r o n i c s C o r p o r a t i o n
+Land Mark
+O pt eo l tce nor sci
+17
+Thank you!
+17
+Source: Huawei
