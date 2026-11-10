@@ -10,23 +10,28 @@ fetch_taifex_ticks.py — 期交所逐筆成交 → 台指 1 分 K 累積庫(微
   - prod ∈ {TX,MTX,TMF};contract=近月(當日量最大之純月份,排除價差單)
   - session: day(08:45–13:45)/ night(其餘);vol 為 B+S 口數(真實量除以 2)
   - 檔名日=交易日;夜盤(成交日期=前一日 15:00 起)歸同一交易日
+另囤:data/taifex_raw/Daily_YYYY_MM_DD.zip — 期交所原始逐筆檔原封不動
+  (成交時間精確到「秒」,一天約 4.7MB;30 天窗口過了就永遠拿不到,
+   先囤著,日後要秒 K/tick 回測隨時能重建,不被 1 分 K 的聚合綁死)
 雷點:G 碟大量寫入會 I/O 錯誤 → zip/解壓全在 C:(tempfile);
      requests 會被 AVG TLS 攔截 → 一律 subprocess curl。
 排程:daily_task.bat 每晚跑(增量,已有的交易日直接跳過)。
 """
 import gzip
 import io
+import shutil
 import subprocess
 import sys
 import tempfile
 import zipfile
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "taifex_1min.csv.gz"
+RAW = ROOT / "data" / "taifex_raw"
 URL = "https://www.taifex.com.tw/file/taifex/Dailydownload/DailydownloadCSV/Daily_{:%Y_%m_%d}.zip"
 PRODS = {"TX", "MTX", "TMF"}
 COLS = ["date", "time", "prod", "contract", "session", "open", "high", "low", "close", "vol"]
@@ -84,25 +89,39 @@ def _day(d: date, zpath: Path) -> pd.DataFrame:
 def main() -> int:
     have = _have()
     news = []
+    RAW.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as td:  # C: 碟,避開 G: I/O 雷
         tmp = Path(td)
         for i in range(45, -1, -1):
             d = date.today() - timedelta(days=i)
-            if d.weekday() >= 5 or f"{d:%Y-%m-%d}" in have:
+            ds, is_today = f"{d:%Y-%m-%d}", d == date.today()
+            rawz = RAW / f"Daily_{d:%Y_%m_%d}.zip"
+            if d.weekday() >= 5 or (ds in have and rawz.exists() and not is_today):
                 continue
-            z = _fetch(d, tmp)
-            if z is None:
-                continue
+            if rawz.exists() and not is_today:
+                z, keep = rawz, True  # 原始檔已囤過,直接用,省一次下載
+            else:
+                z, keep = _fetch(d, tmp), False
+                if z is None:
+                    continue
+                # 囤原始檔。今天的檔日盤 13:45 收、約 14:30 後才定版,盤中抓到的
+                # 不完整檔不能進囤存區,否則隔天會被當完整檔跳過
+                if not is_today or datetime.now().hour >= 15:
+                    try:
+                        shutil.copy(z, rawz)
+                    except OSError as e:
+                        print(f"{d} 原始檔囤存失敗(G: 碟 I/O?):{e}")
             try:
-                k = _day(d, z)
+                if ds not in have:
+                    k = _day(d, z)
+                    if len(k):
+                        news.append(k)
+                        print(f"{d} OK:{len(k)} 根 1 分 K")
             except Exception as e:
                 print(f"{d} 解析失敗:{e}")
-                continue
             finally:
-                z.unlink(missing_ok=True)
-            if len(k):
-                news.append(k)
-                print(f"{d} OK:{len(k)} 根 1 分 K")
+                if not keep:
+                    z.unlink(missing_ok=True)
     if not news:
         print(f"無新資料(庫存 {len(have)} 個交易日)")
         return 0
