@@ -23,6 +23,19 @@ c_mix = card("營運結構(2026 Q3 產品別)",
       '它是車用半導體的 beta,衛星是加分題。</div>',
     src="簡報 p.12〜17")
 
+c_cust = card("主要客戶與供應鏈位置", """
+<table><tr><th>客戶(市場共識)</th><th>角色</th></tr>
+<tr><td><b>onsemi 安森美</b></td><td>車用 CIS 龍頭、特斯拉主要供應商——同欣電經 2020 併購勝麗取得其封裝訂單</td></tr>
+<tr><td>OmniVision 豪威</td><td>CIS 設計廠(市場報導口徑)</td></tr>
+<tr><td>Sony</td><td>CIS 設計廠(市場報導口徑)</td></tr></table>"""
++ __import__("poster").flow([
+    ("CIS 設計:onsemi/豪威/Sony", "晶片設計與晶圓", False),
+    ("同欣電:CIS 封裝+陶瓷基板", "車用為主(應用別 60%)", True),
+    ("Tier1 → 歐美日車廠/特斯拉", "ADAS 鏡頭數持續增加", False),
+])
++ '<div class="note">⚠ 誠實標註:年報客戶<b>匿名</b>揭露——2024 前三大客戶合計 <b>56.81%</b>(集中度高);'
+  '安森美等名單為市場報導共識,非公司具名。</div>', src="年報+市場報導")
+
 c_chip = card("籌碼體檢(11/10)", """
 <table><tr><th>指標</th><th>數字</th><th>判讀</th></tr>
 <tr><td>外資20日</td><td class="n gn">+1,964 張</td><td>由賣轉買</td></tr>
@@ -89,8 +102,8 @@ c_risk = card("關鍵風險與觀察重點", checks([
 ]), extra_cls="risk")
 
 COLS = [c_concl + c_mix + c_chip,
-        c_fin + c_catalyst + c_cash,
-        c_px + c_scn + c_risk]
+        c_fin + c_cust + c_catalyst,
+        c_px + c_scn + c_risk + c_cash]
 
 html = shell(
     title_html="同欣電<b>(6271)</b>深度研究總整理",
