@@ -1,0 +1,89 @@
+<title>矽電容的現貨加速 vs VHM 的夢想折</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;height:96px;padding:4px 6px 0;justify-content:center}
+.bar{width:52px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<div class="hd"><div><h1>愛普*<b>(6531)</b>深度研究總整理</h1><div class="sub">矽電容的現貨加速 vs VHM 的夢想折現——融資 +4,029 張是現在最大的雷</div></div>
+<div class="brand"><span class="bx">愛普科技 AP Memory</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="grid"><div class="col"><div class="card grow"><div class="ct">投資結論:市場收走的是 2028 的夢<small>深度報告 11/09</small></div><div class="cb"><ul class='ck'><li>10 月營收 12.99 億 <span class="up2">▲155.9%</span> 歷史新高;S-SiCap 三線(IPC/LSC/IPD)全數量產</li><li>大戶% 66.1 <span class="up2">▲8週+0.6pp</span> 橫盤——大戶沒有出貨</li><li>投信 20 日 <span class="up2">▲3,402 張</span> 接手</li><li class="xx">融資 20 日 <span class="up2">▲4,029 張(餘 10,312)</span>——散戶槓桿接外資的貨,紅燈加重中</li><li class="wn">跌掉的主要是 VHM(2028)夢想折現;S-SiCap 現貨成長一路加速——兩回事</li></ul></div></div><div class="card "><div class="ct">籌碼體檢</div><div class="cb">
+<table><tr><th>指標</th><th>數字</th><th>判讀</th></tr>
+<tr><td>外資20日</td><td class="n"><span class="dn2">▼11,498 張</span></td><td>仍站賣方</td></tr>
+<tr><td>投信20日</td><td class="n"><span class="up2">▲3,402 張</span></td><td>溫和接手</td></tr>
+<tr><td>融資20日</td><td class="n rd"><span class="up2">▲4,029 張(餘 10,312)</span></td><td>本檔最大警訊(家規紅燈)</td></tr>
+<tr><td>大戶>400張</td><td class="n">66.1% <span class="up2">▲0.6pp</span></td><td>橫盤未出</td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">最新財報(2026 Q2)</div><div class="cb"><div class="bignums"><div class="bn"><div class="k">營收</div><div class="v">23.63 億</div><div class="d"><span class="up2">▲78%</span></div></div><div class="bn"><div class="k">毛利率</div><div class="v">49%</div><div class="d"><span class="up2">▲客戶組合優化</span></div></div><div class="bn"><div class="k">S-SiCap 營收</div><div class="v">6.38 億</div><div class="d"><span class="up2">▲273%,占 27%</span></div></div><div class="bn"><div class="k">EPS</div><div class="v">4.18</div><div class="d"><span class="up2">▲年化中性 67.5</span></div></div></div>
+<table><tr><th>月營收</th><th>億</th><th>YoY</th></tr>
+<tr><td>2026/08</td><td class="n">10.34</td><td class="n up2">▲151%</td></tr>
+<tr><td>2026/09</td><td class="n">11.89</td><td class="n up2">▲90%</td></tr>
+<tr><td><b>2026/10</b></td><td class="n">12.99</td><td class="n up2">▲156% 創高</td></tr></table>
+<div class="note">EPS 情境(年化):保守 39.6/中性 67.5/樂觀 76.2 → 現價 730 對應 18.4/10.8/9.6 倍。</div></div></div><div class="card grow"><div class="ct">三箭:兩箭在弦,一箭是 2028 的夢</div><div class="cb"><div class="flow"><div class="fbox hot">S-SiCap 矽電容:IPC 量產/LSC 穩定/IPD 提前 Q2 量產<small>明年占比有機會超越本業 IoTRAM</small></div><div class="farr">▼</div><div class="fbox">IoTRAM/ApSRAM 現金牛<small>2025 全年 EPS 7.74、配息 7 元的底盤</small></div><div class="farr">▼</div><div class="fbox hot">VHM 超高頻寬記憶體<small>驗證階段、2028 才貢獻——跌掉的就是它的折現</small></div></div></div></div></div><div class="col"><div class="card "><div class="ct">股價檯階</div><div class="cb">
+<table><tr><th>價位</th><th>相對 730</th><th>意義</th></tr>
+<tr><td>371 元</td><td class="n dn2">▼49.2%</td><td>年低(起漲點)</td></tr>
+<tr class="yl"><td><b>786.9 元</b></td><td class="n up2">▲7.8%</td><td><b>MA20:站回=修復開始</b></td></tr>
+<tr><td>1,305 元</td><td class="n up2">▲78.8%</td><td>年高(準千金遺跡,距高 -44%)</td></tr></table></div></div><div class="card risk grow"><div class="ct">風險與觀察</div><div class="cb"><ul class='ck'><li class="wn">GDR 增資稀釋最高 8.43%——完成前 EPS 情境都要打折</li><li class="wn">代工集中力積電;VHM 客戶未點名、時程全是未來式</li><li class="wn">高 beta(年振幅 3 倍)+融資堆積:大盤回測前低時跌幅會放大</li><li>觀察:12/10 守 8.6 億|Q3 財報 S-SiCap 續創高|融資降溫+外資連 3 買</li></ul></div></div></div></div>
+<div class="ft">素材:深度報告(11/09)+法說報導+系統 11/11 數據 · 2026/11/11 · 本海報為研究筆記非投資建議</div></div>
