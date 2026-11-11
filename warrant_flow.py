@@ -283,7 +283,9 @@ def market_scan(min_med: float = 3.0) -> pd.DataFrame:
         mult = round(float(last20["call_val"].mean()) / med, 2)
         cp = round(float(last20["call_val"].sum()) / max(float(last20["put_val"].sum()), 0.1), 1)
         if streak >= 15 and mult >= 1.5:
-            move = "🔵 佈局中"
+            # 連續天數比的是「全樣本中位」,安靜期基準太低時崩跌股也斷不了;
+            # 近5日金額剩前20日一半以下=錢正在撤,退潮證據優先於佈局認定
+            move = "⚫ 退潮" if d5 <= 0.5 * max(d20p, 0.1) else "🔵 佈局中"
         elif d5 >= 2 * max(d20p, 0.1):
             move = "🔥 近5日湧入"
         elif mult <= 0.7 and d5 <= 0.6 * max(d20p, 0.1):
