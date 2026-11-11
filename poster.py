@@ -16,22 +16,23 @@ CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
   color:#1c2733;line-height:1.5;font-size:14px}
-.wrap{max-width:1180px;margin:0 auto;padding:12px}
+.wrap{max-width:1180px;margin:0 auto;padding:10px}
 .hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
-  border-radius:10px;padding:14px 20px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.hd h1{font-size:30px;font-weight:900;letter-spacing:1px}
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
 .hd h1 b{color:#ffd84d}
-.hd .sub{font-size:14.5px;margin-top:4px;color:#cfe2ff;font-weight:700}
-.hd .brand{text-align:right;font-size:12px;color:#9fc3f0;white-space:nowrap}
-.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:15px;
-  padding:3px 10px;border-radius:6px;display:inline-block;margin-bottom:3px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.col{display:flex;flex-direction:column;gap:10px;min-width:0}
-.card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(13,43,82,.18);overflow:hidden}
-.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:7px 12px;
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{columns:3 330px;column-gap:8px}
+.col{display:contents}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  break-inside:avoid;margin-bottom:8px}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:14px;padding:5px 10px;
   display:flex;justify-content:space-between;align-items:baseline}
-.card .ct small{color:#9fc3f0;font-weight:400;font-size:11.5px}
-.card .cb{padding:10px 12px}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:10.5px}
+.card .cb{padding:8px 10px}
 ul.ck{list-style:none}
 ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:14px;font-weight:600}
 ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
@@ -40,9 +41,10 @@ ul.ck li.xx::before{content:"✘";color:#c0392b}
 ul.ck li b{color:#c0392b}
 .bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
 .bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
-.bn .k{font-size:12.5px;color:#456;font-weight:700}
-.bn .v{font-size:21px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
-.bn .d{font-size:11.5px;color:#15903f;font-weight:700}
+.bn .k{font-size:12px;color:#456;font-weight:700}
+.bn .v{font-size:19px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
 table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
 th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
 td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:600}
@@ -85,6 +87,16 @@ def shell(title_html: str, subtitle: str, brand: str, cols: list[str], footer: s
 <div class="brand"><span class="bx">{brand}</span><br>TW·BACKTEST 深度研究</div></div>
 <div class="grid">{grid}</div>
 <div class="ft">{footer}</div></div>"""
+
+
+def ud(x: float, txt: str = "") -> str:
+    """上升/下降指標:▲紅/▼綠(台股紅漲綠跌);txt 省略時用 x 自己。"""
+    t = txt or f"{x:+g}"
+    if x > 0:
+        return f'<span class="up2">▲{t.lstrip("+")}</span>'
+    if x < 0:
+        return f'<span class="dn2">▼{t.lstrip("-")}</span>'
+    return f"<span>{t}</span>"
 
 
 def card(title: str, body: str, src: str = "", extra_cls: str = "") -> str:
