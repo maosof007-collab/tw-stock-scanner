@@ -93,4 +93,6 @@ def list_issues() -> list[dict]:
     for p in sorted(PAPERS.glob("*.html"), reverse=True):
         code, _, date = p.stem.partition("_")
         out.append({"file": p.name, "code": code, "date": date, "path": str(p)})
+    # 檔名排序會讓中文刊名永遠排在數字代號前;最新一期才該是預設
+    out.sort(key=lambda d: d["date"], reverse=True)
     return out
