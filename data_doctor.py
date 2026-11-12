@@ -45,6 +45,12 @@ def _fix_market_margin() -> None:
     macro.build_market_margin_series()   # 自癒:源比快取新就重建
 
 
+def _fix_margin_log() -> None:
+    """斷頭雷達的衍生日誌:源(data/margin)已新但夜間掃描被卡時,補掃+補寫。"""
+    import margin_alert as ma
+    ma._log_append(ma.scan())
+
+
 def _fix_warrants() -> None:
     import warrant_flow as wf
     ymd = f"{latest_expected_trading_day():%Y%m%d}"
@@ -79,6 +85,9 @@ def _rules():
         ("大盤融資快取", 2150,
          lambda: _csv_last_date(D / "_market_margin.csv"),
          _fix_market_margin),
+        ("斷頭雷達日誌", 2155,
+         lambda: _csv_last_date(D / "_margin_alert_log.csv", "日期"),
+         _fix_margin_log),
     ]
 
 
