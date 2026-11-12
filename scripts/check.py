@@ -74,6 +74,30 @@ def check_python():
             notes.append(f"[時區] {name} 已降到 {len(now_hits)} 處,把 NOW_BASELINE 改小鎖住進度")
 
 
+_KEYISH = re.compile(r"^_(mtime|mt|ver|version|stamp|key|ts|tick|sig)$")
+
+
+def check_cache_key_underscore():
+    """st.cache_data 的參數若以底線開頭,Streamlit 會把它排除在快取鍵外。
+    拿 `_mtime` 當「檔案更新就重讀」的鍵=完全無效,快取鎖死到 ttl 到期
+    (2026-11-12:斷頭雷達/強勢資金/新面孔雷達 三頁四處,資料更新了畫面還是舊的)。"""
+    for p in _py_files():
+        _, tree = _parse(p)
+        if tree is None:
+            continue
+        for fn in ast.walk(tree):
+            if not isinstance(fn, ast.FunctionDef):
+                continue
+            if not any("cache_data" in ast.unparse(d) or "cache_resource" in ast.unparse(d)
+                       for d in fn.decorator_list):
+                continue
+            for a in fn.args.args + fn.args.kwonlyargs:
+                ann = ast.unparse(a.annotation) if a.annotation else ""
+                if a.arg.startswith("_") and (_KEYISH.match(a.arg) or ann in ("float", "int", "str")):
+                    errors.append(f"[快取鍵] {p.relative_to(ROOT)}:{fn.lineno} {fn.name}({a.arg}) "
+                                  f"— 底線開頭的參數不會進快取鍵,檔案更新也不會重讀;把底線拿掉")
+
+
 def check_bat_git_add():
     """bat 的 git add 不可用 glob pathspec:檔案沒產生時整行 fatal,其他 pattern 一起失效。"""
     for p in sorted(ROOT.glob("*.bat")):
@@ -135,6 +159,7 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     check_python()
+    check_cache_key_underscore()
     check_bat_git_add()
     check_gate_order()
     check_pages_registered()

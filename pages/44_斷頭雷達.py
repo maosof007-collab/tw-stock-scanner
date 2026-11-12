@@ -112,13 +112,13 @@ if len(_mk):
 
 
 @st.cache_data(ttl=3600)
-def _pool(_mtime: float) -> pd.DataFrame:    # _mtime 只當快取鍵:日誌更新就重讀
+def _pool(mtime: float) -> pd.DataFrame:    # mtime 只當快取鍵:日誌更新就重讀(不可加底線前綴,Streamlit 會把它排除在鍵外)
     df = pd.read_csv(MA.LOG, dtype={"代號": str})
     return df[df["日期"] == df["日期"].max()]
 
 
 @st.cache_data(ttl=3600)
-def _hist(_mtime: float) -> pd.DataFrame:
+def _hist(mtime: float) -> pd.DataFrame:
     return pd.read_csv(MA.HIST, dtype={"代號": str})
 
 

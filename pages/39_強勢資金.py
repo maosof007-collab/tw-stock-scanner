@@ -86,7 +86,7 @@ if not HIST.exists():
     st.info("還沒有回放檔——本機跑 `python attention_replay.py`(約 3 分鐘)。")
 else:
     @st.cache_data(ttl=3600)
-    def _hist(_mtime: float):
+    def _hist(mtime: float):   # 不可加底線前綴:Streamlit 會把 _ 開頭的參數排除在快取鍵外
         h = pd.read_csv(HIST, dtype={"代號": str})
         try:
             bm = pd.read_csv(ROOT / "data" / "benchmark_TWII.csv",

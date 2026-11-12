@@ -43,7 +43,7 @@ def _enrich(codes: tuple) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=3600, show_spinner="回溯績效計算中…")
-def _perf(_mtime: float) -> pd.DataFrame:   # _mtime 只當快取鍵:日誌一更新就重算
+def _perf(mtime: float) -> pd.DataFrame:   # mtime 只當快取鍵:日誌一更新就重算(不可加底線前綴)
     return NF.performance()
 
 
