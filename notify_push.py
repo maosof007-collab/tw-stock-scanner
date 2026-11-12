@@ -67,6 +67,12 @@ def main() -> None:
             from attention_replay import push_review
             return push_review()
         _step("強勢榜檢討", att_review)
+
+        def recovery():
+            # 失土收復率:大跌週期收復廣度(無週期時安靜;一天一則,內建 marker)
+            from recovery_rate import push as rec_push
+            return rec_push()
+        _step("失土收復率", recovery)
     else:
         print("[notify] 17:00 前時段:日報/Flex 留給晚間時段")
 
