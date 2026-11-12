@@ -49,3 +49,5 @@ data/_yt_cookies.txt
 data/_rt_flow/
 data/_margin_alert_sent.json
 data/_att_review_sent.json
+
+_ca_bundle.pem

@@ -21,6 +21,9 @@ fetch_margin.py
   抓歷史：  python fetch_margin.py --mode history --start 2023-01-01 --end 2025-06-08
 """
 
+import ssl_trust
+ssl_trust.ensure()   # AVG TLS 攔截:信任清單要含 Windows 存放區,否則 TWSE/TPEX 全失敗
+
 import requests
 import pandas as pd
 import sys, time, logging

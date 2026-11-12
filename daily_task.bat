@@ -7,6 +7,11 @@ cd /d G:\Stock\tw_backtest\tw_backtest
 if not exist logs mkdir logs
 rem utf-8 stdout: emoji in notify/log crashed under cp950 (2026-11-06..08 nightly)
 set PYTHONIOENCODING=utf-8
+rem AVG TLS interception (2026-11-12 machine-wide): merge Windows cert store
+rem into certifi so every requests-based step below keeps verification ON
+G:\python\python.exe ssl_trust.py >> logs\daily_task.log 2>&1
+set SSL_CERT_FILE=G:\Stock\tw_backtest\tw_backtest\_ca_bundle.pem
+set REQUESTS_CA_BUNDLE=G:\Stock\tw_backtest\tw_backtest\_ca_bundle.pem
 G:\python\python.exe fetch_daily_official.py >> logs\daily_task.log 2>&1
 G:\python\python.exe check_run_needed.py >> logs\daily_task.log 2>&1
 if errorlevel 1 (
