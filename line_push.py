@@ -46,7 +46,17 @@ def _cfg() -> dict:
 
 
 def enabled() -> bool:
-    return bool(_cfg().get("line_channel_token"))
+    # 2026-11-12 起推播主通道=Telegram(tg_push);LINE 需 config 明示 line_enabled:true 才復活
+    import tg_push
+    if tg_push.enabled():
+        return True
+    return bool(_cfg().get("line_enabled") and _cfg().get("line_channel_token"))
+
+
+def _route_tg():
+    """回傳 tg_push 模組(Telegram 已設定時),否則 None。"""
+    import tg_push
+    return tg_push if (tg_push.enabled() or not _cfg().get("line_enabled")) else None
 
 
 def _md_to_plain(md: str, max_len: int = 3800) -> str:
@@ -66,6 +76,9 @@ def _md_to_plain(md: str, max_len: int = 3800) -> str:
 
 def push_text(text: str) -> str:
     """推一則文字。回傳結果說明(不丟例外,呼叫端 best-effort)。"""
+    tg = _route_tg()
+    if tg is not None:
+        return tg.push_text(text)
     cfg = _cfg()
     token = cfg.get("line_channel_token")
     if not token:
@@ -92,7 +105,11 @@ def push_markdown(md: str) -> str:
 
 
 def push_flex(alt_text: str, contents: dict) -> str:
-    """推 Flex Message(原生表格卡片;額度計 1 則)。contents=bubble/carousel dict。"""
+    """推 Flex Message(原生表格卡片;額度計 1 則)。contents=bubble/carousel dict。
+    Telegram 通道:Flex JSON 自動降轉為結構化純文字。"""
+    tg = _route_tg()
+    if tg is not None:
+        return tg.push_flex(alt_text, contents)
     cfg = _cfg()
     token = cfg.get("line_channel_token")
     if not token:
