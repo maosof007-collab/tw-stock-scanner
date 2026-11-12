@@ -1,9 +1,12 @@
 """
-頁面46:多空雷達 — 照族群看兩邊的錢,附兩張「已驗證」的行動清單
+頁面46:多空雷達 — 照族群的卡片式雷達(一族群一張卡、一檔一列、三燈+標籤)
 ================================
-多方候補=7/30 復盤驗證因子(營收YoY>30%+殺深>10%+未收復 → 歷史快彈率 57%)
-空方命中=S1 套牢池反彈空(回測 EV10 +3.1%/勝率75%/n76,三年全正)
-族群表=同族群的多方分/空方分/淨傾向——錢往哪邊倒,一眼。
+版型依使用者 2026-11-12 提供的參考畫面:族群頭(排名升降/上漲家數/徽章)+
+個股列(外資・投信・大戶 三燈:圓點=中期立場、箭頭=短期方向;大戶跑/避開×N)。
+數據全來自 dual_radar.compute()(每日排程重掃):
+  三燈=法人日檔近20/5日累計、集保400張以上大戶近4週/最新週變化
+  大戶跑=最新週 ≤ -1pp(大戶週報既有門檻);避開×N=破季線/融資套牢>3倍/爆量收黑/法人雙賣
+  🌱候補=7/30 復盤營收因子;🐻反彈空=S1(回測 EV10 +3.1%/勝率75%)
 """
 import importlib
 import sys
@@ -13,7 +16,6 @@ import pandas as pd
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from ui_common import THEME
 from ui_theme import inject_css, page_header
 
 st.set_page_config(page_title="多空雷達", layout="wide")
@@ -23,108 +25,196 @@ require_login(); logout_button()
 page_header("多空雷達", "LONG / SHORT RADAR", "⚖️")
 
 import dual_radar as _dr
-if not hasattr(_dr, "compute"):
-    _dr = importlib.reload(_dr)
+_dr = importlib.reload(_dr)          # 每次重載:長駐不重啟的 app 也吃得到模組更新
 D = Path(__file__).parent.parent / "data"
 
-_c1, _c2 = st.columns([1.2, 4.5])
-if _c1.button("🔄 重新掃描", help="全市場逐檔掃約 1-2 分鐘;每日排程會自動掃"):
-    with st.spinner("全市場掃描中(約 1-2 分鐘)…"):
-        _dr.compute()
-    st.cache_data.clear()
-    st.rerun()
-
 if not (D / "_dual_radar_stocks.csv").exists():
-    st.info("尚無雷達資料——按「重新掃描」產生第一份(或等每日排程)。")
+    st.info("尚無雷達資料——按下方「重新掃描」產生第一份(或等每日排程)。")
+    if st.button("🔄 重新掃描"):
+        with st.spinner("全市場掃描中(約 1-2 分鐘)…"):
+            _dr.compute()
+        st.rerun()
     st.stop()
 
 
-@st.cache_data(ttl=900)
-def _load():
+@st.cache_data(ttl=600)
+def _load(mtime: float):             # mtime 進快取鍵:檔案一更新就重讀(參數不可加底線前綴)
     s = pd.read_csv(D / "_dual_radar_stocks.csv", dtype={"code": str})
     g = pd.read_csv(D / "_dual_radar_groups.csv")
     return s, g
 
 
-sdf, gdf = _load()
+sdf, gdf = _load((D / "_dual_radar_stocks.csv").stat().st_mtime)
+if "排名20" not in gdf.columns or "fi20" not in sdf.columns:
+    st.warning("雷達資料是舊格式——請按「重新掃描」更新一次。")
+    if st.button("🔄 重新掃描"):
+        with st.spinner("全市場掃描中(約 1-2 分鐘)…"):
+            _dr.compute()
+        st.rerun()
+    st.stop()
+
 asof = str(sdf["date"].max())
-bulls = sdf[sdf["bull_cand"] == True]  # noqa: E712
-s1_today = sdf[sdf["s1_today"] == True]  # noqa: E712
-s1_5d = sdf[sdf["s1_hits"].fillna("") != ""]
+members = sdf[sdf["group"] != "(未分組)"].copy()
+members["group"] = members["group"].str.split("|")
+members = members.explode("group")
 
-k1, k2, k3, k4 = st.columns(4)
-k1.markdown(f"<div class='metric-card'><div class='l'>資料日</div><div class='v' style='font-size:1.1rem'>{asof}</div></div>", unsafe_allow_html=True)
-k2.markdown(f"<div class='metric-card'><div class='l'>🌱 多方候補(營收驗證)</div><div class='v'>{len(bulls)}</div></div>", unsafe_allow_html=True)
-k3.markdown(f"<div class='metric-card'><div class='l'>🐻 S1 今日命中</div><div class='v'>{len(s1_today)}</div></div>", unsafe_allow_html=True)
-_top = gdf.iloc[0]["group"] if "group" in gdf.columns and len(gdf) else (gdf.index[0] if len(gdf) else "—")
-k4.markdown(f"<div class='metric-card'><div class='l'>淨傾向最多方的族群</div><div class='v' style='font-size:1.1rem'>{_top}</div></div>", unsafe_allow_html=True)
+# ── 控制列 ──
+c1, c2, c3, c4 = st.columns([2.2, 1.6, 1, 1])
+q = c1.text_input("搜尋", placeholder="輸入代號或名稱,如 2408 或 南亞科", label_visibility="collapsed").strip()
+order = c2.selectbox("排序", ["20日排名(強→弱)", "偏空在前(淨傾向低→高)", "今日上漲家數比"],
+                     label_visibility="collapsed")
+open_all = c3.toggle("全部展開", value=False)
+if c4.button("🔄 重新掃描", help="全市場逐檔掃約 1-2 分鐘;每日排程會自動掃"):
+    with st.spinner("全市場掃描中(約 1-2 分鐘)…"):
+        _dr.compute()
+    st.cache_data.clear()
+    st.rerun()
 
-cl, cr = st.columns(2)
-with cl:
-    st.markdown("### 🌱 多方候補(未收復的營收加速股)")
-    st.caption("出處:7/30 大跌復盤——快彈的乾淨因子是**營收 YoY**(>30% 組快彈率 57% vs 負成長 38%);"
-               "貼高點/高動能反而是反指標。條件:營收YoY>30% + 自身殺幅>10% + **尚未收復失土**。")
-    if bulls.empty:
-        st.info("目前無候補(或失土收復明細未更新)。")
-    else:
-        b = bulls.sort_values("turn", ascending=False).head(25)
-        st.dataframe(b[["code", "name", "group", "close", "off_hi", "flush", "retrace", "rev_yoy", "turn"]]
-                     .rename(columns={"code": "代碼", "name": "名稱", "group": "族群", "close": "收盤",
-                                      "off_hi": "距250高%", "flush": "殺幅%", "retrace": "回升幅度",
-                                      "rev_yoy": "營收YoY%", "turn": "日均額(億)"})
+n_run = int(members.drop_duplicates("code")["big_run"].sum())
+n_s1 = int((sdf["s1_today"] == True).sum())  # noqa: E712
+n_bull = int((sdf["bull_cand"] == True).sum())  # noqa: E712
+st.caption(f"資料 **{asof[5:].replace('-', '/')}**|{gdf.shape[0]} 族群 {members['code'].nunique()} 檔|"
+           f"大戶跑 {n_run} 檔|🐻 反彈空命中 {n_s1}|🌱 多方候補 {n_bull}(全市場)|"
+           "燈號=外資・投信・大戶:圓點=中期(法人20日/大戶4週)、箭頭=短期(法人5日/大戶最新週);紅買綠賣")
+
+CSS = ("<style>"
+       ".gc{background:#0f1b2d;border:1px solid #1f3350;border-radius:14px;margin:0 auto 10px;max-width:880px;color:#e8eef7;overflow:hidden}"
+       ".gc summary{list-style:none;cursor:pointer;padding:14px 18px}.gc summary::-webkit-details-marker{display:none}"
+       ".gh{display:flex;justify-content:space-between;align-items:center;gap:12px}"
+       ".gn{font-size:1.25rem;font-weight:700;margin-right:8px}"
+       ".bd{font-size:.85rem;font-weight:700;padding:2px 8px;border-radius:7px;border:1.5px solid #f5c542;color:#f5c542}"
+       ".bd.acc{border-color:#ff5a5f;color:#ff5a5f}"
+       ".gs{color:#8a9bb3;font-size:.92rem;margin-top:4px}"
+       ".bar{height:5px;background:#1c2c44;border-radius:3px;margin-top:8px;width:min(46vw,400px)}.bar i{display:block;height:5px;border-radius:3px;background:#ff5a5f}"
+       ".gr{display:flex;align-items:center;gap:22px;text-align:right;white-space:nowrap}"
+       ".pct{font-size:1.05rem;line-height:1.15;font-variant-numeric:tabular-nums}.pct small{display:block;color:#8a9bb3;font-size:.85rem}"
+       ".sc{font-size:1.2rem;font-weight:700;font-variant-numeric:tabular-nums}"
+       ".r{color:#ff5a5f}.g{color:#2ecc8f}.m{color:#5b6b82}"
+       ".th,.row{display:grid;grid-template-columns:minmax(0,1.5fr) 110px 110px;align-items:center;padding:0 18px}"
+       ".th{color:#8a9bb3;font-size:.85rem;padding-top:6px;padding-bottom:6px;border-top:1px solid #1f3350}"
+       ".th span:nth-child(2){text-align:center}.th span:nth-child(3){text-align:right}"
+       ".row{border-top:1px solid #1a2a42;padding-top:10px;padding-bottom:10px}"
+       ".n1{font-size:1.12rem;font-weight:700}.n2{color:#8a9bb3;font-size:.9rem;margin-top:3px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}"
+       ".tg{font-size:.8rem;padding:1px 7px;border-radius:6px;border:1.5px solid;white-space:nowrap}"
+       ".tg.y{border-color:#f5c542;color:#f5c542}.tg.a{border:1.5px dashed #ff7b80;color:#ff9a9e}"
+       ".tg.b{border-color:#ff5a5f;color:#ff5a5f}.tg.s{border-color:#b08cff;color:#c9b0ff}"
+       ".lts{display:flex;justify-content:center;gap:9px}.lt{display:flex;flex-direction:column;align-items:center;line-height:1}"
+       ".d{width:13px;height:13px;border-radius:50%;display:block;margin-bottom:3px}.d.r{background:#ff5a5f}.d.g{background:#2ecc8f}.d.m{background:#3a4a62}"
+       ".lt b{font-size:.95rem;font-weight:700}"
+       ".px{text-align:right;font-variant-numeric:tabular-nums}.p1{font-size:1.1rem}.p2{font-size:.92rem}"
+       "</style>")
+st.markdown(CSS, unsafe_allow_html=True)
+
+
+def _cls(v) -> str:
+    if v is None or pd.isna(v) or v == 0:
+        return "m"
+    return "r" if v > 0 else "g"
+
+
+def _light(mid, short, tip: str) -> str:
+    cm, cs = _cls(mid), _cls(short)
+    arrow = "–" if cs == "m" else ("↗" if cs == "r" else "↘")
+    return f'<span class="lt" title="{tip}"><i class="d {cm}"></i><b class="{cs}">{arrow}</b></span>'
+
+
+def _delta(v: int) -> str:
+    if v > 0:
+        return f'<b class="r">▲{v}</b>'
+    if v < 0:
+        return f'<b class="g">▼{-v}</b>'
+    return '<b class="m">–</b>'
+
+
+def _row(r) -> str:
+    tags = ""
+    if r["big_run"] is True or r["big_run"] == True:  # noqa: E712
+        tags += f'<span class="tg y" title="400張以上大戶持股最新週 {r["bh1"]:+.2f}pp">大戶跑</span>'
+    n = int(r["avoid_n"]) if pd.notna(r["avoid_n"]) else 0
+    if n:
+        why = [t for flag, t in [(r["below_ma60"], "破季線"), (r["trap"], "融資套牢>3倍"),
+                                 (r["vol_black"], "爆量收黑"), (r["inst_dual_sell"], "法人雙賣")] if flag == True]  # noqa: E712
+        tags += f'<span class="tg a" title="{"、".join(why)}">避開×{n}</span>'
+    if r["s1_today"] == True:  # noqa: E712
+        tags += '<span class="tg s" title="套牢池反彈空 S1 命中(回測 EV10 +3.1%)">🐻反彈空</span>'
+    if r["bull_cand"] == True:  # noqa: E712
+        tags += f'<span class="tg b" title="營收YoY {r["rev_yoy"]:+.0f}%+殺深+未收復">🌱候補</span>'
+    lights = (_light(r["fi20"], r["fi5"], f'外資 20日 {r["fi20"]:+,.0f}張/5日 {r["fi5"]:+,.0f}張' if pd.notna(r["fi20"]) else "外資:無資料")
+              + _light(r["it20"], r["it5"], f'投信 20日 {r["it20"]:+,.0f}張/5日 {r["it5"]:+,.0f}張' if pd.notna(r["it20"]) else "投信:無資料")
+              + _light(r["bh4"], r["bh1"], f'大戶 4週 {r["bh4"]:+.2f}pp/最新週 {r["bh1"]:+.2f}pp' if pd.notna(r["bh4"]) else "大戶:無資料"))
+    c = _cls(r["chg1"])
+    return (f'<div class="row"><div><div class="n1">{r["name"]}</div><div class="n2">{r["code"]}・{tags}</div></div>'
+            f'<div class="lts">{lights}</div>'
+            f'<div class="px"><div class="p1">{r["close"]:,.2f}</div><div class="p2 {c}">{r["chg1"]:+.2f}%</div></div></div>')
+
+
+def _card(g, rows: pd.DataFrame, opened: bool) -> str:
+    n, up = int(g["檔數"]), int(g["上漲檔"])
+    pct = up / n * 100 if n else 0
+    badge = ""
+    if isinstance(g["徽章"], str) and g["徽章"]:
+        badge = f'<span class="bd{" acc" if g["徽章"] == "吸籌中" else ""}">{g["徽章"]}</span>'
+    net = float(g["淨傾向"])
+    head = (f'<summary><div class="gh"><div><span class="gn">{g["group"]}</span>{badge}'
+            f'<div class="gs">20日排名 {int(g["排名20"])}・昨 {_delta(int(g["昨升降"]))}・5天 {_delta(int(g["五日升降"]))}'
+            f'・20日中位 {g["r20中位"]:+.1f}%</div>'
+            f'<div class="bar"><i style="width:{pct:.0f}%"></i></div></div>'
+            f'<div class="gr"><div class="pct">{pct:.0f}%<small>{up}/{n}</small></div>'
+            f'<div class="sc {_cls(net)}" title="淨傾向=多方分-空方分">{net:+.1f}</div></div></div></summary>')
+    body = ('<div class="th"><span>股票</span><span>外資・投信・大戶</span><span>收盤／今日</span></div>'
+            + "".join(_row(r) for _, r in rows.iterrows()))
+    return f'<details class="gc"{" open" if opened else ""}>{head}{body}</details>'
+
+
+g_sorted = {"20日排名(強→弱)": gdf.sort_values("排名20"),
+            "偏空在前(淨傾向低→高)": gdf.sort_values("淨傾向"),
+            "今日上漲家數比": gdf.assign(_p=gdf["上漲檔"] / gdf["檔數"]).sort_values("_p", ascending=False)}[order]
+
+shown = 0
+for _, g in g_sorted.iterrows():
+    rows = members[members["group"] == g["group"]].sort_values("chg1", ascending=False)
+    if q:
+        rows = rows[rows["code"].str.contains(q, case=False) | rows["name"].astype(str).str.contains(q, case=False)]
+        if rows.empty:
+            continue
+    st.markdown(_card(g, rows, opened=bool(q) or open_all), unsafe_allow_html=True)
+    shown += 1
+if not shown:
+    st.info(f"族群成分裡找不到「{q}」——它可能不在 30 個主題族群內(全市場清單看下方)。")
+
+# ── 已驗證的兩張行動清單(全市場,不限族群) ──
+with st.expander(f"📋 全市場行動清單:🌱 多方候補 {n_bull} 檔/🐻 反彈空近5日命中"):
+    cl, cr = st.columns(2)
+    with cl:
+        st.markdown("**🌱 多方候補**(營收YoY>30%+殺深>10%+未收復;7/30 復盤快彈率 57%)")
+        b = sdf[sdf["bull_cand"] == True].sort_values("turn", ascending=False).head(30)  # noqa: E712
+        st.dataframe(b[["code", "name", "close", "off_hi", "flush", "retrace", "rev_yoy", "turn"]]
+                     .rename(columns={"code": "代碼", "name": "名稱", "close": "收盤", "off_hi": "距250高%",
+                                      "flush": "殺幅%", "retrace": "回升幅度", "rev_yoy": "營收YoY%", "turn": "日均額(億)"})
                      .style.format({"回升幅度": "{:.0%}", "距250高%": "{:+.1f}", "殺幅%": "{:+.1f}",
                                     "營收YoY%": "{:+.1f}"}, na_rep="—"),
-                     hide_index=True, width="stretch", height=420)
-        st.caption("⚠️ 進場紀律照家規:**不接刀**——等站回 MA20/突破確認才動手;爆量 2.3× 後 2-3 天禁入。")
-with cr:
-    st.markdown("### 🐻 空方命中(套牢池反彈空 S1)")
-    st.caption("回測 2024-01〜2026-11 全市場:**EV10 +3.1%、勝率 75%**(n=76,三年全正;成本約0.6%自行扣)。"
-               "條件:距250日高>30%跌幅 + 5日漲>12% + 爆量(>2×)收黑 + 融資餘額/日均量>4。"
-               "**同場陣亡:反彈失敗空、爆量長黑追空都是負EV——只空瘋狂反彈,不追殺崩跌。**")
-    if s1_5d.empty:
-        st.info("近 5 日無命中(月均 2-3 筆,稀有訊號;命中會推播)。")
-    else:
-        h = s1_5d.sort_values("chg5", ascending=False)
-        st.dataframe(h[["code", "name", "group", "close", "chg5", "off_hi", "margin_mult", "vol_mult", "s1_hits"]]
-                     .rename(columns={"code": "代碼", "name": "名稱", "group": "族群", "close": "收盤",
-                                      "chg5": "5日漲%", "off_hi": "距250高%", "margin_mult": "套牢倍數",
-                                      "vol_mult": "量倍", "s1_hits": "命中日"})
-                     .style.format({"5日漲%": "{:+.1f}", "距250高%": "{:+.1f}"}, na_rep="—"),
-                     hide_index=True, width="stretch", height=420)
-        st.caption("⚠️ 執行:次日**開盤**進場、**持有10日時間出場**(回測口徑);"
-                   "處置股不可空、先確認券源;強制回補日(股東會/除權息前)要避開。")
+                     hide_index=True, width="stretch", height=380)
+    with cr:
+        st.markdown("**🐻 套牢池反彈空 S1**(回測 EV10 +3.1%/勝率 75%/n76;次日開盤進、10日出)")
+        h = sdf[sdf["s1_hits"].fillna("") != ""].sort_values("chg5", ascending=False)
+        if h.empty:
+            st.info("近 5 日無命中(月均 2-3 筆)。")
+        else:
+            st.dataframe(h[["code", "name", "close", "chg5", "off_hi", "margin_mult", "vol_mult", "s1_hits"]]
+                         .rename(columns={"code": "代碼", "name": "名稱", "close": "收盤", "chg5": "5日漲%",
+                                          "off_hi": "距250高%", "margin_mult": "套牢倍數", "vol_mult": "量倍",
+                                          "s1_hits": "命中日"})
+                         .style.format({"5日漲%": "{:+.1f}", "距250高%": "{:+.1f}"}, na_rep="—"),
+                         hide_index=True, width="stretch", height=380)
+    st.caption("不接刀:多方等站回 MA20/突破確認;空方只空瘋狂反彈、不追殺(反彈失敗空與爆量長黑追空回測皆負 EV)。處置股不可空。")
 
-st.markdown("### ⚖️ 族群雙溫度表(淨傾向=多方分-空方分)")
-_gshow = gdf.rename(columns={gdf.columns[0]: "族群"}) if gdf.columns[0] != "族群" else gdf
-
-
-def _c_net(v):
-    if isinstance(v, (int, float)) and not pd.isna(v):
-        return f"color:{'#FF4D6D' if v > 0 else '#2BE4A8'}"
-    return ""
-
-
-st.dataframe(_gshow.style.map(_c_net, subset=[c for c in ["淨傾向"] if c in _gshow.columns])
-             .format({"收復率": "{:.0%}", "破MA60比": "{:.0%}", "今日收黑比": "{:.0%}",
-                      "五日中位": "{:+.1f}", "套牢倍數中位": "{:.1f}",
-                      "多方分": "{:.1f}", "空方分": "{:.1f}", "淨傾向": "{:+.1f}"}, na_rep="—"),
-             hide_index=True, width="stretch", height=560)
-st.caption("紅=偏多、綠=偏空(台股紅漲綠跌習慣)。多方分=收復率×50+營收加速檔×5+(1-破線比)×20;"
-           "空方分=破線比×40+收黑比×20+套牢倍數×3。分數是排序用的體檢,不是買賣單。")
-
-_grp_pick = st.selectbox("看單一族群成員", ["(選擇族群)"] + sorted(sdf["group"].dropna().unique().tolist()))
-if _grp_pick != "(選擇族群)":
-    m = sdf[sdf["group"] == _grp_pick].sort_values("chg5", ascending=False)
-    st.dataframe(m[["code", "name", "close", "chg1", "chg5", "off_hi", "below_ma60",
-                    "margin_mult", "retrace", "rev_yoy", "bull_cand", "s1_today"]]
-                 .rename(columns={"code": "代碼", "name": "名稱", "close": "收盤", "chg1": "當日%",
-                                  "chg5": "5日%", "off_hi": "距250高%", "below_ma60": "破MA60",
-                                  "margin_mult": "套牢倍數", "retrace": "回升幅度",
-                                  "rev_yoy": "營收YoY%", "bull_cand": "🌱候補", "s1_today": "🐻命中"})
-                 .style.format({"當日%": "{:+.1f}", "5日%": "{:+.1f}", "距250高%": "{:+.1f}",
-                                "回升幅度": "{:.0%}", "營收YoY%": "{:+.1f}", "套牢倍數": "{:.1f}"},
-                               na_rep="—"),
-                 hide_index=True, width="stretch", height=420)
-
-st.caption("資料:價格官方源+融資TWSE+月營收MOPS+失土收復明細(總經頁同源)。"
-           "每日排程自動重掃;S1 命中會推播,多方候補看失土收復率日報。研究用途,非投資建議。")
+with st.expander("📖 怎麼讀這頁"):
+    st.markdown(
+        "- **三顆燈**由左至右=外資・投信・大戶(集保 400 張以上)。**圓點**是中期立場(法人近 20 日累計買賣超、大戶近 4 週持股變化),"
+        "**箭頭**是短期方向(法人近 5 日、大戶最新一週)。紅=買/增、綠=賣/減、灰=無資料。滑鼠停在燈上看實際張數。\n"
+        "- **大戶跑**=最新一週大戶持股比例減少 ≥1pp(與大戶週報同門檻;集保每週更新一次)。\n"
+        "- **避開×N**=破季線、融資套牢>3 倍日均量、今日爆量收黑、外資投信近 5 日雙賣——中幾條算幾,滑鼠停上去看是哪幾條。\n"
+        "- **族群頭**:20 日排名=30 族群按「成分股 20 日報酬中位」排序;▲▼=跟昨天/5 天前比的名次升降;"
+        "右側百分比=今日上漲家數;最右數字=淨傾向(多方分-空方分)。\n"
+        "- **徽章**:疑似出貨=過半成分大戶跑,且法人沒有明顯在接(20 日買超檔數不到六成);吸籌中=六成以上法人買超+過半大戶增持。\n"
+        "- 分數與標籤是體檢,不是買賣單。")

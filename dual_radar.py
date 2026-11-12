@@ -48,8 +48,8 @@ def _margin_mult(code: str, v20_lots: float) -> float:
         return np.nan
 
 
-def _scan_one(f: str, days: int = 5) -> dict | None:
-    """單檔近況 + 近 days 日 S1 命中。"""
+def _scan_one(f: str, days: int = 5, keep: frozenset = frozenset()) -> dict | None:
+    """單檔近況 + 近 days 日 S1 命中。keep=族群成分:不夠流動也要列(但不進策略清單)。"""
     code = os.path.basename(f).split(".")[0]
     if len(code) != 4:
         return None
@@ -67,23 +67,71 @@ def _scan_one(f: str, days: int = 5) -> dict | None:
     ma60 = pd.Series(c).rolling(60).mean().to_numpy()
     hi250 = pd.Series(d["High"]).rolling(250, min_periods=100).max().to_numpy()
     r5 = pd.Series(c).pct_change(5).to_numpy() * 100
-    if c[-1] < MIN_PRICE or not a20[-1] or a20[-1] < MIN_AMT:
+    liquid = not (c[-1] < MIN_PRICE or not a20[-1] or a20[-1] < MIN_AMT)
+    if not liquid and code not in keep:
         return None
     mm = _margin_mult(code, v20[-1] / 1000 if v20[-1] else 0)
     hit_days = []
     for i in range(max(260, len(d) - days), len(d)):
-        if (c[i] / hi250[i] - 1 < -0.30 and r5[i] > 12 and c[i] < o[i]
+        if (liquid and c[i] / hi250[i] - 1 < -0.30 and r5[i] > 12 and c[i] < o[i]
                 and v[i] > 2 * v20[i] and mm and not np.isnan(mm) and mm > 4):
             hit_days.append(f"{d['Date'].iloc[i]:%Y-%m-%d}")
+    def _r20(off: int) -> float:              # off 天前的 20 日報酬(族群排名升降用)
+        return round((c[-1 - off] / c[-21 - off] - 1) * 100, 2)
+
     return dict(code=code, date=f"{d['Date'].iloc[-1]:%Y-%m-%d}",
                 close=round(c[-1], 2), chg1=round((c[-1] / c[-2] - 1) * 100, 2),
+                r20=_r20(0), r20_d1=_r20(1), r20_d5=_r20(5),
                 chg5=round(r5[-1], 1), off_hi=round((c[-1] / hi250[-1] - 1) * 100, 1),
                 below_ma60=bool(c[-1] < ma60[-1]),
                 vol_mult=round(v[-1] / v20[-1], 2) if v20[-1] else np.nan,
-                black=bool(c[-1] < o[-1]),
+                black=bool(c[-1] < o[-1]), liquid=liquid,
                 margin_mult=round(mm, 1) if mm == mm else np.nan,
                 s1_today=bool(hit_days and hit_days[-1] == f"{d['Date'].iloc[-1]:%Y-%m-%d}"),
                 s1_hits=",".join(hit_days))
+
+
+_FI_COLS = ("外陸資買賣超股數(不含外資自營商)", "外資買賣超股數")
+
+
+def _inst_lights(code: str) -> dict:
+    """外資/投信 近20日與近5日累計淨買賣超(張)。無檔回 NaN。"""
+    out = dict(fi20=np.nan, fi5=np.nan, it20=np.nan, it5=np.nan)
+    p = D / "institutional" / f"{code}_inst.csv"
+    if not p.exists():
+        return out
+    try:
+        head = pd.read_csv(p, nrows=0).columns
+        use = [c for c in (*_FI_COLS, "it_net") if c in head]
+        t = pd.read_csv(p, usecols=use).tail(20)
+        fi = None
+        for col in _FI_COLS:                    # 上市/上櫃欄名不同,擇有值者
+            if col in t.columns:
+                s = pd.to_numeric(t[col], errors="coerce")
+                fi = s if fi is None else fi.fillna(s)
+        if fi is not None:
+            out["fi20"], out["fi5"] = fi.sum() / 1000, fi.tail(5).sum() / 1000
+        if "it_net" in t.columns:
+            it = pd.to_numeric(t["it_net"], errors="coerce")
+            out["it20"], out["it5"] = it.sum() / 1000, it.tail(5).sum() / 1000
+    except Exception:
+        pass
+    return {k: (round(v, 0) if v == v else np.nan) for k, v in out.items()}
+
+
+def _bigholder_delta() -> pd.DataFrame:
+    """400張以上大戶持股比例:最新一週變化 bh1、近4週變化 bh4(pp)。"""
+    try:
+        b = pd.read_csv(D / "_bigholder_panel.csv").set_index("date").apply(pd.to_numeric, errors="coerce")
+        if len(b) < 2:
+            return pd.DataFrame()
+        last = b.iloc[-1]
+        out = pd.DataFrame({"bh1": last - b.iloc[-2], "bh4": last - b.iloc[max(0, len(b) - 5)]}).round(2)
+        out.index = out.index.astype(str)
+        out.attrs["week"] = str(b.index[-1])
+        return out
+    except Exception:
+        return pd.DataFrame()
 
 
 def _recovery_join() -> pd.DataFrame:
@@ -113,18 +161,19 @@ def _rev_map() -> pd.Series:
 def compute() -> dict:
     from theme_groups import THEME_GROUPS
     from data_provider import stock_name
+    memb: dict[str, list[str]] = {}          # 一檔可屬多族群(群聯同時在記憶體與IC設計)
+    for g, codes in THEME_GROUPS.items():
+        for c in codes:
+            memb.setdefault(str(c), []).append(g)
+    keep = frozenset(memb)
     rows = []
     for f in glob.glob(str(D / "[1-9]*.TW.csv")) + glob.glob(str(D / "[1-9]*.TWO.csv")):
-        r = _scan_one(f)
+        r = _scan_one(f, keep=keep)
         if r:
             rows.append(r)
     df = pd.DataFrame(rows)
     df["name"] = df["code"].map(stock_name)
-    c2g = {}
-    for g, codes in THEME_GROUPS.items():
-        for c in codes:
-            c2g.setdefault(str(c), g)
-    df["group"] = df["code"].map(c2g).fillna("(未分組)")
+    df["group"] = df["code"].map(lambda c: "|".join(memb.get(c, []))).replace("", "(未分組)")
     # 多方素材:收復狀態+營收
     rec = _recovery_join()
     if not rec.empty:
@@ -133,11 +182,30 @@ def compute() -> dict:
         for col in ("retrace", "full", "flush"):
             df[col] = np.nan
     df["rev_yoy"] = df["code"].map(_rev_map())
-    df["bull_cand"] = (df["rev_yoy"] > 30) & (df["flush"] < -10) & (df["full"] != True)  # noqa: E712
+    df["bull_cand"] = ((df["rev_yoy"] > 30) & (df["flush"] < -10) & (df["full"] != True)  # noqa: E712
+                       & df["liquid"])
+
+    # 三燈素材(只算有分組的,省 IO):外資・投信=法人日檔;大戶=集保週 panel
+    grouped = df["group"] != "(未分組)"
+    lights = pd.DataFrame([{"code": c, **_inst_lights(c)} for c in df.loc[grouped, "code"]])
+    df = df.merge(lights, on="code", how="left")
+    bh = _bigholder_delta()
+    df["bh1"] = df["code"].map(bh["bh1"]) if len(bh) else np.nan
+    df["bh4"] = df["code"].map(bh["bh4"]) if len(bh) else np.nan
+    df["big_run"] = df["bh1"] <= -1.0                       # 大戶週報既有門檻:週減 ≥1pp
+    df["inst20"] = df[["fi20", "it20"]].sum(axis=1, min_count=1)   # 兩者皆無資料=NaN,不進比例分母
+    df["inst_dual_sell"] = (df["fi5"] < 0) & (df["it5"] < 0)
+    df["trap"] = df["margin_mult"] > 3
+    df["vol_black"] = (df["vol_mult"] > 2) & df["black"]
+    df["avoid_n"] = (df["below_ma60"].astype(int) + df["trap"].astype(int)
+                     + df["vol_black"].astype(int) + df["inst_dual_sell"].astype(int))
+    df["up"] = df["chg1"] > 0
     df.sort_values(["s1_today", "bull_cand", "chg5"], ascending=False).to_csv(
         S_CSV, index=False, encoding="utf-8-sig")
 
-    gd = df[df["group"] != "(未分組)"]
+    gd = df[df["group"] != "(未分組)"].copy()
+    gd["group"] = gd["group"].str.split("|")
+    gd = gd.explode("group")
     agg = gd.groupby("group").agg(
         檔數=("code", "count"),
         收復率=("full", "mean"),
@@ -147,7 +215,22 @@ def compute() -> dict:
         今日收黑比=("black", "mean"),
         五日中位=("chg5", "median"),
         S1命中=("s1_today", "sum"),
+        上漲檔=("up", "sum"),
+        r20中位=("r20", "median"),
+        r20_d1=("r20_d1", "median"),
+        r20_d5=("r20_d5", "median"),
+        大戶跑比=("big_run", "mean"),
+        大戶增比=("bh4", lambda s: (s.dropna() > 0).mean() if s.notna().any() else 0.0),
+        法人賣比=("inst20", lambda s: (s.dropna() < 0).mean() if s.notna().any() else 0.0),
+        法人買比=("inst20", lambda s: (s.dropna() > 0).mean() if s.notna().any() else 0.0),
     ).round(2)
+    # 20日排名與升降(正=名次進步);徽章=法人+大戶同向的族群級證據
+    agg["排名20"] = agg["r20中位"].rank(ascending=False, method="min").astype(int)
+    agg["昨升降"] = (agg["r20_d1"].rank(ascending=False, method="min") - agg["排名20"]).astype(int)
+    agg["五日升降"] = (agg["r20_d5"].rank(ascending=False, method="min") - agg["排名20"]).astype(int)
+    # 疑似出貨=過半成分大戶週減≥1pp,且法人沒有明顯在接(20日買超檔數不到六成)
+    agg["徽章"] = np.where((agg["大戶跑比"] >= 0.5) & (agg["法人買比"] < 0.6), "疑似出貨",
+                         np.where((agg["法人買比"] >= 0.6) & (agg["大戶增比"] >= 0.5), "吸籌中", ""))
     agg["多方分"] = (agg["收復率"].fillna(0) * 50 + agg["營收加速檔"] * 5
                    + (1 - agg["破MA60比"]) * 20).round(1)
     agg["空方分"] = (agg["破MA60比"] * 40 + agg["今日收黑比"] * 20
