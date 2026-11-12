@@ -58,12 +58,66 @@ def _fix_warrants() -> None:
         wf.whale_today(); wf.board_log()
 
 
-# (名稱, 到點時刻HHMM, probe()->本地最新日 'YYYY-MM-DD' 或 ''=無, fixer)
+def _fix_revenue() -> None:
+    """月營收兩個衍生快取:revenue_trend.csv(產業輪動/族群儀表板)+ _rev_history.csv(戰情室/籌碼地圖)。"""
+    import revenue_radar as rr
+    rr.rebuild_if_stale()
+    import monthly_forecast as mf
+    mf.build_rev_history(force=True)
+
+
+def _probe_revenue(exp_s: str) -> str:
+    try:
+        import revenue_radar as rr
+        want = rr.expected_latest_ym()
+        hist = str(pd.read_csv(D / "_rev_history.csv", usecols=["ym"])["ym"].max())
+        return exp_s if (rr.latest_ym_in_file() >= want and hist >= want) else ""
+    except Exception:
+        return ""
+
+
+def _probe_recovery(exp_s: str) -> str:
+    """無進行中大跌週期時本來就不產出,視為新鮮。"""
+    try:
+        import recovery_rate as rc
+        if rc._detect_cycle() is None:
+            return exp_s
+    except Exception:
+        return exp_s
+    return _csv_last_date(D / "recovery_rate.csv", "asof")
+
+
+def _fresh_within(p: Path, days: float, exp_s: str) -> str:
+    import time
+    return exp_s if p.exists() and time.time() - p.stat().st_mtime < days * 86400 else ""
+
+
+def _call(mod: str, fn: str, *a):
+    """延遲 import 的 fixer 工廠(避免 doctor 啟動就載入全部模組)。"""
+    def run_():
+        import importlib
+        getattr(importlib.import_module(mod), fn)(*a)
+    return run_
+
+
+# (名稱, 到點時刻HHMM, probe()->本地最新日 'YYYY-MM-DD' 或 ''=無, fixer[, quiet])
 # fixer: list=子行程腳本;callable=行程內函式。到點且 probe < 應到日才動手。
+# quiet=True:來源本來就晚更新(期交所 OpenAPI 晚間/隔日才換日)→ 照樣補抓,但補不回來不告警。
 def _rules():
     exp = latest_expected_trading_day()
     exp_s = f"{exp:%Y-%m-%d}"
     return exp_s, [
+        ("月營收快取", 0, lambda: _probe_revenue(exp_s), _fix_revenue),
+        ("失土收復率", 1600, lambda: _probe_recovery(exp_s), _call("recovery_rate", "compute")),
+        ("期貨法人", 1700, lambda: _csv_last_date(D / "_taifex_fi.csv"),
+         _call("taifex_flow", "fetch_fi_futures"), True),
+        ("選擇權日檔", 1700,
+         lambda: exp_s if (D / "txo" / f"txo_{exp:%Y%m%d}.csv").exists() else "",
+         _call("op_paper", "fetch_txo"), True),
+        ("多空雷達", 1800, lambda: _csv_last_date(D / "_dual_radar_stocks.csv"),
+         _call("dual_radar", "compute")),
+        ("投降日回溯", 2200, lambda: _fresh_within(D / "_margin_capit_hist.csv", 4, exp_s),
+         _call("margin_alert", "backfill")),
         ("個股價格", 1540,
          lambda: _csv_last_date(D / "2330.TW.csv", "Date"),
          [PY, "fetch_daily_official.py"]),
@@ -101,7 +155,8 @@ def run() -> str:
     hhmm = t.hour * 100 + t.minute
     exp_s, rules = _rules()
     fixed, broken, rows = [], [], []
-    for name, due, probe, fixer in rules:
+    for name, due, probe, fixer, *opt in rules:
+        quiet = bool(opt and opt[0])
         if hhmm < due:
             continue
         if probe() >= exp_s:
@@ -115,10 +170,14 @@ def run() -> str:
         except Exception:
             pass
         ok = probe() >= exp_s
-        (fixed if ok else broken).append(name)
+        if ok:
+            fixed.append(name)
+        elif not quiet:
+            broken.append(name)
         rows.append({"時間": f"{t:%Y-%m-%d %H:%M}", "項目": name,
-                     "結果": "自動補回 ✅" if ok else "補不回來 🔴", "應到日": exp_s})
-        print(f"[doctor] {name}:{'補回' if ok else '仍缺'}(應到 {exp_s})")
+                     "結果": "自動補回 ✅" if ok else ("來源未更新(晚點再試)" if quiet else "補不回來 🔴"),
+                     "應到日": exp_s})
+        print(f"[doctor] {name}:{'補回' if ok else ('來源未更新' if quiet else '仍缺')}(應到 {exp_s})")
     if rows:
         _append_log(rows)
     # 告警:補不回來的才推,一天同項目只吵一次

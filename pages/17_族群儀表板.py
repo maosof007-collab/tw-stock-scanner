@@ -34,10 +34,14 @@ codes = THEME_GROUPS[gname]
 def build_table(gname: str, codes: tuple) -> pd.DataFrame:
     sl = pd.read_csv(D / "stock_list.csv", encoding="utf-8-sig", dtype=str)
     nm = dict(zip(sl["code"], sl["name"]))
+    # 月營收:讀 _rev_history.csv(全市場長表,每月隨 bulk 月檔重建)。
+    # 舊版讀 fundamentals/bulk_rev_2026_all.csv——該檔早已不存在,try/except 吞掉錯誤後
+    # 營收欄整個消失,「雙確認」判讀在沒有營收資料下照算(2026-11-12 全站盤點抓到)。
     try:
-        bulk = pd.read_csv(D / "fundamentals" / "bulk_rev_2026_all.csv", dtype={"code": str})
-        bulk["yoy"] = pd.to_numeric(bulk["yoy"], errors="coerce")
-        rev_piv = bulk.pivot_table(index="code", columns="month", values="yoy")
+        bulk = pd.read_csv(D / "_rev_history.csv", dtype={"code": str}, usecols=["code", "ym", "yoy"])
+        bulk = bulk[bulk["code"].isin(codes)]
+        bulk["yoy"] = pd.to_numeric(bulk["yoy"], errors="coerce").clip(-100, 300)
+        rev_piv = bulk.pivot_table(index="code", columns="ym", values="yoy").sort_index(axis=1)
     except Exception:
         rev_piv = pd.DataFrame()
     try:
@@ -70,13 +74,14 @@ def build_table(gname: str, codes: tuple) -> pd.DataFrame:
                 b = bm.reindex(c0.index).ffill()
                 row["RS60"] = round(float((c0.iloc[-1] / c0.iloc[-61]) /
                                           (b.iloc[-1] / b.iloc[-61])), 2)
-        if c in rev_piv.index:
+        if c in rev_piv.index and rev_piv.shape[1] >= 6:
             t = rev_piv.loc[c]
-            row["7月YoY%"] = round(t.get(7)) if pd.notna(t.get(7)) else None
-            q1 = t.reindex([1, 2, 3]).mean()
-            late = t.reindex([5, 6, 7]).mean()
-            if pd.notna(q1) and pd.notna(late):
-                row["營收改善pp"] = round(late - q1)
+            if pd.notna(t.iloc[-1]):
+                row["最新月YoY%"] = round(t.iloc[-1])
+            late = t.iloc[-3:].mean()          # 近3個月 vs 再往前3個月(動態,不寫死月份)
+            base = t.iloc[-6:-3].mean()
+            if pd.notna(base) and pd.notna(late):
+                row["營收改善pp"] = round(late - base)
         try:
             from fundamentals import quarterly_fin
             q = quarterly_fin(c, years=2)
@@ -114,7 +119,7 @@ df = build_table(gname, tuple(codes))
 def _verdict(r) -> tuple[int, str]:
     """綜合判讀:營收動能×法人籌碼×相對強弱×倒貨率 → (分數, 一句話結論)。"""
     rev_imp = r.get("營收改善pp") or 0
-    yoy = r.get("7月YoY%") or 0
+    yoy = r.get("最新月YoY%") or 0
     rs = r.get("RS60") or 1.0
     fi5 = r.get("法人5日(億)") or 0
     dump = r.get("倒貨率%")
@@ -159,7 +164,8 @@ st.dataframe(df, width="stretch", hide_index=True,
                  "綜合分": st.column_config.NumberColumn(
                  help="營收動能(0-2)+相對強弱(±1)+法人籌碼(±2,熱區折半)")})
 st.caption("EPS/毛利=FinMind 季報(近4季);本益比=收盤÷近4季EPS;"
-           "法人5日=外資+投信買賣超估算;RS60>1=近60日強於大盤。"
+           "法人5日=外資+投信買賣超估算;RS60>1=近60日強於大盤;"
+           "最新月YoY=月營收最新一期;營收改善pp=近3個月YoY均值−再往前3個月。"
            "⚠️ 營收YoY分不出量增vs漲價轉嫁,重要判讀配法說筆記。")
 
 # 營收雷達軌跡

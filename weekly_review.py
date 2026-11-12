@@ -136,9 +136,10 @@ def _stock_context(code: str) -> dict:
     except Exception:
         pass
     try:
-        bulk = pd.read_csv(ROOT / "data" / "fundamentals" / "bulk_rev_2026_all.csv",
-                           dtype={"code": str})
-        t = bulk[bulk["code"] == code].sort_values("month")
+        # 舊版讀 fundamentals/bulk_rev_2026_all.csv(早已不存在,yoy_last 永遠拿不到)
+        bulk = pd.read_csv(ROOT / "data" / "_rev_history.csv", dtype={"code": str},
+                           usecols=["code", "ym", "yoy"])
+        t = bulk[bulk["code"] == code].sort_values("ym").dropna(subset=["yoy"])
         if len(t):
             out["yoy_last"] = float(t["yoy"].iloc[-1])
     except Exception:

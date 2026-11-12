@@ -11,6 +11,15 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# AVG TLS 攔截(2026-11-12 起全機):app 內所有即時連網(財報/法說/報價)都要信任
+# Windows 憑證存放區,否則每次連線都驗證失敗重試(公司快照/估值前瞻/九宮格載入 >100 秒)。
+# 放在入口=每次執行都跑,長駐不重啟的 app 也立刻生效;雲端環境失敗就靜默略過。
+try:
+    import ssl_trust
+    ssl_trust.ensure()
+except Exception:
+    pass
+
 st.set_page_config(page_title="台股決策系統", page_icon="📈",
                    layout="wide", initial_sidebar_state="collapsed")
 

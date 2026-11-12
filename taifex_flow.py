@@ -26,8 +26,17 @@ def fetch_fi_futures(days: int = 10) -> pd.DataFrame:
     2026-09:舊 CSV 下載端點被期交所擋掉(回HTML) → 改走 OpenAPI(僅回最新一日),
     每日抓一次併入快取累積歷史;快取 6h。"""
     old = pd.read_csv(CACHE) if CACHE.exists() else pd.DataFrame()
-    if CACHE.exists() and (time.time() - CACHE.stat().st_mtime) < 6 * 3600 and len(old):
-        return old.tail(days)
+    # 快取閘門看「內容有沒有到應到日」,不看檔案時間。舊版「6 小時內不重抓」:
+    # 15:10 抓到的還是前一日(期交所晚間才更新)→ 檔案時間被刷新 → 19:41 那次直接跳過,
+    # 整晚停在前一日(2026-11-12 全站盤點抓到)。20 分鐘內不重打只是禮貌性限流。
+    if len(old):
+        try:
+            from check_data_current import latest_expected_trading_day
+            fresh = str(old["date"].max())[:10] >= f"{latest_expected_trading_day():%Y-%m-%d}"
+        except Exception:
+            fresh = False
+        if fresh or (time.time() - CACHE.stat().st_mtime) < 20 * 60:
+            return old.tail(days)
     try:
         import json
         import urllib.request
