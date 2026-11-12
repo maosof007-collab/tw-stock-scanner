@@ -91,10 +91,11 @@ from gate import require_login
 require_login()
 
 # 全域頂列(每一頁都有,回得了家)
-_top = st.columns(8)
+_top = st.columns(9)
 for _i, (_pg, _lb) in enumerate([
         ("views/home.py", "📈 駕駛艙"),
         ("pages/1_今日選股.py", "📡 選股"),
+        ("pages/46_多空雷達.py", "⚖️ 多空雷達"),
         ("pages/25_籌碼地圖.py", "🗺️ 地圖"),
         ("pages/6_績效追蹤.py", "🩺 體檢·日誌"),
         ("pages/22_權證大戶.py", "🐳 權證大戶"),
