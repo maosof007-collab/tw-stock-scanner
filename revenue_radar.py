@@ -123,10 +123,27 @@ def rebuild(months: int = 8) -> pd.DataFrame:
     return out
 
 
+def expected_latest_ym() -> str:
+    """現在「應該已經齊了」的最新營收月份(每月 12 日起=上月,之前=上上月)。"""
+    now = now_tw()
+    y, m = now.year, (now.month - 1 if now.day >= 12 else now.month - 2)
+    if m <= 0:
+        y, m = y - 1, m + 12
+    return f"{y}-{m:02d}"
+
+
+def latest_ym_in_file() -> str:
+    try:
+        return str(pd.read_csv(OUT, usecols=["ym"], encoding="utf-8-sig")["ym"].max())
+    except Exception:
+        return ""
+
+
 def rebuild_if_stale(max_days: int = 25) -> None:
-    """給 run_daily 用:檔案超過 N 天(=新月份營收該出了)自動重建。"""
-    import os
-    if OUT.exists() and (time.time() - OUT.stat().st_mtime) < max_days * 86400:
+    """給 run_daily/data_doctor 用:檔案裡沒有「該有的最新月份」就重建。
+    舊版用「檔案超過 25 天」判斷——10/27 寫的檔要到 11/21 才重建,
+    但 10 月營收 11/10 就齊了,產業輪動頁整整顯示舊月份十天(2026-11-12 修)。"""
+    if OUT.exists() and latest_ym_in_file() >= expected_latest_ym():
         return
     rebuild()
 

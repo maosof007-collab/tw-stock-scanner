@@ -185,9 +185,8 @@ def compute() -> dict:
     df["bull_cand"] = ((df["rev_yoy"] > 30) & (df["flush"] < -10) & (df["full"] != True)  # noqa: E712
                        & df["liquid"])
 
-    # 三燈素材(只算有分組的,省 IO):外資・投信=法人日檔;大戶=集保週 panel
-    grouped = df["group"] != "(未分組)"
-    lights = pd.DataFrame([{"code": c, **_inst_lights(c)} for c in df.loc[grouped, "code"]])
+    # 三燈素材(全部都算:候補要「乾淨」才成立,未分組的也得驗法人):外資・投信=法人日檔;大戶=集保週 panel
+    lights = pd.DataFrame([{"code": c, **_inst_lights(c)} for c in df["code"]])
     df = df.merge(lights, on="code", how="left")
     bh = _bigholder_delta()
     df["bh1"] = df["code"].map(bh["bh1"]) if len(bh) else np.nan
@@ -197,10 +196,14 @@ def compute() -> dict:
     df["inst_dual_sell"] = (df["fi5"] < 0) & (df["it5"] < 0)
     df["trap"] = df["margin_mult"] > 3
     df["vol_black"] = (df["vol_mult"] > 2) & df["black"]
-    df["avoid_n"] = (df["below_ma60"].astype(int) + df["trap"].astype(int)
-                     + df["vol_black"].astype(int) + df["inst_dual_sell"].astype(int))
+    # 避開=籌碼行為面的硬傷。破季線不算:未收復的股票幾乎必然在季線下,
+    # 算進去會讓「避開」與「候補」永遠同時出現(2026-11-12 使用者指正:避開跟候補一起?)
+    df["avoid_n"] = (df["trap"].astype(int) + df["vol_black"].astype(int)
+                     + df["inst_dual_sell"].astype(int))
+    # 乾淨候補:營收因子成立,且無任何避開理由、大戶沒在跑——兩個標籤互斥
+    df["bull_ok"] = df["bull_cand"] & (df["avoid_n"] == 0) & ~df["big_run"]
     df["up"] = df["chg1"] > 0
-    df.sort_values(["s1_today", "bull_cand", "chg5"], ascending=False).to_csv(
+    df.sort_values(["s1_today", "bull_ok", "chg5"], ascending=False).to_csv(
         S_CSV, index=False, encoding="utf-8-sig")
 
     gd = df[df["group"] != "(未分組)"].copy()
@@ -209,7 +212,7 @@ def compute() -> dict:
     agg = gd.groupby("group").agg(
         檔數=("code", "count"),
         收復率=("full", "mean"),
-        營收加速檔=("bull_cand", "sum"),
+        營收加速檔=("bull_ok", "sum"),
         破MA60比=("below_ma60", "mean"),
         套牢倍數中位=("margin_mult", "median"),
         今日收黑比=("black", "mean"),
@@ -246,7 +249,7 @@ def compute() -> dict:
         pd.concat([old, log], ignore_index=True).drop_duplicates(["date", "code"]) \
             .to_csv(HITS, index=False, encoding="utf-8-sig")
     return dict(stocks=len(df), hits=hits["code"].tolist() if len(hits) else [],
-                bulls=int(df["bull_cand"].sum()), asof=df["date"].max() if len(df) else "")
+                bulls=int(df["bull_ok"].sum()), asof=df["date"].max() if len(df) else "")
 
 
 def push() -> str:
