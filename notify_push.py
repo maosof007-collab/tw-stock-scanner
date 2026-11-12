@@ -74,6 +74,12 @@ def main() -> None:
             return rec_push()
         _step("失土收復率", recovery)
 
+        def bear_s1():
+            # 多空雷達:S1 套牢池反彈空命中才推(月均2-3筆);多方候補由收復率日報濃縮
+            from dual_radar import push as dr_push
+            return dr_push()
+        _step("多空雷達S1", bear_s1)
+
         def scorecard():
             # 月度記分卡:11 日後出一次(月營收公布完對總帳),存研究文章庫+推濃縮
             from monthly_scorecard import push as sc_push

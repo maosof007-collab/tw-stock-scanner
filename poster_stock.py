@@ -133,7 +133,10 @@ def _px_card(ctx, extra: str = "") -> str:
                 + (f'<div class="note">{extra}</div>' if extra else ""))
 
 
-def stock_poster(cfg: dict, date: str = "20261111") -> None:
+def stock_poster(cfg: dict, date: str = "") -> None:
+    if not date:
+        from twtime import now_tw
+        date = f"{now_tw():%Y%m%d}"
     """cfg: code,name,brand,title,subtitle,concl[(kind,html)],struct(html),cust(html),
     cata[(主文,註,紅)],risk[(kind,html)],fin_note,exam,scn_note,px_note,src"""
     ctx = dr.build_deep_context(cfg["code"])

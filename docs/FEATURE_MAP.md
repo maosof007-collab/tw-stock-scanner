@@ -54,6 +54,7 @@
 | `/資金流向日誌` | 資金流向日誌 | money_flow_daily |
 | `/權證大戶` | 權證大戶進出 | warrant_flow |
 | `/分割減資雷達` | 分割/減資雷達（公告日布局） | corp_actions（`render_radar` 與 /權證大戶 的 tab 共用） |
+| `/多空雷達` | 多空雷達（照族群；多方候補=7/30營收因子、空方=S1套牢池反彈空 EV10+3.1%/勝75%） | dual_radar；`data/_dual_radar_*.csv`、`data/_bear_backtest.csv` |
 | `/迴轉率` | 迴轉率雷達 | turnover_radar |
 | `/強勢資金` | 強勢資金 | attention_scan、attention_replay（戰績回放） |
 | `/法說行事曆` | 法說行事曆 | concall、conf_calendar |
