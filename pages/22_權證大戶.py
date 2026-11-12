@@ -192,21 +192,7 @@ with t_one:
 
 with t_ca:
     import corp_actions as _ca
-    _ca = importlib.reload(_ca)
-    st.markdown("#### 公告雷達(每日掃全市場重大訊息:股票分割/面額變更/減資)")
-    st.caption("「提前布局」的合法時點=**公告日**。公告→股東會→停止買賣→恢復買賣,中間通常有數週到數月——雷達命中後把恢復買賣日記進行事曆。")
-    rec = _ca.recent()
-    if rec.empty:
-        st.info("尚無記錄(run_daily 每日自動掃;可先手動執行 python corp_actions.py)。")
-    else:
-        st.dataframe(rec.iloc[::-1], hide_index=True, width="stretch")
-    st.markdown("#### 2025-2026 分割恢復買賣案例實測(恢復日進場)")
-    st.dataframe(_ca.SPLIT_CASES, hide_index=True, width="stretch")
-    st.markdown("""
-**規則(從案例歸納,樣本仍小,持續累積)**:
-1. **恢復買賣日才是主戰場**——不必真的搶「提前」:世紀* 分割前 60 日還跌 20%,錢全在恢復後(+116.6%);
-2. **比例要大**(≥1拆4):1拆2 的強生只有 +1.3%,「變便宜」的錯覺不夠強;
-3. **預跑是反指標**:分割前已暴漲(沛爾 +105%)=利多出盡,恢復日 -10% 教訓;預跑低或負的才有行情;
-4. **首日量價定調**:恢復日漲停鎖死=跟(照天量統計掛 -15% 統計停損);開高走低=沛爾型,跳過;
-5. 疊加題材(世紀*=AI 無人機)才有連續漲停的燃料——分割只是火柴,題材才是柴堆。
-""")
+    if not hasattr(_ca, "render_radar"):
+        _ca = importlib.reload(_ca)
+    st.page_link("pages/45_分割減資雷達.py", label="↗ 已搬到專頁:分割/減資雷達(點我)")
+    _ca.render_radar()

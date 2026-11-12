@@ -148,6 +148,83 @@ st.caption(
     f"⚠️ 維持率為**推估**（成本以 MA60 近似、融資成數 0.6）。融資資料截至 **{last_date}**，"
     "若與今日差多天，代表 fetch_margin 未跟上每日更新。")
 
+# ═══════════════ 失土收復率(大跌週期的收復廣度)═══════════════
+st.markdown("---")
+st.markdown("### 🧭 失土收復率（大跌週期的收復廣度）")
+
+import recovery_rate as _rr
+if not hasattr(_rr, "build_text"):
+    _rr = importlib.reload(_rr)
+_D = Path(__file__).parent.parent / "data"
+
+_rb1, _rb2 = st.columns([1.2, 4])
+if _rb1.button("🔄 重算收復率", help="逐檔掃全市場約 1-2 分鐘;每日排程 17:00 後會自動算"):
+    with st.spinner("逐檔掃描全市場（約 1-2 分鐘）…"):
+        _rr.compute()
+    st.rerun()
+
+if not (_D / "recovery_rate.csv").exists():
+    st.info("尚無收復率資料——按「重算收復率」產生第一筆（或等每日排程）。")
+else:
+    _rh = pd.read_csv(_D / "recovery_rate.csv")
+    _cur = _rh.iloc[-1]
+    _delta = float(_cur["full_pct"]) - float(_rh["full_pct"].iloc[-2]) if len(_rh) > 1 else None
+    _stage = _rr._stage(float(_cur["full_pct"]), float(_cur["twii_pos"]), _delta)
+    _ref_md = str(_cur["ref_date"])[5:].replace("-", "/")
+
+    r1, r2, r3, r4 = st.columns(4)
+    _sub1 = f"較前日 {_delta:+.1f}pp" if _delta is not None else f"樣本 {int(_cur['n'])} 檔"
+    r1.markdown(f"<div class='metric-card'><div class='l'>全收復（站回 {_ref_md} 前高）</div><div class='v'>{_cur['full_pct']:.1f}%</div><div class='l'>{_sub1}</div></div>", unsafe_allow_html=True)
+    r2.markdown(f"<div class='metric-card'><div class='l'>收復過半（自低點回升 >50%）</div><div class='v'>{_cur['half_pct']:.1f}%</div><div class='l'>樣本 {int(_cur['n'])} 檔</div></div>", unsafe_allow_html=True)
+    r3.markdown(f"<div class='metric-card'><div class='l'>大盤自身回升</div><div class='v'>{_cur['twii_pos']:.1f}%</div><div class='l'>週期 {str(_cur['ref_date'])[5:]} 高 → {str(_cur['bot_date'])[5:]} 底（{_cur['twii_dd']:.1f}%）</div></div>", unsafe_allow_html=True)
+    r4.markdown(f"<div class='metric-card'><div class='l'>情緒階段判讀（經驗映射）</div><div class='v' style='font-size:1.05rem'>{_stage}</div></div>", unsafe_allow_html=True)
+
+    # 結論行:營收分組差距(=資金挑不挑基本面)+今日新收復
+    if pd.notna(_cur.get("rev30_pct")) and pd.notna(_cur.get("revneg_pct")):
+        _sp = float(_cur["rev30_pct"]) - float(_cur["revneg_pct"])
+        st.markdown(f"- 營收>30% 組收復 **{_cur['rev30_pct']:.1f}%** vs 負成長組 **{_cur['revneg_pct']:.1f}%**（差距 {_sp:+.1f}pp）"
+                    f"——7/30 研究裡快彈的乾淨因子是營收;**差距拉開=資金開始挑基本面=第 8 階段確認訊號**")
+    _nf = [c for c in str(_cur.get("new_full", "")).split(",") if c and c != "nan"]
+    if _nf:
+        from data_provider import stock_name as _sn
+        st.markdown("- 本日新收復:" + "、".join(f"{c} {_sn(c)}" for c in _nf[:10])
+                    + (f" …共 {len(_nf)} 檔" if len(_nf) > 10 else ""))
+
+    # 歷史曲線(逐日累積;剛上線時只有少數點)
+    if len(_rh) > 1:
+        _fg = go.Figure()
+        for _col, _lab, _cc in [("full_pct", "全收復%", THEME["accent"]),
+                                ("half_pct", "過半%", THEME["ma30"]),
+                                ("twii_pos", "大盤回升%", THEME["muted"])]:
+            _fg.add_trace(go.Scatter(x=_rh["asof"], y=_rh[_col], mode="lines+markers",
+                                     name=_lab, line=dict(color=_cc, width=2)))
+        _fg.update_layout(height=300, template="plotly_dark", paper_bgcolor=THEME["bg"],
+                          plot_bgcolor=THEME["panel"], font=dict(color=THEME["text"], size=12),
+                          margin=dict(l=10, r=10, t=10, b=10), hovermode="x unified",
+                          legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0))
+        _fg.update_yaxes(title_text="%", range=[0, 105], gridcolor=THEME["grid"])
+        st.plotly_chart(_fg, width="stretch")
+
+    with st.expander("📋 逐檔明細:最接近失土線的候補(未收復、回升幅度前 20)"):
+        try:
+            _rd = pd.read_csv(_D / "recovery_detail.csv", dtype={"code": str})
+            from data_provider import stock_name as _sn2
+            _cand = _rd[~_rd["full"]].sort_values("retrace", ascending=False).head(20).copy()
+            _cand["名稱"] = _cand["code"].map(_sn2)
+            _cand["距失土線%"] = (_cand["last"] / _cand["ref"] - 1) * 100
+            _show = _cand.rename(columns={"code": "代碼", "ref": "失土線", "bot": "週期低點",
+                                          "last": "收盤", "retrace": "回升幅度", "turn": "日均額(億)"})
+            st.dataframe(_show[["代碼", "名稱", "失土線", "週期低點", "收盤", "距失土線%", "回升幅度", "日均額(億)"]]
+                         .style.format({"距失土線%": "{:+.1f}", "回升幅度": "{:.0%}"}),
+                         width="stretch", hide_index=True, height=420)
+            st.caption("回升幅度=自週期低點回升占跌幅比例(100%=收復失土)。全明細在 data/recovery_detail.csv。")
+        except Exception as _e:
+            st.caption(f"明細讀取失敗:{_e}")
+
+    st.caption(f"💡 **怎麼看**:大盤回升 {_cur['twii_pos']:.0f}% 但全收復只有 {_cur['full_pct']:.1f}%"
+               "=指數的 V 是權值股撐的、多數股票還在水下(寬度不足);兩者收斂才是健康回升。"
+               "資料日=" + str(_cur["asof"]) + ";每日 17:00 後排程自動更新+推播一則。")
+
 # ═══════════════ 季節性窗口（七月前10日 + 八月後7日）═══════════════
 st.markdown("---")
 st.markdown("### 📅 季節性窗口（七月前10日 ＋ 八月後7日）")

@@ -24,10 +24,12 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
 import pandas as pd
+
+from twtime import now_tw
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "taifex_1min.csv.gz"
@@ -41,7 +43,7 @@ def _have() -> set:
     """已完成的交易日。今天永遠重抓:盤中跑到的是不完整檔,晚上要讓完整檔蓋掉。"""
     if OUT.exists():
         ds = pd.read_csv(OUT, usecols=["date"])["date"].astype(str).unique()
-        return {x for x in ds if x < f"{date.today():%Y-%m-%d}"}
+        return {x for x in ds if x < f"{now_tw().date():%Y-%m-%d}"}
     return set()
 
 
@@ -93,8 +95,8 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as td:  # C: 碟,避開 G: I/O 雷
         tmp = Path(td)
         for i in range(45, -1, -1):
-            d = date.today() - timedelta(days=i)
-            ds, is_today = f"{d:%Y-%m-%d}", d == date.today()
+            d = now_tw().date() - timedelta(days=i)
+            ds, is_today = f"{d:%Y-%m-%d}", d == now_tw().date()
             rawz = RAW / f"Daily_{d:%Y_%m_%d}.zip"
             if d.weekday() >= 5 or (ds in have and rawz.exists() and not is_today):
                 continue
@@ -106,7 +108,7 @@ def main() -> int:
                     continue
                 # 囤原始檔。今天的檔日盤 13:45 收、約 14:30 後才定版,盤中抓到的
                 # 不完整檔不能進囤存區,否則隔天會被當完整檔跳過
-                if not is_today or datetime.now().hour >= 15:
+                if not is_today or now_tw().hour >= 15:
                     try:
                         shutil.copy(z, rawz)
                     except OSError as e:

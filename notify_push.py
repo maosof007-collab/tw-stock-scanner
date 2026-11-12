@@ -73,6 +73,12 @@ def main() -> None:
             from recovery_rate import push as rec_push
             return rec_push()
         _step("失土收復率", recovery)
+
+        def scorecard():
+            # 月度記分卡:11 日後出一次(月營收公布完對總帳),存研究文章庫+推濃縮
+            from monthly_scorecard import push as sc_push
+            return sc_push()
+        _step("月記分卡", scorecard)
     else:
         print("[notify] 17:00 前時段:日報/Flex 留給晚間時段")
 

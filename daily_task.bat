@@ -31,6 +31,10 @@ rem data (16:00+), local Claude engine, and skips if already generated today
 G:\python\python.exe money_flow_daily.py >> logs\daily_task.log 2>&1
 rem daily index structure map (two-ruler fib + decision tree) - self-guarded
 G:\python\python.exe index_map.py >> logs\daily_task.log 2>&1
+rem data freshness watchdog: each feed has a due time; past due and still
+rem stale -> re-run its fetcher -> alert only if still broken (2026-11-12,
+rem fourth same-shape incident: margin stuck on 11-11 all evening)
+G:\python\python.exe data_doctor.py >> logs\daily_task.log 2>&1
 rem LINE notifications DECOUPLED from run_daily (2026-10-28: pipeline died
 rem mid-run two days in a row and notifications at the tail never executed).
 rem runs every slot; each step is idempotent via once-per-day markers.
