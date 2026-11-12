@@ -36,12 +36,58 @@ foreach ($t in $tasks) {
     }
 }
 
-# 3) verify
+# 3) daily_update: five independent triggers instead of one repeating trigger.
+#    (2026-11-12) The task had ONE trigger at 15:10 with a PT2H repetition and
+#    IgnoreNew. On full-scan days the 15:10 run takes ~5h and overlaps two
+#    repetition points (17:10, 19:10); after that Windows drops the rest of the
+#    day's repetitions - 21:10 and 23:10 never fire (log proof: 11/10 and 11/12
+#    ran a single slot, 11/11 ran all). Margin data publishes at 21:00, so every
+#    full-scan day the margin pages stayed one day behind until next afternoon.
+#    Independent triggers do not depend on the repetition chain.
+$daily = "tw_backtest_daily_update"
+$days = "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+try {
+    $trgs = "15:10", "17:10", "19:10", "21:10", "23:10" | ForEach-Object {
+        New-ScheduledTaskTrigger -Weekly -DaysOfWeek $days -At $_
+    }
+    # the full pipeline needs ~5h on scan days: the 3h limit above would kill it
+    $setLong = New-ScheduledTaskSettingsSet -StartWhenAvailable `
+        -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -WakeToRun `
+        -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 8)
+    Set-ScheduledTask -TaskName $daily -Trigger $trgs -Settings $setLong | Out-Null
+    Write-Output "$daily : 5 independent triggers (15:10/17:10/19:10/21:10/23:10), limit 8h"
+} catch {
+    Write-Output "$daily : trigger fix FAIL - $_"
+}
+
+# 4) evening light task: watchdog + notifications only, independent of the
+#    heavy pipeline, so 21:00 margin data lands by 21:30 even if the 15:10 run
+#    is still going.
+$eve = "tw_backtest_evening"
+try {
+    $actE = New-ScheduledTaskAction -Execute "G:\Stock\tw_backtest\tw_backtest\evening_task.bat"
+    $trgE = "21:25", "22:25" | ForEach-Object {
+        New-ScheduledTaskTrigger -Weekly -DaysOfWeek $days -At $_
+    }
+    if (Get-ScheduledTask -TaskName $eve -ErrorAction SilentlyContinue) {
+        Set-ScheduledTask -TaskName $eve -Action $actE -Trigger $trgE -Settings $set | Out-Null
+        Write-Output "$eve : UPDATED (weekdays 21:25, 22:25)"
+    } else {
+        Register-ScheduledTask -TaskName $eve -Action $actE -Trigger $trgE -Settings $set | Out-Null
+        Write-Output "$eve : CREATED (weekdays 21:25, 22:25)"
+    }
+} catch {
+    Write-Output "$eve : FAIL - $_"
+}
+
+# 5) verify
 Write-Output "---- verify ----"
-foreach ($t in $tasks) {
-    $x = (Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue).Settings
-    if ($x) {
-        Write-Output ("{0} StartWhenAvailable={1} Batteries={2} Wake={3}" -f `
-            $t, $x.StartWhenAvailable, (-not $x.DisallowStartIfOnBatteries), $x.WakeToRun)
+foreach ($t in ($tasks + $eve)) {
+    $task = Get-ScheduledTask -TaskName $t -ErrorAction SilentlyContinue
+    if ($task) {
+        $x = $task.Settings
+        $at = ($task.Triggers | ForEach-Object { ([datetime]$_.StartBoundary).ToString("HH:mm") }) -join ","
+        Write-Output ("{0} triggers=[{1}] StartWhenAvailable={2} Batteries={3} Wake={4} Limit={5}" -f `
+            $t, $at, $x.StartWhenAvailable, (-not $x.DisallowStartIfOnBatteries), $x.WakeToRun, $x.ExecutionTimeLimit)
     }
 }
