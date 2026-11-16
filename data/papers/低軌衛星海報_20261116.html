@@ -1,0 +1,88 @@
+<title>誰的衛星營收是真的、占多少、在鏈上哪一段</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<div class="hd"><div><h1>低軌衛星<b>族群</b>總整理</h1><div class="sub">誰的衛星營收是真的、占多少、在鏈上哪一段——24 家有實質業務,另有 20 多家只掛名</div></div>
+<div class="brand"><span class="bx">LEO 衛星鏈</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="grid"><div class="col"><div class="card grow"><div class="ct">結論(重點先看)<small>●=開過原文 ?=只看到摘要</small></div><div class="cb"><ul class='ck'><li><b>純度最高是昇達科</b>:低軌占營收 77%(上半年),其中 85% 是上衛星的零件</li><li><b>金額最大在板和地面設備</b>:華通衛星板 2025 年 151 億(占 22%)、啟碁做 Starlink 用戶終端(公司不揭露,法人估占 15~24%)</li><li class="wn">客戶幾乎都指向 SpaceX,但多數公司<b>不具名</b>——表裡的占比是公司或法說口徑,客戶名多半是媒體說法</li><li class="xx">現在是<b>換代空窗</b>:Starlink 第三季發射 598 顆(年減 19%),在等 V3 衛星;昇達科 Q3 營收低於 Q1、華通上半年美國營收年減 16%</li><li class="xx">Amazon 進度落後:在軌不到 400 顆(目標 3,236 顆),燿華第二大客戶拉貨遞延</li><li class="wn">被掛概念的 50 多家裡,<b>查得到衛星占比數字的只有十來家</b></li></ul></div></div><div class="card "><div class="ct">誰接的是真的 SpaceX 單(依證據強弱)<small>路透、數位時代 6/12</small></div><div class="cb"><table><tr><th>證據</th><th>公司</th></tr>
+<tr><td><b>公司自己說過</b></td><td>●<b>敬鵬</b>(對路透說 SpaceX 要它把新產能移到泰國)、<b>啟碁</b>(越南廠做 Starlink 路由器)、
+<b>友訊</b>(宣布地面站交換器約 2 萬台)、<b>萬泰科</b>(電源線、網路線)、<b>宣德</b>(連接器、線束)</td></tr>
+<tr><td><b>有長期供貨報導,公司不具名</b></td><td>●<b>華通</b>(經濟日報:合作逾十年;主要客戶在軌 9,555 顆,只有 Starlink 有這個數)、
+<b>昇達科</b>(稱「S 客戶」;路透列為供應商)、<b>乙盛-KY</b>(報導點名)</td></tr>
+<tr><td><b>市場當成替代標的</b></td><td><b>同欣電</b>、<b>金寶</b>(路透引基金經理人說法,公司沒有揭露)</td></tr>
+<tr><td><b>只有媒體或法人說</b></td><td>台光電、燿華(「北美兩大客戶」)、事欣科、穩懋、萊德、群創;鴻海是第二供應商的傳聞;元晶沒有佐證</td></tr></table>
+<div class="note">路透 2024/11 報導 SpaceX 在台灣的直接供應商約十來家。多數公司簽了保密協議,
+「不具名」不等於沒有;但沒有公司說法的,就只能當題材看。</div></div></div><div class="card "><div class="ct">太空端:上衛星的零件</div><div class="cb"><table><tr><th>公司</th><th>衛星占營收</th><th>近3月營收</th><th>籌碼</th></tr><tr><td><b>昇達科</b> 3491<br><small>微波/毫米波元件,85% 上衛星</small></td><td>● 77%(1H26)</td><td class="n"><span class="up2">▲51%</span><br><small>前3月 +74%</small></td><td>距高 -35%<br><small>大戶 <span class="up2">▲0.6pp</span> 🔴</small></td></tr><tr><td><b>萊德光電-KY</b> 7717<br><small>衛星雷射通訊的光被動元件</small></td><td>? 約 5 成(口徑不一)</td><td class="n"><span class="up2">▲108%</span><br><small>前3月 +52%</small></td><td>上市未滿一年<br><small>大戶 <span>-0.0pp</span> 🟡</small></td></tr><tr><td><b>穩懋</b> 3105<br><small>衛星用功率放大器晶圓代工</small></td><td>● 基礎建設逾 40%(含航太、點對點)</td><td class="n"><span class="up2">▲31%</span><br><small>前3月 +33%</small></td><td>距高 -11%<br><small>大戶 <span class="up2">▲4.3pp</span> 🟢</small></td></tr><tr><td><b>事欣科</b> 4916<br><small>衛星上的線束與連接器</small></td><td>● 未揭露(在手訂單 18% 含一般通訊)</td><td class="n"><span class="up2">▲88%</span><br><small>前3月 +103%</small></td><td>距高 -12%<br><small>大戶 <span class="up2">▲10.0pp</span> 🟡</small></td></tr><tr><td><b>萬旭</b> 6134<br><small>手機直連衛星的陣列內部線材</small></td><td>● 航太工控 14%(1Q26)</td><td class="n"><span class="up2">▲20%</span><br><small>前3月 +40%</small></td><td>距高 -43%<br><small>大戶 <span class="dn2">▼0.8pp</span> 🔴</small></td></tr><tr><td><b>同欣電</b> 6271<br><small>RF 模組陶瓷封裝</small></td><td>● RF 模組 12%(3Q26 簡報)</td><td class="n"><span class="up2">▲23%</span><br><small>前3月 +13%</small></td><td>距高 -27%<br><small>大戶 <span class="dn2">▼0.3pp</span> 🟡</small></td></tr><tr><td><b>公準</b> 3178<br><small>衛星反應輪(新產品)</small></td><td>● 航太整體 10%,衛星未揭露</td><td class="n"><span class="up2">▲23%</span><br><small>前3月 +24%</small></td><td>距高 -24%<br><small>大戶 <span class="up2">▲0.2pp</span> 🟡</small></td></tr><tr><td><b>統新</b> 6426<br><small>衛星間光通訊濾光片</small></td><td>? 未揭露(主力是資料中心)</td><td class="n"><span class="up2">▲64%</span><br><small>前3月 +72%</small></td><td>距高 -27%<br><small>大戶 <span class="dn2">▼1.5pp</span> 🟡</small></td></tr><tr><td><b>全訊</b> 5222<br><small>軍規功率放大器</small></td><td>? 未揭露(主力是國防)</td><td class="n"><span class="dn2">▼23%</span><br><small>前3月 -12%</small></td><td>距高 -45%<br><small>大戶 <span class="up2">▲0.2pp</span> 🟡</small></td></tr><tr><td><b>宏捷科</b> 8086<br><small>接收陣列用元件</small></td><td>? 未揭露(非 PA 整體不到 10%)</td><td class="n"><span class="up2">▲8%</span><br><small>前3月 +23%</small></td><td>距高 -44%<br><small>大戶 <span class="dn2">▼4.2pp</span> 🔴</small></td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">板與材料</div><div class="cb"><table><tr><th>公司</th><th>衛星占營收</th><th>近3月營收</th><th>籌碼</th></tr><tr><td><b>華通</b> 2313<br><small>衛星板龍頭,天上板+地面板</small></td><td>● 22%(2Q26);2025 年 151 億</td><td class="n"><span class="up2">▲16%</span><br><small>前3月 +17%</small></td><td>距高 -32%<br><small>大戶 <span class="dn2">▼1.0pp</span> 🔴</small></td></tr><tr><td><b>燿華</b> 2367<br><small>低軌衛星板,泰國廠 7 月投產</small></td><td>● 15~20%(1H26),目標 30%</td><td class="n"><span class="up2">▲16%</span><br><small>前3月 +12%</small></td><td>距高 -51%<br><small>大戶 <span class="up2">▲0.2pp</span> 🔴</small></td></tr><tr><td><b>台光電</b> 2383<br><small>衛星用銅箔基板</small></td><td>● 約 6%(2025)</td><td class="n"><span class="up2">▲166%</span><br><small>前3月 +122%</small></td><td>距高 -35%<br><small>大戶 <span class="dn2">▼2.2pp</span> 🔴</small></td></tr><tr><td><b>敬鵬</b> 2355<br><small>低軌板歸在網通類</small></td><td>● 未揭露(網通類 6%)</td><td class="n"><span class="up2">▲30%</span><br><small>前3月 +11%</small></td><td>距高 -7%<br><small>大戶 <span class="up2">▲5.1pp</span> 🟡</small></td></tr></table></div></div><div class="card "><div class="ct">地面端:用戶終端、地面站</div><div class="cb"><table><tr><th>公司</th><th>衛星占營收</th><th>近3月營收</th><th>籌碼</th></tr><tr><td><b>啟碁</b> 6285<br><small>Starlink 用戶終端整機代工</small></td><td>● 公司不揭露;法人估 15~24%</td><td class="n"><span class="up2">▲74%</span><br><small>前3月 +69%</small></td><td>距高 -42%<br><small>大戶 <span class="dn2">▼2.5pp</span> 🔴</small></td></tr><tr><td><b>乙盛-KY</b> 5243<br><small>接收器與衛星上的機構件</small></td><td>● 公司估 15% 以上(2026)</td><td class="n"><span class="up2">▲55%</span><br><small>前3月 +26%</small></td><td>距高 -44%<br><small>大戶 <span class="dn2">▼1.4pp</span> 🔴</small></td></tr><tr><td><b>攸泰科技</b> 6928<br><small>海事與政府用衛星終端</small></td><td>● 10%(前 8 月)</td><td class="n"><span class="up2">▲15%</span><br><small>前3月 -15%</small></td><td>距高 -24%<br><small>大戶 <span>+0.0pp</span> 🟡</small></td></tr><tr><td><b>信錦</b> 1582<br><small>接收器支架、底座</small></td><td>● 7%(1H26)</td><td class="n"><span class="dn2">▼2%</span><br><small>前3月 +1%</small></td><td>距高 -50%<br><small>大戶 <span class="dn2">▼0.3pp</span> 🔴</small></td></tr><tr><td><b>耀登</b> 3138<br><small>陣列天線、量測;政府專案</small></td><td>● 個位數(2026/10)</td><td class="n"><span class="dn2">▼17%</span><br><small>前3月 -2%</small></td><td>距高 -66%<br><small>大戶 <span class="dn2">▼0.3pp</span> 🔴</small></td></tr><tr><td><b>萬泰科</b> 6190<br><small>Starlink 電源線、網路線</small></td><td>● 未揭露</td><td class="n"><span class="up2">▲63%</span><br><small>前3月 +34%</small></td><td>距高 -33%<br><small>大戶 <span class="dn2">▼0.1pp</span> 🟡</small></td></tr><tr><td><b>宣德</b> 5457<br><small>Starlink 連接器、地面站線束</small></td><td>● 未揭露</td><td class="n"><span class="dn2">▼24%</span><br><small>前3月 +1%</small></td><td>距高 -55%<br><small>大戶 <span class="up2">▲0.2pp</span> 🔴</small></td></tr><tr><td><b>友訊</b> 2332<br><small>地面站用交換器(約 2 萬台)</small></td><td>● 未揭露</td><td class="n"><span class="up2">▲1%</span><br><small>前3月 +12%</small></td><td>距高 -34%<br><small>大戶 <span class="up2">▲1.2pp</span> 🟡</small></td></tr><tr><td><b>金寶</b> 2312<br><small>地面站主機板</small></td><td>● 未揭露</td><td class="n"><span class="up2">▲14%</span><br><small>前3月 +22%</small></td><td>距高 -39%<br><small>大戶 <span class="dn2">▼1.2pp</span> 🔴</small></td></tr><tr><td><b>台揚</b> 2314<br><small>Ku/Ka 收發機</small></td><td>? 衛星 48% 但多為高軌;低軌 5~10%</td><td class="n"><span class="dn2">▼74%</span><br><small>前3月 -2%</small></td><td>距高 -79%<br><small>大戶 <span class="dn2">▼0.1pp</span> 🔴</small></td></tr></table><div class="note">營收規模是地面端大;純度與毛利是太空端高。兩端台廠都只做到零組件或代工,沒有衛星系統廠。</div></div></div></div><div class="col"><div class="card risk"><div class="ct">掛名但查無實質營收</div><div class="cb"><ul class='ck'><li class="xx"><b>太陽能</b>:元晶、聯合再生、茂迪——沒有合約或營收佐證,本業虧損</li><li class="xx"><b>網通</b>:建漢、明泰、仲琦、正文只有「可切入」的說法;兆赫的成長來自有線寬頻;百一還在驗證</li><li class="xx"><b>板</b>:金像電、定穎投控、高技查不到衛星營收;聯茂法人估 2027 年才放量</li><li class="xx"><b>其他</b>:康舒、台達電、鴻準、和碩、嘉澤、良維查無訂單;新復興的 OneWeb 間接案已暫停</li><li class="wn">芮特-KY(6514)已下櫃併入昇達科;創未來沒有掛牌;鐳洋(6980)在興櫃、稜研(7812)9 月上創新板</li></ul></div></div><div class="card "><div class="ct">2026 年催化的現況</div><div class="cb"><table><tr><th>題材</th><th>現況</th></tr>
+<tr><td><b>SpaceX 掛牌</b></td><td>●6/12 在那斯達克上市;Q3 營收 146 億美元、Starlink 用戶 1,360 萬。對台廠是評價題材,拉貨看用戶數與發射量</td></tr>
+<tr><td><b>Starlink V3</b></td><td>●9/28 首次入軌 26 顆;華通 V3 板 4Q26~1Q27 量產,單顆產值多 2~3 成</td></tr>
+<tr><td><b>Amazon</b></td><td>●在軌不到 400 顆;火箭 2 月起停飛,11 月復飛結果未查到</td></tr>
+<tr><td><b>手機直連衛星</b></td><td>●AST 目標 2027 年中 45 顆;Starlink 手機服務約 2027/11 商轉。台廠都沒有訂單數字</td></tr>
+<tr><td><b>台灣自己的衛星</b></td><td>●首顆延到 2028 年初;金額小</td></tr></table></div></div><div class="card risk grow"><div class="ct">讀這張表要注意</div><div class="cb"><ul class='ck'><li class="wn">占比口徑不一:有的是營收、有的是在手訂單、有的把航太或伺服器算在一起——每一格後面的括號要看</li><li class="wn">多數占比來自法說摘要與媒體轉載,<b>沒有逐家對簡報原檔</b>;啟碁、華通、昇達科 11 月法說內容沒查到</li><li class="wn">營收與籌碼欄是系統讀數(產出日即時算),衛星占比與客戶是 2026/11/16 的查證結果,會過期</li><li>個股細看:公準、事欣科、同欣電已有單張海報,在同一個選單裡</li></ul></div></div></div></div>
+<div class="ft">素材:逐家上網查證(2026/11/16)+系統 2026/11/16 營收與籌碼讀數 · 本海報為研究筆記非投資建議</div></div>

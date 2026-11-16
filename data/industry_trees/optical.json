@@ -1,0 +1,707 @@
+{
+ "title": "光通訊|AI 資料中心光互連",
+ "updated": "2026-11-16",
+ "question": "AI 機房的光模組需求一路往上,真正卡住的是哪一段?誰真的在蓋產能、誰只是嘴上說?",
+ "thesis": "(2026-11-13 讀數)需求面全線在加速,磊晶三家最新月營收都創歷史新高。現在最缺的是 EML 雷射和 InP 基板;台灣沒有上市櫃公司做基板,受惠的路線是「EML 缺貨 → 客戶改用 CW 雷射加矽光 → 台廠磊晶」。限制正在被解:聯亞、全新、IET 近四季資本支出是前四季的 2 到 10 倍,新產能集中在 2027 年開出。要追問兩件事:一是基板的大擴產要到 2028 年前後,磊晶機台到了也可能開不滿;二是整條鏈同一年開產能,研究機構已提醒 2027 年之後可能修正。籌碼還沒跟上:磊晶三家大戶近四週都在減碼,多數成員在季線下。",
+ "trunk": [
+  {
+   "stage": "基板(InP 磷化銦/GaAs 砷化鎵晶圓)",
+   "what": "雷射和檢光元件的地基。沒有基板,後面每一段都開不了工。",
+   "global": "住友電工、JX 金屬、AXT(北京通美)",
+   "note": "集中度最高的一段,台灣沒有上市櫃公司。市占說法互相矛盾(一說住友與 JX 各約四成,一說 AXT 加住友近八成);漲價幅度從 3–5% 到 5 倍三種說法都有,數字不能直接引用。AXT 出貨受中國出口許可限制。",
+   "members": []
+  },
+  {
+   "stage": "磊晶(在基板上長出會發光的結構)",
+   "what": "把基板變成雷射/檢光晶片的原料片。台灣在這一段最強。",
+   "global": "IQE、聯亞、全新、IET;Lumentum、Coherent 有自己的磊晶",
+   "note": "三家都說訂單滿、但出貨被基板卡住。這一段是台廠在整棵樹上位置最前面的地方。",
+   "capex_note": "MOCVD/MBE 機台從下單到量產要好幾季,資本支出會比產能早出現。",
+   "members": [
+    [
+     "3081",
+     "聯亞",
+     "InP 磊晶;矽光用 CW 雷射磊晶片,矽光產品約占營收 75–80%",
+     "✓"
+    ],
+    [
+     "2455",
+     "全新",
+     "InP/GaAs 磊晶;800G 接收端檢光(PD)磊晶,光電子占營收升到約四成",
+     "?"
+    ],
+    [
+     "4971",
+     "IET-KY",
+     "MBE 磊晶(InP/GaAs/GaSb),光通訊加國防紅外線;InP 約占營收一半",
+     "?"
+    ]
+   ]
+  },
+  {
+   "stage": "雷射/檢光晶片(晶圓製程與後段)",
+   "what": "把磊晶片做成一顆顆雷射(CW、EML、VCSEL)和檢光晶片(PD)。",
+   "global": "EML:Lumentum、Broadcom、三菱電機合計約 72%;CW:Broadcom、住友、Coherent,加上聯亞/光環合計約 74% 產能(TrendForce 2026-06)",
+   "note": "EML 是目前最缺的零件(Lumentum 5 月稱缺口大於三成,訂單排到 2027 年底)。缺貨把客戶推向「CW 雷射加矽光」,台廠吃到的是這條替代路線。",
+   "capex_note": "後段代工廠設備比磊晶輕,資本支出金額小不代表沒擴;穩懋這種有閒置產能的要看稼動率。",
+   "members": [
+    [
+     "3234",
+     "光環",
+     "幫客戶做 CW 雷射後段代工(客戶供磊晶片),不是自有晶片為主",
+     "✓"
+    ],
+    [
+     "4979",
+     "華星光",
+     "雷射後段製程,另做 400G/800G 光模組(橫跨晶片與模組兩段)",
+     "✓"
+    ],
+    [
+     "3105",
+     "穩懋",
+     "GaAs 代工為主;InP 檢光元件代工階段性量產,光通訊只占營收一成多",
+     "?"
+    ]
+   ]
+  },
+  {
+   "stage": "光被動/光纖連接(FAU、濾光片、MPO、高芯數光纜)",
+   "what": "把光導進、導出、分波、接線。CPO 之後光纖數量暴增,這一段用量跟著放大。",
+   "global": "光纖陣列:天孚、Coherent、Corning、Senko(單一來源);法拉第旋轉片:Granopt 等美日廠",
+   "note": "法拉第旋轉片 2025 年累計漲五成、產線重啟要半年。光聖自己說瓶頸是缺料,不是產能。",
+   "capex_note": "多半是組裝與精密加工,輕資產;瓶頸常在缺料和人工,不在機台。",
+   "members": [
+    [
+     "3363",
+     "上詮",
+     "CPO 用光纖陣列(FAU),台積電 COUPE 供應鏈(媒體說法);系統既有 CPO 圖已查證",
+     "✓"
+    ],
+    [
+     "3163",
+     "波若威",
+     "光纖連接與被動元件(MPO、Shuffle Box、FAU)、濾光片本業",
+     "✓"
+    ],
+    [
+     "6442",
+     "光聖",
+     "光被動(配線架、高芯數光纜)約占八成,客戶是美系資料中心",
+     "✓"
+    ],
+    [
+     "6426",
+     "統新",
+     "光通訊薄膜濾光片與光學鍍膜、保偏光纖",
+     "✓"
+    ],
+    [
+     "6588",
+     "東典光電",
+     "光學鍍膜濾光片(WDM);中國約占營收七成",
+     "?"
+    ]
+   ]
+  },
+  {
+   "stage": "封裝/次模組/光收發模組",
+   "what": "把雷射、檢光、透鏡、電晶片組成可以插進交換器的模組。",
+   "global": "中際旭創、新易盛、Coherent(2025 年前三名);中國廠約占全球代工產能 56%",
+   "note": "台廠在這一段做代工與次模組,不是品牌。模組廠的存貨在堆高(旭創、新易盛、Coherent 都明顯增加),訊芯、眾達的存貨天數也比去年同期高。",
+   "members": [
+    [
+     "3450",
+     "聯鈞",
+     "雷射封裝(COS)、COSA 光學次模組;子公司做 400G/800G 模組與 AOC",
+     "✓"
+    ],
+    [
+     "6451",
+     "訊芯-KY",
+     "高速光收發模組代工約占六成、SiP 約三成;CPO 小量量產",
+     "?"
+    ],
+    [
+     "4977",
+     "眾達-KY",
+     "光收發模組、CPO 外置光源(ELSFP);Broadcom CPO 夥伴(媒體說法)",
+     "?"
+    ],
+    [
+     "4908",
+     "前鼎",
+     "光收發模組占營收九成以上;800G 部分量產",
+     "?"
+    ],
+    [
+     "6530",
+     "創威",
+     "光收發模組與光學次模組(規模小)",
+     "?"
+    ],
+    [
+     "4979",
+     "華星光",
+     "400G/800G 光模組(同時在上一段做雷射後段)",
+     "✓"
+    ]
+   ]
+  },
+  {
+   "stage": "交換器",
+   "what": "光模組插在這裡。交換器每升一代(800G→1.6T),整條上游跟著換。",
+   "global": "市占沒查到可靠來源",
+   "note": "",
+   "members": [
+    [
+     "2345",
+     "智邦",
+     "資料中心交換器(800G/1.6T)、AI 加速卡代工",
+     "✓"
+    ],
+    [
+     "3380",
+     "明泰",
+     "交換器;800G 還在送樣階段",
+     "?"
+    ]
+   ]
+  },
+  {
+   "stage": "雲端業者(終端需求)",
+   "what": "整棵樹的錢從這裡來。它們的資本支出一轉向,上面每一段同時感受到。",
+   "global": "Amazon、Alphabet、Meta、Microsoft",
+   "note": "2026 年資本支出合計約 8,000 億美元以上(含 SpaceX),前三季已花 5,562 億。Microsoft 因第三方機房延遲下修過一次。",
+   "members": []
+  }
+ ],
+ "branches": [
+  {
+   "stage": "矽光/CPO 製造平台",
+   "push": "把光元件搬進晶片封裝裡(CPO)。量產後模組的做法會變:雷射改外置光源、光纖陣列用量大增。",
+   "note": "時程分歧很大:NVIDIA、Broadcom 已小量出貨,放量落在 2027–2028 年;大摩估 2027 年光引擎 600–700 萬顆(市場共識是 2,000–3,000 萬),也有研究機構認為量產要延到 2028–2029。2026 年滲透率約 0.5%。",
+   "members": [
+    [
+     "2330",
+     "台積電",
+     "COUPE 矽光平台(光通訊占營收極小)",
+     "?"
+    ],
+    [
+     "3711",
+     "日月光投控",
+     "CPO 封測,2026Q4 開始量產",
+     "✓"
+    ]
+   ]
+  },
+  {
+   "stage": "模組裡的電晶片(DSP/TIA/Driver)",
+   "push": "每一代模組都要新的 DSP。1.6T 的 DSP 靠台積電 3 奈米,野村專家會議估 2026 年缺 300–400 萬顆——光元件夠了,模組也可能因為缺 DSP 出不了貨。",
+   "global": "DSP:Marvell(自估市占 60–65%)、Broadcom;TIA/Driver:MACOM、Semtech",
+   "note": "台灣沒有查到直接對應的上市櫃公司。這是一個「光元件以外」的瓶頸,會拖慢整棵樹的出貨。",
+   "members": []
+  },
+  {
+   "stage": "測試與設備",
+   "push": "矽光和 CPO 要先挑好晶片、再做次微米對位,測試站數變多。",
+   "note": "",
+   "capex_note": "設備廠的資本支出跟光通訊產能無關(旺矽的數字含買地蓋廠)。",
+   "members": [
+    [
+     "2360",
+     "致茂",
+     "光電量測;CPO 測試 2026 起貢獻營收(比重未揭露)",
+     "?"
+    ],
+    [
+     "6223",
+     "旺矽",
+     "探針卡為主;CPO 測試設備 2026Q4 小量出貨,量產訂單在 2027",
+     "?"
+    ],
+    [
+     "6706",
+     "惠特",
+     "矽光貼合機、CPO 設備,另做雷射量測代工;還在驗證期",
+     "?"
+    ]
+   ]
+  },
+  {
+   "stage": "銅纜(競爭也互補)",
+   "push": "機櫃內短距離仍用銅(DAC/AEC),便宜又省電;銅能撐多遠,決定光什麼時候往機櫃裡走。",
+   "note": "銅纜自己也在爆發(Credo 2026 財年 Q3 營收年增 201%),不是被光取代。",
+   "members": [
+    [
+     "3665",
+     "貿聯-KY",
+     "AEC 與高速線束為主;2026 年併入光通訊廠,開始承接光纖連接器組裝(光銅並存)",
+     "✓"
+    ]
+   ]
+  }
+ ],
+ "inertia": [
+  {
+   "text": "交貨遞延就往上游找:模組缺貨追到雷射,雷射追到磊晶,磊晶再追到 InP 基板。越上游越集中,擴產也越慢。",
+   "src": ""
+  },
+  {
+   "text": "缺一種料,客戶會改設計繞過去:EML 缺貨把客戶推向 CW 雷射加矽光。受惠的常常不是缺貨的那一家,而是替代路線上的人。",
+   "src": "https://www.trendforce.com/presscenter/news/20251208-12823.html"
+  },
+  {
+   "text": "技術升級就往下游找做得出來的人:800G → 1.6T → 3.2T 每一代都要重新認證(基板新供應商 12–18 個月、DSP 約 2 年),先卡位的吃整代。",
+   "src": "https://www.stockfeel.com.tw/?p=277131"
+  },
+  {
+   "text": "大家同時擴產,產能就會在同一年開出:這一輪上游都選在 2027 年(聯亞 2.5 倍、全新新機台、IET 新廠、Coherent 再翻倍)。",
+   "src": "https://finsee.ai/earnings/cohr/2027/q1/en/"
+  },
+  {
+   "text": "高成長兩三年後會修正:LightCounting 指出光模組歷來 2–3 年高成長後持平或下滑,2027–2030 可能出現供應鏈修正。",
+   "src": "https://techblog.comsoc.org/2026/10/02/light-counting-optical-transceiver-sales-surge-ieee-802-3-and-itu-t-optical-transport-standards-explained-uec-addendum/"
+  }
+ ],
+ "pains": [
+  {
+   "pain": "EML 雷射不夠:缺口約三成,訂單排到 2027 年底",
+   "flag": "✓",
+   "src": "https://www.marketbeat.com/instant-alerts/lumentum-q3-earnings-call-highlights-2026-05-05/",
+   "fix": "擴 InP 產能;或改用 CW 雷射加矽光,繞過 EML。",
+   "who": "Lumentum(2026 年底 EML 顆數年增五成以上)、Coherent(InP 產出已年增一倍,2027 年底前再翻倍)。台廠走替代路線:聯亞、全新、IET(磊晶),光環、華星光(雷射後段)。"
+  },
+  {
+   "pain": "InP 基板被三家把持,其中一家還受出口許可限制",
+   "flag": "✓",
+   "src": "https://technews.tw/2026/06/17/jx-metals-expands-inp-substrate-production-tenfold-customer-demand-plans-price-hike/",
+   "fix": "日廠大幅擴產。",
+   "who": "住友電工(2028 財年前達 2024 財年的 3.1 倍)、JX 金屬(四年達 7–10 倍,投產日未公布)、AXT(2026、2027 年各翻倍)。台灣沒有上市櫃公司在這一段。"
+  },
+  {
+   "pain": "1.6T 的 DSP 不夠(受限於台積電 3 奈米)",
+   "flag": "?",
+   "src": "https://www.stockfeel.com.tw/?p=277131",
+   "fix": "搶 3 奈米產能;或改用不需要 DSP 的 LPO(省電約五成,但只能傳約 100 公尺)。",
+   "who": "Marvell、Broadcom。數字來自野村專家會議的二手報導:2026 年缺 300–400 萬顆、2027 年缺更多。"
+  },
+  {
+   "pain": "法拉第旋轉片(隔離器材料)缺貨漲價",
+   "flag": "?",
+   "src": "https://www.cls.cn/detail/2326916",
+   "fix": "原廠重啟產線,約需半年。",
+   "who": "Granopt 等美日廠。台廠對應沒查到;何時緩解也沒查到。"
+  },
+  {
+   "pain": "插拔式模組的耗電與密度快到頂",
+   "flag": "?",
+   "src": "https://www.trendforce.com/presscenter/news/20260727-13151.html",
+   "fix": "CPO:把光引擎搬進交換器晶片的封裝裡(Broadcom 稱最多省電七成)。",
+   "who": "台積電(COUPE)、日月光(封測)、上詮與波若威(光纖陣列)、眾達與前鼎(外置光源)、致茂與旺矽(測試)。放量時點各家估計差很多,見枝葉第 1 段。"
+  }
+ ],
+ "limits": [
+  {
+   "limit": "建廠加認證要兩年以上",
+   "src": "https://convergedigest.com/lumentum-to-build-north-carolina-fab-for-inp-lasers/",
+   "why": "Lumentum 2026 年 3 月宣布的 6 吋廠,2028 年中才量產;基板新供應商認證要 12–18 個月以上。今天才決定擴產的人,趕不上 2027 年。",
+   "check": "擴產查核表:資本支出要在 2026 年就已經放大(聯亞、全新、IET 都是),2027 年才可能有新產能。"
+  },
+  {
+   "limit": "設備交期:磊晶機台嚴重積壓",
+   "src": "https://techblog.comsoc.org/?p=1076981",
+   "why": "LightCounting 稱 MOCVD 嚴重積壓;Veeco 的 InP 設備訂單 2026 年出貨、2027 年才放量。機台沒到,錢花了也沒有產能。",
+   "check": "看近 4 季資本支出有沒有真的付出去、固定資產年增多少。交期本身財報查不到,只能看法說。"
+  },
+  {
+   "limit": "上游的上游:基板不夠,磊晶機台到了也可能開不滿",
+   "src": "https://technews.tw/2026/07/03/sumitomo-electric-industries-raised-inp-capex/",
+   "why": "聯亞、全新、IET 都提到基板偏緊或出貨受限。磊晶新產能 2027 年開出,基板的大擴產卻要到 2028 年前後。",
+   "check": "磊晶三家的營收有沒有跟上資本支出;若資本支出大增而營收停住、存貨天數上升,就是卡在基板。"
+  },
+  {
+   "limit": "同一年開出的產能可能撞在一起",
+   "src": "https://eu.36kr.com/zh/p/4001118301425796",
+   "why": "LightCounting 提醒 2027–2030 可能修正;高盛估 1.6T 出貨 2027 年見頂、2028 年下滑;模組廠存貨已在堆高。也有反面說法:2027 年訂單已鎖定,過剩最早 2029 年(單一來源)。",
+   "check": "模組段的存貨天數(擴產查核表右側);雲端業者資本支出指引有沒有下修。"
+  },
+  {
+   "limit": "台積電 3 奈米與先進封裝產能",
+   "src": "https://technews.tw/2026/06/11/ms-see-semianalysis-see-cpo/",
+   "why": "1.6T 的 DSP 和 CPO 都排在同一批產能後面;報導稱 CPO 後段良率仍只有 20–50%。",
+   "check": "財報查不到,只能看台積電與日月光法說。"
+  }
+ ],
+ "claims": {
+  "3081": {
+   "say": "產能「非常非常緊」;設備投資上限 22.7 億;2027 產能是 2026 的 2.5 倍;簽 2027–2030 四年長約",
+   "date": "2026-08-26",
+   "flag": "✓",
+   "src": "https://www.cna.com.tw/news/afe/202608260210.aspx"
+  },
+  "2455": {
+   "say": "訂單「塞爆」;向 Aixtron 購 MOCVD 6.53 億,法人稱新增 5 台、2027 年初投產;出貨受 InP 基板限制",
+   "date": "2026",
+   "flag": "?",
+   "src": "https://technews.tw/?p=1596694"
+  },
+  "4971": {
+   "say": "InP 訂單翻倍但基板偏緊;德州二廠二期 2026 年底完工、2027Q1 遷入",
+   "date": "2026-08-27",
+   "flag": "?",
+   "src": "https://blog.fugle.tw/post/earnings-call-4971-2026-08-27"
+  },
+  "3234": {
+   "say": "法人估年底產能較 Q3 翻倍,另建 CPO 用高功率產能;金額沒說",
+   "date": "2026-10-20",
+   "flag": "✓",
+   "src": "https://uanalyze.com.tw/articles/8628457422"
+  },
+  "4979": {
+   "say": "雷射月產能 2026Q4 150 萬顆,2027 達 600 萬顆以上(另一篇報導單位不同,待釐清);購八德廠",
+   "date": "2026-07-23",
+   "flag": "✓",
+   "src": "https://www.ctee.com.tw/news/20260723701022-430204"
+  },
+  "3105": {
+   "say": "稼動率 Q2 65% → Q3 75%,「沒有滿到不能增加」;雷射大量貢獻要到 2028",
+   "date": "2026-10-28",
+   "flag": "?",
+   "src": "https://www.stockfeel.com.tw/?p=278338"
+  },
+  "3163": {
+   "say": "菲律賓廠 2026 年擴 2–3 倍;CPO 產品 Q4 千級出貨",
+   "date": "2026-03",
+   "flag": "?",
+   "src": "https://money.udn.com/money/story/5607/9465556"
+  },
+  "3363": {
+   "say": "2026 到 2027Q1 資本支出約 15.4 億;外資報告指擴產跟不上、在製品增加;上半年營業虧損 2.48 億",
+   "date": "2026-10",
+   "flag": "?",
+   "src": "https://uanalyze.com.tw/articles/8277656872"
+  },
+  "6442": {
+   "say": "瓶頸是上游缺料不是產能;淡水、寧波、菲律賓持續擴建,金額沒說",
+   "date": "2026-09-10",
+   "flag": "✓",
+   "src": "https://blog.fugle.tw/post/earnings-call-6442-2026-09-10"
+  },
+  "6426": {
+   "say": "訂單能見度由 2–3 週拉長到 3–4 個月;擴產查不到",
+   "date": "2026-09",
+   "flag": "?",
+   "src": "https://money.udn.com/money/story/5607/9739297"
+  },
+  "6588": {
+   "say": "稼動率提升(只有定性說法);新廠做的是封裝化學品,不是濾光片",
+   "date": "2026-08-10",
+   "flag": "?",
+   "src": "https://uanalyze.com.tw/articles/3070453124"
+  },
+  "3450": {
+   "say": "COSA 產線滿載、能見度到 2027 年底;2026 資本支出 16 億",
+   "date": "2026-08-18",
+   "flag": "✓",
+   "src": "https://uanalyze.com.tw/articles/4828253648"
+  },
+  "6451": {
+   "say": "今明兩年資本支出合計 40–50 億,越南新產能做 800G/1.6T",
+   "date": "2026-06",
+   "flag": "?",
+   "src": "https://news.cnyes.com/news/id/6513256"
+  },
+  "4977": {
+   "say": "2026 年量產進度與擴產都查不到",
+   "date": "",
+   "flag": "?",
+   "src": ""
+  },
+  "4908": {
+   "say": "建 CW 雷射 CoC 產線,2026Q3 底完工;金額沒說",
+   "date": "2026-04-17",
+   "flag": "?",
+   "src": "https://blog.fugle.tw/post/earnings-call-4908-2026-04-17"
+  },
+  "6530": {
+   "say": "產能與擴產都查不到",
+   "date": "",
+   "flag": "?",
+   "src": ""
+  },
+  "2345": {
+   "say": "董事會通過越南三期設備 26.6 億、測試設備 3.3 億、新竹租地 18.7 億",
+   "date": "2026-08-06",
+   "flag": "✓",
+   "src": "https://www.mirrormedia.mg/external/mirrordaily_77965"
+  },
+  "3380": {
+   "say": "800G 送樣中,估 2026 年底放量;擴產查不到",
+   "date": "2026-02-26",
+   "flag": "?",
+   "src": "https://blog.fugle.tw/post/earnings-call-3380-2026-02-26"
+  },
+  "2330": {
+   "say": "CPO 2026 下半年量產(媒體說法);產能數字沒有可靠來源",
+   "date": "2026",
+   "flag": "?",
+   "src": "https://uanalyze.com.tw/articles/9497454318"
+  },
+  "3711": {
+   "say": "CPO 封測 2026Q4 量產,2027 估貢獻逾 5 億美元;2026 資本支出 115 億美元",
+   "date": "2026-10-29",
+   "flag": "✓",
+   "src": "https://www.stockfeel.com.tw/?p=278484"
+  },
+  "2360": {
+   "say": "CPO 測試 2026 起貢獻營收,配合客戶試產",
+   "date": "2026-09",
+   "flag": "?",
+   "src": "https://uanalyze.com.tw/articles/4543755537"
+  },
+  "6223": {
+   "say": "高階探針卡滿載;2026 資本支出上修至 27 億,竹北購地",
+   "date": "2026-05-15",
+   "flag": "?",
+   "src": "https://blog.fugle.tw/post/earnings-call-6223-2026-05-15"
+  },
+  "6706": {
+   "say": "仍在驗證期;雷射量測代工月產能 600 片往 1,000 片爬",
+   "date": "2026-09",
+   "flag": "?",
+   "src": "https://uanalyze.com.tw/articles/1683855084"
+  },
+  "3665": {
+   "say": "AI 線束產能滿載;越南 2026 下半年開出、馬來西亞新廠 2027 上半年量產",
+   "date": "2026-04-22",
+   "flag": "✓",
+   "src": "https://uanalyze.com.tw/articles/5315551088"
+  }
+ },
+ "excluded": [
+  [
+   "8045",
+   "達運光電",
+   "做有線電視寬頻設備和國防聯網,不是光被動元件,不在資料中心光互連鏈上"
+  ],
+  [
+   "8011",
+   "台通",
+   "電信光纜與光纖到府配件,找不到資料中心產品的證據,前 9 月營收年減 18%"
+  ],
+  [
+   "4903",
+   "聯光通",
+   "主體是儲能與工程,光纖只占營收二到三成而且是電信光纜;MPO/FAU 新廠還沒投產,屬題材階段"
+  ],
+  [
+   "7717",
+   "萊德光電-KY",
+   "成長主軸是低軌衛星雷射通訊元件,不是資料中心"
+  ]
+ ],
+ "sources": [
+  {
+   "title": "JX 金屬 InP 基板擴產並計畫漲價(科技新報)",
+   "url": "https://technews.tw/2026/06/17/jx-metals-expands-inp-substrate-production-tenfold-customer-demand-plans-price-hike/",
+   "date": "2026-06-17"
+  },
+  {
+   "title": "住友電工上調 InP 資本支出(科技新報)",
+   "url": "https://technews.tw/2026/07/03/sumitomo-electric-industries-raised-inp-capex/",
+   "date": "2026-07-03"
+  },
+  {
+   "title": "TrendForce:EML/CW 雷射產能與市占",
+   "url": "https://semiconductor-today.com/news_items/2026/jun/trendforce-040626.shtml",
+   "date": "2026-06-04"
+  },
+  {
+   "title": "TrendForce:EML 缺貨與 CW 加矽光的替代",
+   "url": "https://www.trendforce.com/presscenter/news/20251208-12823.html",
+   "date": "2025-12-08"
+  },
+  {
+   "title": "Lumentum 法說重點:EML 缺口大於三成",
+   "url": "https://www.marketbeat.com/instant-alerts/lumentum-q3-earnings-call-highlights-2026-05-05/",
+   "date": "2026-05-05"
+  },
+  {
+   "title": "Lumentum 北卡 6 吋 InP 廠,2028 年中量產",
+   "url": "https://convergedigest.com/lumentum-to-build-north-carolina-fab-for-inp-lasers/",
+   "date": "2026-03-26"
+  },
+  {
+   "title": "Coherent 2027 財年 Q1 法說:InP 產出、資本支出、存貨",
+   "url": "https://finsee.ai/earnings/cohr/2027/q1/en/",
+   "date": "2026-11-04"
+  },
+  {
+   "title": "LightCounting:需求超過供給約三成、MOCVD 積壓",
+   "url": "https://techblog.comsoc.org/?p=1076981",
+   "date": "2026-08-14"
+  },
+  {
+   "title": "LightCounting:2027–2030 可能出現供應鏈修正",
+   "url": "https://techblog.comsoc.org/2026/10/02/light-counting-optical-transceiver-sales-surge-ieee-802-3-and-itu-t-optical-transport-standards-explained-uec-addendum/",
+   "date": "2026-10-02"
+  },
+  {
+   "title": "Veeco InP 設備訂單",
+   "url": "https://www.semiconductor-today.com/news_items/2026/aug/veeco-060826.shtml",
+   "date": "2026-08-06"
+  },
+  {
+   "title": "高盛光模組出貨預估(36氪轉述)",
+   "url": "https://eu.36kr.com/zh/p/4001118301425796",
+   "date": "2026-09-27"
+  },
+  {
+   "title": "野村專家會議:1.6T DSP 缺口(股感轉述)",
+   "url": "https://www.stockfeel.com.tw/?p=277131",
+   "date": "2026-09"
+  },
+  {
+   "title": "法拉第旋轉片缺貨漲價(財聯社)",
+   "url": "https://www.cls.cn/detail/2326916",
+   "date": "2026-03-27"
+  },
+  {
+   "title": "TrendForce:CPO 進度",
+   "url": "https://www.trendforce.com/presscenter/news/20260727-13151.html",
+   "date": "2026-07-27"
+  },
+  {
+   "title": "大摩與 SemiAnalysis 對 CPO 時程的分歧(科技新報)",
+   "url": "https://technews.tw/2026/06/11/ms-see-semianalysis-see-cpo/",
+   "date": "2026-06-11"
+  },
+  {
+   "title": "雲端業者 2026 年資本支出合計",
+   "url": "https://www.hl.co.uk/news/ai-hyperscalers-are-expected-to-finish-the-year-spending-a-whopping-828-billion-on-capex",
+   "date": "2026-10-30"
+  },
+  {
+   "title": "中國廠占全球光模組代工產能 56%(科技新報)",
+   "url": "https://technews.tw/2026/08/05/china-56-global-optical-module-oem-market-supply-chain-decoupling-difficult-bans/",
+   "date": "2026-08-05"
+  },
+  {
+   "title": "Credo 2026 財年 Q3 法說",
+   "url": "https://www.fool.com/earnings/call-transcripts/2026/03/02/credo-tech-crdo-q3-2026-earnings-call-transcript",
+   "date": "2026-03-02"
+  },
+  {
+   "title": "聯亞 3081:公司說法",
+   "url": "https://www.cna.com.tw/news/afe/202608260210.aspx",
+   "date": "2026-08-26"
+  },
+  {
+   "title": "全新 2455:公司說法",
+   "url": "https://technews.tw/?p=1596694",
+   "date": "2026"
+  },
+  {
+   "title": "IET-KY 4971:公司說法",
+   "url": "https://blog.fugle.tw/post/earnings-call-4971-2026-08-27",
+   "date": "2026-08-27"
+  },
+  {
+   "title": "光環 3234:公司說法",
+   "url": "https://uanalyze.com.tw/articles/8628457422",
+   "date": "2026-10-20"
+  },
+  {
+   "title": "華星光 4979:公司說法",
+   "url": "https://www.ctee.com.tw/news/20260723701022-430204",
+   "date": "2026-07-23"
+  },
+  {
+   "title": "穩懋 3105:公司說法",
+   "url": "https://www.stockfeel.com.tw/?p=278338",
+   "date": "2026-10-28"
+  },
+  {
+   "title": "波若威 3163:公司說法",
+   "url": "https://money.udn.com/money/story/5607/9465556",
+   "date": "2026-03"
+  },
+  {
+   "title": "上詮 3363:公司說法",
+   "url": "https://uanalyze.com.tw/articles/8277656872",
+   "date": "2026-10"
+  },
+  {
+   "title": "光聖 6442:公司說法",
+   "url": "https://blog.fugle.tw/post/earnings-call-6442-2026-09-10",
+   "date": "2026-09-10"
+  },
+  {
+   "title": "統新 6426:公司說法",
+   "url": "https://money.udn.com/money/story/5607/9739297",
+   "date": "2026-09"
+  },
+  {
+   "title": "東典光電 6588:公司說法",
+   "url": "https://uanalyze.com.tw/articles/3070453124",
+   "date": "2026-08-10"
+  },
+  {
+   "title": "聯鈞 3450:公司說法",
+   "url": "https://uanalyze.com.tw/articles/4828253648",
+   "date": "2026-08-18"
+  },
+  {
+   "title": "訊芯-KY 6451:公司說法",
+   "url": "https://news.cnyes.com/news/id/6513256",
+   "date": "2026-06"
+  },
+  {
+   "title": "前鼎 4908:公司說法",
+   "url": "https://blog.fugle.tw/post/earnings-call-4908-2026-04-17",
+   "date": "2026-04-17"
+  },
+  {
+   "title": "智邦 2345:公司說法",
+   "url": "https://www.mirrormedia.mg/external/mirrordaily_77965",
+   "date": "2026-08-06"
+  },
+  {
+   "title": "明泰 3380:公司說法",
+   "url": "https://blog.fugle.tw/post/earnings-call-3380-2026-02-26",
+   "date": "2026-02-26"
+  },
+  {
+   "title": "台積電 2330:公司說法",
+   "url": "https://uanalyze.com.tw/articles/9497454318",
+   "date": "2026"
+  },
+  {
+   "title": "日月光投控 3711:公司說法",
+   "url": "https://www.stockfeel.com.tw/?p=278484",
+   "date": "2026-10-29"
+  },
+  {
+   "title": "致茂 2360:公司說法",
+   "url": "https://uanalyze.com.tw/articles/4543755537",
+   "date": "2026-09"
+  },
+  {
+   "title": "旺矽 6223:公司說法",
+   "url": "https://blog.fugle.tw/post/earnings-call-6223-2026-05-15",
+   "date": "2026-05-15"
+  },
+  {
+   "title": "惠特 6706:公司說法",
+   "url": "https://uanalyze.com.tw/articles/1683855084",
+   "date": "2026-09"
+  },
+  {
+   "title": "貿聯-KY 3665:公司說法",
+   "url": "https://uanalyze.com.tw/articles/5315551088",
+   "date": "2026-04-22"
+  }
+ ]
+}
