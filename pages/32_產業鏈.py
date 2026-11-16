@@ -21,6 +21,7 @@ inject_css()
 from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("產業鏈魚骨圖", "SUPPLY CHAIN MAP", "⛓️")
+st.page_link("pages/47_產業樹.py", label="🌳 產業樹:整條上下游+痛點+擴產查核(一個產業一棵,比魚骨圖完整)")
 
 import supply_chain as _sc
 

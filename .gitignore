@@ -30,6 +30,7 @@ data/_market_amount.csv
 data/_auto_update*.log
 backtest_results/
 logs/
+log/
 .claude/
 data/*.log
 data/download_log.csv

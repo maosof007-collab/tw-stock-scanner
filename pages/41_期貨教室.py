@@ -31,15 +31,23 @@ def _mkt():
 
 
 q, mg = _mkt()
+_fmt = lambda s: f"{s[4:6]}/{s[6:8]}" if len(str(s)) == 8 else "?"
+try:      # 最近一個交易日(以大盤日線為準),用來判斷期交所資料是不是舊的
+    _last_td = str(pd.read_csv(ROOT / "data" / "benchmark_TWII.csv", usecols=["Date"])["Date"].iloc[-1])[:10].replace("-", "")
+except Exception:
+    _last_td = ""
+if q and _last_td and str(q.get("日期", "")) < _last_td:
+    st.warning(f"⚠️ 下面的微台行情是 **{_fmt(q['日期'])}** 的,不是 {_fmt(_last_td)} 的:"
+               "期交所 OpenAPI 要到晚間才換成當天資料。外資期貨部位(行情與籌碼分頁)走另一個來源,收盤後就有。")
 c1, c2, c3, c4 = st.columns(4)
 if q:
-    c1.metric(f"TMF 近月 {q['月份']}", f"{q['最新']:,.0f}" if q["最新"] else "—",
-              f"{q['漲跌%']}({q['時段']})", delta_color="off")
-    c2.metric("一般盤結算", f"{q['結算']:,.0f}" if q["結算"] else "—", f"OI {q['OI']}",
+    c1.metric(f"TMF 近月 {q['月份']}|{_fmt(q['日期'])} {'夜盤' if q['時段'] == '盤後' else '日盤'}", f"{q['最新']:,.0f}" if q["最新"] else "—",
+              f"{q['漲跌%']}", delta_color="off")
+    c2.metric(f"一般盤結算|{_fmt(q['日期'])}", f"{q['結算']:,.0f}" if q["結算"] else "—", f"OI {q['OI']}",
               delta_color="off")
 if mg:
     c3.metric("原始保證金(動態)", f"{mg['原始']:,}", f"維持 {mg['維持']:,}", delta_color="off")
-    c4.metric("每點價值", "10 元", f"保證金日期 {mg['日期']}", delta_color="off")
+    c4.metric("每點價值", "10 元", f"保證金日期 {_fmt(mg['日期'])}", delta_color="off")
 st.caption("保證金由期交所 OpenAPI 即時抓取——寫死的數字半年就過期(期貨 primer 教案)。")
 
 tab_cls, tab_paper, tab_mkt = st.tabs(["📚 教室(六章+隨堂考)", "🧪 微台模擬倉", "📊 行情與籌碼"])
@@ -134,8 +142,17 @@ with tab_paper:
 with tab_mkt:
     try:
         tf = pd.read_csv(ROOT / "data" / "_taifex_fi.csv")
-        st.markdown("**外資台指期淨未平倉(風險燈訊號②的原料)**")
-        st.dataframe(tf.tail(10), hide_index=True, use_container_width=True)
+        _l = tf.iloc[-1]
+        st.markdown(f"**外資台指期淨未平倉(風險燈訊號②的原料)|資料到 {_l['date']}**")
+        k1, k2, k3 = st.columns(3)
+        k1.metric(f"淨未平倉 {str(_l['date'])[5:]}", f"{_l['淨未平倉口數']:+,.0f} 口",
+                  f"當日 {_l['日增減']:+,.0f} 口" if pd.notna(_l["日增減"]) else "", delta_color="off")
+        k2.metric("近 5 日累計增減", f"{tf['日增減'].tail(5).sum():+,.0f} 口")
+        k3.metric("近 20 日最空", f"{tf['淨未平倉口數'].tail(20).min():+,.0f} 口",
+                  str(tf.loc[tf['淨未平倉口數'].tail(20).idxmin(), 'date'])[5:], delta_color="off")
+        st.caption("每日增減(口):正=回補空單,負=加空")
+        st.bar_chart(tf.tail(20).set_index("date")["日增減"], height=200)
+        st.dataframe(tf.tail(10).iloc[::-1], hide_index=True, use_container_width=True)
         st.caption("淨空沉重+單日急變≥5,000 口=風險燈加分;連兩日回補>3,000 口=反彈檢查表第一條。")
     except Exception:
         st.info("外資期貨資料待 run_daily 更新。")

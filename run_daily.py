@@ -270,6 +270,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ 大戶panel: {e}")
 
+    # ── Step 4.56:產業樹擴產查核(季報資料;7 天內建過就跳過)──
+    try:
+        from industry_tree import build_capex
+        _cx = build_capex()
+        log.info(f"  ✅ 產業樹擴產查核:{len(_cx)} 檔")
+    except Exception as e:
+        log.warning(f"  ⚠️ 產業樹擴產查核: {e}")
+
     # ── Step 4.58:權證資金流(當日 call/put 聚合;非交易日自動跳過)──
     try:
         from warrant_flow import fetch_warrant_day, whale_today
@@ -318,6 +326,11 @@ def main():
         from taifex_flow import fetch_fi_futures
         _tfd = fetch_fi_futures()
         log.info(f"  🧾 期貨籌碼:累積至 {_tfd['date'].iloc[-1] if len(_tfd) else '無'}")
+        # 2026-11-16:OpenAPI 只給最新一日,漏跑的日子永遠缺 → 用期交所網站歷史查詢補洞(含當日)
+        from taifex_flow import backfill as _tf_backfill
+        _bf = _tf_backfill()
+        if _bf:
+            log.info(f"  🧾 期貨籌碼補洞:{len(_bf)} 天({_bf[0]}~{_bf[-1]})")
     except Exception as e:
         log.warning(f"  ⚠️ 期貨籌碼: {e}")
 
@@ -393,6 +406,14 @@ def main():
                  f"{_rq['名稱'].iloc[0] if len(_rq) else '-'}")
     except Exception as e:
         log.warning(f"  ⚠️ 強勢資金: {e}")
+
+    # ── Step 4.59906:族群聚集雷達(官方產業廣度+注意力榜產業分布;重產族群強弱海報)──
+    # 2026-11-16:資安/資服個股早就上榜,但沒有一層把它們認成同一群;必須排在強勢資金之後
+    try:
+        import sector_cluster
+        log.info(f"  🧲 族群聚集:{sector_cluster.run_daily_step()}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 族群聚集: {e}")
 
     # ── Step 4.59903:處置股名單(TWSE;候選池全域排除+ETF持股警示)──
     try:

@@ -140,6 +140,33 @@ def check_pages_registered():
             errors.append(f"[Feature Map] /{url} 沒寫進 docs/FEATURE_MAP.md")
 
 
+def check_tree_codes():
+    """產業樹(data/industry_trees/*.json)的代號與名稱要跟 stock_list.csv 一致(家規:代號必先查證)。"""
+    tdir, sl_path = ROOT / "data" / "industry_trees", ROOT / "data" / "stock_list.csv"
+    if not tdir.exists() or not sl_path.exists():
+        return
+    import csv
+    import json
+    with open(sl_path, encoding="utf-8-sig", newline="") as fh:
+        names = {r["code"]: r["name"] for r in csv.DictReader(fh)}
+    for p in sorted(tdir.glob("*.json")):
+        try:
+            t = json.loads(p.read_text(encoding="utf-8"))
+        except ValueError as e:
+            errors.append(f"[產業樹] {p.name} 不是合法 JSON:{e}")
+            continue
+        for key in ("trunk", "branches"):
+            for seg in t.get(key, []):
+                for m in seg.get("members", []):
+                    code, name = str(m[0]), m[1]
+                    if code not in names:
+                        errors.append(f"[產業樹] {p.name}:{code} {name} 不在 stock_list.csv")
+                    elif names[code] != name:
+                        errors.append(f"[產業樹] {p.name}:{code} 寫成「{name}」,股票清單是「{names[code]}」")
+                    if len(m) < 4 or m[3] not in ("✓", "?"):
+                        errors.append(f"[產業樹] {p.name}:{code} {name} 沒標 ✓ 或 ?(查證狀態必填)")
+
+
 def check_no_secrets_tracked():
     """public repo:金鑰檔不可被 git 追蹤。"""
     try:
@@ -155,6 +182,21 @@ def check_no_secrets_tracked():
             errors.append(f"[金鑰] {f} 被 git 追蹤了 — public repo,立刻 git rm --cached 並換金鑰")
 
 
+def check_poster_index():
+    """總覽要跟 data/papers 同步:資料夾裡每一份海報/報紙都要在最新的總覽裡有連結。
+    (2026-11-16:總覽靠手寫清單,新海報沒列進去,使用者以為東西不見了。)"""
+    papers = ROOT / "data" / "papers"
+    idx = sorted(papers.glob("總覽_*.html"))
+    if not idx:
+        return
+    if len(idx) > 1:
+        errors.append(f"[海報總覽] 有 {len(idx)} 份總覽,只能留最新一份")
+    links = set(re.findall(r'href="\./([^"]+)"', idx[-1].read_text(encoding="utf-8", errors="ignore")))
+    miss = [f.name for f in papers.glob("*.html") if not f.name.startswith("總覽") and f.name not in links]
+    if miss:
+        errors.append(f"[海報總覽] {len(miss)} 份不在總覽裡(例:{miss[0]})— 跑 python -X utf8 make_poster_index.py")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -163,7 +205,9 @@ def main():
     check_bat_git_add()
     check_gate_order()
     check_pages_registered()
+    check_tree_codes()
     check_no_secrets_tracked()
+    check_poster_index()
     for n in notes:
         print("  · " + n)
     if errors:

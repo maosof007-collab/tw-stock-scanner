@@ -68,6 +68,54 @@ def fetch_fi_futures(days: int = 10) -> pd.DataFrame:
     raise RuntimeError("期交所 OpenAPI 無回應且無快取")
 
 
+def _fetch_day(day: str) -> float | None:
+    """期交所網站「三大法人-區分各期貨契約」歷史查詢:指定日的外資台指期淨未平倉口數。
+    day='YYYY-MM-DD';當天還沒公布或非交易日回 None。OpenAPI 只給最新一日,補洞要靠這個。"""
+    r = requests.post("https://www.taifex.com.tw/cht/3/futContractsDate",
+                      data={"queryType": "1", "goDay": "", "doQuery": "1", "dateaddcnt": "",
+                            "queryDate": day.replace("-", "/"), "commodityId": "TXF"},
+                      headers=_HDR, timeout=30)
+    if r.status_code != 200 or day.replace("-", "/") not in r.text:   # 查無資料時頁面會回別的日期或空表
+        return None
+    for tb in pd.read_html(io.StringIO(r.text)):
+        if tb.shape[1] < 15:
+            continue
+        tb.columns = range(tb.shape[1])
+        hit = tb[tb[1].astype(str).str.contains("臺股期貨") & tb[2].astype(str).str.contains("外資")]
+        if len(hit):
+            return float(str(hit.iloc[0, 13]).replace(",", ""))       # 未平倉餘額-多空淨額-口數
+    return None
+
+
+def backfill(max_days: int = 25) -> list[str]:
+    """補齊快取裡缺的交易日(以大盤日線的日期為準),回傳這次補上的日期。
+    2026-11-16:快取 33 個交易日缺了 14 天——每日流程只要有一天沒在公布後跑到,那天就永遠缺,
+    而且「日增減」會變成跨兩天的差。每次 fetch_fi_futures 後都會跑一次,最多補 max_days 天。"""
+    old = pd.read_csv(CACHE) if CACHE.exists() else pd.DataFrame(columns=["date", "淨未平倉口數"])
+    bm = pd.read_csv(ROOT / "data" / "benchmark_TWII.csv", usecols=["Date"])["Date"].astype(str).str[:10]
+    have = set(old["date"].astype(str))
+    start = min(have) if have else bm.iloc[-30]
+    miss = [d for d in bm[bm >= start] if d not in have][-max_days:]
+    _now = now_tw()
+    if _now.hour < 15:                      # 當天的未平倉 15 點後才公布;之前查會拿到上一日的表
+        miss = [d for d in miss if d != f"{_now:%Y-%m-%d}"]
+    got = []
+    for d in miss:
+        try:
+            v = _fetch_day(d)
+        except Exception:
+            v = None
+        if v is not None:
+            got.append({"date": d, "淨未平倉口數": v})
+        time.sleep(1.5)                                             # 期交所網站限流
+    if got:
+        m = pd.concat([old[["date", "淨未平倉口數"]], pd.DataFrame(got)], ignore_index=True)
+        m = m.drop_duplicates(subset=["date"], keep="last").sort_values("date").reset_index(drop=True)
+        m["日增減"] = m["淨未平倉口數"].diff()
+        m.to_csv(CACHE, index=False, encoding="utf-8-sig")
+    return [g["date"] for g in got]
+
+
 def fi_verdict() -> str:
     """外資期貨姿勢一句話(給選擇權表當背景)。"""
     try:

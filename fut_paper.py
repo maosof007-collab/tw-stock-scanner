@@ -61,7 +61,11 @@ def quote() -> dict | None:
                     and r.get("TradingSession") == "一般"), None)
         night = next((r for r in rows if r["ContractMonth(Week)"] == near
                       and r.get("TradingSession") == "盤後"), None)
-        last = night if (night and str(night.get("Last", "")).replace("-", "").isdigit()) else day
+        # 期交所日報同一個 Date 的「盤後」是前一晚的夜盤(歸屬這個交易日,比「一般」早),
+        # 兩列的漲跌都是對同一個前日結算價。最新價以一般盤為準,一般盤還沒有才用盤後。
+        # (2026-11-16 修:原本優先取盤後,顯示的是比日盤收盤更舊的價)
+        _ok = lambda r: bool(r) and str(r.get("Last", "")).lstrip("-").isdigit()
+        last = day if _ok(day) else night
         return {"月份": near, "日期": (day or last).get("Date", ""),
                 "結算": float(day["SettlementPrice"]) if day and day.get("SettlementPrice", "NULL") != "NULL" else None,
                 "最新": float(last["Last"]) if last and str(last.get("Last", "")).lstrip("-").isdigit() else None,

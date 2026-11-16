@@ -60,11 +60,33 @@ if not issues:
     st.info("尚無期刊——素材(法人報告/法說/筆記)交給系統即可組版。")
     st.stop()
 
+# 海報歸海報、報紙歸報紙(2026-11-16):檔名帶「海報」的是一屏總覽,其餘是長文期刊;「總覽」是海報目錄
+_is_poster = lambda i: "海報" in i["code"] or i["code"] == "總覽"
+_posters = [i for i in issues if _is_poster(i)]
+_papers = [i for i in issues if not _is_poster(i)]
+_posters.sort(key=lambda i: (i["code"] != "總覽", -int(i["date"]) if str(i["date"]).isdigit() else 0, i["code"]))   # 目錄置頂,其餘新到舊
+_kind = st.radio("類別", [f"🖼 海報({len(_posters)})", f"📰 報紙期刊({len(_papers)})"],
+                 horizontal=True, key="paper_kind")
+issues = _posters if _kind.startswith("🖼") else _papers
+if not issues:
+    st.info("這一類目前沒有內容。")
+    st.stop()
+
 labels = []
 for i in issues:
-    nm = _rs(i["code"])[1] or i["code"]
-    labels.append(f"{nm} {i['code']}|{i['date'][:4]}/{i['date'][4:6]}/{i['date'][6:]}")
-idx = st.selectbox("選期", range(len(issues)), format_func=lambda k: labels[k])
+    _c = i["code"].replace("海報", "")
+    _d = f"{i['date'][:4]}/{i['date'][4:6]}/{i['date'][6:]}"
+    if i["code"] == "總覽":
+        labels.append(f"📋 海報總覽(全部海報目錄)|{_d}")
+    else:
+        nm = (_rs(_c)[1] or _c) if _c[:4].isdigit() else _c   # 族群名(如「資安」)不查股名,否則會被模糊比對成個股
+        if nm != _c:
+            labels.append(f"{nm} {_c}|{_d}")
+        elif "海報" in i["code"] and not _c[:4].isdigit():
+            labels.append(f"🗂 {_c}(族群)|{_d}")                      # 族群海報沒有代號
+        else:
+            labels.append(f"{_c}|{_d}")                               # 專題報紙(CPO、ASIC…)或查不到股名的代號
+idx = st.selectbox("選期", range(len(issues)), format_func=lambda k: labels[k], key=f"paper_idx_{_kind[:1]}")
 p = Path(issues[idx]["path"])
 html = p.read_text(encoding="utf-8")
 components.html(html, height=1400, scrolling=True)

@@ -68,8 +68,8 @@ td.n{font-family:Arial;font-weight:800}
 .lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
 .lg i{width:11px;height:11px;border-radius:3px;flex:none}
 .lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
-.bars{display:flex;gap:16px;align-items:flex-end;height:96px;padding:4px 6px 0;justify-content:center}
-.bar{width:52px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
 .bar i{display:block;border-radius:4px 4px 0 0}
 .bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
 .risk{background:#fdf0f2}

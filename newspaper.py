@@ -85,6 +85,12 @@ def shell(masthead: str, stamp: str, subtitle: str, nav: list[str],
 def save_issue(code: str, date: str, html: str) -> Path:
     p = PAPERS / f"{code}_{date}.html"
     p.write_text(html, encoding="utf-8")
+    if code != "總覽":                       # 每存一份海報/報紙就重產總覽(掃資料夾,不靠手寫清單)
+        try:
+            import make_poster_index
+            make_poster_index.build()
+        except Exception as e:               # 總覽失敗不能擋住本來要存的那一份
+            print(f"[warn] 總覽重產失敗: {e!r}")
     return p
 
 

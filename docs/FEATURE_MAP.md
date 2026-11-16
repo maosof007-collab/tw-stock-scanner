@@ -49,6 +49,7 @@
 |---|---|---|
 | `/盤中資金流` | 盤中資金流 | rt_flow（強勢池駐留，頁面開著時才運作）、theme_groups |
 | `/產業鏈` | 產業鏈魚骨圖 | supply_chain；`data/supply_chain.json`、`data/tech_maps/` |
+| `/產業樹` | 產業樹（樹幹上下游→枝葉→慣性/痛點/限制，節點接營收・籌碼・體檢・擴產查核） | industry_tree；`data/industry_trees/*.json`、`data/_tree_capex.csv`（run_daily Step 4.56 每週重建；頁面按鈕「重新計算擴產查核」會**寫**檔） |
 | `/美股連動` | 美股連動雷達 | us_link；`data/us_pairs.json` |
 | `/中國連動` | 中國連動雷達 | cn_link；`data/cn_pairs.json` |
 | `/資金流向日誌` | 資金流向日誌 | money_flow_daily |
@@ -66,7 +67,7 @@
 ### 個股研究（幾乎每頁都有代號輸入欄）
 | 網址 | 標題 | 主要模組 |
 |---|---|---|
-| `/財經報` | 財經報專刊 | newspaper；`data/papers/*.html` |
+| `/財經報` | 財經報專刊+研究海報(先選「🖼 海報／📰 報紙期刊」再選期;海報一律存 `data/papers/<代號>海報_<日期>.html`,目錄是 `總覽_<日期>.html`:`newspaper.save_issue`/`poster.save_poster` 每存一份就自動呼叫 `make_poster_index.build()` 掃資料夾重產,一句話結論讀海報自己的副標,不用手動維護清單;`scripts/check.py` 會檢查資料夾每一份都在總覽裡)。**🗂 族群強弱(族群)** 那張是族群聚集雷達:每日流程 Step 4.59906 自動重產、只留最新一份;亮燈規則=注意力榜前 20 名同一官方產業 ≥4 檔且是產業比重 3 倍以上,或創 20 日新高比例連 3 天全市場第一;出現新亮燈產業才推 LINE。驗證點:海報「🧲 聚集亮燈」卡的產業數=`python -X utf8 sector_cluster.py` 印出的亮燈清單。**🗂 電子通路(族群)** 是存貨/預收/現金流查核:財報數字由 `scripts/dist_bs.py` 從公開資訊觀測站抓到 `data/_dist_bs.csv`(每季手動重跑),海報由 `make_poster_dist.py` 重產。**🗂 金融(族群)**、統一 1216、大統益 1232 是「電子出事時的退路」查核:`make_poster_fin.py` 的 `haven()` 用 2015 年起日線算大盤大跌日與歷次修正的表現,`make_posters_haven.py` 共用它產兩張個股海報;`make_poster_uni.py`(統一集團 8 檔)、`make_poster_scan.py`(避險掃描:25 產業+全部個股+反向 ETF/美債/黃金/美元,後者用 yfinance 抓、存 `data/_haven_assets.csv`)也用同一個 `haven()` | newspaper、poster、sector_cluster、make_poster_cluster；`data/papers/*.html`、`data/_sector_cluster.csv`、`data/_sector_cluster_state.json` |
 | `/券商觀點` | 券商觀點總覽 | advisory_hub |
 | `/公司快照` | 公司快照 | symbols、fundamentals |
 | `/估值前瞻` | 估值前瞻 | forecast_card（widget key 要綁代號） |

@@ -148,12 +148,16 @@ def stock_poster(cfg: dict, date: str = "") -> None:
     c_cata = card("題材鏈", flow(cfg["cata"]), extra_cls="grow")
     c_chip = _chip_card(ctx)
     c_px = _px_card(ctx, cfg.get("px_note", ""))
-    c_scn = _scn_card(ctx, cfg.get("scn_note", "情境=系統淨利率假設年化;估值判讀以隱含 PE 為準,不自創目標價。"))
+    if cfg.get("scn_off"):
+        # 業外占獲利比重大的公司:系統用含業外的淨利率外推,EPS 會嚴重偏高——整張表不列,只留說明
+        c_scn = card("三種情境估值(本檔不列)", f'<div class="note">{cfg.get("scn_note", "")}</div>')
+    else:
+        c_scn = _scn_card(ctx, cfg.get("scn_note", "情境=系統淨利率假設年化;估值判讀以隱含 PE 為準,不自創目標價。"))
     c_risk = card("風險與觀察", checks(cfg["risk"]), extra_cls="risk grow")
     cols = [c_concl + c_struct + c_chip,
             c_fin + c_mom + c_cust,
             c_px + c_scn + c_cata + c_risk]
     html = shell(title_html=f'{cfg["name"]}<b>({cfg["code"]})</b>{cfg.get("title","深度研究總整理")}',
                  subtitle=cfg["subtitle"], brand=cfg["brand"], cols=cols,
-                 footer=f'素材:{cfg.get("src","系統資料管線")}+系統 2026/11/11 數據 · 本海報為研究筆記非投資建議')
+                 footer=f'素材:{cfg.get("src","系統資料管線")}+系統 {date[:4]}/{date[4:6]}/{date[6:]} 數據 · 本海報為研究筆記非投資建議')
     print("saved:", save_poster(cfg["code"], date, html))
