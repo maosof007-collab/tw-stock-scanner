@@ -1,0 +1,75 @@
+<title>11/16 17 檔 20 日中位數 -</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<div class="hd"><div><h1>電子<b>通路</b>:存貨與遞延查核</h1><div class="sub">11/16 17 檔 20 日中位數 -17%;存貨一年 +133%、前三季營業現金流 -2,396 億</div></div>
+<div class="brand"><span class="bx">族群查核</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="grid"><div class="col"><div class="card "><div class="ct">17 家合計:2026 第三季財報</div><div class="cb"><div class="bignums"><div class="bn"><div class="k">存貨</div><div class="v">10,703 億</div><div class="d">季增 +33%、年增 +133%</div></div><div class="bn"><div class="k">營收</div><div class="v">17,545 億</div><div class="d">季增 +10%、年增 +103%</div></div><div class="bn"><div class="k">前三季營業現金流</div><div class="v">-2,396 億</div><div class="d">去年同期 +700 億</div></div></div></div></div><div class="card grow"><div class="ct">結論(重點先看)<small>●=開過原文 ?=只看到摘要;其餘為財報與系統計算</small></div><div class="cb"><ul class='ck'><li class="xx"><b>弱是確定的,而且不是今天才弱</b>:17 檔近 20 日全部下跌(-1%~-29%)、16 檔在季線下;今日中位數 -5.7%</li><li class="xx"><b>存貨漲得比營收快</b>:第三季營收季增 +10%,存貨季增 +33%(8,073→10,703 億);一年來營收 +103%、存貨 +133%</li><li class="xx"><b>貨是借錢囤的</b>:前三季營業現金流 -2,396 億(去年同期 +700 億),短期借款一年 2,678→5,089 億</li><li class="wn"><b>客戶先付錢搶貨</b>:預收款(合約負債)文曄 10→416 億、大聯大 5→96 億、擎亞 5→85 億;通路付給原廠的預付款 161→716 億。這是缺貨搶貨的證據,也是重複下單會發生的環境;訂單有沒有重複,財報看不到</li><li class="wn"><b>遞延有一個實例</b>:●文曄 11/5 法說「伺服器與資料中心業務第3季雖面臨出貨節奏調整」——營收季增 +1%、存貨季增 +60%(3,186→5,090 億)。公司估第四季營收約 7,500 億(季增 26%);10 月營收 2,701 億、月增 +25%,目前照公司說的在出</li><li class="wn"><b>提前拉貨是公司自己講的</b>:●文曄:汽車、消費性、PC、手機受提前拉貨影響,第四季都季減;?大聯大 8 月法說:客戶預期漲價與缺貨,第二季底提前拉貨;?大聯大第四季財測 EPS 5.13~5.81 元(第三季 5.96)</li><li class="wn">10 月營收比 7 月(季初比季初):17 家合計 +10%,扣掉文曄是 -8%;10 家比 7 月少(聯強、至上、茂綸、弘憶股、擎亞、增你強、威健、方土昶、華立、蔚華科)</li><li class="xx"><b>毛利薄,存貨跌價吃得快</b>:17 家單季毛利合計 766 億、存貨 10,703 億——存貨價值每跌 1% 是 107 億,等於單季毛利的 14%</li><li class="xx">大盤燈號 🔴(禁開新倉、只出不進;持倉逐檔對停損)</li></ul></div></div></div><div class="col"><div class="card "><div class="ct">逐家:2026 第三季(營收前 11 大)<small>公開資訊觀測站</small></div><div class="cb"><table><tr><th>公司</th><th>營收</th><th>存貨</th><th>存貨天數</th><th>預收款</th><th>前三季營業現金流</th></tr><tr><td><b>文曄</b> 3036<br><small>毛利率 3.6%</small></td><td class="n">5,973 億<br><small>季 +1%、年 +82%</small></td><td class="n">5,090 億<br><small>季 +60%、年 +143%</small></td><td class="n">81 天<br><small>前季 51</small></td><td class="n">416 億<br><small>去年 10</small></td><td class="n"><span class="dn2">▼11 億</span><br><small>去年 +198</small></td></tr><tr><td><b>大聯大</b> 3702<br><small>毛利率 4.4%</small></td><td class="n">5,100 億<br><small>季 +12%、年 +109%</small></td><td class="n">2,761 億<br><small>季 +28%、年 +107%</small></td><td class="n">52 天<br><small>前季 45</small></td><td class="n">96 億<br><small>去年 5</small></td><td class="n"><span class="dn2">▼1,183 億</span><br><small>去年 +59</small></td></tr><tr><td><b>聯強</b> 2347<br><small>毛利率 3.5%</small></td><td class="n">2,366 億<br><small>季 +18%、年 +136%</small></td><td class="n">955 億<br><small>季 +19%、年 +164%</small></td><td class="n">38 天<br><small>前季 38</small></td><td class="n">17 億<br><small>去年 1</small></td><td class="n"><span class="dn2">▼694 億</span><br><small>去年 +246</small></td></tr><tr><td><b>至上</b> 8112<br><small>毛利率 4.3%</small></td><td class="n">1,836 億<br><small>季 +22%、年 +243%</small></td><td class="n">899 億<br><small>季 -8%、年 +271%</small></td><td class="n">47 天<br><small>前季 62</small></td><td class="n"><small>未列</small></td><td class="n"><span class="dn2">▼299 億</span><br><small>去年 +1</small></td></tr><tr><td><b>威健</b> 3033<br><small>毛利率 5.9%</small></td><td class="n">456 億<br><small>季 +21%、年 +73%</small></td><td class="n">286 億<br><small>季 +20%、年 +57%</small></td><td class="n">61 天<br><small>前季 62</small></td><td class="n">18 億<br><small>去年 3</small></td><td class="n"><span class="dn2">▼43 億</span><br><small>去年 +33</small></td></tr><tr><td><b>益登</b> 3048<br><small>毛利率 3.8%</small></td><td class="n">424 億<br><small>季 +7%、年 +49%</small></td><td class="n">130 億<br><small>季 -2%、年 +37%</small></td><td class="n">29 天<br><small>前季 32</small></td><td class="n"><small>未列</small></td><td class="n"><span class="up2">▲5 億</span><br><small>去年 +5</small></td></tr><tr><td><b>擎亞</b> 8096<br><small>毛利率 4.9%</small></td><td class="n">269 億<br><small>季 +55%、年 +389%</small></td><td class="n">146 億<br><small>季 -11%、年 +482%</small></td><td class="n">52 天<br><small>前季 89</small></td><td class="n">85 億<br><small>去年 5</small></td><td class="n"><span class="dn2">▼111 億</span><br><small>去年 +20</small></td></tr><tr><td><b>華立</b> 3010<br><small>毛利率 8.1%</small></td><td class="n">255 億<br><small>季 +7%、年 +32%</small></td><td class="n">71 億<br><small>季 +11%、年 +31%</small></td><td class="n">28 天<br><small>前季 27</small></td><td class="n">7 億<br><small>去年 7</small></td><td class="n"><span class="up2">▲25 億</span><br><small>去年 +52</small></td></tr><tr><td><b>崇越</b> 5434<br><small>毛利率 12.9%</small></td><td class="n">237 億<br><small>季 +14%、年 +35%</small></td><td class="n">59 億<br><small>季 +13%、年 +45%</small></td><td class="n">26 天<br><small>前季 26</small></td><td class="n">40 億<br><small>去年 24</small></td><td class="n"><span class="up2">▲32 億</span><br><small>去年 +37</small></td></tr><tr><td><b>增你強</b> 3028<br><small>毛利率 7.3%</small></td><td class="n">201 億<br><small>季 +3%、年 +83%</small></td><td class="n">113 億<br><small>季 -14%、年 +71%</small></td><td class="n">55 天<br><small>前季 66</small></td><td class="n">6 億<br><small>去年 1</small></td><td class="n"><span class="dn2">▼83 億</span><br><small>去年 -11</small></td></tr><tr><td><b>全科</b> 3209<br><small>毛利率 5.5%</small></td><td class="n">177 億<br><small>季 +2%、年 +51%</small></td><td class="n">66 億<br><small>季 -3%、年 +135%</small></td><td class="n">36 天<br><small>前季 38</small></td><td class="n">27 億<br><small>去年 5</small></td><td class="n"><span class="dn2">▼11 億</span><br><small>去年 +57</small></td></tr></table><div class="note">存貨天數=期末存貨÷當季銷貨成本×91 天(媒體用平均存貨算,數字會比較低)。存貨長得比營收快最多的是文曄、大聯大;存貨季減的有至上、擎亞、增你強。</div></div></div></div><div class="col"><div class="card "><div class="ct">11/16 股價:17 檔依 20 日跌幅排序</div><div class="cb"><table><tr><th>公司</th><th>今日</th><th>20 日</th><th>距 60 日高</th><th>10 月營收<br>比 7 月</th></tr><tr><td><b>大聯大</b> 3702</td><td class="n"><span class="dn2">▼4.6%</span></td><td class="n">-29%</td><td class="n">-31%</td><td class="n">+2%</td></tr><tr><td><b>聯強</b> 2347</td><td class="n"><span class="dn2">▼1.8%</span></td><td class="n">-28%</td><td class="n">-28%</td><td class="n">-18%</td></tr><tr><td><b>益登</b> 3048</td><td class="n"><span class="dn2">▼7.9%</span></td><td class="n">-26%</td><td class="n">-29%</td><td class="n">+1%</td></tr><tr><td><b>方土昶</b> 6265</td><td class="n"><span class="dn2">▼7.7%</span></td><td class="n">-25%</td><td class="n">-45%</td><td class="n">-59%</td></tr><tr><td><b>茂綸</b> 6227</td><td class="n"><span class="dn2">▼5.7%</span></td><td class="n">-23%</td><td class="n">-31%</td><td class="n">-5%</td></tr><tr><td><b>弘憶股</b> 3312</td><td class="n"><span class="dn2">▼7.2%</span></td><td class="n">-22%</td><td class="n">-31%</td><td class="n">-20%</td></tr><tr><td><b>擎亞</b> 8096</td><td class="n"><span class="dn2">▼9.0%</span></td><td class="n">-22%</td><td class="n">-40%</td><td class="n">-0%</td></tr><tr><td><b>華立</b> 3010</td><td class="n"><span class="dn2">▼5.4%</span></td><td class="n">-19%</td><td class="n">-19%</td><td class="n">-7%</td></tr><tr><td><b>崇越</b> 5434</td><td class="n"><span class="dn2">▼6.1%</span></td><td class="n">-17%</td><td class="n">-23%</td><td class="n">+0%</td></tr><tr><td><b>文曄</b> 3036</td><td class="n"><span class="dn2">▼4.3%</span></td><td class="n">-15%</td><td class="n">-18%</td><td class="n">+48%</td></tr><tr><td><b>增你強</b> 3028</td><td class="n"><span class="dn2">▼4.0%</span></td><td class="n">-14%</td><td class="n">-21%</td><td class="n">-35%</td></tr><tr><td><b>威健</b> 3033</td><td class="n"><span class="dn2">▼5.5%</span></td><td class="n">-14%</td><td class="n">-21%</td><td class="n">-10%</td></tr><tr><td><b>長華*</b> 8070</td><td class="n"><span class="dn2">▼6.5%</span></td><td class="n">-13%</td><td class="n">-13%</td><td class="n">+3%</td></tr><tr><td><b>蔚華科</b> 3055</td><td class="n"><span class="dn2">▼7.5%</span></td><td class="n">-12%</td><td class="n">-45%</td><td class="n">-12%</td></tr><tr><td><b>至上</b> 8112</td><td class="n"><span class="dn2">▼4.5%</span></td><td class="n">-8%</td><td class="n">-19%</td><td class="n">-30%</td></tr><tr><td><b>利機</b> 3444</td><td class="n"><span class="dn2">▼9.4%</span></td><td class="n">-7%</td><td class="n">-25%</td><td class="n">+4%</td></tr><tr><td><b>全科</b> 3209</td><td class="n"><span class="dn2">▼3.5%</span></td><td class="n">-1%</td><td class="n">-9%</td><td class="n">+112%</td></tr></table></div></div><div class="card risk grow"><div class="ct">接下來看什麼(會改變結論的數字)</div><div class="cb"><ul class='ck'><li class="wn">12/10 前公布的 11 月營收:文曄第四季要到 7,500 億,11、12 月合計還要約 4,799 億</li><li class="wn">大聯大、聯強 11 月營收有沒有回升;10 月各月減三成,但季初本來就會掉(大聯大 7 月也月減 24%)</li><li class="wn">第四季財報的存貨金額與跌價損失;預收款如果下降而營收沒跟上,就是訂單取消或再遞延</li><li class="wn">記憶體報價:至上、擎亞主要代理三星記憶體,第三季營收年增 243%、389%</li><li>財報數字重抓:python -X utf8 scripts/dist_bs.py;本海報重產:python -X utf8 make_poster_dist.py</li></ul></div></div></div></div>
+<div class="ft">素材:公開資訊觀測站 2026 第三季財報、月營收、系統 2026/11/16 日線 · 本海報為研究筆記非投資建議</div></div>
