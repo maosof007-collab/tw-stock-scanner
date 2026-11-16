@@ -89,7 +89,33 @@ for i in issues:
 idx = st.selectbox("選期", range(len(issues)), format_func=lambda k: labels[k], key=f"paper_idx_{_kind[:1]}")
 p = Path(issues[idx]["path"])
 html = p.read_text(encoding="utf-8")
-components.html(html, height=1400, scrolling=True)
+
+
+def _with_links(doc: str) -> str:
+    """讓刊物裡的相對連結(./xxx.html)在 app 裡點得開。
+    components.html 是 srcdoc iframe,相對連結會被瀏覽器當成 app 自己的網址 → 「Page not found」(2026-11-16 使用者截圖)。
+    做法:把 data/papers 每一份的內容一起塞進去,點連結時在同一格裡換成那一份,上方給「回總覽」。"""
+    import json as _json
+    docs = {f.name: f.read_text(encoding="utf-8", errors="ignore")
+            for f in p.parent.glob("*.html") if f.name != p.name}
+    blob = _json.dumps(docs, ensure_ascii=False).replace("</", "<\\/")
+    return ('<div id="_pv_bar" style="display:none;position:sticky;top:0;z-index:9;background:#0d2b52;color:#fff;'
+            'padding:9px 14px;font:15px sans-serif"><a href="#" id="_pv_back" style="color:#ffd35c;font-weight:700;'
+            'text-decoration:none">← 回海報總覽</a><span id="_pv_ttl" style="margin-left:14px;opacity:.85"></span></div>'
+            '<iframe id="_pv_view" style="display:none;width:100%;height:1330px;border:0"></iframe>'
+            f'<div id="_pv_home">{doc}</div>'
+            f'<script>const DOCS={blob};const $=i=>document.getElementById(i);'
+            'function pvShow(n){$("_pv_view").srcdoc=DOCS[n];$("_pv_ttl").textContent=n.replace(".html","");'
+            '$("_pv_home").style.display="none";$("_pv_view").style.display="block";$("_pv_bar").style.display="block";window.scrollTo(0,0);}'
+            '$("_pv_back").addEventListener("click",e=>{e.preventDefault();$("_pv_view").style.display="none";'
+            '$("_pv_bar").style.display="none";$("_pv_home").style.display="block";});'
+            'document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a");'
+            'if(!a||a.id==="_pv_back")return;const h=a.getAttribute("href")||"";if(!h.startsWith("./"))return;'
+            'e.preventDefault();const n=decodeURIComponent(h.slice(2));'
+            'if(DOCS[n])pvShow(n);else alert("找不到 "+n);});</script>')
+
+
+components.html(_with_links(html) if 'href="./' in html else html, height=1400, scrolling=True)
 st.download_button("⬇️ 下載本期 HTML(可傳 LINE/開瀏覽器)", html.encode("utf-8"),
                    file_name=p.name, mime="text/html")
 st.caption("素材=法人報告/法說/使用者筆記;本刊為研究筆記非投資建議。")

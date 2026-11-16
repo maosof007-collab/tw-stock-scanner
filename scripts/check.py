@@ -195,6 +195,15 @@ def check_poster_index():
     miss = [f.name for f in papers.glob("*.html") if not f.name.startswith("總覽") and f.name not in links]
     if miss:
         errors.append(f"[海報總覽] {len(miss)} 份不在總覽裡(例:{miss[0]})— 跑 python -X utf8 make_poster_index.py")
+    # 連結要點得開(2026-11-16:總覽的連結在 app 裡點下去是 Page not found,我只看了「有畫出來」沒去點)
+    from urllib.parse import unquote
+    dead = sorted({unquote(h) for h in links if not (papers / unquote(h)).exists()})
+    if dead:
+        errors.append(f"[海報總覽] {len(dead)} 個連結指到不存在的檔案(例:{dead[0]})")
+    page = (ROOT / "pages" / "33_財經報.py").read_text(encoding="utf-8")
+    if "_with_links(" not in page or "_pv_back" not in page:
+        errors.append("[海報總覽] pages/33_財經報.py 沒有把相對連結接起來(_with_links)——"
+                      "srcdoc iframe 裡的 ./xxx.html 會被當成 app 網址,點了是 Page not found")
 
 
 def main():
