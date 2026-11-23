@@ -4,7 +4,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
   color:#1c2733;line-height:1.5;font-size:14px}
-.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
 .hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
   border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
@@ -65,10 +65,129 @@ td.n{font-family:Arial;font-weight:800}
 .risk ul.ck li::before{content:"⚠";color:#c0392b}
 .note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
 .ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
 </style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
 
-<div class="wrap">
+<div class="wrap t-event k-event" data-kind="event">
 <div class="hd"><div><h1>金融海嘯<b>對照</b>:接下來一年會不會像 2008?</h1><div class="sub">2008 是信用市場先出事,現在那些數字沒有動;比較像的是 2000 年科技泡沫,而它用信用指標排除不了。歷史上 11 次跌破 20%,一年後 7 次更高、4 次更低</div></div>
 <div class="brand"><span class="bx">2008 複習</span><br>TW·BACKTEST 深度研究</div></div>
 <div class="grid"><div class="col"><div class="card "><div class="ct">📉 2008 年不是一路跌下去的<small>2007/10 → 2009/12</small></div><div class="cb"><table><tr><th>期間</th><th>指數</th><th>漲跌</th><th>交易日</th></tr><tr class="yl"><td class="n">07/10/29→08/1/23</td><td class="n">9,810→7,408</td><td class="n"><span class="gn">-24.5%</span></td><td class="n">61</td></tr><tr class="yl"><td class="n">08/1/23→08/5/19</td><td class="n">7,408→9,295</td><td class="n"><span class="rd">+25.5%</span></td><td class="n">74</td></tr><tr class="yl"><td class="n">08/5/19→08/10/27</td><td class="n">9,295→4,367</td><td class="n"><span class="gn">-53.0%</span></td><td class="n">112</td></tr><tr><td class="n">08/10/27→08/11/3</td><td class="n">4,367→4,995</td><td class="n"><span class="rd">+14.4%</span></td><td class="n">5</td></tr><tr><td class="n">08/11/3→08/11/20</td><td class="n">4,995→4,090</td><td class="n"><span class="gn">-18.1%</span></td><td class="n">13</td></tr><tr><td class="n">08/11/20→09/1/7</td><td class="n">4,090→4,790</td><td class="n"><span class="rd">+17.1%</span></td><td class="n">32</td></tr><tr><td class="n">09/1/7→09/1/20</td><td class="n">4,790→4,243</td><td class="n"><span class="gn">-11.4%</span></td><td class="n">9</td></tr><tr class="yl"><td class="n">09/1/20→09/6/1</td><td class="n">4,243→6,954</td><td class="n"><span class="rd">+63.9%</span></td><td class="n">83</td></tr><tr><td class="n">09/6/1→09/6/18</td><td class="n">6,954→6,145</td><td class="n"><span class="gn">-11.6%</span></td><td class="n">13</td></tr><tr class="yl"><td class="n">09/6/18→09/12/31</td><td class="n">6,145→8,188</td><td class="n"><span class="rd">+33.3%</span></td><td class="n">139</td></tr></table><div class="note">●加權指數收盤價,反向走超過 10% 才算一段。從最高 9,810 到最低 4,090 共跌 58.3%、歷時 388 天;中間那段 74 天的反彈漲了 25.5%,離高點只差 5%。</div></div></div><div class="card "><div class="ct">🗓 當時發生的事<small>台股與全球</small></div><div class="cb"><div class="flow"><div class="fbox">2007/10/29 最高收盤 9,809<small>?美國次級房貸問題已經浮現,聯準會 9 月開始降息</small></div><div class="farr">▼</div><div class="fbox">2008/1/22 單日跌 6.51%<small>●第一段 61 個交易日跌 24.5%</small></div><div class="farr">▼</div><div class="fbox">3/22 總統大選 → 5/19 反彈到 9,295<small>●74 個交易日漲 25.5%;?3 月美國貝爾斯登被收購</small></div><div class="farr">▼</div><div class="fbox hot">9/15 雷曼兄弟倒閉<small>?前一個交易日指數 6,310,已經比高點低 36%</small></div><div class="farr">▼</div><div class="fbox">9/19 國安基金進場<small>●前一日收 5,642;?9/22 起 150 檔平盤下禁空、10/1 全面禁空、跌幅限制縮到 3.5%</small></div><div class="farr">▼</div><div class="fbox hot">11/20 最低收盤 4,089<small>●國安基金進場後第 62 天,比進場前再低 27.5%;當天恐慌指數 80.9</small></div><div class="farr">▼</div><div class="fbox">2008/12 出口年減約 42%<small>?2008 第四季經濟成長率初估 −8.36%;央行 12 月一次降息 3 碼到 2%</small></div><div class="farr">▼</div><div class="fbox">2009/1/20 回測 4,243 沒破前低<small>●之後到 6/1 漲 63.9%;2009 全年漲 78.3%</small></div><div class="farr">▼</div><div class="fbox">2009/8 失業率 6.13% 創新高<small>?這時指數已經從低點漲了六成多</small></div></div></div></div><div class="card "><div class="ct">📝 從這一段學到的<small>●指數數據</small></div><div class="cb"><ul class='ck'><li class="xx">從第一次跌破 20%(2007/12/17)到最低點,又過了 <b>339 天</b>、再跌 <b>47.8%</b></li><li class="wn">最壞的經濟數字(出口年減四成、失業率最高)都出現在股市最低點<b>之後</b></li><li class="wn">見底那天是恐慌最高的一天:恐慌指數 80.9、公司債利差 5.92</li><li>最低點後一年漲 87.9%;但回到 9,809 要等到 2015 年 4 月,<b>七年半</b></li><li>台積電跌 49%(72.3→36.6),比大盤少,2010 年 12 月回到原高</li><li class="wn">2008 全年跌 3% 以上有 26 天、漲 3% 以上 16 天;最近 30 個交易日是 5 天和 2 天</li></ul></div></div></div><div class="col"><div class="card "><div class="ct">📍 現在在哪裡<small>●至 11/17 收盤</small></div><div class="cb"><div class="bignums"><div class="bn"><div class="k">高點</div><div class="v">49,823</div><div class="d">10/6 收盤</div></div><div class="bn"><div class="k">現在</div><div class="v">40,092</div><div class="d">11/17 · -19.5%</div></div><div class="bn"><div class="k">跌破 20% 花了</div><div class="v">20 天</div><div class="d">1997 年以來最快</div></div><div class="bn"><div class="k">一年前</div><div class="v">28,117</div><div class="d">現在仍高 43%</div></div></div><ul class='ck'><li class="wn">●最低收盤 39,702(11/6);之後 3 天彈 11.5%、又 4 天跌 9.4%</li><li class="wn">●費城半導體指數 6/22 見高後已跌 34.1%;那斯達克 −11.9%、標普 500 −6.1%、台積電 −16.1%</li><li>●台積電 10 月營收年增 59.7%、鴻海 45.7%、廣達 104%——營收還在成長</li><li class="wn">●全市場融資維持率 144.9%(系統推估);系統燈號 🔴 禁開新倉</li><li class="wn">?起因:11/3 美國期中選舉後市場擔心 AI 監管(11/5 費半單日跌 12%)、輝達執行長異動</li><li>?國安基金 11/6 授權第 10 次進場(5,000 億)、金管會 11/9 起限空</li></ul></div></div><div class="card "><div class="ct">📚 歷史上 11 次跌破 20%,之後的一年<small>1997 年起</small></div><div class="cb"><table><tr><th>跌破 20%</th><th>類型</th><th>最大跌幅</th><th>破 20% 後再跌</th><th>幾天見底</th><th>一年後</th></tr><tr><td class="n">1999/8</td><td>V 型</td><td class="n">-20.7%</td><td class="n">0.0%</td><td class="n">0</td><td class="n"><span class="rd">+19.3%</span></td></tr><tr><td class="n">2015/8</td><td>V 型</td><td class="n">-25.7%</td><td class="n">-4.8%</td><td class="n">3</td><td class="n"><span class="rd">+17.0%</span></td></tr><tr><td class="n">2020/3</td><td>V 型</td><td class="n">-28.7%</td><td class="n">-10.7%</td><td class="n">3</td><td class="n"><span class="rd">+65.0%</span></td></tr><tr><td class="n">2025/4</td><td>V 型</td><td class="n">-28.7%</td><td class="n">-9.6%</td><td class="n">2</td><td class="n"><span class="rd">+93.1%</span></td></tr><tr><td class="n">2004/5</td><td>打底</td><td class="n">-24.4%</td><td class="n">-3.0%</td><td class="n">79</td><td class="n"><span class="rd">+8.6%</span></td></tr><tr><td class="n">2011/8</td><td>打底</td><td class="n">-27.5%</td><td class="n">-9.3%</td><td class="n">119</td><td class="n"><span class="rd">+2.1%</span></td></tr><tr><td class="n">2022/7</td><td>打底</td><td class="n">-31.6%</td><td class="n">-11.7%</td><td class="n">116</td><td class="n"><span class="rd">+19.0%</span></td></tr><tr class=yl><td class="n">1997/12</td><td>大空頭</td><td class="n">-45.9%</td><td class="n">-32.2%</td><td class="n">403</td><td class="n"><span class="gn">-23.2%</span></td></tr><tr class=yl><td class="n">2000/6</td><td>大空頭</td><td class="n">-66.2%</td><td class="n">-57.6%</td><td class="n">461</td><td class="n"><span class="gn">-42.0%</span></td></tr><tr class=yl><td class="n">2002/6</td><td>大空頭</td><td class="n">-40.4%</td><td class="n">-24.8%</td><td class="n">107</td><td class="n"><span class="gn">-4.8%</span></td></tr><tr class=yl><td class="n">2007/12</td><td>大空頭</td><td class="n">-58.3%</td><td class="n">-47.8%</td><td class="n">339</td><td class="n"><span class="gn">-40.0%</span></td></tr><tr><td class="n">2026/11</td><td>這一次</td><td class="n">-20.3%</td><td class="n">0.0%</td><td class="n">?</td><td class="n">?</td></tr></table><div class="note">●收盤價第一次比一年內高點低 20% 算一次(第一欄是那一天的年月),「一年後」從那天起算 250 個交易日。<b>7 次一年後更高、4 次更低</b>;跌超過四成的 4 次都在 2009 年以前,2009 年以後的 5 次最深 -31.6%。跌破 20% 的速度分不出類型:以前最快的三次是 1999(32 天,V 型)、2007(35 天,金融海嘯)、2020(36 天,V 型)。</div></div></div><div class="card "><div class="ct">🛡 國安基金進場之後<small>9 次+這一次</small></div><div class="cb"><table><tr><th>進場日</th><th>事件</th><th>之後最低</th><th>幾天見底</th><th>一年後</th></tr><tr class=yl><td class="n">2000/3/16</td><td>政黨輪替</td><td class="n">-46.6%</td><td class="n">286</td><td class="n"><span class="gn">-32.9%</span></td></tr><tr class=yl><td class="n">2000/10/3</td><td>網路泡沫</td><td class="n">-42.8%</td><td class="n">365</td><td class="n"><span class="gn">-36.9%</span></td></tr><tr><td class="n">2004/5/20</td><td>319 槍擊</td><td class="n">-9.3%</td><td class="n">76</td><td class="n"><span class="rd">+0.5%</span></td></tr><tr class=yl><td class="n">2008/9/19</td><td>金融海嘯</td><td class="n">-27.5%</td><td class="n">62</td><td class="n"><span class="rd">+29.1%</span></td></tr><tr><td class="n">2011/12/21</td><td>歐債</td><td class="n">沒再破</td><td class="n">—</td><td class="n"><span class="rd">+14.6%</span></td></tr><tr><td class="n">2015/8/25</td><td>全球股災</td><td class="n">沒再破</td><td class="n">—</td><td class="n"><span class="rd">+21.5%</span></td></tr><tr><td class="n">2020/3/20</td><td>疫情</td><td class="n">沒再破</td><td class="n">—</td><td class="n"><span class="rd">+90.7%</span></td></tr><tr><td class="n">2022/7/13</td><td>升息通膨</td><td class="n">-9.2%</td><td class="n">104</td><td class="n"><span class="rd">+23.3%</span></td></tr><tr><td class="n">2025/4/9</td><td>對等關稅</td><td class="n">-5.8%</td><td class="n">0</td><td class="n"><span class="rd">+100.2%</span></td></tr><tr><td class="n">2026/11/9</td><td>這一次</td><td class="n">?</td><td class="n">?</td><td class="n">—</td></tr></table><div class="note">●以進場前一個交易日收盤為基準,看之後一年。9 次裡有 <b>3 次</b>進場後還再跌四分之一以上(2000 年兩次、2008 年),其餘 6 次進場時離低點都不到一成。進場日期取自 TechNews 2025/4/8 整理。</div></div></div><div class="card "><div class="ct">📏 照歷史跌幅換算是多少點<small>高點 49,823</small></div><div class="cb"><table><tr><th>從高點跌</th><th>換算指數</th><th>歷史樣本</th><th>上次在這價位</th></tr><tr><td class="n">-20.3%</td><td class="n">39,702</td><td>已經到過</td><td class="n">11/6 收盤</td></tr><tr><td class="n">-24.4%</td><td class="n">37,666</td><td>打底型最淺(2004)</td><td class="n">2026/4</td></tr><tr><td class="n">-28.7%</td><td class="n">35,523</td><td>V 型最深(2020、2025)</td><td class="n">2026/4</td></tr><tr><td class="n">-31.6%</td><td class="n">34,079</td><td>打底型最深(2022)</td><td class="n">2026/4</td></tr><tr><td class="n">-40.4%</td><td class="n">29,694</td><td>2002</td><td class="n">2026/1</td></tr><tr><td class="n">-45.9%</td><td class="n">26,954</td><td>1997–98</td><td class="n">2025/11</td></tr><tr><td class="n">-58.3%</td><td class="n">20,776</td><td>2008 金融海嘯</td><td class="n">2025/5</td></tr><tr><td class="n">-66.2%</td><td class="n">16,840</td><td>2000 科技泡沫</td><td class="n">2023/11</td></tr></table><div class="note">這是把歷史的跌幅比例套到這次高點,不是預測。指數一年多漲了很多,所以連 2008 那種跌幅,換算下來也只是回到 2025 年中的價位。</div></div></div></div><div class="col"><div class="card "><div class="ct">🎬 六種場景:歷史上出現過的全部走法<small>●指數數據</small></div><div class="cb"><div class="flow"><div class="fbox" style="text-align:left">① V 型:跌破 20% 幾天內就是底<small>歷史:1999/8、2015/8、2020/3、2025/4(11 次裡 4 次)</small><small>之後:最大跌幅 21~29%;一年後 +17% ~ +93%</small><small>條件:單一事件引起、政策很快轉向;低點都出現在跌破 20% 後 3 天內</small><small>現在:跌破 20% 已過 7 個交易日,收盤低點 39,702 還沒破;破了就不是這一型</small></div><div class="fbox" style="text-align:left">② 打底型:再跌一成、磨三四個月<small>歷史:2004、2011、2022(11 次裡 3 次)</small><small>之後:最大跌幅 24~32%(換算 37,666 ~ 34,079);79~119 天見底;一年後 +2% ~ +19%</small><small>條件:景氣放慢、利率或庫存調整,但沒有金融機構出事</small><small>現在:信用指標平靜、營收仍成長,符合「沒有金融機構出事」</small></div><div class="fbox hot" style="text-align:left">③ 科技泡沫型(2000–2001)<small>歷史:2000/2 高點 10,202 → 2001/10 最低 3,446</small><small>之後:跌 66%(換算 16,840);跌破 20% 後再跌 58%、歷時 461 天;17 年後才回到高點</small><small>條件:科技支出反轉、訂單與營收衰退;起跌時信用指標是平靜的</small><small>現在:費半高點是 2022 低點的 6.8 倍(2000 年是 1998 低點的 7.0 倍)、已跌 34%;但營收還沒轉弱</small></div><div class="fbox hot" style="text-align:left">④ 金融海嘯型(2008)<small>歷史:2007/10 高點 9,809 → 2008/11 最低 4,089</small><small>之後:跌 58%(換算 20,776);跌破 20% 後再跌 48%、歷時 339 天;一年後 −40%</small><small>條件:信用市場先出事:公司債利差升到 3 以上、金融情勢指數轉正、大型金融機構倒閉</small><small>現在:公司債利差 1.50、金融情勢指數 −0.46,都沒有訊號</small></div><div class="fbox" style="text-align:left">⑤ 匯率/區域金融風暴型(1997–1998)<small>歷史:1997/8 高點 10,116 → 1999/2 最低 5,474</small><small>之後:跌 46%(換算 26,954);跌破 20% 後再跌 32%、歷時 403 天;一年後 −23%</small><small>條件:資金外逃、匯率急貶、本土企業與金融機構接連出事</small><small>現在:美元兌台幣 10/6 以來 31.75 → 32.9,六週貶約 3.5%</small></div><div class="fbox" style="text-align:left">⑥ 空頭第二段(2002)<small>歷史:2001/10 見底反彈 87% 後,2002/4 → 10 再跌 40%</small><small>之後:換算 29,694;跌破 20% 後再跌 25%、107 天;一年後 −5%</small><small>條件:大空頭見底後的反彈結束、景氣二次探底</small><small>現在:要先走完 ③ 或 ④ 才輪得到</small></div></div></div></div><div class="card "><div class="ct">🔎 用哪些數字分辨是哪一種<small>●FRED,至 11/17</small></div><div class="cb"><table><tr><th>指標</th><th>2000/2 高點</th><th>2007/10 高點</th><th>2008/1</th><th>雷曼前</th><th>2008 最低</th><th>現在</th></tr><tr><td>公司債利差</td><td class="n">1.75</td><td class="n">1.98</td><td class="n">2.98</td><td class="n">3.43</td><td class="n">5.92</td><td class="n yl">1.5</td></tr><tr><td>金融情勢指數</td><td class="n">-0.2</td><td class="n">0.03</td><td class="n">0.44</td><td class="n">1.25</td><td class="n">3.01</td><td class="n yl">-0.46</td></tr><tr><td>恐慌指數 VIX</td><td class="n">23.2</td><td class="n">19.9</td><td class="n">31</td><td class="n">25.7</td><td class="n">80.9</td><td class="n yl">22.9</td></tr><tr><td>美國失業率%</td><td class="n">4.1</td><td class="n">4.7</td><td class="n">5</td><td class="n">6.1</td><td class="n">6.8</td><td class="n yl">4.1</td></tr><tr><td>美國基準利率%</td><td class="n">5.66</td><td class="n">4.84</td><td class="n">3.68</td><td class="n">2.1</td><td class="n">0.49</td><td class="n yl">3.88</td></tr></table><ul class='ck'><li><b>公司債利差</b>(美國 Baa 級公司債殖利率減 10 年公債):企業借錢比政府貴多少。升到 3 以上才是 2008 那條路,現在 1.50</li><li><b>金融情勢指數</b>(芝加哥聯準銀行編):正值代表資金變緊。2008/1 已經轉正,現在 −0.46</li><li class="wn">這兩個數字只能排除 2008 型。2000 年起跌時兩個都很平靜,所以<b>排除不了科技泡沫型</b></li><li class="wn">分辨科技泡沫型要看營收:台積電與 AI 伺服器廠的月營收年增率有沒有掉下來(每月 10 日前公布)</li><li class="wn">分辨 V 型要看 39,702(11/6 收盤低點)有沒有被收盤跌破</li></ul></div></div><div class="card "><div class="ct">⚖️ 跟 2008 比</div><div class="cb"><ul class='ck'><li>不一樣:2008 是房貸與銀行出事,這次是 AI/半導體股與政治事件,信用市場沒有反應</li><li>不一樣:2008 年出口年減四成;現在台積電月營收年增五成以上</li><li class="xx">一樣:政府同樣出手護盤。2008 年國安基金進場後 62 天才見底,又跌了 27.5%</li><li class="xx">一樣:急跌之後有很強的反彈。2008 年那段反彈漲了 25.5% 才開始主跌段</li><li class="wn">更快:2008 年第一段花 61 個交易日跌 24.5%,這次 20 個交易日跌 20.3%</li></ul></div></div><div class="card risk"><div class="ct">⚠️ 這張海報的限制</div><div class="cb"><ul class='ck'><li class="wn">樣本只有 11 次(1997 年 7 月起);1990 年 12,682 → 2,485 那一次不在資料裡</li><li class="wn">標 ? 的事件日期與數字(雷曼、禁空、降息、出口、失業率、這次起因、國安基金)來自記憶或新聞摘要,沒有逐條開原文</li><li class="wn">沒查:美國私募信貸與 AI 資本支出的舉債狀況、台灣銀行與壽險的曝險、2008 年的融資餘額與外資賣超金額</li><li class="wn">高收益債利差 FRED 只提供近三年,2008 的對照改用 Baa 公司債利差</li><li class="wn">這是歷史對照,不是預測,也不是買賣建議</li></ul></div></div></div></div>

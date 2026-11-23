@@ -4,7 +4,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
   color:#1c2733;line-height:1.5;font-size:14px}
-.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
 .hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
   border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
@@ -65,10 +65,129 @@ td.n{font-family:Arial;font-weight:800}
 .risk ul.ck li::before{content:"⚠";color:#c0392b}
 .note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
 .ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
 </style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
 
-<div class="wrap">
+<div class="wrap k-group" data-kind="group">
 <div class="hd"><div><h1>資訊安全<b>族群</b>總整理</h1><div class="sub">純資安掛牌只有四家——11/16 大盤重挫那天,系統有價量的三家都漲停;硬體和晶片那一段跟著大盤跌</div></div>
 <div class="brand"><span class="bx">資安鏈</span><br>TW·BACKTEST 深度研究</div></div>
 <div class="grid"><div class="col"><div class="card grow"><div class="ct">結論(重點先看)<small>●=開過原文 ?=只看到摘要</small></div><div class="cb"><ul class='ck'><li>11/16 大盤 <span class="dn2">▼6.03%</span>(-2,635 點),<b>純資安逆勢</b>:中華資安 +9.8%、安碁資訊 +9.9%、全景軟體 +9.2%;三檔近 5 日 +25%~+37%</li><li>不是今天才開始:安碁 11 月中已在一年新高,全景軟體 20 日漲幅最大——純資安近 20 日 +26%~+93%</li><li class="xx"><b>同一個「資安概念」兩種走勢</b>:漲的是服務與軟體;硬體平台今天 -8%~-6%、安全晶片 -10%~-8%</li><li class="wn">?題材(媒體說法,我只看到摘要):銀行遭駭與帳戶盜用事件、微軟當機;政府研議擴大資安法納管範圍;AI 伺服器出貨延後,資金轉到軟體與資服</li><li class="wn">營收沒有跟著跳:中華資安近 3 月年增 23%、安碁 8%、全景 9%——一週漲兩三成是評價在動</li><li class="xx">今天三檔的量是 20 日均量的 <b>3.6~9.3 倍</b>且漲停:系統家規這是「爆量後禁入」的窗;大盤燈號 🔴(禁開新倉、只出不進)</li></ul></div></div><div class="card "><div class="ct">純資安:服務商與自有產品</div><div class="cb"><table><tr><th>公司</th><th>資安占營收</th><th>近3月營收</th><th>今日</th></tr><tr><td><b>中華資安</b> 7765<br><small>資安檢測、監控、顧問;中華電信子公司</small></td><td>● 約 100%;毛利率 43%</td><td class="n"><span class="up2">▲23%</span><br><small>前3月 +7% 🟡</small></td><td class="n"><span class="up2">▲9.8%</span><br><small>5 日 +25%、20 日 +26%<br>量 3.6 倍</small></td></tr><tr><td><b>安碁資訊</b> 6690<br><small>資安監控中心、檢測;宏碁集團</small></td><td>● 未揭露,本業即資安;毛利率 42%</td><td class="n"><span class="up2">▲8%</span><br><small>前3月 +9% 🟡</small></td><td class="n"><span class="up2">▲9.9%</span><br><small>5 日 +25%、20 日 +30%<br>量 9.3 倍</small></td></tr><tr><td><b>全景軟體</b> 8272<br><small>身分認證、加密的自有軟體</small></td><td>? 約八成;毛利率 68%</td><td class="n"><span class="up2">▲9%</span><br><small>前3月 -9% 🟡</small></td><td class="n"><span class="up2">▲9.2%</span><br><small>5 日 +37%、20 日 +93%<br>量 6.4 倍</small></td></tr><tr><td><b>奧義賽博-KY</b> 7823<br><small>AI 資安軟體,九成訂閱</small></td><td>● 約 100%;毛利率 79%,本業虧損</td><td class="n"><small>系統無資料</small></td><td class="n"><small>系統無價量</small></td></tr></table><div class="note">真正做資安的掛牌公司很少:數聯、TeamT5、池安、熵碼等 14 家沒掛牌,只能透過母公司碰到。奧義在台灣創新板(7823),系統還沒有它的價量。</div></div></div></div><div class="col"><div class="card "><div class="ct">11/16 被媒體列為資安、資服的漲停股</div><div class="cb"><table><tr><th>公司</th><th>今日</th><th>5 日</th><th>20 日</th><th>量(倍)</th></tr><tr><td><b>東捷資訊</b> 6697</td><td class="n"><span class="up2">▲9.9%</span></td><td class="n">+56%</td><td class="n">+114%</td><td class="n">1.2</td></tr><tr><td><b>仁大資訊</b> 7767</td><td class="n"><span class="up2">▲9.9%</span></td><td class="n">+37%</td><td class="n">+44%</td><td class="n">3.2</td></tr><tr><td><b>偉康科技</b> 6865</td><td class="n"><span class="up2">▲9.9%</span></td><td class="n">+39%</td><td class="n">+51%</td><td class="n">3.7</td></tr><tr><td><b>叡揚</b> 6752</td><td class="n"><span class="up2">▲9.7%</span></td><td class="n">+17%</td><td class="n">+6%</td><td class="n">8.4</td></tr><tr><td><b>驊宏資</b> 6148</td><td class="n"><span class="up2">▲10.0%</span></td><td class="n">+45%</td><td class="n">+52%</td><td class="n">1.0</td></tr><tr><td><b>華經</b> 2468</td><td class="n"><span class="up2">▲10.0%</span></td><td class="n">+29%</td><td class="n">+60%</td><td class="n">0.3</td></tr><tr><td><b>資通</b> 2471</td><td class="n"><span class="up2">▲10.0%</span></td><td class="n">+50%</td><td class="n">+54%</td><td class="n">3.8</td></tr><tr><td><b>智聯服務</b> 6751</td><td class="n"><span class="up2">▲9.7%</span></td><td class="n">+42%</td><td class="n">+107%</td><td class="n">1.3</td></tr></table><div class="note"><b>這幾家我沒查過資安占營收多少</b>,多數是資訊服務公司。媒體另外點名藍新資訊(6938),系統沒有這一檔。</div></div></div><div class="card "><div class="ct">硬體平台:替國際資安大廠做設備</div><div class="cb"><table><tr><th>公司</th><th>資安占營收</th><th>近3月營收</th><th>今日</th></tr><tr><td><b>其陽</b> 3564<br><small>防火牆等網路安全設備的硬體代工</small></td><td>● 86%;毛利率 31%</td><td class="n"><span class="up2">▲46%</span><br><small>前3月 +39% 🟡</small></td><td class="n"><span class="dn2">▼8.4%</span><br><small>5 日 +0%、20 日 -25%<br>量 0.5 倍</small></td></tr><tr><td><b>瑞祺電通</b> 6416<br><small>網路安全硬體平台</small></td><td>? 74%(期間不明);毛利率 24%</td><td class="n"><span class="up2">▲91%</span><br><small>前3月 +50% 🟡</small></td><td class="n"><span class="dn2">▼5.8%</span><br><small>5 日 +4%、20 日 -12%<br>量 2.0 倍</small></td></tr><tr><td><b>立端</b> 6245<br><small>網路安全硬體平台</small></td><td>? 約 74%(舊資料);毛利率 28%</td><td class="n"><span class="up2">▲21%</span><br><small>前3月 +43% 🟡</small></td><td class="n"><span class="dn2">▼7.5%</span><br><small>5 日 +0%、20 日 -4%<br>量 0.9 倍</small></td></tr></table><div class="note">毛利率 24~31%,跟的是防火牆設備的換機週期,不是台灣的資安事件。</div></div></div><div class="card "><div class="ct">代理與整合:資安只是一部分</div><div class="cb"><table><tr><th>公司</th><th>資安占營收</th><th>近3月營收</th><th>今日</th></tr><tr><td><b>零壹</b> 3029<br><small>資安與網路設備代理</small></td><td>● 48%(含網路設備);毛利率 11%</td><td class="n"><span class="up2">▲58%</span><br><small>前3月 +33% 🔴</small></td><td class="n"><span class="dn2">▼5.8%</span><br><small>5 日 +14%、20 日 +8%<br>量 2.6 倍</small></td></tr><tr><td><b>邁達特</b> 6112<br><small>資訊產品代理、雲端服務</small></td><td>● 5.4%</td><td class="n"><span class="up2">▲17%</span><br><small>前3月 +9% 🟡</small></td><td class="n"><span class="dn2">▼1.9%</span><br><small>5 日 +9%、20 日 +16%<br>量 4.6 倍</small></td></tr><tr><td><b>華電網</b> 6163<br><small>系統整合</small></td><td>● 6.5%</td><td class="n"><span class="up2">▲87%</span><br><small>前3月 +53% 🔴</small></td><td class="n"><span class="dn2">▼1.1%</span><br><small>5 日 +18%、20 日 -4%<br>量 5.8 倍</small></td></tr><tr><td><b>精誠</b> 6214<br><small>資訊服務龍頭</small></td><td>? 未揭露</td><td class="n"><span class="up2">▲46%</span><br><small>前3月 +52% 🟡</small></td><td class="n"><span class="up2">▲4.7%</span><br><small>5 日 +5%、20 日 -5%<br>量 1.5 倍</small></td></tr><tr><td><b>敦陽科</b> 2480<br><small>系統整合</small></td><td>? 未揭露</td><td class="n"><span class="up2">▲48%</span><br><small>前3月 +18% 🟡</small></td><td class="n"><span class="dn2">▼2.8%</span><br><small>5 日 +13%、20 日 +1%<br>量 1.5 倍</small></td></tr></table></div></div><div class="card "><div class="ct">安全晶片:安全功能是產品特性,拆不出營收</div><div class="cb"><table><tr><th>公司</th><th>今日</th><th>5 日</th><th>20 日</th><th>量(倍)</th></tr><tr><td><b>信驊</b> 5274</td><td class="n"><span class="dn2">▼10.0%</span></td><td class="n">-8%</td><td class="n">-34%</td><td class="n">0.7</td></tr><tr><td><b>新唐</b> 4919</td><td class="n"><span class="dn2">▼9.1%</span></td><td class="n">-1%</td><td class="n">-30%</td><td class="n">0.9</td></tr><tr><td><b>力旺</b> 3529</td><td class="n"><span class="dn2">▼8.1%</span></td><td class="n">+7%</td><td class="n">-22%</td><td class="n">1.3</td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">需求誰在推</div><div class="cb"><table><tr><th>推力</th><th>內容</th></tr>

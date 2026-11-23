@@ -4,7 +4,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
   color:#1c2733;line-height:1.5;font-size:14px}
-.wrap{max-width:1180px;margin:0 auto;padding:10px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
 .hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
   border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
@@ -65,10 +65,129 @@ td.n{font-family:Arial;font-weight:800}
 .risk ul.ck li::before{content:"⚠";color:#c0392b}
 .note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
 .ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
 </style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
 
-<div class="wrap">
+<div class="wrap k-stock" data-kind="stock">
 <div class="hd"><div><h1>時碩工業<b>(4566)</b>分點庫存</h1><div class="sub">永豐金-板新對上了董事兼大股東丁凌全:他每月申報的持股變動,和板新當月淨買賣幾乎一張不差;他 10 月底持股 13,888 張、全部設質。2024 年那批「來源不明」的賣壓,對得上可轉債轉換</div></div>
 <div class="brand"><span class="bx">時碩工業 分點</span><br>TW·BACKTEST 深度研究</div></div>
 <div class="grid"><div class="col"><div class="card "><div class="ct">📌 結論</div><div class="cb"><ul class='ck'><li>●<b>永豐金-板新 = 丁凌全的主要帳戶</b>(數字比對):申報持股 2021/1 增 3,599 張、板新當月淨買 3,593;2025/11 增 580、板新 576;2026/3 增 1,223、板新 1,221;2026/6 增 365、板新 367(完整對照見下表)</li><li class="xx">●丁凌全 2020/12 才第一次出現在申報名單(6,751 張),2026/10 持股 <b>13,888 張、設質 13,888 張(100%)</b>。股價三週跌 31%;質押的股票跌價會被要求補擔保品,他的質押價位與成數查不到</li><li class="wn">●<b>董監質押全部是丁凌全一個人的</b>:董事長劉祖英、董事兼總經理黃亞興質押 0、持股多年沒動。丁凌全每次加碼後都把新買的也押進去(未質押 2025/9 有 1,164 張 → 12 月 0 張;2026/6 有 1,165 張 → 7 月 0 張),是借錢加碼;現在沒有多餘的股票可以補擔保</li><li><b>「板新轉到嘉義去賣」不成立</b>:丁凌全的申報持股 2021 年以來只有兩個月減少(2022/1 少 73 張、2023/2 少 10 張),永豐金-嘉義掛牌以來淨賣的 977 張不可能來自他。板新 10/7 高點 13,712 張後也只淨賣 223 張</li><li class="wn"><b>永豐金-嘉義比較像融券放空的人</b>:2024/5/31 賣 341 張(當天全市場融券賣出 673 張);2026/11/10~11 賣 160 張(融券賣出 259 張),11/16~17 融券「現券償還」243 張,11/6、11/13 兩週集保總股數約多了 420 張(用占比反推)。時間對得上「先放空、再拿可轉債換來的股票還」;分點別的融券不公開,無法證實</li><li>●<b>2024 年 6~7 月那批來源不明的賣壓,大部分是可轉債</b>:融券餘額從 5/24 的 461 張堆到 6/27 的 13,661 張,6/27 股東會開完,6/28 起五個交易日現券償還 11,166 張;8/12 公告第二季可轉債換出 11,191 張新股,兩個數字只差 25 張。?股東會前停止過戶期間不能轉換,是一般可轉債的規定,時碩的轉換辦法我沒讀</li><li class="xx"><b>國票-敦北法人 2024/6/18 淨賣 2,497 張,四樣都對不上</b>:●6 月內部人申報只減 137 張(劉光弘 99、張仰欽 20、詹前偉 18)、●當天沒有鉅額交易、●全市場融券賣出只有 595 張、●借券賣出 1 張。賣的是現股,持有人不在申報名單上,是誰查不到</li><li>最近三週(10/29 起)賣最多的摩根士丹利、元大-天母、兆豐-台南、野村,賣之前自己的累計都夠——是 7/20~10/28 買的貨,用不到匯撥來解釋</li></ul></div></div><div class="card "><div class="ct">🪪 內部人申報 × 分點<small>月報到 2026/10</small></div><div class="cb"><div><b>丁凌全</b> 對 <b>永豐金-板新</b>:持股變動 ≥50 張的 11 個月裡,8 個月和分點當月淨買賣相差不到 10%</div><table><tr><th>月份</th><th>申報持股變動</th><th>分點當月淨買賣</th></tr><tr><td class="n">2021/01</td><td class="n">+3,599</td><td class="n">+3,593</td></tr><tr><td class="n">2021/02</td><td class="n">+850</td><td class="n">+857</td></tr><tr><td class="n">2021/03</td><td class="n">+110</td><td class="n">+166</td></tr><tr><td class="n">2021/04</td><td class="n">+152</td><td class="n">+163</td></tr><tr><td class="n">2022/01</td><td class="n">-73</td><td class="n">+20</td></tr><tr><td class="n">2022/08</td><td class="n">+133</td><td class="n">+118</td></tr><tr><td class="n">2025/10</td><td class="n">+97</td><td class="n">+94</td></tr><tr><td class="n">2025/11</td><td class="n">+580</td><td class="n">+576</td></tr><tr><td class="n">2026/01</td><td class="n">+100</td><td class="n">+101</td></tr><tr><td class="n">2026/03</td><td class="n">+1,223</td><td class="n">+1,221</td></tr><tr><td class="n">2026/06</td><td class="n">+365</td><td class="n">+367</td></tr></table><div><b>致伸科技股份有限公司</b> 對 <b>永豐金-內湖</b>:持股變動 ≥50 張的 6 個月裡,4 個月和分點當月淨買賣相差不到 10%</div><table><tr><th>月份</th><th>申報持股變動</th><th>分點當月淨買賣</th></tr><tr><td class="n">2018/10</td><td class="n">-149</td><td class="n">-153</td></tr><tr><td class="n">2019/01</td><td class="n">-120</td><td class="n">-130</td></tr><tr><td class="n">2019/02</td><td class="n">-126</td><td class="n">-162</td></tr><tr><td class="n">2019/03</td><td class="n">-194</td><td class="n">-208</td></tr><tr><td class="n">2019/04</td><td class="n">-198</td><td class="n">-198</td></tr><tr><td class="n">2019/05</td><td class="n">-1,944</td><td class="n">-59</td></tr></table><table><tr><th>內部人</th><th>持股</th><th>設質</th><th>設質比</th></tr><tr><td>丁凌全<br><small>董事本人</small></td><td class="n">13,888</td><td class="n">13,888</td><td class="n rd">100%</td></tr><tr><td>黃亞興<br><small>董事本人</small></td><td class="n">6,227</td><td class="n">0</td><td class="n">0%</td></tr><tr><td>劉祖英<br><small>董事長本人</small></td><td class="n">3,227</td><td class="n">0</td><td class="n">0%</td></tr><tr><td>劉光弘<br><small>總經理本人</small></td><td class="n">1,910</td><td class="n">806</td><td class="n">42%</td></tr><tr><td>張仰欽<br><small>協理本人</small></td><td class="n">110</td><td class="n">0</td><td class="n">0%</td></tr></table><div class="note">●公開資訊觀測站「董監事持股餘額明細」逐月原始申報(張)。分點日報不列客戶姓名,這是數字比對;每月 15 日前申報上個月,最近一個月還看不到。</div></div></div><div class="card "><div class="ct">🎟 權證</div><div class="cb"><ul class='ck'><li class="wn">系統權證對照表(43,355 筆)裡,以 時碩工業 為標的的權證有 <b>0</b> 檔——這檔沒有權證可以對照</li><li>有權證的股票做得到:同一個來源也查得到每檔權證的分點買賣,可以把「買股票的分點」和「買權證的分點」放在一起看</li></ul></div></div></div><div class="col"><div class="card "><div class="ct">❓ 匯撥看不看得出來</div><div class="cb"><ul class='ck'><li class="xx"><b>匯撥本身看不到</b>。匯撥是把股票從一個帳戶轉到另一個帳戶,不是買賣,分點日報只記買賣</li><li><b>算得出來的是「庫存對不上」</b>:一個分點賣出的張數,超過它掛牌以來在這裡買進的張數,代表貨是從別處來的</li><li class="wn">但「別處」有五種:掛牌前的原始股、配股、可轉債轉換、匯撥轉入、融券借券。這張表分不出來</li><li>要再縮小範圍,就拿原始申報來對:內部人每月申報的持股、增資基準日公告(可轉債轉換)、融券的現券償還——「內部人申報 × 分點」和「新股從哪來」兩張表就是</li><li class="wn">反過來也一樣:累計很多的分點,股票可能已經轉走了,從分點資料看不到</li></ul></div></div><div class="card "><div class="ct">📦 累計庫存最多的 10 個分點<small>2018/02 ~ 11/17</small></div><div class="cb"><table><tr><th>分點</th><th>買</th><th>賣</th><th>累計</th><th>占股本</th><th>10/29~11/17</th></tr><tr><td>永豐金-板新</td><td class="n">20,377</td><td class="n">6,888</td><td class="n rd">+13,489</td><td class="n">12.2%</td><td class="n">-12</td></tr><tr><td>美商高盛</td><td class="n">70,343</td><td class="n">67,146</td><td class="n rd">+3,197</td><td class="n">2.9%</td><td class="n">+1,632</td></tr><tr><td>群益金鼎</td><td class="n">24,306</td><td class="n">21,750</td><td class="n rd">+2,556</td><td class="n">2.3%</td><td class="n">+11</td></tr><tr><td>國票-內壢</td><td class="n">3,496</td><td class="n">2,496</td><td class="n rd">+1,000</td><td class="n">0.9%</td><td class="n">-25</td></tr><tr><td>摩根大通</td><td class="n">51,690</td><td class="n">50,837</td><td class="n rd">+853</td><td class="n">0.8%</td><td class="n">-3</td></tr><tr><td>國泰-敦南</td><td class="n">49,759</td><td class="n">48,951</td><td class="n rd">+808</td><td class="n">0.7%</td><td class="n">-46</td></tr><tr><td>統一</td><td class="n">27,674</td><td class="n">26,930</td><td class="n rd">+744</td><td class="n">0.7%</td><td class="n">-7</td></tr><tr><td>台灣摩根士丹利</td><td class="n">35,465</td><td class="n">34,849</td><td class="n rd">+616</td><td class="n">0.6%</td><td class="n">-839</td></tr><tr><td>港商麥格理</td><td class="n">602</td><td class="n">50</td><td class="n rd">+552</td><td class="n">0.5%</td><td class="n">0</td></tr><tr><td>元大-歸仁</td><td class="n">2,561</td><td class="n">2,010</td><td class="n rd">+551</td><td class="n">0.5%</td><td class="n">+2</td></tr></table><div class="note">累計=掛牌以來買進減賣出(張)。買和賣都很大、累計很小的(外資、總公司)是來回交易;買很多、賣很少的才是真的抱著。</div></div></div><div class="card "><div class="ct">🔍 永豐金-板新:逐年<small>庫存第一名</small></div><div class="cb"><table><tr><th>年</th><th>買</th><th>賣</th><th>淨</th><th>年底累計</th></tr><tr><td class="n">2018</td><td class="n">95</td><td class="n">96</td><td class="n">-1</td><td class="n">-1</td></tr><tr><td class="n">2019</td><td class="n">252</td><td class="n">250</td><td class="n">+2</td><td class="n">1</td></tr><tr class=yl><td class="n">2020</td><td class="n">6,546</td><td class="n">383</td><td class="n">+6,163</td><td class="n">6,164</td></tr><tr class=yl><td class="n">2021</td><td class="n">5,382</td><td class="n">562</td><td class="n">+4,820</td><td class="n">10,984</td></tr><tr><td class="n">2022</td><td class="n">553</td><td class="n">230</td><td class="n">+323</td><td class="n">11,307</td></tr><tr><td class="n">2023</td><td class="n">583</td><td class="n">729</td><td class="n">-146</td><td class="n">11,161</td></tr><tr><td class="n">2024</td><td class="n">3,057</td><td class="n">3,069</td><td class="n">-12</td><td class="n">11,149</td></tr><tr><td class="n">2025</td><td class="n">1,113</td><td class="n">456</td><td class="n">+657</td><td class="n">11,806</td></tr><tr class=yl><td class="n">2026</td><td class="n">2,796</td><td class="n">1,113</td><td class="n">+1,683</td><td class="n">13,489</td></tr></table><div class="note">單日最大的 6 筆:2020/12/21 +1,011、2020/12/25 +666、2020/12/30 +1,143、2020/12/31 +2,326、2021/01/20 +1,380、2026/03/18 +698</div></div></div><div class="card "><div class="ct">🗂 接下來可以逐一研究的分點</div><div class="cb"><table><tr><th>分點</th><th>看到什麼</th></tr><tr><td><b>國票-敦北法人</b></td><td>只在 2024 年活躍(買 8,077、賣 11,348 張)。下一步:年報前十大股東 2023 對 2024,看哪個不用申報的法人股東少了</td></tr><tr><td><b>永豐金-嘉義</b></td><td>12 月中看 11 月內部人月報;2027 年 3 月的增資基準日公告會結第四季轉換張數,對 11/10~11 那 160 張</td></tr><tr><td><b>凱基-城中</b></td><td>2024 第二季淨賣最多的第二名,和敦北法人同一段;2024/6/7 賣 1,497 張、6/17 買回 1,429 張</td></tr><tr><td><b>永豐金-內湖</b></td><td>●已對上:法人股東致伸科技 2018/10~2019/4 申報減少的 6 個月裡,4 個月和這個分點的淨賣吻合</td></tr><tr><td><b>群益金鼎(總公司)</b></td><td>2024/6/6 單日買 2,122 張、8/8 賣 1,091 張,累計還有 2,556 張</td></tr><tr><td><b>美商高盛</b></td><td>今年淨買 3,933 張,最近三週還買 1,632 張,是這波下跌最大的買方</td></tr><tr><td><b>凱基-汐止</b></td><td>掛牌以來淨賣約 4,800 張,年年都在賣,像原始股東的出貨點</td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">📤 賣的比買的多:貨不是在這裡買的<small>2018/02 ~ 11/17</small></div><div class="cb"><table><tr><th>分點</th><th>買</th><th>賣</th><th>累計</th><th>賣最多的一年</th></tr><tr><td>凱基-城中</td><td class="n">8,842</td><td class="n">14,084</td><td class="n gn">-5,242</td><td class="n">2024 年 -2,600</td></tr><tr><td>凱基-汐止</td><td class="n">4,974</td><td class="n">9,778</td><td class="n gn">-4,804</td><td class="n">2019 年 -1,454</td></tr><tr><td>元大證券</td><td class="n">128,400</td><td class="n">132,654</td><td class="n gn">-4,254</td><td class="n">2021 年 -1,981</td></tr><tr><td>國票-敦北法人</td><td class="n">9,665</td><td class="n">13,296</td><td class="n gn">-3,631</td><td class="n">2024 年 -3,271</td></tr><tr><td>台新-敦南</td><td class="n">6,534</td><td class="n">9,005</td><td class="n gn">-2,471</td><td class="n">2022 年 -1,103</td></tr><tr><td>凱基-市府</td><td class="n">1,903</td><td class="n">3,695</td><td class="n gn">-1,792</td><td class="n">2024 年 -1,710</td></tr><tr><td>凱基</td><td class="n">6,637</td><td class="n">8,418</td><td class="n gn">-1,781</td><td class="n">2026 年 -510</td></tr><tr><td>兆豐-板橋</td><td class="n">1,705</td><td class="n">3,180</td><td class="n gn">-1,475</td><td class="n">2023 年 -1,141</td></tr><tr><td>永豐金-內湖</td><td class="n">7,167</td><td class="n">8,566</td><td class="n gn">-1,399</td><td class="n">2021 年 -426</td></tr><tr><td>華南永昌-台中</td><td class="n">5,953</td><td class="n">7,291</td><td class="n gn">-1,338</td><td class="n">2022 年 -843</td></tr><tr><td>富邦-敦南</td><td class="n">8,272</td><td class="n">9,502</td><td class="n gn">-1,230</td><td class="n">2024 年 -879</td></tr><tr><td>永豐金-嘉義</td><td class="n">3,965</td><td class="n">4,942</td><td class="n gn">-977</td><td class="n">2024 年 -655</td></tr></table><div class="note">累計 −400 張以下的分點有 <b>27</b> 個,合計 -39,986 張(約占股本 36%)。這些股票的來源只可能是:掛牌前的原始股、配股、可轉債轉換、從別的帳戶匯撥進來、融券或借券。<b>分點資料分不出是哪一種</b>。</div></div></div><div class="card "><div class="ct">🔁 新股從哪來:可轉債轉換 × 融券還券<small>張</small></div><div class="cb"><table><tr><th>轉換的那一季</th><th>新股</th><th>融券賣出</th><th>現券償還</th><th>同期淨賣最多的分點</th></tr><tr><td class="n">2019 Q1<br><small>2019/05/14 公告</small></td><td class="n rd">608</td><td class="n">—</td><td class="n">—</td><td>凱基-汐止 -716、永豐金-內湖 -528、國泰證券 -309</td></tr><tr><td class="n">2021 Q1<br><small>2021/05/13 公告</small></td><td class="n rd">3,983</td><td class="n">—</td><td class="n">—</td><td>元大證券 -1,939、凱基-城中 -1,267、台新-敦南 -902</td></tr><tr><td class="n">2022 Q3<br><small>2022/11/08 公告</small></td><td class="n rd">4,771</td><td class="n">—</td><td class="n">—</td><td>元大證券 -767、台新-敦南 -704、華南永昌-台中 -670</td></tr><tr><td class="n">2022 Q4<br><small>2023/03/23 公告</small></td><td class="n rd">4,491</td><td class="n">—</td><td class="n">—</td><td>凱基-台北 -602、台新-敦南 -441、新加坡商瑞銀 -382</td></tr><tr><td class="n">2023 Q1<br><small>2023/05/11 公告</small></td><td class="n rd">1,383</td><td class="n">906</td><td class="n">638</td><td>華南永昌-台中 -394、永豐金-板新 -279、元大證券 -263</td></tr><tr><td class="n">2023 Q3<br><small>2023/11/09 公告</small></td><td class="n rd">8,405</td><td class="n">1,315</td><td class="n">2,367</td><td>美商高盛 -486、元大-敦化 -439、美林 -352</td></tr><tr><td class="n">2024 Q2<br><small>2024/08/12 公告</small></td><td class="n rd">11,191</td><td class="n">15,822</td><td class="n">11,444</td><td>國票-敦北法人 -3,111、凱基-城中 -1,678、富邦-敦南 -751</td></tr><tr><td class="n">2024 Q3<br><small>2024/11/11 公告</small></td><td class="n rd">6,337</td><td class="n">5,326</td><td class="n">1,754</td><td>港商法國興業(停) -1,168、元大-內湖 -939、凱基-市府 -913</td></tr><tr><td class="n">2024 Q4<br><small>2025/03/13 公告</small></td><td class="n rd">898</td><td class="n">1,342</td><td class="n">414</td><td>凱基-台北 -1,200、新加坡商瑞銀 -999、美林 -732</td></tr></table><div class="note">●增資基準日公告(公開資訊觀測站),掛牌以來新股合計:可轉債轉換 42,387 張、員工認股 1,720 張、其他 0 張。只列單次 500 張以上的;公告結的是前一季申請轉換的股數,融券與分點也取那一季(往後移 7 天,等股票入帳)。<b>現券償還</b>=拿手上的股票去還融券,不算買進——先融券放空、再用可轉債換來的股票還,分點上就只看得到賣、看不到買回。融券資料從 2023 年起。</div></div></div><div class="card "><div class="ct">🧾 最近賣的人,賣的是不是自己買的<small>最近 14 個交易日</small></div><div class="cb"><table><tr><th>分點</th><th>10/29~11/17 淨賣</th><th>賣之前的累計</th><th>判定</th></tr><tr><td>台灣摩根士丹利</td><td class="n gn">-839</td><td class="n">+1,455</td><td>自己的庫存</td></tr><tr><td>元大-天母</td><td class="n gn">-588</td><td class="n">+667</td><td>自己的庫存</td></tr><tr><td>兆豐-台南</td><td class="n gn">-256</td><td class="n">+316</td><td>自己的庫存</td></tr><tr><td>港商野村</td><td class="n gn">-213</td><td class="n">+232</td><td>自己的庫存</td></tr><tr class=yl><td>元大證券</td><td class="n gn">-201</td><td class="n">-4,053</td><td>庫存不夠</td></tr><tr class=yl><td>永豐金-嘉義</td><td class="n gn">-168</td><td class="n">-809</td><td>庫存不夠</td></tr><tr><td>統一-松江</td><td class="n gn">-118</td><td class="n">+129</td><td>自己的庫存</td></tr><tr><td>元大-館前</td><td class="n gn">-117</td><td class="n">+139</td><td>自己的庫存</td></tr><tr class=yl><td>台新</td><td class="n gn">-117</td><td class="n">-155</td><td>庫存不夠</td></tr><tr class=yl><td>富邦-陽明</td><td class="n gn">-114</td><td class="n">+92</td><td>庫存不夠</td></tr><tr class=yl><td>永豐金-敦南</td><td class="n gn">-111</td><td class="n">-40</td><td>庫存不夠</td></tr><tr><td>台新-台中</td><td class="n gn">-110</td><td class="n">+159</td><td>自己的庫存</td></tr></table><div class="note">「庫存不夠」= 賣出的張數超過這個分點掛牌以來的累計。前 12 名賣方裡有 <b>5</b> 個。同期買最多:美商高盛 +1,632、凱基-台北 +556、新光 +164、元大-成功 +115。</div></div></div><div class="card risk"><div class="ct">⚠️ 限制</div><div class="cb"><ul class='ck'><li class="wn">分點名單來自各年與近期的買賣超前 15 名,共 170 個;從沒排進前 15 的小分點沒有算到</li><li class="wn">同一個分點有很多客戶,累計是全部客戶加總,不等於一個人</li><li class="wn">總公司與外資分點混有自營、避險、借券,累計為負不代表有人出貨</li><li class="wn">內部人只申報月底餘額,月中買了又賣看不到;卸任或不到 10% 的大股東不用申報,賣了也查不到</li><li class="wn">分點別的融券、借券資料不公開;「先放空再用換來的股票還」是用全市場數字對時間,不能指名是哪個分點</li><li class="wn">來源是富邦 DJ 的公開分點日報;這是研究筆記,不是買賣建議</li></ul></div></div></div></div>

@@ -1,0 +1,194 @@
+<title>月選賣方把防守往下移到 30,000(離</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
+</style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
+
+<div class="wrap t-compare k-compare" data-kind="compare">
+<div class="hd"><div><h1><b>選擇權 SP 防守地圖</b>:賣權的防守線在哪?</h1><div class="sub">月選賣方把防守往下移到 30,000(離現在 -19%);期貨跌到 33,555~34,745 權利金翻倍;歷史上同樣處境 18 日內再跌 10% 的比例 21%</div></div>
+<div class="brand"><span class="bx">選擇權 SP</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="flowc"><div class="wide"><div class="row r2"><div class="col"><div class="card "><div class="ct">🧱 賣方防守線:賣權未平倉集中在哪</div><div class="cb"><table><tr><th>到期日</th><th>賣權集中的區間</th><th>離現在期貨</th><th>未平倉(口)</th><th>昨天增減</th><th>占價外賣權</th></tr><tr><td>今天 11/20(週五選)</td><td><b>35,500~35,900</b></td><td class="n">-4.1%</td><td class="n">4,444</td><td class="n">+2,580</td><td class="n">25%</td></tr><tr><td></td><td><b>37,000~37,400</b></td><td class="n">-0.1%</td><td class="n">3,397</td><td class="n">+2,715</td><td class="n">19%</td></tr><tr><td></td><td><b>38,000~38,400</b></td><td class="n">+2.6%</td><td class="n">3,035</td><td class="n">+1,989</td><td class="n">17%</td></tr><tr><td></td><td><b>37,500~37,900</b></td><td class="n">+1.3%</td><td class="n">2,606</td><td class="n">+1,867</td><td class="n">15%</td></tr><tr><td>11/25(週選,剩 3 個交易日)</td><td><b>36,000~36,900</b></td><td class="n">-2.8%</td><td class="n">981</td><td class="n">+739</td><td class="n">49%</td></tr><tr><td></td><td><b>37,000~37,900</b></td><td class="n">-0.1%</td><td class="n">830</td><td class="n">+108</td><td class="n">41%</td></tr><tr><td></td><td><b>38,000~38,900</b></td><td class="n">+2.6%</td><td class="n">207</td><td class="n">+58</td><td class="n">10%</td></tr><tr><td>12/16(月選,剩 18 個交易日)</td><td><b>25,000~25,900</b></td><td class="n">-32.5%</td><td class="n">1,495</td><td class="n">+268</td><td class="n">29%</td></tr><tr><td></td><td><b>30,000~30,900</b></td><td class="n">-19.0%</td><td class="n">844</td><td class="n">+459</td><td class="n">16%</td></tr><tr><td></td><td><b>28,000~28,900</b></td><td class="n">-24.4%</td><td class="n">617</td><td class="n">+79</td><td class="n">12%</td></tr><tr><td></td><td><b>35,000~35,900</b></td><td class="n">-5.5%</td><td class="n">589</td><td class="n">+152</td><td class="n">11%</td></tr></table><ul class='ck'><li class="wn"><b>月選近端沒有像樣的防守線</b>:價外賣權只有 35% 放在離現在一成以內;最大的三段是 25,000(1,495 口)、30,000(844 口)、28,000(617 口)</li><li class="wn"><b>昨天新增最多的是 30,000 那一段(+459 口)</b>,離現在 -19%——賣方是把防守往下移,不是在現價附近接</li></ul><div class="src">資料:期交所 11/19 一般時段未平倉(op_defense.bands)。區間=每 1,000 點加總(今天到期的每 500 點);只算價外賣權</div></div></div></div><div class="col"><div class="card "><div class="ct">🔢 四個數字</div><div class="cb"><div class="bignums" style="grid-template-columns:1fr 1fr"><div class="bn"><div class="k">現在期貨</div><div class="v">37,028</div><div class="d">日盤 08:48</div></div><div class="bn"><div class="k">月選價平波動率</div><div class="v">53%</div><div class="d">近 20 日實際 46%</div></div><div class="bn"><div class="k">18 日內再跌 10%</div><div class="v">21%</div><div class="d">跌到 34,584</div></div><div class="bn"><div class="k">翻倍停損區</div><div class="v">33.6~34.7 千</div><div class="d">月選各履約價</div></div></div></div></div><div class="card "><div class="ct">📌 結論:防守在哪</div><div class="cb"><ul class='ck'><li class="wn"><b>現價附近沒有賣方大軍</b>。月選賣權新增最多在 30,000(離現在 -19%),週選集中在 36,000 那一段</li><li class="wn"><b>月選不管賣哪一檔,期貨跌到 33,555~34,745 權利金就翻倍</b>(家規停損)。歷史上同樣處境 18 個交易日內跌到那裡的比例是 23%~41%</li><li class="wn"><b>昨天收盤賣的已經在虧</b>:35,000 賣權昨收 750 點、現在 1,150 點(+53%);以昨收為成本,翻倍停損是 1,500 點</li><li class="wn">同樣處境 18 個交易日內:中位數再跌 4.4%(36,731),最差一成跌 14%(33,010),最差 5% 跌 17%(31,940)</li><li class="wn">年線 39,368 已經在頭上;下方有意義的整數關卡只剩賣方自己選的 25,000、30,000</li><li class="wn">大盤燈號是「禁開新倉、只出不進」;裸賣賣權是開新倉、而且虧損沒有上限(到指數歸零為止)。價差(同時買更低履約價的賣權)才有上限</li></ul></div></div></div></div></div><div class="wide"><div class="card "><div class="ct">📋 月選 12/16 到期(剩 18 個交易日):每個履約價的防守數字</div><div class="cb"><table><tr><th>履約價</th><th>離現在<br>期貨</th><th>權利金(點)<br>現在 / 昨收</th><th>一口收<br>(元)</th><th>損益<br>兩平</th><th>未平倉<br>(昨增減)</th><th>波動率</th><th>權利金翻倍<br>期貨約在</th><th>歷史:期間內<br>跌到翻倍點</th><th>歷史:到期<br>收在履約價下</th><th>一口保證金<br>現在→翻倍時</th></tr><tr><td><b>37,000</b></td><td class="n">-0.1%</td><td class="n"><b>2,090</b> / 1,270</td><td class="n">104,500</td><td class="n">34,910</td><td class="n">348 (+31)</td><td class="n">53%</td><td class="n">33,555</td><td class="n">23%</td><td class="n">52%</td><td class="n">29.0 → 39.6 萬</td></tr><tr><td><b>36,500</b></td><td class="n">-1.4%</td><td class="n"><b>1,710</b> / 1,130</td><td class="n">85,500</td><td class="n">34,790</td><td class="n">28 (+0)</td><td class="n">50%</td><td class="n">33,955</td><td class="n">28%</td><td class="n">45%</td><td class="n">24.6 → 35.8 萬</td></tr><tr><td><b>36,000</b></td><td class="n">-2.8%</td><td class="n"><b>1,360</b> / 1,000</td><td class="n">68,000</td><td class="n">34,640</td><td class="n">261 (+41)</td><td class="n">47%</td><td class="n">34,330</td><td class="n">34%</td><td class="n">38%</td><td class="n">20.4 → 32.3 萬</td></tr><tr><td><b>35,500</b></td><td class="n">-4.1%</td><td class="n"><b>1,330</b> / 855</td><td class="n">66,500</td><td class="n">34,170</td><td class="n">90 (+53)</td><td class="n">52%</td><td class="n">34,171</td><td class="n">32%</td><td class="n">32%</td><td class="n">17.7 → 32.0 萬</td></tr><tr><td><b>35,000</b></td><td class="n">-5.5%</td><td class="n"><b>1,150</b> / 750</td><td class="n">57,500</td><td class="n">33,850</td><td class="n">474 (+98)</td><td class="n">52%</td><td class="n">34,295</td><td class="n">34%</td><td class="n">26%</td><td class="n">15.2 → 30.2 萬</td></tr><tr><td><b>34,500</b></td><td class="n">-6.8%</td><td class="n"><b>1,012</b> / 660</td><td class="n">50,625</td><td class="n">33,488</td><td class="n">102 (-3)</td><td class="n">53%</td><td class="n">34,364</td><td class="n">34%</td><td class="n">20%</td><td class="n">14.5 → 28.8 萬</td></tr><tr><td><b>34,000</b></td><td class="n">-8.2%</td><td class="n"><b>928</b> / 560</td><td class="n">46,375</td><td class="n">33,072</td><td class="n">178 (+27)</td><td class="n">56%</td><td class="n">34,351</td><td class="n">34%</td><td class="n">16%</td><td class="n">14.0 → 26.2 萬</td></tr><tr><td><b>33,000</b></td><td class="n">-10.9%</td><td class="n"><b>610</b> / 424</td><td class="n">30,500</td><td class="n">32,390</td><td class="n">182 (-12)</td><td class="n">54%</td><td class="n">34,690</td><td class="n">40%</td><td class="n">10%</td><td class="n">12.4 → 16.3 萬</td></tr><tr><td><b>30,000</b></td><td class="n">-19.0%</td><td class="n"><b>296</b> / 200</td><td class="n">14,775</td><td class="n">29,704</td><td class="n">844 (+459)</td><td class="n">64%</td><td class="n">34,745</td><td class="n">41%</td><td class="n">2%</td><td class="n">10.9 → 12.4 萬</td></tr></table><ul class='ck'><li class="wn"><b>「權利金翻倍」是家規的賣方停損</b>(op_paper:權利金變兩倍就停損)。表上是「波動率不變、今天就跌到」的算法;實際上下跌時波動率會升,翻倍會來得更早;越接近到期則越晚</li><li class="wn">「歷史」兩欄=上面那個處境裡,期間內最低收盤跌到翻倍點的比例、到期日收盤低於履約價的比例</li><li class="wn">保證金=權利金市值+MAX(A−價外值, B),A=187,000、B=94,000(期交所公告的原始保證金,盤中會再調)</li></ul><div class="src">權利金=即時買賣價中間(08:48);未平倉是 11/19 收盤;每 500 點列一檔(期交所每 100 點一檔)。現在期貨 37,028(日盤 08:48)</div></div></div></div><div class="wide"><div class="card "><div class="ct">📉 歷史上同樣處境,之後再跌多少</div><div class="cb"><table><tr><th>之後幾個交易日</th><th>中位數</th><th>最差一成</th><th>最差 5%</th><th>最差 1%</th><th>跌超過 5%</th><th>跌超過 8%</th><th>跌超過 10%</th><th>跌超過 15%</th></tr><tr><td><b>1 日</b>(對應指數)</td><td class="n">-0.1%<br>38,404</td><td class="n">-2.4%<br>37,518</td><td class="n">-3.2%<br>37,180</td><td class="n">-4.8%<br>36,566</td><td class="n">1%</td><td class="n">0%</td><td class="n">0%</td><td class="n">0%</td></tr><tr><td><b>3 日</b>(對應指數)</td><td class="n">-1.1%<br>38,021</td><td class="n">-4.7%<br>36,605</td><td class="n">-6.0%<br>36,108</td><td class="n">-9.1%<br>34,948</td><td class="n">9%</td><td class="n">2%</td><td class="n">1%</td><td class="n">0%</td></tr><tr><td><b>18 日</b>(對應指數)</td><td class="n">-4.4%<br>36,731</td><td class="n">-14.1%<br>33,010</td><td class="n">-16.9%<br>31,940</td><td class="n">-22.5%<br>29,793</td><td class="n">47%</td><td class="n">30%</td><td class="n">21%</td><td class="n">8%</td></tr></table><ul class='ck'><li class="wn">「同樣處境」=收盤在季線下、離一年高點至少 15%。1998 年以來共 1,357 天,現在就在裡面(離高點 -23%)</li><li class="wn">數字是「期間內最低收盤」比當天低多少,不是期末。天數之間高度重疊,實際獨立的空頭只有十來次</li></ul><div class="src">op_defense.mae_table;指數換算以 11/19 收盤 38,427 為準</div></div></div></div><div class="card "><div class="ct">📊 月選(12/16 到期)價外賣權未平倉,每 1,000 點一段</div><div class="cb"><div class="hb"><div>37,000</div><div><span class="bar1" style="width:18.2%;background:#0f8a7e"></span><span class="val">348 口</span></div><div>36,000</div><div><span class="bar1" style="width:24.6%;background:#0f8a7e"></span><span class="val">471 口</span></div><div>35,000</div><div><span class="bar1" style="width:30.7%;background:#0f8a7e"></span><span class="val">589 口</span></div><div>34,000</div><div><span class="bar1" style="width:20.5%;background:#0f8a7e"></span><span class="val">393 口</span></div><div>33,000</div><div><span class="bar1" style="width:16.9%;background:#0f8a7e"></span><span class="val">323 口</span></div><div>32,000</div><div><span class="bar1" style="width:2.8%;background:#0f8a7e"></span><span class="val">54 口</span></div><div>30,000</div><div><span class="bar1" style="width:44.0%;background:#0f8a7e"></span><span class="val">844 口</span></div><div>28,000</div><div><span class="bar1" style="width:32.2%;background:#0f8a7e"></span><span class="val">617 口</span></div><div>27,000</div><div><span class="bar1" style="width:2.9%;background:#0f8a7e"></span><span class="val">56 口</span></div><div>25,000</div><div><span class="bar1" style="width:78.0%;background:#0f8a7e"></span><span class="val">1495 口</span></div></div><div class="src">由上往下=離現在越來越遠。現在期貨 37,028</div></div></div><div class="card "><div class="ct">📍 指數現在在哪</div><div class="cb"><ul class='ck'><li class="wn">11/19 收 38,427(-4.4%),離 10/06 高點 49,823 -23%</li><li class="wn"><b>年線 39,368 已跌破</b>,現在在上方 +2.4%,變成壓力;季線 45,864</li><li class="wn">夜盤期貨收 38,107,低點 37,931、高點 39,765</li><li class="wn">單日跌停(−10%)是 34,584;今年最低收盤是 01/02 的 29,350</li><li class="wn">歷次限空令(見限空令海報):措施後中位數再跌 12%、最差 37%,7 次有 4 次再破底</li><li class="wn">近 20 日實際波動(年化)46%;月選價平波動率 53%、週選 55%——權利金貴,是因為指數真的在大幅震盪</li></ul><div class="src">op_defense.levels</div></div></div><div class="wide"><div class="card "><div class="ct">📋 週選 11/25 到期(剩 3 個交易日)</div><div class="cb"><table><tr><th>履約價</th><th>離現在<br>期貨</th><th>權利金(點)<br>現在 / 昨收</th><th>一口收<br>(元)</th><th>損益<br>兩平</th><th>未平倉<br>(昨增減)</th><th>波動率</th><th>權利金翻倍<br>期貨約在</th><th>歷史:期間內<br>跌到翻倍點</th><th>歷史:到期<br>收在履約價下</th><th>一口保證金<br>現在→翻倍時</th></tr><tr><td><b>38,500</b></td><td class="n">+4.0%</td><td class="n"><b>1,090</b> / 1,090</td><td class="n">54,500</td><td class="n">37,410</td><td class="n">48 (+9)</td><td class="n">55%</td><td class="n">36,714</td><td class="n">53%</td><td class="n">89%</td><td class="n">24.1 → 29.6 萬</td></tr><tr><td><b>38,000</b></td><td class="n">+2.6%</td><td class="n"><b>885</b> / 885</td><td class="n">44,250</td><td class="n">37,115</td><td class="n">72 (+27)</td><td class="n">57%</td><td class="n">36,828</td><td class="n">59%</td><td class="n">80%</td><td class="n">23.1 → 27.6 萬</td></tr><tr><td><b>37,500</b></td><td class="n">+1.3%</td><td class="n"><b>725</b> / 725</td><td class="n">36,250</td><td class="n">36,775</td><td class="n">26 (+10)</td><td class="n">59%</td><td class="n">36,901</td><td class="n">62%</td><td class="n">65%</td><td class="n">22.3 → 25.9 萬</td></tr><tr><td><b>37,000</b></td><td class="n">-0.1%</td><td class="n"><b>575</b> / 575</td><td class="n">28,750</td><td class="n">36,425</td><td class="n">84 (+34)</td><td class="n">61%</td><td class="n">36,992</td><td class="n">68%</td><td class="n">50%</td><td class="n">21.4 → 24.4 萬</td></tr><tr><td><b>36,500</b></td><td class="n">-1.4%</td><td class="n"><b>456</b> / 456</td><td class="n">22,800</td><td class="n">36,044</td><td class="n">261 (+252)</td><td class="n">62%</td><td class="n">37,062</td><td class="n">71%</td><td class="n">34%</td><td class="n">18.3 → 20.5 萬</td></tr><tr><td><b>36,000</b></td><td class="n">-2.8%</td><td class="n"><b>366</b> / 366</td><td class="n">18,300</td><td class="n">35,634</td><td class="n">526 (+377)</td><td class="n">64%</td><td class="n">37,106</td><td class="n">73%</td><td class="n">21%</td><td class="n">15.4 → 16.8 萬</td></tr></table><div class="src">權利金是 11/19 結算價(週選沒有接即時報價),今天開盤後已經變貴;這個到期日最低只掛到表上最後一列</div></div></div></div><div class="card "><div class="ct">⏰ 今天到期的週五選(11/20 13:30 結算)</div><div class="cb"><ul class='ck'><li class="wn">買權未平倉 83,887 口、賣權 31,249 口——<b>賣方主力壓在上面(賣買權),不是在下面接(賣賣權)</b></li><li class="wn">賣權集中:35,500~35,900(4,444 口)、37,000~37,400(3,397 口)、38,000~38,400(3,035 口)</li><li class="wn">昨天結算時價平 38,500、買賣權合計 1,110 點(市場預期今天上下 2.9%);最大痛點 38,900</li></ul><div class="src">最大痛點=到期落在哪裡,買方合計拿回最少</div></div></div><div class="card risk"><div class="ct">⚠️ 限制</div><div class="cb"><ul class='ck'><li class="wn">未平倉和權利金是 11/19 收盤的,今天盤中會變;期交所不公布誰是賣方,「防守線」只是未平倉集中處,不保證守得住</li><li class="wn">波動率、翻倍點用 Black-76、利率當 0 算;深價外的報價稀疏,數字較粗</li><li class="wn">歷史比例混了 1998–2014 年(當時單日漲跌幅上限 7%)和之後(10%);沒有扣國定假日</li><li class="wn">我不知道你手上的部位。給我履約價、到期日、收的權利金,可以算那一口的翻倍點和保證金</li><li class="wn">研究筆記,不是下單建議;系統不下單</li></ul></div></div></div>
+<div class="ft">2026/11/20 · 資料:期交所每日行情 11/19、加權指數歷史(op_defense.py) · 機械式計算,非下單建議</div></div>
