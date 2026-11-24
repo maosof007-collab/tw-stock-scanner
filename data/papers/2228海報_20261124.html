@@ -1,0 +1,210 @@
+<title>獲利連三季年減:前三季 EPS 2.68</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+a.sl{color:inherit;text-decoration:underline dotted #7a8aa0;text-underline-offset:3px;cursor:pointer}
+a.sl:hover{color:#1b5fa8;text-decoration:underline}
+.hd a.sl{font-size:13px;font-weight:700;margin-left:10px;color:#cfe2ff}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
+</style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
+
+<div class="wrap k-stock" data-kind="stock">
+<div class="hd"><div><h1>劍麟<b>(2228)</b>深度研究總整理<a class="sl" href="/個股?code=2228" target="_blank" rel="noopener">開個股頁 →</a></h1><div class="sub">獲利連三季年減:前三季 EPS 2.68(去年同期 4.06)。營收只少 1.8%,少的是利潤率——高毛利的北美安全氣囊訂單流失、中國安全帶需求弱、波蘭廠還在虧。股價今年 −44%,跌到淨值以下;AI 伺服器歧管只占營收 1%,下一代量產排在 2027 年</div></div>
+<div class="brand"><span class="bx">劍麟 Iron Force</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="grid"><div class="col"><div class="card grow"><div class="ct">投資結論(重點先看)</div><div class="cb"><ul class='ck'><li class="xx">●<b>獲利連三季年減</b>:Q3 EPS <b>0.93</b>(去年同期 1.12,年 <span class="dn2">▼−17%</span>);前三季 <b>2.68</b>(去年同期 4.06,年 <span class="dn2">▼−34%</span>)。2025 全年 5.25、2024 全年 9.51</li><li class="wn">●<b>營收沒掉多少,掉的是利潤率</b>:前三季營收 36.96 億,年 −1.8%;毛利率從 2025 Q1 的 25.0% 降到 2026 Q3 的 22.2%,營益率 10.9% → 7.8%</li><li class="wn">?<b>公司 8 月法說講的原因</b>:北美高毛利的安全氣囊訂單因關稅和客戶供應鏈政策轉走,補進來的是中國低毛利訂單;中國安全帶需求衰退;客戶 2025 年要求降價約 8%;波蘭廠虧損增加;人民幣升值上半年匯損 1,000~2,000 萬</li><li class="wn">?<b>AI 伺服器歧管還很小</b>:Q2 開始量產出貨,營收約 2,500 萬(占 1%);下半年以下一代樣品為主,單季 1,000~2,000 萬;下一代量產預計 2027 年。量產客戶只有一家、產線只有一條</li><li>●<b>資產面</b>:6/30 現金加金融資產 22.0 億,扣掉公司債和借款 3.0 億後約 19.1 億,每股約 23.9 元;每股淨值 62.1 元,現價 59 是淨值的 0.95 倍;負債比 28.7%</li><li class="wn">?<b>股利是用去年獲利配的</b>:今年配 4.5 元(去年 EPS 5.25 的 86%),用 59 元算是 7.6%。今年前三季 EPS 只有 2.68;如果第 4 季和第 3 季差不多、配息率不變,明年約 3.1 元(5.2%)——這是我的假設算式,不是公司說的</li><li class="xx">●<b>位置</b>:一年高 114(2025/12/9 盤中)→ 59,−48%;11/20 盤中 56.5 是一年新低;月線 66.1、季線 71.4、年線 86.0 全部在現價上面</li></ul><div class="src">●系統季報、資產負債表(到 2026/6/30)、月營收、價量、籌碼;●MoneyDJ 2026/11/11、科技新報 2025/11/17(開過原文);?富果直送 2026/8/19 法說備忘(AI 摘要);?股利 4.5 元與 Autoliv 等客戶名只看到搜尋摘要;法說簡報原檔沒讀</div></div></div><div class="card "><div class="ct">營運結構</div><div class="cb"><table><tr><th>產品</th><th>比重</th><th>狀態</th></tr>
+<tr><td><b>安全帶預縮管件</b></td><td class="n">?約 54%</td><td>?集團內毛利最高(超過 30%);在中國、波蘭生產;中國需求衰退</td></tr>
+<tr><td><b>安全氣囊充氣器殼體</b></td><td class="n">?約 37%</td><td>?南投廠為主;北美高毛利訂單流失,中國低毛利訂單遞補</td></tr>
+<tr><td><b>伺服器歧管</b></td><td class="n">?約 1%</td><td class="gd">?Q2 起量產出貨;南投二廠一條產線,還能再放 4~5 條</td></tr>
+<tr><td><b>展示架</b></td><td class="n">?年 7~8 億</td><td>?獲利貢獻低</td></tr></table>
+<div class="note">?=富果直送 2026/8/19 法說備忘(用 AI 整理法說影音的二手摘要,不是公司簡報原檔,簡報我沒讀)。
+54%、37% 應該是「汽車零組件內」的占比:2025 Q1 的口徑是汽車零組件 85%、展示架 15%,摘要沒有寫清楚。
+生產基地:台灣南投、中國、波蘭。</div></div></div><div class="card "><div class="ct">籌碼體檢(系統自動)</div><div class="cb"><table><tr><th>指標</th><th>數字</th><th>判讀</th></tr><tr><td>外資30日</td><td class="n"><span class="up2">▲295 張</span></td><td>買方</td></tr><tr><td>投信30日</td><td class="n"><span>+0 張</span></td><td>缺席</td></tr><tr><td>融資20日</td><td class="n"><span class="dn2">▼321 張(餘 1,028)</span></td><td>槓桿退場</td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">最新財報(2026-09)</div><div class="cb"><div class="bignums"><div class="bn"><div class="k">營收</div><div class="v">12.55 億</div><div class="d"><span>年增 +0%</span></div></div><div class="bn"><div class="k">毛利率</div><div class="v">22.18%</div><div class="d"><span class="dn2">▼1.9pp YoY</span></div></div><div class="bn"><div class="k">營益率</div><div class="v">7.78%</div><div class="d"><span class="dn2">▼1.1pp YoY</span></div></div><div class="bn"><div class="k">EPS</div><div class="v">0.93</div><div class="d"><span class="dn2">▼去年同期 1.12</span></div></div></div><div class="bars"><div class="bar"><span class="pv">24.12%</span><i style="height:64.0px;background:#8fb7e8"></i>毛利率 去年</div><div class="bar"><span class="pv">22.18%</span><i style="height:58.85240464344942px;background:#2f6db5"></i>毛利率 09</div><div class="bar"><span class="pv">8.9%</span><i style="height:23.615257048092868px;background:#f3cf8e"></i>營益率 去年</div><div class="bar"><span class="pv">7.78%</span><i style="height:20.64344941956882px;background:#f0a63a"></i>營益率 09</div></div><div class="note">2024 年 Q1 的 3.49 和 Q4 的 2.75 含一次性所得稅回沖(?媒體:排除後 2024 前三季約 5.09,帳上是 6.76)。淨利率和營益率差距不大,獲利主要來自本業。</div></div></div><div class="card "><div class="ct">營收動能與預估<small>系統預估模型</small></div><div class="cb"><table><tr><th>月份</th><th>億</th><th>YoY</th></tr><tr><td>2026-08</td><td class="n">3.94 億</td><td class="n"><span class="dn2">▼1%</span></td></tr><tr><td>2026-09</td><td class="n">4.31 億</td><td class="n"><span class="up2">▲4%</span></td></tr><tr><td>2026-10</td><td class="n">4.11 億</td><td class="n"><span class="dn2">▼1%</span></td></tr></table><table><tr><th>月份</th><th>去年同月</th><th>保守 -0.6%</th><th>中性 -0.6%</th><th>樂觀 +3.7%</th></tr><tr><td><b>2026-11</b></td><td class="n">3.82 億</td><td class="n">3.80</td><td class="n yl"><b>3.80</b></td><td class="n rd">3.96</td></tr><tr><td><b>2026-12</b></td><td class="n">3.94 億</td><td class="n">3.92</td><td class="n yl"><b>3.92</b></td><td class="n rd">4.09</td></tr></table><div class="note">系統三情境(近三月動能外推)。<b>12/10 前後看 11 月營收(去年同月 3.82 億);Q4 財報看毛利率有沒有站回 23%、波蘭廠虧損有沒有縮小;明年看下一代歧管有沒有量產訂單、產線有沒有從一條變多條。</b></div></div></div><div class="card "><div class="ct">客戶與供應鏈位置</div><div class="cb"><table><tr><th>關係</th><th>可信度</th></tr>
+<tr><td>賣給一階(Tier 1)汽車安全零組件廠,原廠指定件</td><td>● MoneyDJ 11/11;客戶不具名</td></tr>
+<tr><td>Autoliv、TRW、Takata</td><td>? 多年前理財周刊的報導;近年法說沒有具名,現在的比重沒查到</td></tr>
+<tr><td>中國廠出北美的貨,多以墨西哥為交貨地</td><td>● 科技新報 2025/11/17</td></tr>
+<tr><td>客戶要求「非中國供應鏈」,部分北美訂單移到波蘭廠</td><td>? 法說摘要</td></tr>
+<tr><td>歧管:台系模組廠及系統商的案子</td><td>● 科技新報 2025/11/17;?量產客戶只有一家</td></tr>
+<tr><td>墨西哥設廠</td><td>? 評估後因成本效益暫緩</td></tr></table></div></div></div><div class="col"><div class="card "><div class="ct">股價檯階</div><div class="cb"><table><tr><th>價位</th><th>相對 59</th><th>意義</th></tr><tr><td>57.5 元</td><td class="n"><span class="dn2">▼3%</span></td><td>年低</td></tr><tr class="yl"><td><b>66.1 元</b></td><td class="n"><span class="up2">▲12%</span></td><td>MA20:<b>站回前只是反彈</b></td></tr><tr><td>111.5 元</td><td class="n"><span class="up2">▲89%</span></td><td>年高(距高 -47%)</td></tr></table><div class="note">59.0(11/23 收盤)|一年高 114(2025/12/9 盤中)、一年低 56.5(11/20 盤中)。去年底 105.5 → 現在 −44%,期間配息 4.5 元;大盤同期 +27%。10/6 大盤高點以來這檔 −20%、大盤 −26%:大盤漲的時候它沒跟,大盤跌的時候它照跌。</div></div></div><div class="card "><div class="ct">三種情境估值(年化)<small>系統情境模型</small></div><div class="cb"><table><tr><th>情境</th><th>假設淨利率</th><th>年化 EPS</th><th>現價 59 隱含 PE</th></tr><tr><td style="background:#eaf3ff"><b>保守</b></td><td class="n">2.8%</td><td class="n">1.71</td><td class="n">34.5 倍</td></tr><tr><td class="yl"><b>中性</b></td><td class="n">5.8%</td><td class="n">3.51</td><td class="n">16.8 倍</td></tr><tr><td style="background:#fff3e8"><b>樂觀</b></td><td class="n">8.8%</td><td class="n">5.54</td><td class="n">10.6 倍</td></tr></table><div class="note">近四季 EPS 合計 3.87(1.19+0.87+0.88+0.93),現價 59 約 15.2 倍;每股淨值約 62 元,股價淨值比 0.95。情境=系統淨利率假設年化,不自創目標價。</div><div class="note" style="margin-top:8px"><b>2027 年:如果獲利回到正常</b>(算到 2026-09-30 這一季;壓力測試,不是預測)</div><table><tr><th>情境</th><th>怎麼算</th><th>全年 EPS</th><th>現價隱含 PE</th></tr><tr><td><b>維持現況</b></td><td>最近兩季平均 ×4</td><td class="n">3.62</td><td class="n">16.3 倍</td></tr><tr><td><b>營益率回中位</b></td><td>現在營益率 7.4% 不高於中位數 9.3%,不調</td><td class="n">3.62</td><td class="n">16.3 倍</td></tr></table></div></div><div class="card grow"><div class="ct">題材鏈</div><div class="cb"><div class="flow"><div class="fbox">歧管 2026 Q2 量產出貨<small>上一代產品,約 2,500 萬、占營收 1%;一條產線、一家量產客戶</small></div><div class="farr">▼</div><div class="fbox hot">下一代歧管<small>下半年送樣,量產預計 2027 年;公司預期單價高出雙位數百分比;擴不擴線看客戶明年的訂單預測</small></div><div class="farr">▼</div><div class="fbox hot">波蘭廠拉高規模<small>上半年營收年增約 20%、每月約 2,500 萬,還在虧;目標每年成長 20~25%,損平時間公司沒說</small></div><div class="farr">▼</div><div class="fbox hot">北美訂單改由波蘭出貨<small>客戶要非中國供應鏈;移轉進度和金額沒查到</small></div><div class="farr">▼</div><div class="fbox hot">汽車安全法規升級、新車平台<small>公司 11 月的說法,沒有給數字</small></div></div></div></div><div class="card risk grow"><div class="ct">風險與觀察</div><div class="cb"><ul class='ck'><li class="xx">●均線全部在上面:5 日 60.7、月線 66.1、季線 71.4、半年線 76.4、年線 86.0;近 5 日 −7.2%、20 日 −14.5%、120 日 −30.3%</li><li class="xx">●<b>成交很少</b>:20 日均量 206 張、日均成交值 0.14 億。系統名單的流動性門檻是 0.5 億,這檔不到三成;進出的量大一點就會動到價格</li><li class="wn">?公司 8 月說:下半年只比上半年略好,全年營收和獲利比 2025 年微幅下滑;毛利率會從低點回升,但回不到去年</li><li class="wn">●存貨 11.8 億、應收帳款 13.0 億(6/30),合計相當於半年營收;?公司說因為備料、寄售、延長帳期,天數在上升。上半年營業現金流比去年同期少(系統資料;是累計還是單季口徑我沒核對,兩種算法都是減少)</li><li class="wn">?客戶每年要求降價;波蘭廠生產成本比較高;上半年提列存貨跌價 1,500~2,000 萬(公司說是暫時的)</li><li class="wn">●帳上有應付公司債 2.7 億;是不是可轉債、轉換價多少我沒查</li><li class="wn">歧管題材去年 11 月就公布,當時媒體寫「單線滿載年營收 2~3 億」;到今年 Q2 實際是單季約 2,500 萬</li><li>●外資近 5 日 +174 張(11/20、11/23 各 +72、+63 張);融資 1,028 張,11/18 以來減 145 張;沒有被列處置</li><li class="xx">大盤燈號 🔴:系統規則是禁開新倉、只出不進,不分個股</li></ul></div></div></div></div>
+<div class="ft">素材:●系統季報、資產負債表(到 2026/6/30)、月營收、價量、籌碼;●MoneyDJ 2026/11/11、科技新報 2025/11/17(開過原文);?富果直送 2026/8/19 法說備忘(AI 摘要);?股利 4.5 元與 Autoliv 等客戶名只看到搜尋摘要;法說簡報原檔沒讀+系統 2026/11/24 數據(財報、月營收、籌碼、情境是這天重算的;結論與結構文字是寫稿時的內容) · 本海報為研究筆記非投資建議</div></div>
