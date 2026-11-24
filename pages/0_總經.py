@@ -148,6 +148,118 @@ st.caption(
     f"⚠️ 維持率為**推估**（成本以 MA60 近似、融資成數 0.6）。融資資料截至 **{last_date}**，"
     "若與今日差多天，代表 fetch_margin 未跟上每日更新。")
 
+# ═══════════════ 大盤本益比河流圖(證交所官方月資料)═══════════════
+st.markdown("---")
+st.markdown("### 🌊 大盤本益比河流圖")
+_MR = None
+try:
+    import pe_river as _PR
+    _my = st.radio("看幾年", [5, 10, 15, 20, 30], index=3, horizontal=True, key="mkt_river_y",
+                   format_func=lambda y: "全部(2002/12 起)" if y == 30 else f"{y} 年")
+    _MR = _PR.market_series(_my)
+except Exception as _e:
+    st.caption(f"河流圖算不出來:{_e}")
+if not _MR:
+    st.caption("還沒有官方大盤本益比資料(data/twse_market_pe.csv)。每日排程的 fetch_twse_pe.py 會補;手動:python -X utf8 fetch_twse_pe.py")
+else:
+    st.plotly_chart(_PR.figure(
+        _MR, title=f"加權指數 本益比河流圖(近 {_MR['years']:.0f} 年)——河道=大盤每點獲利 × 這段期間本益比的分位",
+        price_name="加權指數", unit="點", eps_name="每點獲利", now_name="現在"), width="stretch")
+    if (_MR["last"] - _MR["base"]).days > 75:
+        st.warning(f"官方月資料只到 {_MR['base']:%Y/%m},比最新交易日落後超過兩個月——下面的「現在約幾倍」是拿舊獲利算的,不能用。"
+                   "先補資料:python -X utf8 fetch_twse_pe.py")
+    if _MR["gaps"]:
+        st.warning(f"官方月資料還缺 {len(_MR['gaps'])} 個月({_MR['gaps'][0]} ~ {_MR['gaps'][-1]} 之間),那幾段河道是空的,"
+                   "百分位也只用有資料的月份算。每日排程會慢慢補齊(證交所會擋太密的下載)。")
+    _nc = _MR["nowcast"]
+    _how = (f"已把 {_MR['base']:%m/%d} 之後公布的財報估進去(全體獲利 {(_nc['ratio'] - 1) * 100:+.1f}%,{_nc['n']} 檔)"
+            if _nc else f"用 {_MR['base']:%m/%d} 的獲利算,之後公布的財報還沒算進去")
+    st.markdown(f"{_MR['last']:%m/%d} 收 **{_MR['close']:,.0f}**|證交所公布 {_MR['base']:%Y/%m} 月底本益比 **{_MR['base_pe']:.2f} 倍**|"
+                f"現在約 **{_MR['pe']:.1f} 倍**({_how}),在近 {_MR['years']:.0f} 年排第 **{_MR['rank']:.0f} 百分位**。"
+                f"這段期間最低 {_MR['pe_min']:.1f} 倍({_MR['pe_min_d']:%Y/%m})、最高 {_MR['pe_max']:.1f} 倍({_MR['pe_max_d']:%Y/%m})。"
+                + (f"本益比超過 {_PR.MKT_PE_CAP} 倍的 {_MR['odd_days']} 個交易日(落在 {_MR['odd']} 之間,獲利崩掉的時候)不列入分位。" if _MR["odd_days"] else ""))
+    _mc1, _mc2 = st.columns(2)
+    with _mc1:
+        st.caption("河道對照:每一層本益比換算成指數(用現在的獲利)")
+        st.dataframe(_PR.table(_MR).rename(columns={"對應股價": "對應指數", "離現價%": "離現在%"}),
+                     hide_index=True, width="stretch")
+    with _mc2:
+        st.caption("三個官方估值指標在這段期間的位置(月底值;殖利率越低越貴)")
+        st.dataframe(_PR.market_trio(_MR), hide_index=True, width="stretch")
+    st.caption("怎麼讀:河道=大盤每點獲利(指數÷本益比)× 這段期間本益比的第 5/25/50/75/95 百分位,顏色越深本益比越高;黑線是加權指數。"
+               "本益比是證交所官方月底值(大盤總市值÷全體上市公司近四季稅後純益),月中用上個月底的獲利去除當天指數。"
+               "「對應指數」是拿**現在的**獲利去乘——獲利往下修,整條河會一起往下移;獲利在高峰時本益比看起來最便宜,要和股價淨值比一起看。"
+               "獲利崩掉的年份(例如 2009)本益比會衝很高,那是分母變小,不是股價貴。資料:證交所上市公司月報,每月第 7 個營業日更新。")
+
+# ═══════════════ 半導體庫存循環燈(台積電的客戶有沒有在堆貨)═══════════════
+st.markdown("---")
+st.markdown("### 🏭 半導體庫存循環燈(台積電的客戶有沒有在堆貨)")
+_CR = {}
+try:
+    import chip_cycle as _CC
+    _CR = _CC.load_raw()
+except Exception as _e:
+    st.caption(f"庫存循環燈算不出來:{_e}")
+if not _CR:
+    st.caption("還沒有資料(data/chip_cycle.json)。每日排程會跑;手動:python -X utf8 chip_cycle.py fetch")
+else:
+    @st.cache_data(ttl=3600, show_spinner=False)
+    def _cc_panel(made: str):
+        return _CC.panel(_CC.load_raw())
+
+    _CP = _cc_panel(_CR.get("made", ""))
+    _cn = int(_CP.core.iloc[-1])
+    _cb = _CC.backtest(_CR, _CP)
+    _cb0 = _cb[_cb["客戶端亮燈"] == f"{_cn} 顆"]
+    _cz = _cb[_cb["客戶端亮燈"] == "0 顆"]
+    _hist = (f"2013 年以來亮 {_cn} 顆的月份有 {int(_cb0['月數'].iloc[0])} 個月,台積電之後 6 個月中位數 "
+             f"{_cb0['之後 6 個月中位數%'].iloc[0]:+.1f}%、下跌的比例 {_cb0['6 個月下跌的比例%'].iloc[0]:.0f}%"
+             f"(一顆都沒亮時是 {_cz['之後 6 個月中位數%'].iloc[0]:+.1f}%、{_cz['6 個月下跌的比例%'].iloc[0]:.0f}%)。" if len(_cb0) and len(_cz) else "")
+    _lit = [n for k, n, *_ in _CC.LIGHTS if k in _CC.CORE and bool(_CP[k].iloc[-1])]
+    st.markdown(f"客戶端三顆燈現在亮 **{_cn} 顆**" + (f"({'、'.join(_lit)})" if _lit else "") + f"。{_hist}"
+                f"台積電 {_CP.index[-1]:%m/%d} 收 {_CP.close.iloc[-1]:,.0f}|資料建立 {_CR.get('made', '')}")
+    st.plotly_chart(_CC.figure(_CR, _CP), width="stretch")
+    _ct = st.tabs(["現在的燈", "回測:亮幾顆之後怎樣", "歷次修正的亮燈順序", "IC 設計每一檔", "系統組裝每一檔", "美國大客戶", "川湖・銅(測過不採用)"])
+    with _ct[0]:
+        st.dataframe(_CC.now(_CR, _CP), hide_index=True, width="stretch")
+        st.caption("「降溫」= 近 3 個月營收年增率比近 12 個月高點掉四成以上、而且比 3 個月前低(或已轉負還在往下);年增率回頭往上燈就熄。"
+                   "「存貨堆高」= 存貨年增率比營收年增率多出門檻以上。月營收每月 10 日更新;季報 3/31、5/15、8/14、11/14 更新。"
+                   "年增率在幾百趴的時候(記憶體)之後會被去年基期拉下來,所以多列一個「近 3 月比前 3 月」。")
+    with _ct[1]:
+        st.caption("每個月底依客戶端三顆燈亮幾顆分組,看台積電之後的報酬(未還原股價、不含股息;月份互相重疊,樣本不獨立)")
+        st.dataframe(_cb, hide_index=True, width="stretch")
+        st.caption("每顆燈單獨看:亮著的月份和沒亮的月份比。④ 沒有差別;⑤⑥ 亮的時候之後反而比較好——它們是落後指標,亮了股價多半已經跌完。")
+        st.dataframe(_CC.each_light(_CR, _CP), hide_index=True, width="stretch")
+    with _ct[2]:
+        st.caption("台積電每一次從歷史高點跌超過兩成:高點之前最後一個月底哪些燈已經亮、沒亮的在高點後多久才亮。"
+                   "2020/01(疫情)、2024/07(日圓套利平倉)高點前一顆都沒亮——事件型的急跌,這組燈看不到。")
+        st.dataframe(_CC.episodes(_CR, _CP).set_index("股價高點").T, width="stretch")
+    with _ct[3]:
+        st.caption("IC 設計 11 檔全部列出,依「存貨年增 − 營收年增」由大到小。存貨天數 = 期末存貨 ÷ 單季銷貨成本 × 91。")
+        st.dataframe(_CC.members(_CR, "design"), hide_index=True, width="stretch")
+    with _ct[4]:
+        st.caption("系統組裝 8 檔全部列出(伺服器/PC 代工與品牌)。")
+        st.dataframe(_CC.members(_CR, "system"), hide_index=True, width="stretch")
+    with _ct[5]:
+        st.caption("台積電的美國大客戶(yfinance 只給近 5 季,沒有長歷史可以回測,所以只列現況、不亮燈)。")
+        _ut = _CC.us_table(_CR)
+        if len(_ut):
+            st.dataframe(_ut, hide_index=True, width="stretch")
+        else:
+            st.caption("這次沒抓到美股資料。")
+    with _ct[6]:
+        st.caption("有人拿川湖(伺服器滑軌)股價和銅價當訊號。回測:川湖常比台積電早見高,但「台積電在高點附近、川湖沒跟上」的月份,"
+                   "之後 6 個月台積電的報酬和平常一樣;銅背離時只弱一點。所以兩個都只列出來,不亮燈。")
+        _o1, _o2 = _CC.others_peaks(_CR, _CP), _CC.others_backtest(_CR)
+        if len(_o1):
+            st.dataframe(_o1.set_index("台積電高點").T, width="stretch")
+            st.dataframe(_o2, hide_index=True, width="stretch")
+        else:
+            st.caption("還沒有川湖/銅的資料(下次排程會補)。")
+    st.caption("怎麼讀:台積電自己的營收和存貨是最後才轉弱的(2022 年股價 1 月見高,它的營收年增到 2023/04 才轉負),先動的是下游客戶,所以燈看的是客戶。"
+               "門檻是看過歷史之後定的,真正的庫存修正只有 2015、2022 兩次——這是「歷史上長這樣」,不是保證;"
+               "亮燈之後 12 個月的中位數報酬仍然是正的。算法:chip_cycle.py;資料:FinMind 月營收與季報(2012 年起)。研究筆記,非投資建議。")
+
 # ═══════════════ 失土收復率(大跌週期的收復廣度)═══════════════
 st.markdown("---")
 st.markdown("### 🧭 失土收復率（大跌週期的收復廣度）")

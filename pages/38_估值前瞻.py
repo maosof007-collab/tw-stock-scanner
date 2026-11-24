@@ -23,10 +23,8 @@ require_login(); logout_button()
 page_header("估值前瞻", "VALUATION OUTLOOK", "🎯")
 
 import forecast_card as FCX
-# 熱更新自癒:app 不重啟時 import 會拿到舊模組 → 缺新函式就強制重載
-if not all(hasattr(FCX, f) for f in ("consensus", "macro_for", "anchor")):
-    import importlib
-    FCX = importlib.reload(FCX)
+import importlib
+FCX = importlib.reload(FCX)          # 迭代中模組:無條件重載(常駐的 app 不會自己重載)
 
 # ---------------------------------------------------------------- 查詢紀錄
 recent = FCX.recent_cards(10)
@@ -39,10 +37,13 @@ if recent:
                 f"**{scen.get('基準','—')}** 元·機率 {r.get('probs',{}).get('基準','—')}%|"
                 f"期望價 **{r.get('exp_px','—')}**|{r['ts']}")
 
-code = st.text_input("股票代碼", value=st.session_state.get("fc_code", "2330")).strip()
+import stock_nav as _sn
+code = st.text_input("股票代碼", value=_sn.cur_code(st.session_state.get("fc_code", "2330"))).strip()
 st.session_state["fc_code"] = code
 if not code:
     st.stop()
+_sn.set_cur_code(code)
+_sn.bar("估值")
 
 try:
     import symbols
@@ -119,6 +120,56 @@ elif band:
               f"{up:+.1f}% vs 現價 {band['close']}")
 else:
     st.info("歷史 PE 樣本不足(虧損期太長或上市太短)——矩陣停用,只看情境 EPS。")
+
+# ---------------------------------------------------------------- 本益比河流圖
+st.subheader("本益比河流圖")
+import pe_river as PR
+_ry = st.radio("看幾年", [5, 10, 15, 20], index=1, horizontal=True, key=f"river_y_{code}")
+RV = PR.series(code, _ry)
+if not RV:
+    st.info("畫不出河流圖:上市不到兩年、長期虧損,或 FinMind 這次沒回資料(免費額度用完時隔一小時再試)。")
+else:
+    st.plotly_chart(PR.figure(RV, name), use_container_width=True)
+    _pe_txt = (f"本益比 **{RV['pe']:.1f} 倍**,在自己近 {RV['years']:.0f} 年裡排第 **{RV['rank']:.0f} 百分位**"
+               if RV["pe"] else "近四季 EPS 是負的,沒有本益比")
+    st.markdown(f"{RV['last']:%m/%d} 收盤 **{RV['close']:,.1f}**|近四季 EPS **{RV['ttm']:.2f}**(到 {RV['eps_q']:%Y/%m} 這一季)|{_pe_txt}。"
+                f"歷史最低 {RV['pe_min']:.1f} 倍({RV['pe_min_d']:%Y/%m})、最高 {RV['pe_max']:.1f} 倍({RV['pe_max_d']:%Y/%m})。")
+    st.dataframe(PR.table(RV), hide_index=True, use_container_width=True)
+    _warn = ["「對應股價」是拿**現在的**近四季 EPS 去乘;EPS 往下修,整條河會一起往下移。"]
+    if RV["loss_days"]:
+        _warn.append(f"這段期間有 {RV['loss_days']} 個交易日近四季 EPS 是負的,那幾段沒有河道。")
+    if RV["flags"]:
+        _warn.append("股價單日跳動超過 15% 的日子:" + "、".join(RV["flags"]) + "(減資、分割或大額除權息;前後一年的河道可能失真)。")
+    st.caption("怎麼讀:河道=每天的近四季 EPS × 這檔自己歷史本益比的第 5/25/50/75/95 百分位,顏色越深本益比越高;黑線是未還原股價。"
+               "財報用當天已公布的(季報加 45 天、年報加 90 天)。" + " ".join(_warn)
+               + "循環股獲利在高峰時本益比最低——股價掉到河底不代表便宜,要搭配下面的明年情境看。資料:FinMind。")
+
+# ---------------------------------------------------------------- 明年情境(下修思考)
+NY = FCX.next_year(code, A)
+if NY.get("ok"):
+    st.subheader(f"{NY['year']} 年情境:如果獲利回到正常,還便宜嗎?")
+    if NY["peak"]:
+        base_txt = "前年是虧損" if (NY["eps_y2"] or 0) <= 0 else f"是前年全年 {NY['eps_y2']} 元的 {NY['ttm'] / NY['eps_y2']:.1f} 倍"
+        st.warning(f"🏔 獲利高峰旗標:最近兩季營益率 {NY['opm_now']}%,比近 12 季中位數 {NY['opm_med']}% 高 {NY['gap']} 點;"
+                   f"近四季 EPS {NY['ttm']} 元,{base_txt}。上面的三情境是拿這個高峰往後推的——"
+                   "景氣循環股在獲利最高時本益比最低,股價通常比營收早半年以上見頂。")
+    cut_pct = st.number_input("壓力測試:營收比現在少幾 %", min_value=0, max_value=60, value=int(round(NY["cut"] * 100)), step=2,
+                              key=f"ny_cut_{code}",
+                              help="AI 相關族群預設 16(SemiAnalysis 對 2028 年實體量的下修幅度,第三方轉述);其他預設 0。"
+                                   "上一輪循環(2021–22)個股營收從高點到低點的中位數是 −40%。這是壓力測試,不是預測。")
+    NY2 = FCX.next_year(code, A, cut=cut_pct / 100)
+    px_now = band["close"] if band else None
+    ny_rows = FCX.next_year_rows(NY2, px_now)
+    for r in ny_rows:
+        r["×P50"] = round(r["EPS"] * band["P50"], 1) if (band and r["EPS"] and r["EPS"] > 0) else None
+    st.dataframe(pd.DataFrame(ny_rows).rename(columns={"本益比": "現價隱含本益比", "×P50": "× 歷史本益比中位數"}),
+                 hide_index=True, use_container_width=True)
+    st.caption(f"算到 {NY['last_q']} 這一季。三列由好到壞;每一列都只改一個假設,業外和稅率不動。"
+               + ("" if NY2["lev"] else " 營益率中位數太低(<3%),營收下修那一列不算。")
+               + " 這一段不進上面的期望價,只回答「如果高峰過了」。")
+
+elif NY.get("why"):
+    st.caption(f"明年情境不列:{NY['why']}。")
 
 # ---------------------------------------------------------------- 機構預估彙總
 st.subheader("機構預估彙總")

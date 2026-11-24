@@ -20,6 +20,8 @@ inject_css()
 from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("月營收預測", "MONTHLY REVENUE FORECAST", "🔮")
+import stock_nav as _sn
+_sn.bar("營收預測")
 
 import importlib
 import monthly_forecast as _mf

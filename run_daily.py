@@ -312,6 +312,14 @@ def main():
     except Exception as e:
         log.warning(f"  ⚠️ ETF追蹤: {e}")
 
+    # ── Step 4.5851:高股息 58 檔快取增量(/我的ETF「🧪 高股息58檔考卷」只讀快取,靠這步補到最新)──
+    try:
+        sys.path.insert(0, str(Path(__file__).parent / "scripts"))
+        import etf58_inception as _e58
+        log.info(f"  🧪 高股息58檔:{_e58.update()}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 高股息58檔快取: {e}")
+
     # ── Step 4.59:公司行為雷達(分割/面額/減資公告)──
     try:
         from corp_actions import scan_and_log
@@ -534,6 +542,21 @@ def main():
         log.info("  💽 全市場bulk財報:已更新最新月/季")
     except Exception as e:
         log.warning(f"  ⚠️ bulk財報更新: {e}")
+
+    # ── Step 5.8622:內部人(董監)股權異動月報(觀測站 IRB110 靜態檔;只抓快取裡缺的月份,補齊後每月最多兩次請求)──
+    try:
+        import insider_trades
+        log.info(f"  🧑‍💼 內部人異動:{insider_trades.refresh(36, log=lambda *_: None)}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 內部人異動: {e}")
+
+    # ── Step 5.8621:轉虧為盈+三率三升掃描海報(讀上一步剛更新的 bulk 財報;只讀本機檔、不發請求;只留最新一份)──
+    # 2026-11-24 使用者:「不是單次的吧」——季報、月營收、股價一變名單就會變,不能做一次放著
+    try:
+        import make_poster_turnaround
+        log.info(f"  🔄 轉盈掃描:{Path(make_poster_turnaround.main(quiet=True)).name}")
+    except Exception as e:
+        log.warning(f"  ⚠️ 轉盈掃描: {e}")
 
     # ── Step 5.8635:追蹤股法說簡報增量(finmoconf索引,已有跳過)──
     try:

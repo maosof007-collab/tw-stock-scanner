@@ -56,7 +56,7 @@ def _title(t: str):
 
 c_in, c_lnk = st.columns([2, 2])
 with c_in:
-    code = st.text_input("個股代碼或名稱", value=st.query_params.get("code", "3042"),
+    code = st.text_input("個股代碼或名稱", value=__import__("stock_nav").cur_code("3042"),
                          max_chars=12).strip()
     from symbols import resolve as _sym_resolve
     code = _sym_resolve(code)[0] or ""
@@ -64,6 +64,9 @@ with c_lnk:
     st.page_link("pages/28_公司快照.py", label="🏢 公司快照(估值與EPS)")
 if not code.isdigit():
     st.stop()
+import stock_nav as _sn
+_sn.set_cur_code(code)
+_sn.bar("體質")
 
 A = _load(code)
 if "季別" not in A:

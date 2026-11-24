@@ -206,6 +206,40 @@ def check_poster_index():
                       "srcdoc iframe 裡的 ./xxx.html 會被當成 app 網址,點了是 Page not found")
 
 
+def check_trailing_stop():
+    """移動停利要真的會觸發:100 漲到 150 再跌回 105,停損必須已抬高、105 必須算跌破。
+    (2026-11-17:停損每天用當日收盤重算,賺過又跌回來永遠不觸發,我的ETF 16 次出場 0 次停利。)"""
+    try:
+        import pandas as pd
+        sys.path.insert(0, str(ROOT))
+        import weekly_review as wr
+        c = [100] * 20 + [100 + i * 2.5 for i in range(1, 21)] + [150 - i * 1.5 for i in range(1, 31)] + [105] * 10
+        idx = pd.bdate_range("2026-01-01", periods=len(c))
+        px = pd.DataFrame({"High": [x + 1 for x in c], "Low": [x - 1 for x in c], "Close": c}, index=idx)
+        old, wr._px = wr._px, (lambda code: px)
+        try:
+            s = wr.stop_suggestion("X", 100.0, str(idx[19].date()))
+        finally:
+            wr._px = old
+        if not s.get("建議") or s["建議"] <= 105:
+            errors.append(f"[移動停利] 漲 50% 跌回 +5% 仍未觸發(停損 {s.get('建議')})— weekly_review.stop_suggestion 要從進場日逐日走")
+    except Exception as e:
+        errors.append(f"[移動停利] 檢查跑不起來:{e!r}")
+    try:                                   # 進場日不能比改組日誌的「連續持有起點」晚(被重選洗掉)
+        import my_etf
+        d = my_etf.load()
+        late = [c["code"] for c in d.get("constituents", []) if c.get("code") not in (None, "CASH")
+                and (my_etf._held_since(c["code"], d.get("log", [])) or "") < str(c.get("entry_date") or "")
+                and my_etf._held_since(c["code"], d.get("log", []))]
+        if late:
+            errors.append(f"[移動停利] 我的ETF 進場日晚於日誌的實際進場日:{late}— 跑 python -X utf8 -c \"import my_etf;my_etf.backfill_entries()\"")
+    except Exception as e:
+        errors.append(f"[移動停利] 進場日檢查跑不起來:{e!r}")
+    src = (ROOT / "my_etf.py").read_text(encoding="utf-8")
+    if 'c.get("entry_date"))' not in src:
+        errors.append("[移動停利] my_etf.positions_table 沒把進場日傳給 stop_suggestion,停利會退回不會觸發的舊算法")
+
+
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -217,6 +251,7 @@ def main():
     check_tree_codes()
     check_no_secrets_tracked()
     check_poster_index()
+    check_trailing_stop()
     for n in notes:
         print("  · " + n)
     if errors:

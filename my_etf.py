@@ -39,7 +39,11 @@ def set_constituents(rows: list[dict], note: str = "") -> dict:
     # 換股差異(2026-10-14:「應該出每日換了那些」)——加/刪/調權重,寫進日誌
     _old = {c["code"]: c for c in d.get("constituents", []) if c.get("code")}
     _new = {r["code"]: r for r in rows if r.get("code")}
-    _add = [f"{_new[c].get('name', '')}{c}×{_new[c]['weight']}%"
+    for r in rows:      # 續抱的成分保留原進場日/價(2026-11-17:月度重選把續抱股洗成重選日的價,賺過 1R 的紀錄歸零)
+        _o = _old.get(r.get("code"))
+        if _o and _o.get("entry_px") and not r.get("entry_px"):
+            r["entry_date"], r["entry_px"] = _o.get("entry_date"), _o["entry_px"]
+    _add =[f"{_new[c].get('name', '')}{c}×{_new[c]['weight']}%"
             for c in _new if c not in _old and c != "CASH"]
     _del = [f"{_old[c].get('name', '')}{c}" for c in _old if c not in _new and c != "CASH"]
     _adj = [f"{_new[c].get('name', '')}{c} {_old[c].get('weight')}→{_new[c]['weight']}%"
@@ -404,13 +408,34 @@ def _close_on(code: str, date: str) -> float | None:
     return float(w.iloc[-1]) if len(w) else None
 
 
+def _held_since(code: str, log: list) -> str | None:
+    """從改組日誌往回找這檔「連續持有」的第一天(中間被砍掉再買回,算買回那天)。"""
+    since = None
+    for l in reversed(log or []):
+        if not any(str(x).split("×")[0] == code for x in l.get("constituents", [])):
+            break
+        since = l.get("date")
+    return since
+
+
 def backfill_entries() -> int:
-    """舊成分補進場資訊(2026-10-14:「進出點為?」):無 entry 欄者,以成立日/上次改組日收盤回填。"""
+    """進場日/進場價一律以「實際進場那天」為準(2026-11-17 使用者:「你就抓進場那天算」):
+    改組日誌查得到連續持有起點的,用那天的收盤;紀錄比它晚(被月度重選洗掉)就改回來。
+    日誌查不到的舊成分,以成立日/上次改組日收盤回填(2026-10-14:「進出點為?」)。"""
     d = load()
     base = d.get("log", [{}])[-1].get("date") if d.get("log") else d.get("inception")
     n = 0
     for c in d["constituents"]:
-        if c.get("code") == "CASH" or c.get("entry_px"):
+        if c.get("code") == "CASH" or not c.get("code"):
+            continue
+        hs = _held_since(c["code"], d.get("log", []))
+        if hs and (not c.get("entry_px") or str(c.get("entry_date") or "") > hs):
+            px = _close_on(c["code"], hs)
+            if px:
+                c["entry_date"], c["entry_px"] = hs, round(px, 2)
+                n += 1
+            continue
+        if c.get("entry_px"):
             continue
         px = _close_on(c["code"], base or f"{now_tw():%Y-%m-%d}")
         if px:
@@ -423,7 +448,11 @@ def backfill_entries() -> int:
 
 def positions_table() -> "pd.DataFrame":
     """持倉進出表:進場價/現價/報酬/停損(家規:未賺1R=買價-1.5ATR;賺1R後=保本+移動2ATR)/距停損。"""
-    from weekly_review import stop_suggestion
+    import weekly_review as _wr
+    if not hasattr(_wr, "_walk_stop"):       # 常駐的 app 不重載被 import 的模組,舊版沒有逐日走的停利
+        import importlib
+        _wr = importlib.reload(_wr)
+    stop_suggestion = _wr.stop_suggestion
     backfill_entries()
     d = load()
     rows = []
@@ -438,7 +467,7 @@ def positions_table() -> "pd.DataFrame":
         ep = c.get("entry_px")
         ret = (close / ep - 1) * 100 if ep else None
         try:
-            sg = stop_suggestion(code, float(ep) if ep else None)
+            sg = stop_suggestion(code, float(ep) if ep else None, c.get("entry_date"))
         except Exception:
             sg = {}
         stop = sg.get("建議")
@@ -473,7 +502,8 @@ def enforce_stops() -> str:
     else:
         rows.append({"code": "CASH", "name": "現金", "weight": round(freed, 2),
                      "thesis": "停損釋出——🔴禁開新倉,等燈退/月選"})
-    note = "🛑停損執行:" + "、".join(
-        f"{r['名稱']}{r['代碼']}({r['報酬%']:+.1f}%)" for _, r in hit.iterrows())
+    note = "🛑停損執行:" + "、".join(                      # 賺錢出場的標「停利」,日誌才分得出來
+        f"{r['名稱']}{r['代碼']}({r['報酬%']:+.1f}%{'·停利' if (r['報酬%'] or 0) > 0 else ''})"
+        for _, r in hit.iterrows())
     set_constituents(rows, note=note)
     return note

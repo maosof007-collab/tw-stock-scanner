@@ -118,18 +118,52 @@ def _bulk_monthly(code: str, years: int) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def _bulk_quarterly(code: str, years: int) -> pd.DataFrame:
-    """全市場 bulk 季損益(MOPS 彙總,進git)。"""
+_BQ: dict = {"mtime": None, "df": None}
+
+
+def bulk_q_all() -> pd.DataFrame:
+    """全市場 bulk 季損益(讀一次、檔案更新才重讀)。
+    bulk 的單季 EPS 是累計數相減來的,股本變動(分割、減資、大額配股)那一季會算錯——
+    例:緯穎 2026Q3 淨利率 +5.4%、EPS 卻是 −62 元。和「上一季 EPS × 淨利變化」差太多的設成空值(欄位 EPS可疑=True)。
+    只比相鄰兩季;錯的那一季之後第一季也可能被誤判,寧可空著。"""
     p = DATA / "bulk_fin" / "fin_q_all.csv.gz"
     if not p.exists():
         return pd.DataFrame()
+    mt = p.stat().st_mtime
+    if _BQ["mtime"] != mt:
+        d = pd.read_csv(p, dtype={"code": str}).sort_values(["code", "季度"]).reset_index(drop=True)
+        ni = d["營收(億)"] * d["淨利率%"] / 100
+        eps_p, ni_p, m_p = d.groupby("code")["EPS"].shift(1), ni.groupby(d["code"]).shift(1), d.groupby("code")["淨利率%"].shift(1)
+        imp = eps_p * ni / ni_p
+        ok = (ni * ni_p > 0) & (d["淨利率%"].abs() >= 1) & (m_p.abs() >= 1) & (eps_p.abs() >= 0.3)
+        sus = ok & ((d["EPS"] - imp).abs() > (0.6 * imp.abs()).clip(lower=1.0))
+        d["EPS可疑"] = sus
+        d.loc[sus, "EPS"] = float("nan")
+        _BQ.update(mtime=mt, df=d)
+    return _BQ["df"]
+
+
+def _bulk_quarterly(code: str, years: int) -> pd.DataFrame:
+    """全市場 bulk 季損益(MOPS 彙總,進git)。"""
     try:
-        d = pd.read_csv(p, dtype={"code": str})
+        d = bulk_q_all()
+        if d.empty:
+            return d
         d = d[d["code"] == str(code)].sort_values("季度")
         return (d[["季度", "營收(億)", "毛利率%", "營益率%", "淨利率%", "EPS"]]
                 .tail(years * 4).reset_index(drop=True))
     except Exception:
         return pd.DataFrame()
+
+
+def _topup(out: pd.DataFrame, bulk: pd.DataFrame, key: str, n: int) -> pd.DataFrame:
+    """FinMind 快取被限流時會停在舊資料;本機全市場檔如果有更新的期別,接在後面。"""
+    if out.empty or bulk.empty:
+        return out
+    newer = bulk[bulk[key].astype(str).str[:10] > str(out[key].iloc[-1])[:10]]
+    if newer.empty:
+        return out
+    return pd.concat([out, newer[[c for c in out.columns if c in newer.columns]]], ignore_index=True).tail(n)
 
 
 def monthly_revenue(code: str, years: int = 3) -> pd.DataFrame:
@@ -143,7 +177,7 @@ def monthly_revenue(code: str, years: int = 3) -> pd.DataFrame:
     df["revenue"] = df["revenue"] / 1e6
     df = df.sort_values("ym").reset_index(drop=True)
     df["yoy%"] = (df["revenue"] / df["revenue"].shift(12) - 1) * 100
-    return df[["ym", "revenue", "yoy%"]].tail(years * 12)
+    return _topup(df[["ym", "revenue", "yoy%"]].tail(years * 12), _bulk_monthly(code, years), "ym", years * 12)
 
 
 def quarterly_fin(code: str, years: int = 3) -> pd.DataFrame:
@@ -168,7 +202,7 @@ def quarterly_fin(code: str, years: int = 3) -> pd.DataFrame:
     if "EPS" in piv:
         out["EPS"] = piv["EPS"]
     out = out.reset_index().rename(columns={"date": "季度"})
-    return out.round(2).tail(years * 4)
+    return _topup(out.round(2).tail(years * 4), _bulk_quarterly(code, years), "季度", years * 4)
 
 
 def _chip_context(code: str) -> str:

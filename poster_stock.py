@@ -110,7 +110,28 @@ def _scn_card(ctx, note: str) -> str:
                  f'<td class="n">{eps:g}</td><td class="n">{pe}</td></tr>')
     return card("三種情境估值(年化)",
         f'<table><tr><th>情境</th><th>假設淨利率</th><th>年化 EPS</th><th>現價 {px:g} 隱含 PE</th></tr>{rows}</table>'
-        f'<div class="note">{note}</div>', src="系統情境模型")
+        f'<div class="note">{note}</div>' + _ny_html(ctx.get("code", ""), px), src="系統情境模型")
+
+
+def _ny_html(code: str, px: float) -> str:
+    """明年情境(下修思考):維持現況/營益率回中位/再加營收下修,加獲利高峰警示。算不出來就不放。"""
+    try:
+        import forecast_card as FC
+        N = FC.next_year(str(code))
+        if not N.get("ok"):
+            return f'<div class="note" style="margin-top:8px"><b>明年情境不列</b>:{N["why"]}。</div>' if N.get("why") else ""
+        rows = ""
+        for r in FC.next_year_rows(N, px):
+            pe = "—" if r["本益比"] is None else f'{r["本益比"]:g} 倍'
+            rows += f'<tr><td><b>{r["情境"]}</b></td><td>{r["怎麼算"]}</td><td class="n">{r["EPS"]:g}</td><td class="n">{pe}</td></tr>'
+        warn = ""
+        if N["peak"]:
+            warn = (f'<div class="note">⚠ 獲利高峰旗標:營益率 {N["opm_now"]}% 比近 12 季中位數高 {N["gap"]} 點,'
+                    '上面的情境是拿高峰往後推的。</div>')
+        return (f'<div class="note" style="margin-top:8px"><b>{N["year"]} 年:如果獲利回到正常</b>(算到 {N["last_q"]} 這一季;壓力測試,不是預測)</div>'
+                f'<table><tr><th>情境</th><th>怎麼算</th><th>全年 EPS</th><th>現價隱含 PE</th></tr>{rows}</table>{warn}')
+    except Exception:
+        return ""
 
 
 def _px_card(ctx, extra: str = "") -> str:
@@ -150,14 +171,53 @@ def stock_poster(cfg: dict, date: str = "") -> None:
     c_px = _px_card(ctx, cfg.get("px_note", ""))
     if cfg.get("scn_off"):
         # 業外占獲利比重大的公司:系統用含業外的淨利率外推,EPS 會嚴重偏高——整張表不列,只留說明
-        c_scn = card("三種情境估值(本檔不列)", f'<div class="note">{cfg.get("scn_note", "")}</div>')
+        c_scn = card("三種情境估值(本檔不列)", f'<div class="note">{cfg.get("scn_note", "")}</div>'
+                     + _ny_html(cfg["code"], float(ctx["pstats"]["close"])))
     else:
         c_scn = _scn_card(ctx, cfg.get("scn_note", "情境=系統淨利率假設年化;估值判讀以隱含 PE 為準,不自創目標價。"))
     c_risk = card("風險與觀察", checks(cfg["risk"]), extra_cls="risk grow")
     cols = [c_concl + c_struct + c_chip,
             c_fin + c_mom + c_cust,
             c_px + c_scn + c_cata + c_risk]
-    html = shell(title_html=f'{cfg["name"]}<b>({cfg["code"]})</b>{cfg.get("title","深度研究總整理")}',
+    from poster import slink
+    html = shell(title_html=f'{cfg["name"]}<b>({cfg["code"]})</b>{cfg.get("title","深度研究總整理")}' + slink(cfg["code"], "開個股頁 →"),
                  subtitle=cfg["subtitle"], brand=cfg["brand"], cols=cols,
-                 footer=f'素材:{cfg.get("src","系統資料管線")}+系統 {date[:4]}/{date[4:6]}/{date[6:]} 數據 · 本海報為研究筆記非投資建議')
+                 footer=f'素材:{cfg.get("src","系統資料管線")}+系統 {date[:4]}/{date[4:6]}/{date[6:]} 數據(財報、月營收、籌碼、情境是這天重算的;結論與結構文字是寫稿時的內容) · 本海報為研究筆記非投資建議')
     print("saved:", save_poster(cfg["code"], date, html))
+
+
+def auto_cards(code: str, existing: str = "") -> str:
+    """給手寫數字的舊版海報(make_posters_wave1111/warn1111、make_poster_6271)掛的自動更新區:
+    最新一季財報、近三個月營收、明年情境。手寫卡片的數字不動,這一區每次重跑都是最新資料。
+    existing=海報原本的手寫內容:裡面已經有最新一季/最新月營收的,就不重複掛那一張。"""
+    import re
+    from twtime import now_tw
+    ctx = dr.build_deep_context(str(code))
+    d = f"{now_tw():%m/%d}"
+    px = float(ctx["pstats"]["close"])
+    fin = _fin_card(ctx, "這一張是系統資料,每次重跑都會更新;其他手寫卡片是寫稿當時的數字。")
+    fin = fin.replace('<div class="ct">最新財報', f'<div class="ct">🆕 {d} 更新:最新財報', 1)
+    ra = pd.read_csv("data/bulk_fin/rev_all.csv.gz", dtype={"code": str})
+    mo = ra[ra["code"] == str(code)].tail(3)
+    tbl = ""
+    for _, r in mo.iterrows():
+        y = r.get("yoy%")
+        ytxt = ud(round(float(y)), f"{float(y):+.0f}%") if pd.notna(y) else "—"
+        tbl += f'<tr><td>{r["ym"]}</td><td class="n">{float(r["revenue"]) / 100:.2f} 億</td><td class="n">{ytxt}</td></tr>'
+    mom = card(f"🆕 {d} 更新:近三個月營收", f'<table><tr><th>月份</th><th>億</th><th>年增</th></tr>{tbl}</table>', src="系統資料")
+    ny = _ny_html(str(code), px)
+    scn = card(f"🆕 {d} 更新:明年情境(下修思考)", ny + f'<div class="note">現價 {px:g}。情境只改營益率和營收兩個假設。</div>',
+               src="系統情境模型") if ny else ""
+    q = ctx["quarterly"].dropna(subset=["EPS"])
+    if len(q):
+        y, m = str(q["季度"].iloc[-1])[:4], int(str(q["季度"].iloc[-1])[5:7])
+        qn = {3: "一", 6: "二", 9: "三", 12: "四"}.get(m, "")
+        if re.search(rf"{y}\s*(Q{m // 3}|第{qn}季)", existing):
+            fin = ""
+    if len(mo):
+        ym = str(mo["ym"].iloc[-1])
+        # 要有「N 月營收 … 億」的數字才算已經寫過:「11 月營收」不可以被「1 月營收」比中,
+        # 「12/10 公布 11 月營收」這種預告、或 2026/11/24 這種日期也不算
+        if re.search(rf"(?<!\d){int(ym[5:7])} 月營收[^。;]{{0,15}}?\d[\d.,]* ?億|{ym}(?![-/]?\d)|{ym.replace('-', '/')}(?![-/]?\d)", existing):
+            mom = ""
+    return fin + mom + scn

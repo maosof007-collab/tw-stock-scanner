@@ -25,7 +25,7 @@ for f in glob.glob('data/[0-9][0-9][0-9][0-9].TW*.csv'):
         seg = c.iloc[loc + 1: loc + 11]
         hit = seg[seg > ref]
         left = 10 - len(seg)
-        rows.append(dict(code=code, name=nm[code], sec=sec[code], E=E.strftime('%m/%d'), ref=round(ref, 2), drop=round(drop * 100, 1),
+        rows.append(dict(code=code, name=nm[code], sec=sec[code], E=E.strftime('%m/%d'), Ed=E.strftime('%Y-%m-%d'), ref=round(ref, 2), drop=round(drop * 100, 1),
                          last=round(float(c.iloc[-1]), 2), last_date=d.index[-1].strftime('%m/%d'),
                          gap=round((c.iloc[-1] / ref - 1) * 100, 1), hit=(hit.index[0].strftime('%m/%d') if len(hit) else ''),
                          left=left, vol20=int(vol20.iloc[-1] / 1000), amt20=round(float((c * v).tail(20).mean() / 1e8), 2),
@@ -33,6 +33,6 @@ for f in glob.glob('data/[0-9][0-9][0-9][0-9].TW*.csv'):
 x = pd.DataFrame(rows)
 print('事件×個股 筆數', len(x), '| 各事件:', x.groupby('E').size().to_dict())
 x.to_csv(sys.argv[1], index=False, encoding='utf-8-sig')
-last = x[x.E == x.E.max()] if len(x) else x
+last = x[x.Ed == x.Ed.max()] if len(x) else x          # 用完整日期比,跨年時 'mm/dd' 字串會排錯
 liq = last[last.vol20 >= 500]
 print('最新事件', last.E.iloc[0], '候選', len(last), '| 均量≥500張', len(liq), '| 已收復', (liq.hit != '').sum(), '| 未收復', (liq.hit == '').sum())

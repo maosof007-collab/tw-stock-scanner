@@ -26,6 +26,12 @@ G:\python\python.exe fetch_institutional.py --mode update >> logs\daily_task.log
 rem taifex tick->1min K archive (free window is only last 30 sessions - hoard daily)
 G:\python\python.exe fetch_taifex_ticks.py >> logs\daily_task.log 2>&1
 G:\python\python.exe fetch_margin.py --mode update >> logs\daily_task.log 2>&1
+rem TWSE official monthly market P/E (published 7th business day) + nowcast
+rem cache for the P/E river chart - self-guarded, no request when up to date
+G:\python\python.exe fetch_twse_pe.py >> logs\daily_task.log 2>&1
+rem chip inventory-cycle lights (customers of TSMC): monthly revenue + quarterly
+rem inventory cache for the macro page - file-cached, few requests when fresh
+G:\python\python.exe chip_cycle.py fetch >> logs\daily_task.log 2>&1
 rem daily money-flow journal article - self-guarded: needs today's institutional
 rem data (16:00+), local Claude engine, and skips if already generated today
 G:\python\python.exe money_flow_daily.py >> logs\daily_task.log 2>&1

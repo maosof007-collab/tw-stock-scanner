@@ -21,6 +21,9 @@ inject_css()
 from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("券商觀點總覽", "ADVISORY VIEWS", "🗂️")
+import stock_nav as _sn
+_sn.sync_widget("adv_q")
+_sn.bar("券商觀點", widget_key="adv_q")
 
 import advisory_hub as ah
 from twtime import now_tw

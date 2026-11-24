@@ -16,10 +16,15 @@ st.set_page_config(page_title="個股戰情室", page_icon="🎯", layout="wide"
 ROOT = Path(__file__).parent.parent
 
 st.title("🎯 個股戰情室")
+import stock_nav as _sn
+_wc = st.session_state.pop("war_code", None)      # 別頁按「開完整戰情室」指定的那一檔,優先於上次看的
+if _wc:
+    _sn.set_cur_code(_wc)
+_sn.sync_widget("war_code_in", "2330")
+_sn.bar("戰情室", widget_key="war_code_in")
 _tc, _tl = st.columns([3, 1])
 with _tc:
-    code = st.text_input("代號或名稱(如 2330 或 台積電)",
-                         value=st.session_state.get("war_code", "2330"), key="war_code_in")
+    code = st.text_input("代號或名稱(如 2330 或 台積電)", key="war_code_in")
     from symbols import resolve as _sym_resolve
     _rc, _rn = _sym_resolve(code)
     if _rc and _rc != code.strip():

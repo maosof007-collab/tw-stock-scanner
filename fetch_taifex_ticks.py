@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from datetime import timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd

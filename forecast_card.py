@@ -26,10 +26,14 @@ FC.mkdir(exist_ok=True)
 
 
 # ---------------------------------------------------------------- 錨與三情境
-def anchor(code: str) -> dict:
-    """已實現EPS錨+三情境全年EPS預設值。全部欄位可被頁面覆寫——這是預設不是聖旨。"""
+def anchor(code: str, q: pd.DataFrame | None = None) -> dict:
+    """已實現EPS錨+三情境全年EPS預設值。全部欄位可被頁面覆寫——這是預設不是聖旨。
+    q 可以由呼叫端給(例:/個股 只准讀本機,給 fundamentals._bulk_quarterly 的結果);沒給才用 quarterly_fin(快取過期時會發請求)。"""
     import fundamentals as F
-    q = F.quarterly_fin(code, years=4)
+    if not hasattr(F, "bulk_q_all"):          # app 開著時模組不會重載;沒有「本機補最新一季」的舊版就重載一次
+        import importlib
+        F = importlib.reload(F)
+    q = F.quarterly_fin(code, years=4) if q is None else q
     out = {"ok": False}
     if q is None or q.empty or "EPS" not in q:
         return out
@@ -66,6 +70,81 @@ def anchor(code: str) -> dict:
                scen={"保守": round(cons, 2), "基準": round(base, 2), "樂觀": round(opt, 2)},
                q=qq, year=yr)
     return out
+
+
+# ---------------------------------------------------------------- 明年情境(下修思考)+獲利高峰保險絲
+# 起因(2026-11-20):模型只推「今年剩下幾季」、只有獲利谷底的保險絲。股價走在營收前面(ai_capex_exposure.cycle_lead:
+# 上一輪 81% 股價先見頂、早 8 個月),營收還在創高時用最近兩季往後推會顯示「變便宜」。使用者:「現在模型要去思考下修」。
+STRESS_CUT_AI = 0.16        # AI 相關族群的預設壓力:營收比現在少 16%(SemiAnalysis 2028 年實體量下修幅度;第三方轉述)
+PEAK_GAP = 5.0              # 營益率比近 12 季中位數高幾個百分點算「在高峰」
+PEAK_MULT = 2.0             # 近四季 EPS 是前年全年的幾倍算「在高峰」
+
+
+def _is_ai(code: str) -> bool:
+    try:
+        from ai_capex_exposure import AI_GROUPS
+        from theme_groups import THEME_GROUPS
+        return any(str(code) in [str(c) for c in THEME_GROUPS.get(g, [])] for g in AI_GROUPS)
+    except Exception:
+        return False
+
+
+def next_year(code: str, A: dict | None = None, cut: float | None = None) -> dict:
+    """明年全年 EPS 的三種情境,由好到壞:
+      維持現況  =最近兩季平均 ×4
+      營益率回中位=上面 × (近 12 季營益率中位數 ÷ 最近兩季營益率);現在低於中位數就不調
+      再加營收下修=再乘 (1 − cut × 營業槓桿);營業槓桿=毛利率中位 ÷ 營益率中位(上限 6;營益率中位 <3% 不算)
+    cut 沒給時:AI 相關族群用 STRESS_CUT_AI,其他 0。這是壓力測試,不是預測。
+    peak=獲利高峰旗標:營益率比中位數高 PEAK_GAP 點以上,且近四季 EPS ≥ 前年全年 × PEAK_MULT(前年虧損也算)。"""
+    A = A or anchor(code)
+    out = {"ok": False}
+    if not A.get("ok"):
+        return out
+    qq = A["q"]
+    if "營益率%" not in qq or "毛利率%" not in qq or len(qq.dropna(subset=["營益率%"])) < 6:
+        return out
+    last2, hist = qq.tail(2), qq.tail(12)
+    run = float(last2["EPS"].mean()) * 4
+    opm_now, opm_med = float(last2["營益率%"].mean()), float(hist["營益率%"].median())
+    # 這個算法是用營益率去縮放 EPS:本業虧損、或獲利四成以上來自業外的公司不適用(例:光罩 2338 本業虧、EPS 靠業外)
+    if opm_now <= 0 or run <= 0 or A.get("nonop_pct", 0) >= 40:
+        out["why"] = ("最近兩季本業是虧損" if opm_now <= 0 or run <= 0 else f"近四季獲利約 {A['nonop_pct']}% 來自業外") + ",用營益率推算明年 EPS 不適用"
+        return out
+    gm_med = float(hist["毛利率%"].median())
+    yr = int(qq["dt"].iloc[-1].year)        # 以最新一季所在的年度為準(1~3 月年報還沒出時,不可以用日曆年,會跳一年)
+    y2 = qq[qq["dt"].dt.year == yr - 2]
+    eps_y2 = float(y2["EPS"].sum()) if len(y2) == 4 else None
+    gap = opm_now - opm_med
+    peak = bool(gap >= PEAK_GAP and A["ttm"] > 0 and eps_y2 is not None and (eps_y2 <= 0 or A["ttm"] >= PEAK_MULT * eps_y2))
+    if opm_now > 0 and opm_med < opm_now:
+        norm = run * max(opm_med, 0.0) / opm_now
+    else:
+        norm = run
+    ai = _is_ai(code)
+    cut = (STRESS_CUT_AI if ai else 0.0) if cut is None else float(cut)
+    lev = min(6.0, gm_med / opm_med) if opm_med >= 3 else None
+    down = norm * max(0.0, 1 - cut * lev) if lev is not None else None
+    out.update(ok=True, year=yr + 1, run=round(run, 2), norm=round(norm, 2), down=None if down is None else round(down, 2),
+               opm_now=round(opm_now, 1), opm_med=round(opm_med, 1), gm_med=round(gm_med, 1), gap=round(gap, 1),
+               eps_y2=None if eps_y2 is None else round(eps_y2, 2), ttm=A["ttm"], peak=peak, ai=ai, cut=cut,
+               lev=None if lev is None else round(lev, 2), last_q=str(qq["季度"].iloc[-1])[:10])
+    return out
+
+
+def next_year_rows(N: dict, px: float | None = None) -> list[dict]:
+    """給頁面和海報用的三列:情境、怎麼算、EPS、現價隱含本益比。"""
+    def pe(e):
+        return None if (px is None or e is None or e <= 0) else round(px / e, 1)
+    rows = [{"情境": "維持現況", "怎麼算": "最近兩季平均 ×4", "EPS": N["run"], "本益比": pe(N["run"])},
+            {"情境": "營益率回中位", "怎麼算": (f"近 12 季營益率中位數是 {N['opm_med']}%(虧損)——回到中位就是不賺錢" if N["opm_med"] <= 0
+                                      else f"營益率 {N['opm_now']}% → 近 12 季中位數 {N['opm_med']}%" if N["norm"] < N["run"]
+                                      else f"現在營益率 {N['opm_now']}% 不高於中位數 {N['opm_med']}%,不調"),
+             "EPS": N["norm"], "本益比": pe(N["norm"])}]
+    if N["down"] is not None and N["cut"] > 0:
+        rows.append({"情境": "再加營收下修", "怎麼算": f"營收再少 {N['cut'] * 100:.0f}%,營業槓桿 {N['lev']} 倍",
+                     "EPS": N["down"], "本益比": pe(N["down"])})
+    return rows
+
 
 
 def pe_band(code: str, qq: pd.DataFrame) -> dict | None:

@@ -22,6 +22,8 @@ inject_css()
 from gate import require_login, logout_button
 require_login(); logout_button()
 page_header("個股研究中心", "STOCK RESEARCH HUB", "🧾")
+import stock_nav as _sn
+_sn.bar("研究中心")
 
 # 熱更新防護:雲端 git pull 後模組快取可能是舊版,缺新名字就 reload
 import importlib

@@ -6,10 +6,16 @@ D = "2026/11/11"
 
 
 def build(code, name, title_b, subtitle, brand, cols, src_note):
+    # 2026-11-20:手寫數字是 11/11 寫稿時的;重跑時在第二欄掛上系統自動更新區(最新一季、近三個月營收、明年情境)
+    from poster_stock import auto_cards
+    from twtime import now_tw
+    cols = list(cols)
+    cols[1] = auto_cards(code, "".join(cols)) + cols[1]
+    today = now_tw()
     html = shell(title_html=f"{name}<b>({code})</b>{title_b}", subtitle=subtitle,
                  brand=brand, cols=cols,
-                 footer=f"素材:{src_note} · {D} · 本海報為研究筆記非投資建議")
-    print("saved:", save_poster(code, "20261111", html))
+                 footer=f"素材:{src_note} · 手寫內容 {D},🆕 卡片 {today:%Y/%m/%d} 重算 · 本海報為研究筆記非投資建議")
+    print("saved:", save_poster(code, f"{today:%Y%m%d}", html))
 
 
 # ════════════════ 3287 廣寰科(警示·完整規格)════════════════

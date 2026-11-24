@@ -132,8 +132,12 @@ c_risk = card("關鍵風險與觀察重點", checks([
     ("ok", "觀察:12/10 的 11 月營收|每週五大戶% 守 50%|12〜1 月陶瓷漲價落地|AST 訂單公告"),
 ]), extra_cls="risk grow")
 
+# 2026-11-20:手寫數字是 11/11 寫稿時的;重跑時在第二欄掛上系統自動更新區(最新一季、近三個月營收、明年情境)
+from poster_stock import auto_cards
+from twtime import now_tw
+TODAY = now_tw()
 COLS = [c_concl + c_mix + c_comp + c_chip,
-        c_fin + c_mom + c_cust + c_catalyst,
+        auto_cards("6271", c_fin + c_mom) + c_fin + c_mom + c_cust + c_catalyst,
         c_px + c_scn + c_risk + c_cash]
 
 html = shell(
@@ -141,6 +145,6 @@ html = shell(
     subtitle="車用 CIS 封裝為體、陶瓷漲價+RF 放量為翼,211 站上可期待、衛星題材需訂單支撐",
     brand="同欣電子 TONG HSING",
     cols=COLS,
-    footer="素材:10/30 Q3 法說簡報(核閱數)+advisory 新聞紀錄+本系統資料管線 · 2026/11/11 · 本海報為研究筆記非投資建議")
-p = save_poster("6271", "20261111", html)
+    footer="素材:10/30 Q3 法說簡報(核閱數)+advisory 新聞紀錄+本系統資料管線 · 手寫內容 2026/11/11,🆕 卡片 " + f"{TODAY:%Y/%m/%d}" + " 重算 · 本海報為研究筆記非投資建議")
+p = save_poster("6271", f"{TODAY:%Y%m%d}", html)
 print("saved:", p)

@@ -66,8 +66,35 @@ def add_trade(code: str, thesis: str, buy_price: float | None = None) -> None:
     print(f"[journal] 記錄買進 {code} {nm} 買入價 {buy_price or f'(未填,參考{ref})'}|論點:{thesis}")
 
 
-def stop_suggestion(code: str, buy_price: float | None = None) -> dict:
+def _walk_stop(px: pd.DataFrame, atr_s: pd.Series, buy_price: float, entry_date: str) -> dict:
+    """從進場日一天一天走的停損/停利(只升不降)。
+    2026-11-17:原本每天拿「今天的收盤」重算,賺過 1R 又跌回來就退回初始停損,
+    移動停利永遠不會被跌破——我的ETF 16 次出場 0 次是停利。這裡改成記住走過的路。"""
+    seg = px[px.index >= pd.Timestamp(entry_date)]
+    if seg.empty:
+        return {}
+    a0 = atr_s[atr_s.index <= seg.index[0]].dropna()
+    a0 = float(a0.iloc[-1]) if len(a0) else float(atr_s.dropna().iloc[-1])
+    init = round(buy_price - 1.5 * a0, 1)
+    stop, trig = init, False
+    for dt, cv in seg["Close"].iloc[1:].items():           # 進場當天不算
+        if not trig and cv >= buy_price + 1.5 * a0:
+            trig = True
+        if trig and pd.notna(atr_s[dt]):
+            stop = max(stop, buy_price, cv - 2 * float(atr_s[dt]))
+    lock = (stop / buy_price - 1) * 100
+    if not trig:
+        note = f"未賺1R→守初始停損(風險{lock:.1f}%)"
+    elif lock < 0.05:
+        note = "已賺1R→保本(停損抬到進場價,只升不降)"
+    else:
+        note = f"已賺1R→移動停利,鎖住 {lock:+.1f}%(只升不降)"
+    return {"初始(買價-1.5ATR)": init, "建議": round(stop, 1), "說明": note, "已賺1R": trig}
+
+
+def stop_suggestion(code: str, buy_price: float | None = None, entry_date: str | None = None) -> dict:
     """停損建議(家規):未賺1R=初始停損(買價-1.5ATR);賺≥1R=保本+移動(收盤-2ATR取高)。
+    有給 entry_date 時從進場日逐日走(停損只升不降,跌破=停利出場);沒給只能用今天的收盤估。
     回傳 {初始, 移動, 20日低, 建議, 說明}。"""
     px = _px(code)
     if px is None or len(px) < 30:
@@ -81,7 +108,10 @@ def stop_suggestion(code: str, buy_price: float | None = None) -> dict:
     trail = round(close - 2 * atr, 1)
     low20 = round(float(c.rolling(20).min().iloc[-1]), 1)
     out = {"移動(收盤-2ATR)": trail, "20日低": low20, "現價": close}
-    if buy_price:
+    walked = _walk_stop(px, tr.rolling(14).mean(), float(buy_price), entry_date) if (buy_price and entry_date) else {}
+    if walked:
+        out.update(walked)
+    elif buy_price:
         init = round(buy_price - 1.5 * atr, 1)
         out["初始(買價-1.5ATR)"] = init
         if close >= buy_price + 1.5 * atr:          # 已賺 ≥1R

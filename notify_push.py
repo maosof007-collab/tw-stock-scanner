@@ -62,6 +62,12 @@ def main() -> None:
             return push()   # 融資 21:00 後才齊;掃描內建新鮮度檢查,沒到不推
         _step("斷頭投降日", margin)
 
+        def mbreak():
+            # 維持率破底名單(頁 42「維持率破底×爆量」盤中要讀);融資有新的一天才重建
+            from margin_break import refresh
+            return refresh()
+        _step("維持率破底建檔", mbreak)
+
         def att_review():
             # 強勢榜每日檢討:增量回放(近45日補熟成報酬)→ LINE 一行戰績(防重複)
             from attention_replay import push_review
