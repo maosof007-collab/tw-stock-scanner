@@ -1,0 +1,197 @@
+<title>甲骨文、CoreWeave 等 5 年 </title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#dfe4ea;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#1c2733;line-height:1.5;font-size:14px}
+.wrap{max-width:1640px;margin:0 auto;padding:10px}
+.hd{background:linear-gradient(100deg,#0d2b52 0%,#123c6e 70%,#1b5fa8 100%);color:#fff;
+  border-radius:8px;padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hd h1{font-size:25px;font-weight:900;letter-spacing:.5px}
+.hd h1 b{color:#ffd84d}
+.hd .sub{font-size:13px;margin-top:3px;color:#cfe2ff;font-weight:700}
+.hd .brand{text-align:right;font-size:11px;color:#9fc3f0;white-space:nowrap}
+.hd .brand .bx{border:2px solid #ffd84d;color:#ffd84d;font-weight:900;font-size:13.5px;
+  padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:stretch}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(13,43,82,.2);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.grow{flex:1}
+.card.grow .cb{flex:1;display:flex;flex-direction:column}
+.card.grow .cb .flow{flex:1;justify-content:space-between}
+.card.grow .cb ul.ck{flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+.card .ct{background:#0d2b52;color:#fff;font-weight:900;font-size:15.5px;padding:6px 11px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.card .ct small{color:#9fc3f0;font-weight:400;font-size:11px}
+.card .cb{padding:9px 11px}
+ul.ck{list-style:none}
+ul.ck li{padding:4px 0 4px 26px;position:relative;font-size:13.8px;font-weight:700}
+ul.ck li::before{content:"✔";position:absolute;left:2px;color:#15903f;font-weight:900}
+ul.ck li.wn::before{content:"⚠";color:#d98400}
+ul.ck li.xx::before{content:"✘";color:#c0392b}
+ul.ck li b{color:#c0392b}
+.bignums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.bn{background:#f2f6fb;border:1px solid #d7e3f2;border-radius:8px;padding:8px 4px}
+.bn .k{font-size:12.5px;color:#456;font-weight:800}
+.bn .v{font-size:23px;font-weight:900;color:#c0392b;font-family:Arial,sans-serif;letter-spacing:-.5px}
+.bn .d{font-size:11.5px;color:#567;font-weight:700}
+.up2{color:#c0392b;font-weight:800}.dn2{color:#15903f;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:2px 0}
+th{background:#eaf1f9;color:#0d2b52;font-weight:900;padding:5px 7px;text-align:left;border:1px solid #d7e3f2}
+td{padding:5px 7px;border:1px solid #e4ebf4;font-weight:700}
+td.n{font-family:Arial;font-weight:800}
+.rd{color:#c0392b}.gn{color:#15903f}.yl{background:#fff6d6}
+.flow{display:flex;flex-direction:column;gap:5px}
+.fbox{background:#eaf3ff;border:1.5px solid #8fb7e8;border-radius:8px;padding:6px 10px;
+  font-size:13px;font-weight:700;text-align:center;color:#0d2b52}
+.fbox small{display:block;color:#567;font-weight:600;font-size:11.5px}
+.fbox.hot{background:#fff3f0;border-color:#e8a194;color:#a03022}
+.farr{text-align:center;color:#1b5fa8;font-weight:900;line-height:.9}
+.donutrow{display:flex;gap:12px;align-items:center}
+.donut{width:128px;height:128px;border-radius:50%;flex:none;position:relative}
+.donut::after{content:attr(data-c);position:absolute;inset:32px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#0d2b52;text-align:center}
+.lg{font-size:13px;flex:1}
+.lg div{display:flex;align-items:center;gap:6px;padding:2.5px 0;font-weight:700}
+.lg i{width:11px;height:11px;border-radius:3px;flex:none}
+.lg small{color:#567;font-weight:600;margin-left:auto;text-align:right}
+.bars{display:flex;gap:16px;align-items:flex-end;min-height:96px;margin-top:10px;padding:4px 6px 0;justify-content:center}
+.bar{width:64px;text-align:center;font-size:11.5px;font-weight:800;color:#345}
+.bar i{display:block;border-radius:4px 4px 0 0}
+.bar .pv{color:#c0392b;font-size:13px;font-family:Arial}
+.risk{background:#fdf0f2}
+.risk .ct{background:#8e2437}
+.risk ul.ck li::before{content:"⚠";color:#c0392b}
+.note{font-size:11.5px;color:#678;margin-top:4px;line-height:1.45}
+.ft{text-align:center;font-size:11.5px;color:#56687e;margin-top:10px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:stretch}
+.row.r1{grid-template-columns:1fr}.row.r2{grid-template-columns:1fr 1fr}.row.r3{grid-template-columns:repeat(3,1fr)}
+.row.r21{grid-template-columns:2fr 1fr}.row.r12{grid-template-columns:1fr 2fr}
+.card .src{font-size:11.5px;color:#678;font-weight:600;line-height:1.45;margin-top:6px}
+/* 2026-11-19 版面修正(使用者:「字體調整 要不然海報要更大吧?」「有人海報空一堆嗎?」)
+   原本固定 1180px 切三欄:每欄 385px,表格被擠爛;後來改一列一列對齊,短卡片旁邊又留一大塊空白。
+   現在:卡片照順序由上往下流,瀏覽器自動把各欄排到一樣高(不留洞);七欄以上的表格自動佔滿整列。
+   一般寬度兩欄,≥1500px 三欄,手機一欄。舊海報的三個 .col 只是容器,拆掉讓卡片一起流。 */
+.card .ct{flex-wrap:wrap;gap:0 10px}
+.card .ct small{flex:1 1 170px;text-align:right}
+.card .cb{overflow-x:auto}
+td.n{white-space:nowrap}
+.bn .v{white-space:nowrap}
+.bignums{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.bn{padding:8px 2px}
+.bn .v{font-size:20px;letter-spacing:-.8px}
+.grid,.flowc{display:block;column-count:2;column-gap:8px}
+.grid>.col{display:contents}
+.grid .card,.flowc>.card{break-inside:avoid;margin-bottom:8px}
+.grid .card:has(th:nth-child(7)){column-span:all}
+.flowc>.wide{column-span:all;margin-bottom:8px}
+.flowc>.wide>.card{margin-bottom:0}
+.row>.col>.card:last-child{flex:1}
+svg.ch{width:100%;height:auto;display:block}
+a.sl{color:inherit;text-decoration:underline dotted #7a8aa0;text-underline-offset:3px;cursor:pointer}
+a.sl:hover{color:#1b5fa8;text-decoration:underline}
+.hd a.sl{font-size:13px;font-weight:700;margin-left:10px;color:#cfe2ff}
+.lgd{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;font-weight:700;color:#345;margin-bottom:4px}
+.lgd i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.hb{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;font-size:12.5px;font-weight:700}
+.hb .bar1{height:11px;border-radius:0 4px 4px 0;display:inline-block;vertical-align:middle}
+.hb .val{font-family:Arial;font-weight:800;margin-left:5px;font-size:12px}
+@media (min-width:1500px){.grid,.flowc{column-count:3}}
+@media (max-width:900px){.grid,.flowc{column-count:1}
+  .row.r2,.row.r3,.row.r21,.row.r12{grid-template-columns:1fr}}
+/* 排版程式跑完後的狀態(.pk):卡片已分進各欄,欄底拉齊 */
+.pk{column-count:1 !important;display:flex !important;flex-direction:column;gap:8px}
+.pk .card,.pk>.wide{margin-bottom:0 !important}
+.pkrow{display:flex;gap:8px;align-items:stretch}
+.pkcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px}
+.pkcol>.card{flex:1 1 auto}
+.pking .pkrow{align-items:flex-start}
+.pking .pkcol>.card{flex:none}
+/* 題材風格:個股=深藍(預設)、比較型=青綠、事件研究=深灰琥珀 */
+.t-compare .hd{background:linear-gradient(100deg,#0a3338 0%,#0f4c52 70%,#16868c 100%)}
+.t-compare .card .ct{background:#0d4046}
+.t-compare th{background:#e6f3f3;color:#0d4046}
+.t-compare .hd .sub{color:#c9eef0}.t-compare .hd .brand{color:#9fd8dc}
+.t-event .hd{background:linear-gradient(100deg,#1c222b 0%,#2f3945 70%,#6b4a12 100%)}
+.t-event .hd h1 b{color:#ffb74d}.t-event .hd .brand .bx{border-color:#ffb74d;color:#ffb74d}
+.t-event .card .ct{background:#27303b}
+.t-event th{background:#eef0f3;color:#27303b}
+.t-event .hd .sub{color:#e3e8ee}.t-event .hd .brand{color:#b9c2cd}
+.t-scan .hd{background:linear-gradient(100deg,#1d1838 0%,#2e2660 70%,#5a3fa0 100%)}
+.t-scan .hd h1 b{color:#ffd84d}.t-scan .card .ct{background:#2a2350}
+.t-scan th{background:#eeecf7;color:#2a2350}
+.t-scan .hd .sub{color:#e0dcf5}.t-scan .hd .brand{color:#b9b0e0}
+.t-event .risk .ct,.t-compare .risk .ct,.t-scan .risk .ct{background:#8e2437}
+</style>
+<script id="pk">
+(function(){
+  // 排版:先量每張卡片在一欄寬度下的高度;放不下(表格會被切)的卡片改佔整列;
+  // 其餘的在每一段裡「由高到低、放進目前最短的那一欄」,欄內再照原本順序排;最後各欄拉到一樣高。
+  function nth(el){var m=0;el.querySelectorAll('tr').forEach(function(r){var k=r.querySelectorAll('th').length;if(k>m)m=k;});return m;}
+  function pack(){
+    var c=document.querySelector('.grid,.flowc'); if(!c) return;
+    if(!c._items){
+      var it=[];
+      if(c.classList.contains('grid')) c.querySelectorAll('.col > .card').forEach(function(x){it.push(x);});
+      else Array.prototype.forEach.call(c.children,function(x){it.push(x);});
+      // 每日掃描類:主角是排行榜——沒有指定滿寬區塊時,把最大的那張表移到最前面、佔滿整列
+      var w=document.querySelector('.wrap'), kind=w&&w.dataset?w.dataset.kind:'';
+      if(kind==='scan'&&!it.some(function(x){return x.classList.contains('wide');})){
+        var bi=-1,bs=0; it.forEach(function(x,i){var s=x.querySelectorAll('tr').length*nth(x); if(s>bs){bs=s;bi=i;}});
+        if(bi>=0&&bs>=40){var h=it.splice(bi,1)[0]; h.classList.add('wide'); it.unshift(h);}
+      }
+      c._items=it;
+    }
+    var W=c.clientWidth, n=W>=1500?3:(W>=900?2:1);
+    if(c._n===n) return; c._n=n;
+    while(c.firstChild) c.removeChild(c.firstChild);
+    c.classList.add('pk');c.classList.add('pking');
+    if(n===1){c._items.forEach(function(el){c.appendChild(el);});c.classList.remove('pking');return;}
+    var colW=(W-8*(n-1))/n;
+    var probe=document.createElement('div');probe.className='pkcol';probe.style.cssText='flex:none;width:'+colW+'px';
+    c.appendChild(probe);
+    var info=c._items.map(function(el,i){
+      if(el.classList.contains('wide')) return {el:el,wide:true,i:i};
+      probe.appendChild(el);
+      var cb=el.querySelector('.cb'), ov=!!cb&&cb.scrollWidth>cb.clientWidth+2, h=el.offsetHeight;
+      probe.removeChild(el);
+      return {el:el,wide:ov,h:h,i:i};
+    });
+    c.removeChild(probe);
+    var seg=[];
+    function flush(){
+      if(!seg.length) return;
+      // 欄數:先試最多欄;各欄高度差超過 200px(一張大卡片把某一欄撐高)就少一欄再試,至少兩欄
+      function lay(k){var cs=[];for(var j=0;j<k;j++) cs.push({h:0,items:[]});
+        seg.slice().sort(function(x,y){return y.h-x.h;}).forEach(function(it){
+          var best=cs[0]; cs.forEach(function(d){if(d.h<best.h) best=d;});
+          best.items.push(it); best.h+=it.h+8;});
+        var hi=0,lo=1e9; cs.forEach(function(d){if(d.h>hi)hi=d.h;if(d.h<lo)lo=d.h;});
+        return {cs:cs,imb:hi-lo};}
+      var k=Math.min(n,seg.length), pick=lay(k);
+      while(k>2&&pick.imb>200){var alt=lay(k-1); if(alt.imb<pick.imb){pick=alt;k--;} else break;}
+      var cols=pick.cs, r=document.createElement('div'); r.className='pkrow';
+      cols.forEach(function(d){d.items.sort(function(x,y){return x.i-y.i;});});
+      cols.sort(function(x,y){return x.items[0].i-y.items[0].i;});
+      cols.forEach(function(d){var e=document.createElement('div');e.className='pkcol';
+        d.items.forEach(function(it){e.appendChild(it.el);}); r.appendChild(e);});
+      c.appendChild(r); seg=[];
+    }
+    info.forEach(function(it){ if(it.wide){flush();c.appendChild(it.el);} else seg.push(it); });
+    flush();
+    c.classList.remove('pking');
+  }
+  var t; function later(){clearTimeout(t);t=setTimeout(pack,120);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',pack); else pack();
+  window.addEventListener('load',function(){var c=document.querySelector('.grid,.flowc');if(c){c._n=0;pack();}});
+  window.addEventListener('resize',later);
+})();
+</script>
+
+<div class="wrap t-event k-view" data-kind="view">
+<div class="hd"><div><h1><b>甲骨文的債被當垃圾級定價</b>:AI 融資卡住,台廠誰有關?</h1><div class="sub">甲骨文、CoreWeave 等 5 年 CDS 在 11/24 創歷史新高;圖上的 316bp 換算約每年 5% 違約機率。被點名的四家代工從 10/6 高點跌 19%~38%,大盤 -23.3%</div></div>
+<div class="brand"><span class="bx">AI 融資</span><br>TW·BACKTEST 深度研究</div></div>
+<div class="flowc"><div class="wide"><div class="row r2"><div class="col"><div class="card "><div class="ct">這張圖說了什麼,查到什麼<small>●=讀過原文 ?=轉述</small></div><div class="cb"><ul class='ck'><li><b>方向是真的</b> ●:甲骨文、Alphabet、SpaceX、CoreWeave 的 5 年期 CDS 利差在 11/24 都創歷史新高(S&P Global Market Intelligence 資料,MoneyDJ/科技新報 11/25)</li><li class="wn"><b>316bp 這個數字我找不到原始報價</b> ?:它出自 ZeroHedge 11/24 的貼文和幾篇轉述。別的報導寫 11/20 盤中 327.9bp、11/24 是 355.68bp ?——各家數字不一樣,但都在 300 以上</li><li class="wn"><b>「比貝爾斯登還寬」是 ZeroHedge 的說法</b> ●(TIKR 11/24 寫明出處),不是券商或信評的結論</li><li class="xx"><b>CoreWeave 更嚴重</b> ●:市場隱含的 5 年違約機率 68%;2032 年到期、票面 9.625% 的債跌到 74.9 美分,發行以來最低。圖上寫 1,145bp,另有報導寫 1,232.6bp ?</li><li class="wn"><b>不只一家</b> ●:Meta、亞馬遜、Alphabet、微軟四家的一籃子 CDS 115.6bp 也創新高;軟銀 501bp,2022/10 以來最高</li><li class="wn">換算(我自己算的,假設違約後收回 40%):316bp 約等於市場定價<b>每年 5.3%</b>、5 年累計約 23% 的違約機率</li></ul></div></div></div><div class="col"><div class="card "><div class="ct">台廠裡被點名和甲骨文有關的<small>股價到 11/25 收盤</small></div><div class="cb"><table><tr><th>公司</th><th>和甲骨文的關係</th><th>10/6 高點<br>至今</th><th>11/13<br>至今</th><th>11/25<br>當日</th><th>本益比<br><small>近 3 年中位</small></th></tr><tr><td><b><a class="sl" href="/個股?code=2317" target="_blank" rel="noopener">鴻海</a></b> 2317</td><td><small>主要供應商 ?</small></td><td class="n"><span class="dn2">▼19.3%</span></td><td class="n"><span class="dn2">▼14.3%</span></td><td class="n"><span class="dn2">▼8.8%</span></td><td class="n">12.5<br><small>16.1</small></td></tr><tr><td><b><a class="sl" href="/個股?code=3706" target="_blank" rel="noopener">神達</a></b> 3706</td><td><small>主要供應商 ?</small></td><td class="n"><span class="dn2">▼27.8%</span></td><td class="n"><span class="dn2">▼12.8%</span></td><td class="n"><span class="dn2">▼0.7%</span></td><td class="n">—</td></tr><tr><td><b><a class="sl" href="/個股?code=2382" target="_blank" rel="noopener">廣達</a></b> 2382</td><td><small>後來新增 ?</small></td><td class="n"><span class="dn2">▼21.7%</span></td><td class="n"><span class="dn2">▼5.6%</span></td><td class="n"><span class="dn2">▼7.6%</span></td><td class="n">10.1<br><small>16.1</small></td></tr><tr><td><b><a class="sl" href="/個股?code=6669" target="_blank" rel="noopener">緯穎</a></b> 6669</td><td><small>後來新增 ?</small></td><td class="n"><span class="dn2">▼37.6%</span></td><td class="n"><span class="dn2">▼12.5%</span></td><td class="n"><span class="dn2">▼5.3%</span></td><td class="n">4.6<br><small>17.4</small></td></tr><tr><td><b>加權指數</b></td><td><small>對照</small></td><td class="n"><span class="dn2">▼23.3%</span></td><td class="n"><span class="dn2">▼12.5%</span></td><td class="n"><span class="dn2">▼4.8%</span></td><td class="n">—</td></tr></table><div class="note">名單來源:經濟日報 10/2 ● 寫鴻海、神達、廣達、緯穎「切入甲骨文 AI 供應鏈」,是記者的產業分析,<b>沒有公司公告,也沒有任何一家揭露甲骨文占營收多少</b>。散熱、電源、機殼有沒有直接供貨,我沒查到可靠來源,所以不列。本益比是系統用近四季 EPS 算的(神達不在系統的族群表裡)。</div></div></div></div></div></div><div class="card "><div class="ct">甲骨文的錢</div><div class="cb"><div class="bignums"><div class="bn"><div class="k">總債務</div><div class="v">1,691 億美元</div><div class="d">8 月底 ●</div></div><div class="bn"><div class="k">2026 會計年度</div><div class="v">支出 557 億</div><div class="d">營業現金流只有 320 億 ●</div></div><div class="bn"><div class="k">標普評等</div><div class="v">BBB-</div><div class="d">再降一級就是垃圾級 ●</div></div></div><div class="note">● TIKR 11/24:11/2 募了約 100 億美元股票加 100 億美元債;11/20 公司說 OpenAI 合約的資金已經到位;分析師預期自由現金流到 2028 會計年度都是負的;2027 會計年度淨現金資本支出上限 700 億美元。? 另有報導:還有 2,880 億美元資料中心租約還沒起租、不在帳上;新墨西哥州、威斯康辛州兩座資料中心可能延後,大摩警告延後會加重信用風險。</div></div></div><div class="card grow"><div class="ct">結論</div><div class="cb"><ul class='ck'><li class="xx"><b>債市現在是用垃圾級在替甲骨文定價</b>:評等還是投資級(BBB-),但 300bp 以上的 CDS 是垃圾級公司的水位。這是「借錢變很貴」,還不是「還不出錢」</li><li class="wn"><b>和貝爾斯登只有數字可以比</b>:貝爾斯登是靠隔夜借款撐住的券商、槓桿三十倍上下 ?,死於幾天內的擠兌。甲骨文有軟體本業的現金流,債多半是長期債。2007 年整個市場的 CDS 水位也比現在低,同一個數字代表的意思不一樣</li><li class="wn"><b>傳到台廠的路徑是「支出延後」,不是「倒帳」</b>:借錢成本上升 → 資料中心蓋得慢 → 伺服器拉貨往後。法人的看法是遞延不是取消,和建置時程連動高的是伺服器代工、散熱、電源、PCB ?</li><li class="wn">11/25 收盤,從 10/6 高點算跌得比大盤(-23.3%)多的有:神達、緯穎</li><li><b>我沒查到甲骨文對台廠砍單的報導</b>;查到的是資料中心工期可能延後</li></ul></div></div><div class="card "><div class="ct">接下來看什麼</div><div class="cb"><ul class='ck'><li class="wn"><b>12 月中甲骨文財報</b> ●:700 億美元的支出上限有沒有守住、OpenAI 以外的訂單有沒有增加</li><li class="wn"><b>標普會不會再降評</b> ●:槓桿維持在 4 倍以上、或 2029 會計年度前看不到自由現金流轉正,就可能降到垃圾級 ?</li><li class="wn"><b>四家代工的月營收</b>:12/10 前公布 11 月營收,拉貨有沒有往後,這裡最先看得到(系統的月營收分頁)</li><li class="wn">CoreWeave 的債券價格:它借不到錢,最先受影響的是輝達的出貨,再來才是組裝廠</li></ul></div></div><div class="card risk"><div class="ct">讀這張表要注意</div><div class="cb"><ul class='ck'><li class="wn">台廠名單是媒體點名,不是公司揭露;四家各有很多別的客戶,甲骨文占多少沒有公開數字,不能從這張表推算影響金額</li><li class="wn">CDS 的報價各家資料商不同,而且交易量小的時候跳動很大;看方向和水位,不要看個位數</li><li class="wn">● 是我讀了那一篇原文;? 是只看到別人轉述或我自己的記憶。標 ? 的數字要用之前先找原始出處</li></ul></div></div></div>
+<div class="ft">2026/11/25 · 外部說法 11/25 查證後手抄(●=讀過原文 ?=第三方轉述或記憶);股價與本益比為本機資料(到 11/25 收盤) · 研究筆記,非投資建議</div></div>
